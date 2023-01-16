@@ -94,9 +94,9 @@ public enum ComparisonOperation: RawRepresentable, Equatable, Hashable, Codable,
         guard
             let (operation, components) = ["<=", ">=", "/=", "<", ">", "="].lazy.compactMap(
                 { (op: String) -> (String, [String])? in
-                    let components = value.components(separatedBy: op)
-                        .map { $0.trimmingCharacters(in: .whitespaces) }
-                        .filter { !$0.isEmpty }
+                    let components = value.components(separatedBy: op).map {
+                        $0.trimmingCharacters(in: .whitespaces)
+                    }
                     guard components.count == 2 else {
                         return nil
                     }
