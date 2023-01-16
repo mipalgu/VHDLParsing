@@ -68,6 +68,11 @@ public struct Entity: RawRepresentable, Equatable, Hashable, Codable, Sendable {
         """
     }
 
+    public init(name: VariableName, port: PortBlock) {
+        self.name = name
+        self.port = port
+    }
+
     public init?(rawValue: String) {
         let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
         guard trimmedString.lowercased().hasPrefix("entity ") else {
@@ -91,8 +96,7 @@ public struct Entity: RawRepresentable, Equatable, Hashable, Codable, Sendable {
         guard let port = PortBlock(rawValue: String(portRaw)) else {
             return nil
         }
-        self.name = name
-        self.port = port
+        self.init(name: name, port: port)
     }
 
 }
