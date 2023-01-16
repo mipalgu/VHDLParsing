@@ -54,7 +54,7 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
-@testable import VHDLMachines
+@testable import VHDLParsing
 import XCTest
 
 /// Test class for ``ConstantSignal``.
@@ -110,73 +110,6 @@ final class ConstantSignalTests: XCTestCase {
         )
         XCTAssertEqual(signal?.rawValue, "constant x: std_logic := '1';")
     }
-
-    // swiftlint:disable function_body_length
-
-    /// Test that the action bit representations are correct.
-    func testActionConstants() {
-        let actions: [ActionName: String] = [
-            ActionName(text: "OnEntry"): "",
-            ActionName(text: "OnExit"): "",
-            ActionName(text: "Internal"): "",
-            ActionName(text: "OnResume"): "",
-            ActionName(text: "OnSuspend"): ""
-        ]
-        let constants = [
-            ConstantSignal(
-                name: ActionName(text: "CheckTransition"),
-                type: .ranged(type: .stdLogicVector(size: .downto(upper: 3, lower: 0))),
-                value: .literal(value: .vector(value: .logics(value: [.low, .low, .low, .low])))
-            ),
-            ConstantSignal(
-                name: ActionName(text: "Internal"),
-                type: .ranged(type: .stdLogicVector(size: .downto(upper: 3, lower: 0))),
-                value: .literal(value: .vector(value: .logics(value: [.low, .low, .low, .high])))
-            ),
-            ConstantSignal(
-                name: ActionName(text: "NoOnEntry"),
-                type: .ranged(type: .stdLogicVector(size: .downto(upper: 3, lower: 0))),
-                value: .literal(value: .vector(value: .logics(value: [.low, .low, .high, .low])))
-            ),
-            ConstantSignal(
-                name: ActionName(text: "OnEntry"),
-                type: .ranged(type: .stdLogicVector(size: .downto(upper: 3, lower: 0))),
-                value: .literal(value: .vector(value: .logics(value: [.low, .low, .high, .high])))
-            ),
-            ConstantSignal(
-                name: ActionName(text: "OnExit"),
-                type: .ranged(type: .stdLogicVector(size: .downto(upper: 3, lower: 0))),
-                value: .literal(value: .vector(value: .logics(value: [.low, .high, .low, .low])))
-            ),
-            ConstantSignal(
-                name: ActionName(text: "OnResume"),
-                type: .ranged(type: .stdLogicVector(size: .downto(upper: 3, lower: 0))),
-                value: .literal(value: .vector(value: .logics(value: [.low, .high, .low, .high])))
-            ),
-            ConstantSignal(
-                name: ActionName(text: "OnSuspend"),
-                type: .ranged(type: .stdLogicVector(size: .downto(upper: 3, lower: 0))),
-                value: .literal(value: .vector(value: .logics(value: [.low, .high, .high, .low])))
-            ),
-            ConstantSignal(
-                name: ActionName(text: "ReadSnapshot"),
-                type: .ranged(type: .stdLogicVector(size: .downto(upper: 3, lower: 0))),
-                value: .literal(value: .vector(value: .logics(value: [.low, .high, .high, .high])))
-            ),
-            ConstantSignal(
-                name: ActionName(text: "WriteSnapshot"),
-                type: .ranged(type: .stdLogicVector(size: .downto(upper: 3, lower: 0))),
-                value: .literal(value: .vector(value: .logics(value: [.high, .low, .low, .low])))
-            )
-        ].compactMap { $0 }
-        guard constants.count == 9 else {
-            XCTFail("Incorrect number of constants")
-            return
-        }
-        XCTAssertEqual(ConstantSignal.constants(for: actions), constants)
-    }
-
-    // swiftlint:enable function_body_length
 
     /// Test raw value init creates signal correctly.
     func testRawValueInit() {

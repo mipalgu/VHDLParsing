@@ -36,22 +36,6 @@ public struct PortSignal: ExternalType, RawRepresentable, Codable, Hashable, Var
         return declaration + " := \(defaultValue.rawValue);\(comment)"
     }
 
-    var externalName: VariableName {
-        VariableName.name(for: self)
-    }
-
-    public var snapshot: LocalSignal {
-        LocalSignal(type: type, name: name, defaultValue: nil, comment: nil)
-    }
-
-    public var read: String {
-        "\(name.rawValue) <= \(externalName.rawValue);"
-    }
-
-    public var write: String {
-        "\(externalName.rawValue) <= \(name.rawValue);"
-    }
-
     /// Initialises a new external signal with the given type, name, mode, default value and comment.
     /// - Parameters:
     ///   - type: The type of the signal.
@@ -122,18 +106,6 @@ public struct PortSignal: ExternalType, RawRepresentable, Codable, Hashable, Var
         self.mode = mode
         self.defaultValue = defaultValue
         self.comment = comment
-    }
-
-    public init(clock: Clock) {
-        self.init(type: .stdLogic, name: clock.name, mode: .input, defaultValue: nil, comment: nil)
-    }
-
-    public static func commandSignal(type: SignalType) -> PortSignal {
-        PortSignal(type: type, name: .command, mode: .input)
-    }
-
-    public static func suspendedSignal(type: SignalType) -> PortSignal {
-        PortSignal(type: type, name: .suspended, mode: .output)
     }
 
 }

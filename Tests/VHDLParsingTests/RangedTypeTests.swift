@@ -54,7 +54,7 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
-@testable import VHDLMachines
+@testable import VHDLParsing
 import XCTest
 
 /// Test class for ``RangedType``.

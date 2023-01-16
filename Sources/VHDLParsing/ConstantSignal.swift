@@ -55,7 +55,6 @@
 // 
 
 import Foundation
-import GUUnits
 
 /// A type representing a valid constant declaration in `VHDL`.
 public struct ConstantSignal: RawRepresentable, Equatable, Hashable, Codable, Sendable {
@@ -74,58 +73,6 @@ public struct ConstantSignal: RawRepresentable, Equatable, Hashable, Codable, Se
 
     /// The comment associated with this constant.
     public let comment: Comment?
-
-    @inlinable public static var ringletConstants: [ConstantSignal] {
-        guard
-            let ringletLength = ConstantSignal(
-                name: .ringletLength,
-                type: .real,
-                value: .multiplication(
-                    lhs: .literal(value: .decimal(value: 5.0)), rhs: .variable(name: .clockPeriod)
-                )
-            ),
-            let ringletPerPs = ConstantSignal(
-                name: .ringletPerPs,
-                type: .real,
-                value: .division(
-                    lhs: .literal(value: .decimal(value: 1.0)), rhs: .variable(name: .ringletLength)
-                )
-            ),
-            let ringletPerNs = ConstantSignal(
-                name: .ringletPerNs,
-                type: .real,
-                value: .multiplication(
-                    lhs: .literal(value: .decimal(value: 1000.0)), rhs: .variable(name: .ringletPerPs)
-                )
-            ),
-            let ringletPerUs = ConstantSignal(
-                name: .ringletPerUs,
-                type: .real,
-                value: .multiplication(
-                    lhs: .literal(value: .decimal(value: 1_000_000.0)), rhs: .variable(name: .ringletPerPs)
-                )
-            ),
-            let ringletPerMs = ConstantSignal(
-                name: .ringletPerMs,
-                type: .real,
-                value: .multiplication(
-                    lhs: .literal(value: .decimal(value: 1_000_000_000.0)),
-                    rhs: .variable(name: .ringletPerPs)
-                )
-            ),
-            let ringletPerS = ConstantSignal(
-                name: .ringletPerS,
-                type: .real,
-                value: .multiplication(
-                    lhs: .literal(value: .decimal(value: 1_000_000_000_000.0)),
-                    rhs: .variable(name: .ringletPerPs)
-                )
-            )
-        else {
-            fatalError("Could not create ringlet constants.")
-        }
-        return [ringletLength, ringletPerPs, ringletPerNs, ringletPerUs, ringletPerMs, ringletPerS]
-    }
 
     /// The `VHDL` code defining this constant.
     @inlinable public var rawValue: String {
@@ -226,52 +173,5 @@ public struct ConstantSignal: RawRepresentable, Equatable, Hashable, Codable, Se
     }
 
     // swiftlint:enable function_body_length
-
-    /// Create the constant declaration for the state actions within a machine.
-    /// - Parameter actions: The actions to convert.
-    /// - Returns: The constant declaration for the state actions.
-    /// - Note: This method also includes the reserved actions `NoOnEntry`, `CheckTransition`, `ReadSnapshot`
-    /// and `WriteSnapshot`.
-    public static func constants(for actions: [ActionName: String]) -> [ConstantSignal]? {
-        let keys = actions.keys
-        let actionNamesArray = [
-            .noOnEntry, .checkTransition, VariableName.readSnapshot, .writeSnapshot
-        ]
-        let invalidKeys = Set(actionNamesArray)
-        guard !keys.contains(where: { invalidKeys.contains($0) }) else {
-            fatalError("Actions contain a reserved name.")
-        }
-        let actionNames = (actionNamesArray + keys).sorted()
-        guard let bitsRequired = BitLiteral.bitsRequired(for: actionNames.count) else {
-            return nil
-        }
-        let bitRepresentations = actionNames.indices.map {
-            BitLiteral.bitVersion(of: $0, bitsRequired: bitsRequired)
-        }
-        let type = SignalType.ranged(type: .stdLogicVector(size: .downto(upper: bitsRequired - 1, lower: 0)))
-        let signals: [ConstantSignal] = actionNames.indices.compactMap {
-            ConstantSignal(
-                name: actionNames[$0],
-                type: type,
-                value: .literal(value: .vector(value: .bits(value: bitRepresentations[$0])))
-            )
-        }
-        guard signals.count == actionNames.count else {
-            return nil
-        }
-        return signals
-    }
-
-    public static func clockPeriod(period: Time) -> ConstantSignal {
-        guard let constant = ConstantSignal(
-            name: VariableName.clockPeriod,
-            type: .real,
-            value: .literal(value: .decimal(value: Double(period.picoseconds_d))),
-            comment: Comment(text: "ps")
-        ) else {
-            fatalError("Could not create clock period constant.")
-        }
-        return constant
-    }
 
 }

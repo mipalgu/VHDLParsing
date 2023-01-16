@@ -58,15 +58,11 @@ public enum ConditionalExpression: RawRepresentable, Equatable, Hashable, Codabl
 
     case comparison(value: ComparisonOperation)
 
-    case after(value: AfterStatement)
-
     case edge(value: EdgeCondition)
 
     public var rawValue: String {
         switch self {
         case .comparison(let value):
-            return value.rawValue
-        case .after(let value):
             return value.rawValue
         case .edge(let value):
             return value.rawValue
@@ -79,14 +75,6 @@ public enum ConditionalExpression: RawRepresentable, Equatable, Hashable, Codabl
             return nil
         }
         let value = trimmedString.uptoSemicolon
-        if let afterStatement = AfterStatement(after: value) {
-            self = .after(value: afterStatement)
-            return
-        }
-        if let afterStatement = AfterStatement(rawValue: value) {
-            self = .after(value: afterStatement)
-            return
-        }
         if let edge = EdgeCondition(rawValue: value) {
             self = .edge(value: edge)
             return
