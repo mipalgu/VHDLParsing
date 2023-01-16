@@ -66,6 +66,8 @@ public enum ComparisonOperation: RawRepresentable, Equatable, Hashable, Codable,
 
     case equality(lhs: Expression, rhs: Expression)
 
+    case notEquals(lhs: Expression, rhs: Expression)
+
     public var rawValue: String {
         switch self {
         case .lessThan(let lhs, let rhs):
@@ -78,6 +80,8 @@ public enum ComparisonOperation: RawRepresentable, Equatable, Hashable, Codable,
             return "\(lhs.rawValue) >= \(rhs.rawValue)"
         case .equality(let lhs, let rhs):
             return "\(lhs.rawValue) = \(rhs.rawValue)"
+        case .notEquals(let lhs, let rhs):
+            return "\(lhs.rawValue) /= \(rhs.rawValue)"
         }
     }
 
@@ -88,7 +92,7 @@ public enum ComparisonOperation: RawRepresentable, Equatable, Hashable, Codable,
         }
         let value = trimmedString.uptoSemicolon
         guard
-            let (operation, components) = ["<=", ">=", "<", ">", "="].lazy.compactMap(
+            let (operation, components) = ["<=", ">=", "/=", "<", ">", "="].lazy.compactMap(
                 { (op: String) -> (String, [String])? in
                     let components = value.components(separatedBy: op)
                         .map { $0.trimmingCharacters(in: .whitespaces) }
@@ -115,6 +119,8 @@ public enum ComparisonOperation: RawRepresentable, Equatable, Hashable, Codable,
             self = .greaterThanOrEqual(lhs: lhs, rhs: rhs)
         case "=":
             self = .equality(lhs: lhs, rhs: rhs)
+        case "/=":
+            self = .notEquals(lhs: lhs, rhs: rhs)
         default:
             return nil
         }
