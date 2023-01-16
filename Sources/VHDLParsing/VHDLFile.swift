@@ -74,6 +74,12 @@ public struct VHDLFile: RawRepresentable, Equatable, Hashable, Codable, Sendable
         """
     }
 
+    public init(includes: [Include], entity: Entity, architecture: Architecture) {
+        self.includes = includes
+        self.entity = entity
+        self.architecture = architecture
+    }
+
     public init?(rawValue: String) {
         let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
         guard let includeEndIndex = trimmedString.startIndex(for: "entity") else {
@@ -99,9 +105,7 @@ public struct VHDLFile: RawRepresentable, Equatable, Hashable, Codable, Sendable
         else {
             return nil
         }
-        self.includes = includes
-        self.entity = entity
-        self.architecture = architecture
+        self.init(includes: includes, entity: entity, architecture: architecture)
     }
 
 }
