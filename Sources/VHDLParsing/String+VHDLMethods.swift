@@ -59,7 +59,7 @@ import Foundation
 /// Add helper methods for VHDL parsing.
 extension String {
 
-    static var nullBlock: String {
+    public static var nullBlock: String {
         """
         when others =>
         \(String.tab)null;
@@ -79,12 +79,12 @@ extension String {
         return newString
     }
 
-    func indent(amount: Int) -> String {
+    public func indent(amount: Int) -> String {
         let indentAmount = String(repeating: String.tab, count: amount)
         return self.components(separatedBy: .newlines).map { indentAmount + $0 }.joined(separator: "\n")
     }
 
-    mutating func removeLast(character: Character) {
+    public mutating func removeLast(character: Character) {
         guard let lastIndex = self.lastIndex(of: character) else {
             return
         }
