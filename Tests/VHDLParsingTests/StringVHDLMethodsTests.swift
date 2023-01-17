@@ -209,4 +209,16 @@ final class StringVHDLMethodsTests: XCTestCase {
         XCTAssertEqual(character3, ".")
     }
 
+    /// Test `upToBalancedElements` returns correct substring.
+    func testUpToBalancedElements() {
+        let data = "a(b(c)d)e"
+        let expected = "(b(c)d)"
+        XCTAssertEqual(data.upToBalancedElements(startsWith: "(", endsWith: ")"), expected)
+        XCTAssertNil("".upToBalancedElements(startsWith: "(", endsWith: ")"))
+        XCTAssertNil(data.upToBalancedElements(startsWith: "", endsWith: ")"))
+        XCTAssertNil(data.upToBalancedElements(startsWith: "(", endsWith: ""))
+        XCTAssertEqual(data.upToBalancedElements(startsWith: "(b", endsWith: "d)"), expected)
+        XCTAssertEqual(data.upToBalancedElements(startsWith: "c", endsWith: "e"), "c)d)e")
+    }
+
 }

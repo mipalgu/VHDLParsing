@@ -217,38 +217,61 @@ extension String {
         return nil
     }
 
+    /// Find a string that starts with a specified string and ends with a specified string including
+    /// substrings following the same pattern. For example, consider the string \"a(b(c)d)e\", starting with
+    /// \"(\" and ending with \")\". The result would be \"(b(c)d)\".
+    /// - Parameters:
+    ///   - startsWith: The begining delimiter for the substring.
+    ///   - endsWith: The ending delimiter for the substring.
+    /// - Returns: The substring that starts with `startsWith` and ends with `endsWith` including any
+    /// strings within that match the same pattern.
     func upToBalancedElements(startsWith: String, endsWith: String) -> String? {
-        var startCount = 0
-        var hasStarted = false
-        let startIndex = self.index(self.startIndex, offsetBy: startsWith.count)
-        let str = self[startIndex...]
-        for i in str.indices {
-            let startIndex = self.index(i, offsetBy: -startsWith.count)
-            let beginWord = self[startIndex...i]
-            if beginWord == startsWith {
-                startCount += 1
-                hasStarted = true
-                continue
-            }
-            guard let endsIndex = self.index(i, offsetBy: -endsWith.count, limitedBy: self.startIndex) else {
-                continue
-            }
-            let endWord = self[endsIndex...i]
-            if endWord == endsWith {
-                guard hasStarted, startCount > 0 else {
-                    return nil
-                }
-                startCount -= 1
-                if startCount == 0 {
-                    return String(self[self.startIndex...i])
-                }
-                continue
-            }
-        }
-        guard !hasStarted else {
+        guard !startsWith.isEmpty, !endsWith.isEmpty else {
             return nil
         }
-        return self
+        let startSize = startsWith.count
+        let endSize = endsWith.count
+        var startCount = 0
+        var hasStarted = false
+        var index = self.startIndex
+        var beginIndex: String.Index?
+        while index < self.endIndex {
+            guard hasStarted else {
+                guard
+                    let startIndex = self.startIndex(for: startsWith),
+                    let nextIndex = self.index(startIndex, offsetBy: startSize, limitedBy: self.endIndex)
+                else {
+                    return nil
+                }
+                beginIndex = startIndex
+                index = nextIndex
+                hasStarted = true
+                startCount += 1
+                continue
+            }
+            let data = self[index...]
+            guard let endIndex = data.startIndex(for: endsWith) else {
+                return nil
+            }
+            if let nextStartIndex = data.startIndex(for: startsWith) {
+                guard nextStartIndex > endIndex else {
+                    startCount += 1
+                    index = self.index(nextStartIndex, offsetBy: startSize)
+                    continue
+                }
+            }
+            let lastIndex = self.index(endIndex, offsetBy: endSize)
+            guard startCount <= 1 else {
+                startCount -= 1
+                index = lastIndex
+                continue
+            }
+            guard let beginIndex = beginIndex else {
+                return nil
+            }
+            return String(self[beginIndex..<lastIndex])
+        }
+        return nil
     }
 
     private func performWithoutComments(for value: String, carry: String = "") -> String {
