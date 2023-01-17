@@ -214,7 +214,7 @@ final class StringVHDLMethodsTests: XCTestCase {
     /// Test `upToBalancedElements` returns correct substring.
     func testUpToBalancedElements() {
         let data = "a(b(c)d)e"
-        let expected = "(b(c)d)"
+        let expected = data[data.index(after: data.startIndex)...data.index(data.startIndex, offsetBy: 7)]
         XCTAssertEqual(data.upToBalancedElements(startsWith: "(", endsWith: ")"), expected)
         XCTAssertNil("".upToBalancedElements(startsWith: "(", endsWith: ")"))
         XCTAssertNil(data.upToBalancedElements(startsWith: "", endsWith: ")"))
@@ -226,7 +226,7 @@ final class StringVHDLMethodsTests: XCTestCase {
     /// Test `upToBalancedBracket` returns the correct substring.
     func testUpToBalancedBrackets() {
         let data = "a(b(c)d)e"
-        let expected = "(b(c)d)"
+        let expected = data[data.index(after: data.startIndex)...data.index(data.startIndex, offsetBy: 7)]
         XCTAssertEqual(data.uptoBalancedBracket, expected)
     }
 
