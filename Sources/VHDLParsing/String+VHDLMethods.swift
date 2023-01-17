@@ -180,20 +180,23 @@ extension String {
         return ([components[0], components[1...].joined(separator: op)], char)
     }
 
+    /// Split the string on the first delimiter string within a set.
+    /// - Parameter strings: The strings to split on.
+    /// - Returns: The 2 halves of the string around the delimter and the delimiter that this string was split
+    /// on.
     func split(on strings: Set<String>) -> ([String], String)? {
-        let stringData = Array(strings)
-        let sortedStrings: [(String, String.Index)] = stringData.compactMap {
+        let sortedStrings: [(String, String.Index)] = strings.compactMap {
             guard let index = self.startIndex(for: $0) else {
                 return nil
             }
             return ($0, index)
         }
-        guard let firstIndex = sortedStrings.min(by: { $0.1 < $1.1 }) else {
+        guard let (str, index) = sortedStrings.min(by: { $0.1 < $1.1 }) else {
             return nil
         }
-        let str1 = self[self.startIndex..<firstIndex.1]
-        let str2 = self[self.index(firstIndex.1, offsetBy: firstIndex.0.count)...]
-        return ([String(str1), String(str2)], firstIndex.0)
+        let str1 = self[self.startIndex..<index]
+        let str2 = self[self.index(index, offsetBy: str.count)...]
+        return ([String(str1), String(str2)], str)
     }
 
     /// Return the starting index of a substring value within self.

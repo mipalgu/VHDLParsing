@@ -184,7 +184,7 @@ final class StringVHDLMethodsTests: XCTestCase {
     }
 
     /// Test `split` function splits correctly and returns the correct character.
-    func testSplit() {
+    func testSplitCharacters() {
         let characters = CharacterSet(charactersIn: ".;_")
         let data = "abc_d;e."
         guard let (parts, character) = data.split(on: characters) else {
@@ -209,6 +209,41 @@ final class StringVHDLMethodsTests: XCTestCase {
         }
         XCTAssertEqual(parts3, ["", "abcde"])
         XCTAssertEqual(character3, ".")
+    }
+
+    /// Test split method for strings.
+    func testSplitStrings() {
+        let characters: Set<String> = [".", ";", "_", "def"]
+        let data = "abc_d;e."
+        guard let (parts, character) = data.split(on: characters) else {
+            XCTFail("Failed to split.")
+            return
+        }
+        XCTAssertEqual(parts, ["abc", "d;e."])
+        XCTAssertEqual(character, "_")
+        XCTAssertNil("".split(on: characters))
+        XCTAssertNil("abc".split(on: characters))
+        let data2 = "abcde;"
+        guard let (parts2, character2) = data2.split(on: characters) else {
+            XCTFail("Failed to split.")
+            return
+        }
+        XCTAssertEqual(parts2, ["abcde", ""])
+        XCTAssertEqual(character2, ";")
+        let data3 = ".abcde"
+        guard let (parts3, character3) = data3.split(on: characters) else {
+            XCTFail("Failed to split.")
+            return
+        }
+        XCTAssertEqual(parts3, ["", "abcde"])
+        XCTAssertEqual(character3, ".")
+        let data4 = "abcdefghijk"
+        guard let (parts4, character4) = data4.split(on: characters) else {
+            XCTFail("Failed to split.")
+            return
+        }
+        XCTAssertEqual(parts4, ["abc", "ghijk"])
+        XCTAssertEqual(character4, "def")
     }
 
     /// Test `upToBalancedElements` returns correct substring.
