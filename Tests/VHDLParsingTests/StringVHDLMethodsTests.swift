@@ -221,4 +221,11 @@ final class StringVHDLMethodsTests: XCTestCase {
         XCTAssertEqual(data.upToBalancedElements(startsWith: "c", endsWith: "e"), "c)d)e")
     }
 
+    /// Test `upToBalancedBracket` returns the correct substring.
+    func testUpToBalancedBrackets() {
+        let data = "a(b(c)d)e"
+        let expected = "(b(c)d)"
+        XCTAssertEqual(data.uptoBalancedBracket, expected)
+    }
+
 }

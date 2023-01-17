@@ -119,6 +119,8 @@ extension String {
         return expressions
     }
 
+    /// Return a string that exists within self that starts with an open bracket and ends with the balanced
+    /// closing bracket.
     var uptoBalancedBracket: String? {
         self.upToBalancedElements(startsWith: "(", endsWith: ")")
     }
@@ -274,6 +276,11 @@ extension String {
         return nil
     }
 
+    /// Helper function for removing the comments from a string.
+    /// - Parameters:
+    ///   - value: The string to remove the comments from.
+    ///   - carry: An accumulator that holds the string without comments.
+    /// - Returns: The string without comments.
     private func performWithoutComments(for value: String, carry: String = "") -> String {
         guard let firstIndex = value.startIndex(for: "--") else {
             return carry + value.withoutEmptyLines
@@ -294,6 +301,7 @@ extension String {
 
 }
 
+/// Add `startIndex`.
 extension Substring {
 
     /// Return the starting index of a substring value within self.
