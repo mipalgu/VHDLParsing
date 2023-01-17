@@ -149,6 +149,7 @@ public enum VectorLiteral: RawRepresentable, Equatable, Hashable, Codable, Senda
     }
 
     /// Equality operation.
+    @inlinable
     public static func == (lhs: VectorLiteral, rhs: VectorLiteral) -> Bool {
         switch (lhs, rhs) {
         case (.bits(let lhs), .bits(let rhs)):

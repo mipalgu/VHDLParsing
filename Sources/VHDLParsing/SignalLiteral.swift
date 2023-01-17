@@ -169,6 +169,7 @@ public enum SignalLiteral: RawRepresentable, Equatable, Hashable, Codable, Senda
     }
 
     /// Equality operation.
+    @inlinable
     public static func == (lhs: SignalLiteral, rhs: SignalLiteral) -> Bool {
         switch (lhs, rhs) {
         case (.bit(let lhs), .bit(let rhs)):

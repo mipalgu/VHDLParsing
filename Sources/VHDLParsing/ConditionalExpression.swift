@@ -64,7 +64,7 @@ public enum ConditionalExpression: RawRepresentable, Equatable, Hashable, Codabl
     case edge(value: EdgeCondition)
 
     /// The `VHDL` code that represents this `ConditionalExpression`.
-    public var rawValue: String {
+    @inlinable public var rawValue: String {
         switch self {
         case .comparison(let value):
             return value.rawValue
@@ -75,6 +75,7 @@ public enum ConditionalExpression: RawRepresentable, Equatable, Hashable, Codabl
 
     /// Creates a new `ConditionalExpression` from the given `VHDL` code.
     /// - Parameter rawValue: The `VHDL` code that represents the `ConditionalExpression`.
+    @inlinable
     public init?(rawValue: String) {
         let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
         guard trimmedString.count < 256 else {

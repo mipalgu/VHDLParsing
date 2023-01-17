@@ -61,6 +61,7 @@ public struct PortSignal: ExternalType, RawRepresentable, Codable, Hashable, Var
     /// Initialise the external signal from the VHDL code that defines it.
     /// - Parameter rawValue: The VHDL code that defines this signal. This code is the statement found within
     /// the port declaration of an entity block.
+    @inlinable
     public init?(rawValue: String) {
         let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
         guard trimmedString.count < 256 else {

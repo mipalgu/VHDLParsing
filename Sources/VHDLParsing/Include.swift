@@ -67,7 +67,7 @@ public enum Include: RawRepresentable, Equatable, Hashable, Codable, Sendable {
     public typealias RawValue = String
 
     /// The VHDL code equivalent to this include.
-    public var rawValue: String {
+    @inlinable public var rawValue: String {
         switch self {
         case .library(let value):
             return "library \(value)"
@@ -78,6 +78,7 @@ public enum Include: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
     /// Create an include from the VHDL representation.
     /// - Parameter rawValue: The VHDL code for the include.
+    @inlinable
     public init?(rawValue: String) {
         let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
         guard trimmedString.count < 256 else {
@@ -94,6 +95,7 @@ public enum Include: RawRepresentable, Equatable, Hashable, Codable, Sendable {
     }
 
     /// Equality operation.
+    @inlinable
     public static func == (lhs: Include, rhs: Include) -> Bool {
         switch (lhs, rhs) {
         case (.library(let lhs), .library(let rhs)):

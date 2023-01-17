@@ -65,7 +65,8 @@ extension BitLiteral {
     ///   - carry: The current representation recursing on itself.
     ///   - bitPlace: The current index of the array.
     /// - Returns: The binary representation.
-    private static func performBitVersion(
+    @usableFromInline
+    static func performBitVersion(
         of value: Double, carry: [BitLiteral] = [], bitPlace: Int
     ) -> [BitLiteral] {
         if bitPlace < 0 {
@@ -90,6 +91,7 @@ extension BitLiteral {
     /// converted.
     /// - Note: Please make sure the `bitsRequired` is at least as large as the minimum number of bits
     /// required to represent the number.
+    @inlinable
     public static func bitVersion(of value: Int, bitsRequired: Int) -> [BitLiteral] {
         if value == 0 && bitsRequired > 0 {
             return [BitLiteral](repeating: .low, count: bitsRequired)

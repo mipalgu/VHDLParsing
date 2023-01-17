@@ -60,7 +60,7 @@ import Foundation
 extension String {
 
     /// A `VHDL` null block in a case statement.
-    public static var nullBlock: String {
+    @inlinable public static var nullBlock: String {
         """
         when others =>
         \(String.tab)null;
@@ -68,17 +68,17 @@ extension String {
     }
 
     /// A tab is considered 4 spaces.
-    static var tab: String {
+    @usableFromInline static var tab: String {
         "    "
     }
 
     /// Remove all `VHDL` comments and empty lines from the string.
-    var withoutComments: String {
+    @usableFromInline var withoutComments: String {
         performWithoutComments(for: self)
     }
 
     /// Remove all empty lines from the string.
-    var withoutEmptyLines: String {
+    @usableFromInline var withoutEmptyLines: String {
         self.components(separatedBy: .newlines).lazy
         .map {
             $0.trimmingCharacters(in: .whitespaces)
@@ -104,7 +104,7 @@ extension String {
 
     /// Return a string that exists within self that starts with an open bracket and ends with the balanced
     /// closing bracket.
-    var uptoBalancedBracket: Substring? {
+    @usableFromInline var uptoBalancedBracket: Substring? {
         self.upToBalancedElements(startsWith: "(", endsWith: ")")
     }
 
@@ -119,6 +119,7 @@ extension String {
     /// Indent every line within the string by a specified amount.
     /// - Parameter amount: The number of tabs to indent.
     /// - Returns: The indented string.
+    @inlinable
     public func indent(amount: Int) -> String {
         guard amount > 0 else {
             return self
@@ -129,6 +130,7 @@ extension String {
 
     /// Remove the last specified character from the string.
     /// - Parameter character: The character to remove from the end of the string.
+    @inlinable
     public mutating func removeLast(character: Character) {
         guard let lastIndex = self.lastIndex(of: character) else {
             return
@@ -142,6 +144,7 @@ extension String {
     ///   - startingWith: The starting delimiter for the substring.
     ///   - endingWith: The ending delimter for the substring.
     /// - Returns: All indexes for substrings that begin with `startingWith` and end with `endingWith`.
+    @usableFromInline
     func indexes(startingWith: String, endingWith: String) -> [(String.Index, String.Index)] {
         guard !startingWith.isEmpty, !endingWith.isEmpty else {
             return []
@@ -184,6 +187,7 @@ extension String {
     /// - Parameter strings: The strings to split on.
     /// - Returns: The 2 halves of the string around the delimter and the delimiter that this string was split
     /// on.
+    @usableFromInline
     func split(on strings: Set<String>) -> ([String], String)? {
         let sortedStrings: [(String, String.Index)] = strings.compactMap {
             guard let index = self.startIndex(for: $0) else {
@@ -202,6 +206,7 @@ extension String {
     /// Return the starting index of a substring value within self.
     /// - Parameter value: The substring to search for.
     /// - Returns: The first index within self that matches the substring.
+    @usableFromInline
     func startIndex(for value: String) -> String.Index? {
         let size = value.count
         guard !value.isEmpty, self.count >= size else {
@@ -229,6 +234,7 @@ extension String {
     ///   - endsWith: The ending delimiter for the substring.
     /// - Returns: The substring that starts with `startsWith` and ends with `endsWith` including any
     /// strings within that match the same pattern.
+    @usableFromInline
     func upToBalancedElements(startsWith: String, endsWith: String) -> Substring? {
         guard !startsWith.isEmpty, !endsWith.isEmpty else {
             return nil
@@ -308,7 +314,7 @@ extension Substring {
 
     /// Return a string that exists within self that starts with an open bracket and ends with the balanced
     /// closing bracket.
-    var uptoBalancedBracket: Substring? {
+    @usableFromInline var uptoBalancedBracket: Substring? {
         self.upToBalancedElements(startsWith: "(", endsWith: ")")
     }
 
@@ -320,6 +326,7 @@ extension Substring {
     ///   - endsWith: The ending delimiter for the substring.
     /// - Returns: The substring that starts with `startsWith` and ends with `endsWith` including any
     /// strings within that match the same pattern.
+    @usableFromInline
     func upToBalancedElements(startsWith: String, endsWith: String) -> Substring? {
         guard !startsWith.isEmpty, !endsWith.isEmpty else {
             return nil
@@ -372,6 +379,7 @@ extension Substring {
     /// Return the starting index of a substring value within self.
     /// - Parameter value: The substring to search for.
     /// - Returns: The first index within self that matches the substring.
+    @usableFromInline
     func startIndex(for value: String) -> String.Index? {
         let size = value.count
         guard !value.isEmpty, self.count >= size else {

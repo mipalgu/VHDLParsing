@@ -65,7 +65,7 @@ public enum EdgeCondition: RawRepresentable, Equatable, Hashable, Codable, Senda
     case rising(expression: Expression)
 
     /// The expression that is checked by the edge condition.
-    public var expression: Expression {
+    @inlinable public var expression: Expression {
         switch self {
         case .falling(let expression):
             return expression
@@ -75,7 +75,7 @@ public enum EdgeCondition: RawRepresentable, Equatable, Hashable, Codable, Senda
     }
 
     /// The `VHDL` code that represents this edge condition.
-    public var rawValue: String {
+    @inlinable public var rawValue: String {
         switch self {
         case .falling(let expression):
             return "falling_edge(\(expression.rawValue))"
@@ -86,6 +86,7 @@ public enum EdgeCondition: RawRepresentable, Equatable, Hashable, Codable, Senda
 
     /// Creates a new edge condition from the given `VHDL` code.
     /// - Parameter rawValue: The `VHDL` code that represents the edge condition.
+    @inlinable
     public init?(rawValue: String) {
         let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
         guard trimmedString.count < 256 else {
