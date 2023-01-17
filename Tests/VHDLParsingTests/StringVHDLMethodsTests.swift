@@ -120,6 +120,8 @@ final class StringVHDLMethodsTests: XCTestCase {
         XCTAssertEqual(result2[0].1, data2.index(data2.startIndex, offsetBy: 2))
         XCTAssertEqual(result2[1].0, data2.index(data2.startIndex, offsetBy: 3))
         XCTAssertEqual(result2[1].1, data2.index(data2.startIndex, offsetBy: 5))
+        XCTAssertTrue(data.indexes(startingWith: "", endingWith: "lo").isEmpty)
+        XCTAssertTrue(data.indexes(startingWith: "e", endingWith: "").isEmpty)
     }
 
     /// Test `withoutEmptyLines` removes lines correctly.
