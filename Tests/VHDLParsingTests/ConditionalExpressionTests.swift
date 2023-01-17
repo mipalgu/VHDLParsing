@@ -1,5 +1,5 @@
-// ConditionalExpression.swift
-// Machines
+// ConditionalExpressionTests.swift
+// VHDLParsing
 // 
 // Created by Morgan McColl.
 // Copyright © 2023 Morgan McColl. All rights reserved.
@@ -54,42 +54,42 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
-/// A type for representing expression that can be used in a conditional statement.
-public enum ConditionalExpression: RawRepresentable, Equatable, Hashable, Codable, Sendable {
+@testable import VHDLParsing
+import XCTest
 
-    /// A comparison operation (>, >=, <, <=, =, /=, etc.).
-    case comparison(value: ComparisonOperation)
+/// Test class for ``ConditionalExpression``.
+final class ConditionalExpressionTests: XCTestCase {
 
-    /// A check for a clock edge (rising_edge, falling_edge).
-    case edge(value: EdgeCondition)
+    /// A variable called `x`.
+    let x = Expression.variable(name: VariableName(text: "x"))
 
-    /// The `VHDL` code that represents this `ConditionalExpression`.
-    public var rawValue: String {
-        switch self {
-        case .comparison(let value):
-            return value.rawValue
-        case .edge(let value):
-            return value.rawValue
-        }
+    /// The variable y.
+    let y = Expression.variable(name: VariableName(text: "y"))
+
+    /// Test `rawValue` delegates to operations `rawValue`.
+    func testRawValue() {
+        let comparison = ComparisonOperation.greaterThan(lhs: x, rhs: y)
+        XCTAssertEqual(ConditionalExpression.comparison(value: comparison).rawValue, comparison.rawValue)
+        let condition = EdgeCondition.rising(expression: x)
+        XCTAssertEqual(ConditionalExpression.edge(value: condition).rawValue, condition.rawValue)
     }
 
-    /// Creates a new `ConditionalExpression` from the given `VHDL` code.
-    /// - Parameter rawValue: The `VHDL` code that represents the `ConditionalExpression`.
-    public init?(rawValue: String) {
-        let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard trimmedString.count < 256 else {
-            return nil
-        }
-        let value = trimmedString.uptoSemicolon
-        if let edge = EdgeCondition(rawValue: value) {
-            self = .edge(value: edge)
-            return
-        }
-        if let comparison = ComparisonOperation(rawValue: value) {
-            self = .comparison(value: comparison)
-            return
-        }
-        return nil
+    /// Test edge condition is created correctly.
+    func testEdgeInit() {
+        let condition = ConditionalExpression.edge(value: .rising(expression: x))
+        XCTAssertEqual(ConditionalExpression(rawValue: "rising_edge(x)"), condition)
+        XCTAssertEqual(ConditionalExpression(rawValue: "rising_edge(x);"), condition)
+        XCTAssertNil(ConditionalExpression(rawValue: "x << 2"))
+        XCTAssertNil(ConditionalExpression(rawValue: "rising_edge(\(String(repeating: "x", count: 256)))"))
+    }
+
+    /// Test comparison condition is created correctly.
+    func testComparisonInit() {
+        let comparison = ConditionalExpression.comparison(value: .greaterThan(lhs: x, rhs: y))
+        XCTAssertEqual(ConditionalExpression(rawValue: "x > y"), comparison)
+        XCTAssertEqual(ConditionalExpression(rawValue: "x > y;"), comparison)
+        XCTAssertNil(ConditionalExpression(rawValue: "x >> 2"))
+        XCTAssertNil(ConditionalExpression(rawValue: "x > \(String(repeating: "y", count: 256))"))
     }
 
 }
