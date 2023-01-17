@@ -70,7 +70,7 @@ public enum BinaryOperation: RawRepresentable, Equatable, Hashable, Codable, Sen
     /// A division operation.
     case division(lhs: Expression, rhs: Expression)
 
-    public var rawValue: String {
+    @inlinable public var rawValue: String {
         switch self {
         case .addition(let lhs, let rhs):
             return "\(lhs.rawValue) + \(rhs.rawValue)"
