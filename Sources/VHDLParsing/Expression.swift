@@ -66,17 +66,7 @@ indirect public enum Expression: RawRepresentable,
     /// A literal value.
     case literal(value: SignalLiteral)
 
-    /// An addition operation.
-    case addition(lhs: Expression, rhs: Expression)
-
-    /// A subtraction operation.
-    case subtraction(lhs: Expression, rhs: Expression)
-
-    /// A multiplication operation.
-    case multiplication(lhs: Expression, rhs: Expression)
-
-    /// A division operation.
-    case division(lhs: Expression, rhs: Expression)
+    case binary(operation: BinaryOperation)
 
     /// A precedence operation. This is equivalent to placing brackets around an Expression.
     case precedence(value: Expression)
@@ -99,14 +89,8 @@ indirect public enum Expression: RawRepresentable,
             return name.rawValue
         case .literal(let value):
             return value.rawValue
-        case .addition(let lhs, let rhs):
-            return "\(lhs.rawValue) + \(rhs.rawValue)"
-        case .subtraction(let lhs, let rhs):
-            return "\(lhs.rawValue) - \(rhs.rawValue)"
-        case .multiplication(let lhs, let rhs):
-            return "\(lhs.rawValue) * \(rhs.rawValue)"
-        case .division(let lhs, let rhs):
-            return "\(lhs.rawValue) / \(rhs.rawValue)"
+        case .binary(let operation):
+            return operation.rawValue
         case .precedence(let value):
             return "(\(value.rawValue))"
         case .comment(let comment):
@@ -175,22 +159,26 @@ indirect public enum Expression: RawRepresentable,
             let rhsStart = value.index(after: lastSubIndex)
             let rhs = value[rhsStart...]
             guard
-                let (parts, char) = String(rhs).split(on: .vhdlOperations),
+                let (parts, str) = String(rhs).split(on: Set<String>.vhdlOperations),
                 parts[0].trimmingCharacters(in: .whitespaces).isEmpty,
                 let other = parts.last,
                 let rhsExp = Expression(rawValue: other)
             else {
                 return nil
             }
-            self.init(lhs: .precedence(value: expression), rhs: rhsExp, char: char)
-            return
+            let lhsExp = Expression.precedence(value: expression)
+            if let comparison = ComparisonOperation(lhs: lhsExp, rhs: rhsExp, operation: str) {
+                self = .conditional(condition: .comparison(value: comparison))
+                return
+            }
+            if let binary = BinaryOperation(lhs: lhsExp, rhs: rhsExp, str: str) {
+                self = .binary(operation: binary)
+                return
+            }
+            return nil
         }
-        if let multiplicative = Expression(value: value, characters: .vhdlMultiplicativeOperations) {
-            self = multiplicative
-            return
-        }
-        if let additive = Expression(value: value, characters: .vhdlAdditiveOperations) {
-            self = additive
+        if let operation = BinaryOperation(rawValue: value) {
+            self = .binary(operation: operation)
             return
         }
         if let conditional = ConditionalExpression(rawValue: value) {
@@ -206,43 +194,5 @@ indirect public enum Expression: RawRepresentable,
 
     // swiftlint:enable function_body_length
     // swiftlint:enable cyclomatic_complexity
-
-    /// Create a binary `Expression` from a string and a set of possible operations.
-    /// - Parameters:
-    ///   - value: The string containing a binary operation.
-    ///   - characters: The valid characters representing the operator of this operation.
-    private init?(value: String, characters: CharacterSet) {
-        guard
-            let (parts, char) = value.split(on: characters),
-            let lhs = parts.first,
-            let rhs = parts.last,
-            let lhsExp = Expression(rawValue: lhs),
-            let rhsExp = Expression(rawValue: rhs)
-        else {
-            return nil
-        }
-        self.init(lhs: lhsExp, rhs: rhsExp, char: char)
-    }
-
-    /// Create a binary `Expression` from a left and right hand side and an operator.
-    /// - Parameters:
-    ///   - lhs: The left-hand side expression.
-    ///   - rhs: The right-hand side expression.
-    ///   - char: The operator betweent the lhs and rhs.
-    private init?(lhs: Expression, rhs: Expression, char: Character) {
-        switch char {
-        case "-":
-            self = .subtraction(lhs: lhs, rhs: rhs)
-        case "+":
-            self = .addition(lhs: lhs, rhs: rhs)
-        case "*":
-            self = .multiplication(lhs: lhs, rhs: rhs)
-        case "/":
-            self = .division(lhs: lhs, rhs: rhs)
-        default:
-            return nil
-        }
-        return
-    }
 
 }

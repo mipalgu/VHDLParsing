@@ -143,4 +143,23 @@ public enum ComparisonOperation: RawRepresentable, Equatable, Hashable, Codable,
         }
     }
 
+    init?(lhs: Expression, rhs: Expression, operation: String) {
+        switch operation {
+        case "<":
+            self = .lessThan(lhs: lhs, rhs: rhs)
+        case "<=":
+            self = .lessThanOrEqual(lhs: lhs, rhs: rhs)
+        case ">":
+            self = .greaterThan(lhs: lhs, rhs: rhs)
+        case ">=":
+            self = .greaterThanOrEqual(lhs: lhs, rhs: rhs)
+        case "=":
+            self = .equality(lhs: lhs, rhs: rhs)
+        case "/=":
+            self = .notEquals(lhs: lhs, rhs: rhs)
+        default:
+            return nil
+        }
+    }
+
 }

@@ -100,4 +100,16 @@ public extension Set where Element == String {
         Self.vhdlSignalTypes.union(Self.vhdlReservedWords)
     }
 
+    static var vhdlComparisonOperations: Set<String> {
+        [
+            ">", "<", "<=", ">=", "=", "/="
+        ]
+    }
+
+    static var vhdlOperations: Set<String> {
+        [
+            ">", "<", "<=", ">=", "=", "/=", "+", "-", "/", "*"
+        ]
+    }
+
 }

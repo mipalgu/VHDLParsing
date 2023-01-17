@@ -180,6 +180,22 @@ extension String {
         return ([components[0], components[1...].joined(separator: op)], char)
     }
 
+    func split(on strings: Set<String>) -> ([String], String)? {
+        let stringData = Array(strings)
+        let sortedStrings: [(String, String.Index)] = stringData.compactMap {
+            guard let index = self.startIndex(for: $0) else {
+                return nil
+            }
+            return ($0, index)
+        }
+        guard let firstIndex = sortedStrings.min(by: { $0.1 < $1.1 }) else {
+            return nil
+        }
+        let str1 = self[self.startIndex..<firstIndex.1]
+        let str2 = self[self.index(firstIndex.1, offsetBy: firstIndex.0.count)...]
+        return ([String(str1), String(str2)], firstIndex.0)
+    }
+
     /// Return the starting index of a substring value within self.
     /// - Parameter value: The substring to search for.
     /// - Returns: The first index within self that matches the substring.
