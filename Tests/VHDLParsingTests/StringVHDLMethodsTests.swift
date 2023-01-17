@@ -112,4 +112,52 @@ final class StringVHDLMethodsTests: XCTestCase {
         XCTAssertEqual(result[0].1, data.index(data.startIndex, offsetBy: 3))
     }
 
+    /// Test `withoutEmptyLines` removes lines correctly.
+    func testWithoutEmptyLines() {
+        let data = """
+
+        a
+
+        b
+
+        c
+
+
+        d
+
+        """
+        let expected = "a\nb\nc\nd"
+        XCTAssertEqual(data.withoutEmptyLines, expected)
+    }
+
+    /// Test indent works correctly.
+    func testIndent() {
+        let data = "a\nb\nc\nd"
+        let expected = """
+        \(String.tab)a
+        \(String.tab)b
+        \(String.tab)c
+        \(String.tab)d
+        """
+        XCTAssertEqual(data.indent(amount: 1), expected)
+        let expected2 = """
+        \(String(repeating: String.tab, count: 2))a
+        \(String(repeating: String.tab, count: 2))b
+        \(String(repeating: String.tab, count: 2))c
+        \(String(repeating: String.tab, count: 2))d
+        """
+        XCTAssertEqual(data.indent(amount: 2), expected2)
+        XCTAssertEqual(data.indent(amount: 0), data)
+        XCTAssertEqual(data.indent(amount: -1), data)
+    }
+
+    /// Test `removeLast` removes correct character.
+    func testRemoveLast() {
+        var data = "a;b;c;d"
+        data.removeLast(character: ";")
+        XCTAssertEqual(data, "a;b;cd")
+        data.removeLast(character: "e")
+        XCTAssertEqual(data, "a;b;cd")
+    }
+
 }

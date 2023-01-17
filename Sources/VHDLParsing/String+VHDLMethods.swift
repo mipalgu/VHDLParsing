@@ -84,6 +84,9 @@ extension String {
     }
 
     public func indent(amount: Int) -> String {
+        guard amount > 0 else {
+            return self
+        }
         let indentAmount = String(repeating: String.tab, count: amount)
         return self.components(separatedBy: .newlines).map { indentAmount + $0 }.joined(separator: "\n")
     }
