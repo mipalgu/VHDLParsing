@@ -157,14 +157,6 @@ indirect public enum Expression: RawRepresentable,
             self = .literal(value: literal)
             return
         }
-        let operators = CharacterSet.vhdlOperators
-        guard operators.within(string: value) else {
-            guard let name = VariableName(rawValue: value) else {
-                return nil
-            }
-            self = .variable(name: name)
-            return
-        }
         if value.hasPrefix("(") && value.hasSuffix(")") {
             guard let expression = Expression(rawValue: String(value.dropFirst().dropLast())) else {
                 return nil
@@ -203,6 +195,10 @@ indirect public enum Expression: RawRepresentable,
         }
         if let conditional = ConditionalExpression(rawValue: value) {
             self = .conditional(condition: conditional)
+            return
+        }
+        if let variable = VariableName(rawValue: value) {
+            self = .variable(name: variable)
             return
         }
         return nil
