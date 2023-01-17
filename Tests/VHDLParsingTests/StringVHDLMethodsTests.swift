@@ -230,4 +230,14 @@ final class StringVHDLMethodsTests: XCTestCase {
         XCTAssertEqual(data.uptoBalancedBracket, expected)
     }
 
+    /// Test `subExpressions` return correct substrings.
+    func testSubExpressions() {
+        let data = "a(b(c)d)e(fg)"
+        let expected = [
+            data[data.index(data.startIndex, offsetBy: 1)...data.index(data.startIndex, offsetBy: 7)],
+            data[data.index(data.startIndex, offsetBy: 9)...data.index(data.startIndex, offsetBy: 12)]
+        ]
+        XCTAssertEqual(data.subExpressions, expected)
+    }
+
 }

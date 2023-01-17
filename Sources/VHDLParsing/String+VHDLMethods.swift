@@ -87,7 +87,8 @@ extension String {
         .joined(separator: "\n")
     }
 
-    /// Find all expressions within self that exist within a set of brackets.
+    /// Find all expressions within self that exist within a set of brackets. The substrings returned may also
+    /// contain substrings with brackets within them.
     @usableFromInline var subExpressions: [Substring]? {
         var expressions: [Substring] = []
         var openCount = 0
