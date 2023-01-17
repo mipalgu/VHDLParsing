@@ -62,7 +62,7 @@ public struct PortBlock: RawRepresentable, Equatable, Hashable, Codable, Sendabl
 
     public var rawValue: String {
         var signalsString = signals.map(\.rawValue).joined(separator: "\n").indent(amount: 1)
-        signalsString.dropLast(character: ";")
+        signalsString.removeLast(character: ";")
         return """
         port(
         \(signalsString)

@@ -59,6 +59,7 @@ import Foundation
 /// Add helper methods for VHDL parsing.
 extension String {
 
+    /// A `VHDL` null block in a case statement.
     public static var nullBlock: String {
         """
         when others =>
@@ -66,14 +67,17 @@ extension String {
         """
     }
 
+    /// A tab is considered 4 spaces.
     static var tab: String {
         "    "
     }
 
+    /// Remove all `VHDL` comments and empty lines from the string.
     var withoutComments: String {
         performWithoutComments(for: self)
     }
 
+    /// Remove all empty lines from the string.
     var withoutEmptyLines: String {
         self.components(separatedBy: .newlines).lazy
         .map {
@@ -81,21 +85,6 @@ extension String {
         }
         .filter { !$0.isEmpty }
         .joined(separator: "\n")
-    }
-
-    public func indent(amount: Int) -> String {
-        guard amount > 0 else {
-            return self
-        }
-        let indentAmount = String(repeating: String.tab, count: amount)
-        return self.components(separatedBy: .newlines).map { indentAmount + $0 }.joined(separator: "\n")
-    }
-
-    public mutating func removeLast(character: Character) {
-        guard let lastIndex = self.lastIndex(of: character) else {
-            return
-        }
-        _ = self.remove(at: lastIndex)
     }
 
     /// Find all expressions within self that exist within a set of brackets.
@@ -142,27 +131,47 @@ extension String {
         return String(self[self.startIndex..<semicolonIndex]).trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
-    mutating func dropLast(character: Character) {
+    /// Indent every line within the string by a specified amount.
+    /// - Parameter amount: The number of tabs to indent.
+    /// - Returns: The indented string.
+    public func indent(amount: Int) -> String {
+        guard amount > 0 else {
+            return self
+        }
+        let indentAmount = String(repeating: String.tab, count: amount)
+        return self.components(separatedBy: .newlines).map { indentAmount + $0 }.joined(separator: "\n")
+    }
+
+    /// Remove the last specified character from the string.
+    /// - Parameter character: The character to remove from the end of the string.
+    public mutating func removeLast(character: Character) {
         guard let lastIndex = self.lastIndex(of: character) else {
             return
         }
-        self.remove(at: lastIndex)
+        _ = self.remove(at: lastIndex)
     }
 
+    /// Grab indexes of all occurrences of a string that starts with a specified string and ends with a
+    /// specified string.
+    /// - Parameters:
+    ///   - startingWith: The starting delimiter for the substring.
+    ///   - endingWith: The ending delimter for the substring.
+    /// - Returns: All indexes for substrings that begin with `startingWith` and end with `endingWith`.
     func indexes(startingWith: String, endingWith: String) -> [(String.Index, String.Index)] {
+        guard !startingWith.isEmpty, !endingWith.isEmpty else {
+            return []
+        }
         var indexes: [(String.Index, String.Index)] = []
-        var index = self.index(self.startIndex, offsetBy: startingWith.count)
+        var index = self.startIndex
         while index < self.endIndex {
-            let startWordIndex = self.index(index, offsetBy: -startingWith.count)
-            let startWord = self[startWordIndex..<index]
-            guard startWord == startingWith else {
-                index = self.index(after: index)
-                continue
-            }
-            guard let endIndex = self[index...].startIndex(for: endingWith) else {
+            guard let startIndex = self[index...].startIndex(for: startingWith) else {
                 return indexes
             }
-            indexes.append((startWordIndex, endIndex))
+            let nextIndex = self.index(after: startIndex)
+            guard nextIndex < endIndex, let endIndex = self[nextIndex...].startIndex(for: endingWith) else {
+                return indexes
+            }
+            indexes.append((startIndex, endIndex))
             index = self.index(after: endIndex)
         }
         return indexes

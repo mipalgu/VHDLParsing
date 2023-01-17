@@ -105,11 +105,21 @@ final class StringVHDLMethodsTests: XCTestCase {
         let data = "Hello World!"
         let result = data.indexes(startingWith: "e", endingWith: "lo")
         guard result.count == 1 else {
-            XCTFail("Incorrect indexes returned.")
+            XCTFail("Incorrect indexes returned \(result.count).")
             return
         }
         XCTAssertEqual(result[0].0, data.index(data.startIndex, offsetBy: 1))
         XCTAssertEqual(result[0].1, data.index(data.startIndex, offsetBy: 3))
+        let data2 = "abcabc"
+        let result2 = data2.indexes(startingWith: "a", endingWith: "c")
+        guard result2.count == 2 else {
+            XCTFail("Incorrect indexes returned \(result2.count).")
+            return
+        }
+        XCTAssertEqual(result2[0].0, data2.startIndex)
+        XCTAssertEqual(result2[0].1, data2.index(data2.startIndex, offsetBy: 2))
+        XCTAssertEqual(result2[1].0, data2.index(data2.startIndex, offsetBy: 3))
+        XCTAssertEqual(result2[1].1, data2.index(data2.startIndex, offsetBy: 5))
     }
 
     /// Test `withoutEmptyLines` removes lines correctly.
