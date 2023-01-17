@@ -54,20 +54,35 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
+/// A type for representing VHDL comparison operations. These operations exist within a
+/// ``ConditionalExpression``. The supported operations are:
+/// - Less than (operation <).
+/// - Less than or equal to (operation <=).
+/// - Greater than (operation >).
+/// - Greater than or equal to (operation >=).
+/// - Equality (operation =).
+/// - Not equal to (operation /=).
 public enum ComparisonOperation: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
+    /// The `lessThan` operation (<).
     case lessThan(lhs: Expression, rhs: Expression)
 
+    /// The `lessThanOrEqual` operation (<=).
     case lessThanOrEqual(lhs: Expression, rhs: Expression)
 
+    /// The `greaterThan` operation (>).
     case greaterThan(lhs: Expression, rhs: Expression)
 
+    /// The `greaterThanOrEqual` operation (>=).
     case greaterThanOrEqual(lhs: Expression, rhs: Expression)
 
+    /// The `equality` operation (=).
     case equality(lhs: Expression, rhs: Expression)
 
+    /// The `notEquals` operation (/=).
     case notEquals(lhs: Expression, rhs: Expression)
 
+    /// The `VHDL` code equivalent to this operation.
     public var rawValue: String {
         switch self {
         case .lessThan(let lhs, let rhs):
@@ -85,6 +100,8 @@ public enum ComparisonOperation: RawRepresentable, Equatable, Hashable, Codable,
         }
     }
 
+    /// Creates a new ``ComparisonOperation`` from the given `VHDL` code.
+    /// - Parameter rawValue: The `VHDL` code that represents the operation.
     public init?(rawValue: String) {
         let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
         guard trimmedString.count < 256 else {
