@@ -170,4 +170,43 @@ final class StringVHDLMethodsTests: XCTestCase {
         XCTAssertEqual(data, "a;b;cd")
     }
 
+    /// Test `upToSemicolon` returns correct substring.
+    func testUpToSemicolon() {
+        let data = "a;b;c;d"
+        XCTAssertEqual(data.uptoSemicolon, "a")
+        let data2 = "abc;d;"
+        XCTAssertEqual(data2.uptoSemicolon, "abc")
+        XCTAssertEqual("".uptoSemicolon, "")
+        let data3 = "abcde"
+        XCTAssertEqual(data3.uptoSemicolon, data3)
+    }
+
+    /// Test `split` function splits correctly and returns the correct character.
+    func testSplit() {
+        let characters = CharacterSet(charactersIn: ".;_")
+        let data = "abc_d;e."
+        guard let (parts, character) = data.split(on: characters) else {
+            XCTFail("Failed to split.")
+            return
+        }
+        XCTAssertEqual(parts, ["abc", "d;e."])
+        XCTAssertEqual(character, "_")
+        XCTAssertNil("".split(on: characters))
+        XCTAssertNil("abc".split(on: characters))
+        let data2 = "abcde;"
+        guard let (parts2, character2) = data2.split(on: characters) else {
+            XCTFail("Failed to split.")
+            return
+        }
+        XCTAssertEqual(parts2, ["abcde", ""])
+        XCTAssertEqual(character2, ";")
+        let data3 = ".abcde"
+        guard let (parts3, character3) = data3.split(on: characters) else {
+            XCTFail("Failed to split.")
+            return
+        }
+        XCTAssertEqual(parts3, ["", "abcde"])
+        XCTAssertEqual(character3, ".")
+    }
+
 }

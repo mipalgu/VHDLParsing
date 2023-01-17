@@ -195,6 +195,9 @@ extension String {
         return ([components[0], components[1...].joined(separator: op)], char)
     }
 
+    /// Return the starting index of a substring value within self.
+    /// - Parameter value: The substring to search for.
+    /// - Returns: The first index within self that matches the substring.
     func startIndex(for value: String) -> String.Index? {
         let size = value.count
         guard !value.isEmpty, self.count >= size else {
@@ -270,6 +273,9 @@ extension String {
 
 extension Substring {
 
+    /// Return the starting index of a substring value within self.
+    /// - Parameter value: The substring to search for.
+    /// - Returns: The first index within self that matches the substring.
     func startIndex(for value: String) -> String.Index? {
         let size = value.count
         guard !value.isEmpty, self.count >= size else {
