@@ -71,20 +71,21 @@ extension String {
     }
 
     var withoutComments: String {
+        guard let firstIndex = self.startIndex(for: "--") else {
+            return self.withoutEmptyLines
+        }
+        let subString = self[firstIndex...]
+        guard let endIndex = subString.startIndex(for: "\n") else {
+            return String(self[..<firstIndex]).withoutEmptyLines
+        }
         var newString = self
-        let commentIndexes = newString.indexes(startingWith: "--", endingWith: "\n").reversed()
-        commentIndexes.forEach {
-            newString.removeSubrange($0..<$1)
-        }
-        let components = newString.components(separatedBy: "--")
-        guard components.count <= 2, let result = components.first else {
-            return newString.withoutEmptyLines
-        }
-        return result.withoutEmptyLines
+        newString.removeSubrange(firstIndex..<endIndex)
+        return newString.withoutComments
     }
 
     var withoutEmptyLines: String {
-        self.components(separatedBy: .newlines).map {
+        self.components(separatedBy: .newlines).lazy
+        .map {
             $0.trimmingCharacters(in: .whitespaces)
         }
         .filter { !$0.isEmpty }
