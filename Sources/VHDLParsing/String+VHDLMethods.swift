@@ -71,16 +71,7 @@ extension String {
     }
 
     var withoutComments: String {
-        guard let firstIndex = self.startIndex(for: "--") else {
-            return self.withoutEmptyLines
-        }
-        let subString = self[firstIndex...]
-        guard let endIndex = subString.startIndex(for: "\n") else {
-            return String(self[..<firstIndex]).withoutEmptyLines
-        }
-        var newString = self
-        newString.removeSubrange(firstIndex..<endIndex)
-        return newString.withoutComments
+        performWithoutComments(for: self)
     }
 
     var withoutEmptyLines: String {
@@ -243,6 +234,24 @@ extension String {
             return nil
         }
         return self
+    }
+
+    private func performWithoutComments(for value: String, carry: String = "") -> String {
+        guard let firstIndex = value.startIndex(for: "--") else {
+            return carry + value.withoutEmptyLines
+        }
+        let subString = value[firstIndex...]
+        guard let endIndex = subString.startIndex(for: "\n") else {
+            return carry + String(value[..<firstIndex]).withoutEmptyLines
+        }
+        var newString = value
+        newString.removeSubrange(firstIndex..<endIndex)
+        return performWithoutComments(
+            for: String(newString[firstIndex...]),
+            carry: carry + String(
+                newString[newString.startIndex..<firstIndex]
+            ).trimmingCharacters(in: .whitespaces)
+        )
     }
 
 }
