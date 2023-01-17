@@ -93,6 +93,7 @@ final class EdgeConditionTests: XCTestCase {
         XCTAssertNil(EdgeCondition(rawValue: "rising_edgex)"))
         XCTAssertNil(EdgeCondition(rawValue: "rising_edg(x)"))
         XCTAssertNil(EdgeCondition(rawValue: "rising_edge(x << 2) "))
+        XCTAssertNil(EdgeCondition(rawValue: "rising_edge(\(String(repeating: "x", count: 256)))"))
     }
 
     /// Test the rawValue init works for falling_edge values.
@@ -113,6 +114,7 @@ final class EdgeConditionTests: XCTestCase {
         XCTAssertNil(EdgeCondition(rawValue: "falling_edgex)"))
         XCTAssertNil(EdgeCondition(rawValue: "falling_edg(x)"))
         XCTAssertNil(EdgeCondition(rawValue: "falling_edge(x << 2) "))
+        XCTAssertNil(EdgeCondition(rawValue: "falling_edge(\(String(repeating: "x", count: 256)))"))
     }
 
 }
