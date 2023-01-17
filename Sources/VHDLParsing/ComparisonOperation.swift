@@ -125,26 +125,17 @@ public enum ComparisonOperation: RawRepresentable, Equatable, Hashable, Codable,
         else {
             return nil
         }
-        switch operation {
-        case "<":
-            self = .lessThan(lhs: lhs, rhs: rhs)
-        case "<=":
-            self = .lessThanOrEqual(lhs: lhs, rhs: rhs)
-        case ">":
-            self = .greaterThan(lhs: lhs, rhs: rhs)
-        case ">=":
-            self = .greaterThanOrEqual(lhs: lhs, rhs: rhs)
-        case "=":
-            self = .equality(lhs: lhs, rhs: rhs)
-        case "/=":
-            self = .notEquals(lhs: lhs, rhs: rhs)
-        default:
-            return nil
-        }
+        self.init(lhs: lhs, rhs: rhs, operation: operation)
     }
 
+    /// Initialise the `ComparisonOperation` from the expressions and a string that represents the operation
+    /// that is being performed.
+    /// - Parameters:
+    ///   - lhs: The left-hand side expression.
+    ///   - rhs: The right-hand side expression.
+    ///   - operation: A string of a valid `VHDL` comparison operation.
     init?(lhs: Expression, rhs: Expression, operation: String) {
-        switch operation {
+        switch operation.trimmingCharacters(in: .whitespacesAndNewlines) {
         case "<":
             self = .lessThan(lhs: lhs, rhs: rhs)
         case "<=":

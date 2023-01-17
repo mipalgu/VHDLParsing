@@ -197,4 +197,17 @@ final class ComparisonOperationTests: XCTestCase {
         XCTAssertNil(ComparisonOperation(rawValue: String(repeating: "x", count: 256) + " != y"))
     }
 
+    /// Test operation init.
+    func testOperationInit() {
+        XCTAssertEqual(ComparisonOperation(lhs: x, rhs: y, operation: "<"), .lessThan(lhs: x, rhs: y))
+        XCTAssertEqual(ComparisonOperation(lhs: x, rhs: y, operation: "<="), .lessThanOrEqual(lhs: x, rhs: y))
+        XCTAssertEqual(ComparisonOperation(lhs: x, rhs: y, operation: ">"), .greaterThan(lhs: x, rhs: y))
+        XCTAssertEqual(
+            ComparisonOperation(lhs: x, rhs: y, operation: ">="), .greaterThanOrEqual(lhs: x, rhs: y)
+        )
+        XCTAssertEqual(ComparisonOperation(lhs: x, rhs: y, operation: "="), .equality(lhs: x, rhs: y))
+        XCTAssertEqual(ComparisonOperation(lhs: x, rhs: y, operation: "/="), .notEquals(lhs: x, rhs: y))
+        XCTAssertNil(ComparisonOperation(lhs: x, rhs: y, operation: "<<"))
+    }
+
 }
