@@ -74,9 +74,21 @@ extension String {
         var newString = self
         let commentIndexes = newString.indexes(startingWith: "--", endingWith: "\n").reversed()
         commentIndexes.forEach {
-            newString.removeSubrange($0...$1)
+            newString.removeSubrange($0..<$1)
         }
-        return newString
+        let components = newString.components(separatedBy: "--")
+        guard components.count <= 2, let result = components.first else {
+            return newString.withoutEmptyLines
+        }
+        return result.withoutEmptyLines
+    }
+
+    var withoutEmptyLines: String {
+        self.components(separatedBy: .newlines).map {
+            $0.trimmingCharacters(in: .whitespaces)
+        }
+        .filter { !$0.isEmpty }
+        .joined(separator: "\n")
     }
 
     public func indent(amount: Int) -> String {
@@ -142,11 +154,12 @@ extension String {
         self.remove(at: lastIndex)
     }
 
-    mutating func indexes(startingWith: String, endingWith: String) -> [(String.Index, String.Index)] {
+    func indexes(startingWith: String, endingWith: String) -> [(String.Index, String.Index)] {
         var indexes: [(String.Index, String.Index)] = []
         var index = self.index(self.startIndex, offsetBy: startingWith.count)
         while index < self.endIndex {
-            let startWord = self[self.index(index, offsetBy: -startingWith.count)..<index]
+            let startWordIndex = self.index(index, offsetBy: -startingWith.count)
+            let startWord = self[startWordIndex..<index]
             guard startWord == startingWith else {
                 index = self.index(after: index)
                 continue
@@ -154,7 +167,7 @@ extension String {
             guard let endIndex = self[index...].startIndex(for: endingWith) else {
                 return indexes
             }
-            indexes.append((index, endIndex))
+            indexes.append((startWordIndex, endIndex))
             index = self.index(after: endIndex)
         }
         return indexes
@@ -180,13 +193,16 @@ extension String {
 
     func startIndex(for value: String) -> String.Index? {
         let size = value.count
-        guard self.count >= size else {
+        guard !value.isEmpty, self.count >= size else {
             return nil
         }
-        let startIndex = self.index(self.startIndex, offsetBy: size)
+        let offset = size - 1
+        let startIndex = self.index(self.startIndex, offsetBy: offset)
         for i in self[startIndex...].indices {
-            let wordStart = self.index(i, offsetBy: -size)
-            guard self[wordStart...i] == value else {
+            guard
+                let wordStart = self.index(i, offsetBy: -offset, limitedBy: self.startIndex),
+                self[wordStart...i] == value
+            else {
                 continue
             }
             return wordStart
@@ -234,13 +250,16 @@ extension Substring {
 
     func startIndex(for value: String) -> String.Index? {
         let size = value.count
-        guard self.count >= size else {
+        guard !value.isEmpty, self.count >= size else {
             return nil
         }
-        let startIndex = self.index(self.startIndex, offsetBy: size)
+        let offset = size - 1
+        let startIndex = self.index(self.startIndex, offsetBy: offset)
         for i in self[startIndex...].indices {
-            let wordStart = self.index(i, offsetBy: -size)
-            guard self[wordStart...i] == value else {
+            guard
+                let wordStart = self.index(i, offsetBy: -offset, limitedBy: self.startIndex),
+                self[wordStart...i] == value
+            else {
                 continue
             }
             return wordStart
