@@ -83,7 +83,7 @@ public enum ComparisonOperation: RawRepresentable, Equatable, Hashable, Codable,
     case notEquals(lhs: Expression, rhs: Expression)
 
     /// The `VHDL` code equivalent to this operation.
-    public var rawValue: String {
+    @inlinable public var rawValue: String {
         switch self {
         case .lessThan(let lhs, let rhs):
             return "\(lhs.rawValue) < \(rhs.rawValue)"
@@ -102,6 +102,7 @@ public enum ComparisonOperation: RawRepresentable, Equatable, Hashable, Codable,
 
     /// Creates a new ``ComparisonOperation`` from the given `VHDL` code.
     /// - Parameter rawValue: The `VHDL` code that represents the operation.
+    @inlinable
     public init?(rawValue: String) {
         let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
         guard trimmedString.count < 256 else {
@@ -134,6 +135,7 @@ public enum ComparisonOperation: RawRepresentable, Equatable, Hashable, Codable,
     ///   - lhs: The left-hand side expression.
     ///   - rhs: The right-hand side expression.
     ///   - operation: A string of a valid `VHDL` comparison operation.
+    @usableFromInline
     init?(lhs: Expression, rhs: Expression, operation: String) {
         switch operation.trimmingCharacters(in: .whitespacesAndNewlines) {
         case "<":
