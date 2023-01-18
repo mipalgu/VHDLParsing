@@ -56,6 +56,7 @@
 
 import Foundation
 
+/// A type for representing arithmetic operations that work with two operands.
 public enum BinaryOperation: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
     /// An addition operation.
@@ -70,6 +71,7 @@ public enum BinaryOperation: RawRepresentable, Equatable, Hashable, Codable, Sen
     /// A division operation.
     case division(lhs: Expression, rhs: Expression)
 
+    /// The `VHDL` code representing this operation.
     @inlinable public var rawValue: String {
         switch self {
         case .addition(let lhs, let rhs):
@@ -83,6 +85,8 @@ public enum BinaryOperation: RawRepresentable, Equatable, Hashable, Codable, Sen
         }
     }
 
+    /// Initialise the `BinaryOperation` from it's `VHDL` code representation.
+    /// - Parameter rawValue: The `VHDL` performing this operation.
     public init?(rawValue: String) {
         let value = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
         guard value.count < 256 else {
@@ -125,7 +129,7 @@ public enum BinaryOperation: RawRepresentable, Equatable, Hashable, Codable, Sen
     ///   - rhs: The right-hand side expression.
     ///   - char: The operator betweent the lhs and rhs.
     init?(lhs: Expression, rhs: Expression, str: String) {
-        switch str {
+        switch str.trimmingCharacters(in: .whitespaces) {
         case "-":
             self = .subtraction(lhs: lhs, rhs: rhs)
         case "+":
