@@ -91,6 +91,7 @@ final class HexVectorTests: XCTestCase {
         XCTAssertNil(HexVector(rawValue: ""))
         XCTAssertNil(HexVector(rawValue: "\"\""))
         XCTAssertNil(HexVector(rawValue: "x\""))
+        XCTAssertNil(HexVector(rawValue: "x\"\(String(repeating: "A", count: 256))\""))
     }
 
 }

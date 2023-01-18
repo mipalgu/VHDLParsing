@@ -85,6 +85,7 @@ final class LogicVectorTests: XCTestCase {
         XCTAssertEqual(LogicVector(rawValue: "\"0U-Z\" "), vector)
         XCTAssertEqual(LogicVector(rawValue: " \"0U-Z\" "), vector)
         XCTAssertEqual(LogicVector(rawValue: "\"\""), LogicVector(values: []))
+        XCTAssertNil(LogicVector(rawValue: "\"\(String(repeating: "0", count: 256))\""))
         XCTAssertNil(LogicVector(rawValue: "\"0U-Z \""))
         XCTAssertNil(LogicVector(rawValue: "\"0U-Z\"\""))
         XCTAssertNil(LogicVector(rawValue: "\"0U-Z\"\"0U-Z\""))
