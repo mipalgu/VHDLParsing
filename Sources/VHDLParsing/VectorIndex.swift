@@ -54,14 +54,25 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
+/// An index of a vector in `VHDL`. This type is designed to represent indexes in an assignment statement for
+/// a vector type. For example, you may have a signal `x` of type `std_logic_vector(7 downto 0)` that you
+/// want to assign a value to. In `VHDL`, you can do this with the statement `x <= (others => '0');`.
+/// This type is designed to represent the `others` in that statement and other supported values like it, such
+/// as those found in `x <= (7 => '1', others => '0');`. This statement would produce two instances of this
+/// type for the values `7` and `others`. This type also supports `VHDL2008` statements that support a range
+/// of values, e.g. `x <= (7 downto 0 => '1');`.
 public enum VectorIndex: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
+    /// An index in a vector.
     case index(value: Int)
 
+    /// The `others` statement in `VHDL`. Refers to all remaining indexes in a vector.
     case others
 
+    /// A range of indexes in a vector.
     case range(value: VectorSize)
 
+    /// The `VHDL` code representing this index.
     public var rawValue: String {
         switch self {
         case .index(let value):
@@ -73,6 +84,9 @@ public enum VectorIndex: RawRepresentable, Equatable, Hashable, Codable, Sendabl
         }
     }
 
+    /// Creates a new `VectorIndex` from the `VHDL` code representing it.
+    /// - Parameter rawValue: The `VHDL` code representing the index. This code should only contain the index
+    /// itself and no other statements or parantheses.
     public init?(rawValue: String) {
         let value = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
         guard value.count < 256 else {
