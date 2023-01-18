@@ -1,4 +1,4 @@
-// LogicVector.swift
+// LogicVectorTests.swift
 // VHDLParsing
 // 
 // Created by Morgan McColl.
@@ -54,42 +54,45 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
-/// A type for representing a ``VectorLiteral`` of `std_logic` values (``LogicLiteral``).
-public struct LogicVector: RawRepresentable, Equatable, Hashable, Codable, Sendable {
+@testable import VHDLParsing
+import XCTest
 
-    /// The logic values for each bit in the vector.
-    public let values: [LogicLiteral]
+/// Test class for ``LogicVector``.
+final class LogicVectorTests: XCTestCase {
 
-    /// The number of values in this literal.
-    public var count: Int {
-        values.count
+    /// A vector under test.
+    let vector = LogicVector(values: [.low, .uninitialized, .dontCare, .highImpedance])
+
+    /// Test initialiser sets stored properties correctly.
+    func testInit() {
+        XCTAssertEqual(vector.values, [.low, .uninitialized, .dontCare, .highImpedance])
     }
 
-    /// The `VHDL` representation of this vector literal.
-    public var rawValue: String {
-        "\"" + values.map(\.vectorLiteral).joined() + "\""
+    /// Test `rawValue` generates the correct `VHDL` code.
+    func testRawValue() {
+        XCTAssertEqual(vector.rawValue, "\"0U-Z\"")
     }
 
-    /// Creates a new ``LogicVector`` with the given values.
-    /// - Parameter values: The bits in the vector.
-    public init(values: [LogicLiteral]) {
-        self.values = values
+    /// Test count is correct.
+    func testCount() {
+        XCTAssertEqual(vector.count, vector.values.count)
     }
 
-    /// Creates a new ``LogicVector`` from the `VHDL` representation.
-    /// - Parameter rawValue: The `VHDL` representation. Should be of the form "<std_logic literals>", e.g.
-    /// "1010".
-    public init?(rawValue: String) {
-        let value = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard value.count < 256, value.count > 1, value.hasPrefix("\""), value.hasSuffix("\"") else {
-            return nil
-        }
-        let data = value.dropFirst().dropLast()
-        let logics = data.compactMap { LogicLiteral(rawValue: "'\($0)'") }
-        guard logics.count == data.count else {
-            return nil
-        }
-        self.values = logics
+    /// Test `VHDL` code is parsed correctly in `rawValue:` init.
+    func testRawValueInit() {
+        XCTAssertEqual(LogicVector(rawValue: "\"0U-Z\""), vector)
+        XCTAssertEqual(LogicVector(rawValue: " \"0U-Z\""), vector)
+        XCTAssertEqual(LogicVector(rawValue: "\"0U-Z\" "), vector)
+        XCTAssertEqual(LogicVector(rawValue: " \"0U-Z\" "), vector)
+        XCTAssertEqual(LogicVector(rawValue: "\"\""), LogicVector(values: []))
+        XCTAssertNil(LogicVector(rawValue: "\"0U-Z \""))
+        XCTAssertNil(LogicVector(rawValue: "\"0U-Z\"\""))
+        XCTAssertNil(LogicVector(rawValue: "\"0U-Z\"\"0U-Z\""))
+        XCTAssertNil(LogicVector(rawValue: "\" 0U-Z\""))
+        XCTAssertNil(LogicVector(rawValue: "\" 0U-Z \""))
+        XCTAssertNil(LogicVector(rawValue: ""))
+        XCTAssertNil(LogicVector(rawValue: " "))
+        XCTAssertNil(LogicVector(rawValue: "\""))
     }
 
 }
