@@ -70,7 +70,7 @@ public enum VectorLiteral: RawRepresentable, Equatable, Hashable, Codable, Senda
     /// An octal value.
     case octal(value: [OctalLiteral])
 
-    case indexed(values: [IndexedValue])
+    case indexed(values: IndexedVector)
 
     /// The raw value is a string.
     public typealias RawValue = String
@@ -86,8 +86,8 @@ public enum VectorLiteral: RawRepresentable, Equatable, Hashable, Codable, Senda
             return "x\"" + String(values.map(\.rawValue)) + "\""
         case .octal(let values):
             return "o\"" + String(values.map(\.rawValue)) + "\""
-        case .indexed(let values):
-            return "(" + values.map(\.rawValue).joined(separator: ", ") + ")"
+        case .indexed(let vector):
+            return vector.rawValue
         }
     }
 
@@ -115,41 +115,8 @@ public enum VectorLiteral: RawRepresentable, Equatable, Hashable, Codable, Senda
         guard value.count < 256 else {
             return nil
         }
-        guard !(value.hasPrefix("(") && value.hasSuffix(")")) else {
-            let values = String(value.dropLast().dropFirst()).withoutComments
-            let components = values.components(separatedBy: ",")
-            guard components.allSatisfy({ $0.contains("=>") }) else {
-                return nil
-            }
-            let bits: [IndexedValue] = components.compactMap {
-                IndexedValue(rawValue: $0)
-            }
-            guard bits.count == components.count else {
-                return nil
-            }
-            let hasLogic = bits.contains {
-                switch $0.value {
-                case .logic:
-                    return true
-                default:
-                    return false
-                }
-            }
-            if hasLogic {
-                let logics = bits.compactMap {
-                    switch $0.value {
-                    case .logic:
-                        return $0
-                    case .bit(let bit):
-                        return IndexedValue(index: $0.index, value: .logic(value: LogicLiteral(bit: bit)))
-                    default:
-                        return nil
-                    }
-                }
-                self = .indexed(values: logics)
-            } else {
-                self = .indexed(values: bits)
-            }
+        if let vector = IndexedVector(rawValue: value) {
+            self = .indexed(values: vector)
             return
         }
         guard !(value.first?.lowercased() == "x" || value.first?.lowercased() == "o") else {
