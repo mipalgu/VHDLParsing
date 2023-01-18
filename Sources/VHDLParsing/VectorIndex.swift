@@ -1,5 +1,5 @@
-// BitLiteral.swift
-// Machines
+// VectorIndex.swift
+// VHDLParsing
 // 
 // Created by Morgan McColl.
 // Copyright © 2023 Morgan McColl. All rights reserved.
@@ -54,99 +54,46 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
-/// The possible values for a single bit logic value in `VHDL`.
-public enum LogicLiteral: String, Equatable, Hashable, Codable, Sendable {
+public enum VectorIndex: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
-    /// A logic high.
-    case high = "'1'"
+    case index(value: Int)
 
-    /// A logic low.
-    case low = "'0'"
+    case others
 
-    /// The signal is uninitialized.
-    case uninitialized = "'U'"
+    case range(value: VectorSize)
 
-    /// The signal is unknown.
-    case unknown = "'X'"
-
-    /// The signal has high impedance.
-    case highImpedance = "'Z'"
-
-    /// The signal is weak.
-    case weakSignal = "'W'"
-
-    /// The signal is weak so should go to low.
-    case weakSignalLow = "'L'"
-
-    /// The signal is weak so should go to high.
-    case weakSignalHigh = "'H'"
-
-    /// Don't care about the state of the signal.
-    case dontCare = "'-'"
-
-    /// The VHDL representation for this value inside a vector literal.
-    @inlinable public var vectorLiteral: String {
+    public var rawValue: String {
         switch self {
-        case .high:
-            return "1"
-        case .low:
-            return "0"
-        case .uninitialized:
-            return "U"
-        case .unknown:
-            return "X"
-        case .highImpedance:
-            return "Z"
-        case .weakSignal:
-            return "W"
-        case .weakSignalLow:
-            return "L"
-        case .weakSignalHigh:
-            return "H"
-        case .dontCare:
-            return "-"
+        case .index(let value):
+            return "\(value)"
+        case .others:
+            return "others"
+        case .range(let value):
+            return value.rawValue
         }
     }
 
-    /// Initialise the `BitLiteral` from the VHDL code.
-    /// - Parameter rawValue: The VHDL code representing this literal.
-    @inlinable
     public init?(rawValue: String) {
         let value = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard value.count == 3 else {
+        guard value.count < 256 else {
             return nil
         }
-        switch value.uppercased() {
-        case "'1'":
-            self = .high
-        case "'0'":
-            self = .low
-        case "'U'":
-            self = .uninitialized
-        case "'X'":
-            self = .unknown
-        case "'Z'":
-            self = .highImpedance
-        case "'W'":
-            self = .weakSignal
-        case "'L'":
-            self = .weakSignalLow
-        case "'H'":
-            self = .weakSignalHigh
-        case "'-'":
-            self = .dontCare
-        default:
-            return nil
+        if value.count == 6, value.lowercased() == "others" {
+            self = .others
+            return
         }
-    }
-
-    public init(bit: BitLiteral) {
-        switch bit {
-        case .high:
-            self = .high
-        case .low:
-            self = .low
+        if let range = VectorSize(rawValue: value) {
+            self = .range(value: range)
+            return
         }
+        if let index = Int(value) {
+            guard index >= 0 else {
+                return nil
+            }
+            self = .index(value: index)
+            return
+        }
+        return nil
     }
 
 }

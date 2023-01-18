@@ -1,5 +1,5 @@
-// BitLiteral.swift
-// Machines
+// IndexedValue.swift
+// VHDLParsing
 // 
 // Created by Morgan McColl.
 // Copyright © 2023 Morgan McColl. All rights reserved.
@@ -54,99 +54,45 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
-/// The possible values for a single bit logic value in `VHDL`.
-public enum LogicLiteral: String, Equatable, Hashable, Codable, Sendable {
+public struct IndexedValue: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
-    /// A logic high.
-    case high = "'1'"
+    public let index: VectorIndex
 
-    /// A logic low.
-    case low = "'0'"
+    public let value: SignalLiteral
 
-    /// The signal is uninitialized.
-    case uninitialized = "'U'"
-
-    /// The signal is unknown.
-    case unknown = "'X'"
-
-    /// The signal has high impedance.
-    case highImpedance = "'Z'"
-
-    /// The signal is weak.
-    case weakSignal = "'W'"
-
-    /// The signal is weak so should go to low.
-    case weakSignalLow = "'L'"
-
-    /// The signal is weak so should go to high.
-    case weakSignalHigh = "'H'"
-
-    /// Don't care about the state of the signal.
-    case dontCare = "'-'"
-
-    /// The VHDL representation for this value inside a vector literal.
-    @inlinable public var vectorLiteral: String {
-        switch self {
-        case .high:
-            return "1"
-        case .low:
-            return "0"
-        case .uninitialized:
-            return "U"
-        case .unknown:
-            return "X"
-        case .highImpedance:
-            return "Z"
-        case .weakSignal:
-            return "W"
-        case .weakSignalLow:
-            return "L"
-        case .weakSignalHigh:
-            return "H"
-        case .dontCare:
-            return "-"
-        }
+    public var rawValue: String {
+        "\(self.index) => \(self.value)"
     }
 
-    /// Initialise the `BitLiteral` from the VHDL code.
-    /// - Parameter rawValue: The VHDL code representing this literal.
-    @inlinable
     public init?(rawValue: String) {
         let value = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard value.count == 3 else {
+        guard value.count < 256 else {
             return nil
         }
-        switch value.uppercased() {
-        case "'1'":
-            self = .high
-        case "'0'":
-            self = .low
-        case "'U'":
-            self = .uninitialized
-        case "'X'":
-            self = .unknown
-        case "'Z'":
-            self = .highImpedance
-        case "'W'":
-            self = .weakSignal
-        case "'L'":
-            self = .weakSignalLow
-        case "'H'":
-            self = .weakSignalHigh
-        case "'-'":
-            self = .dontCare
-        default:
+        let subComponents = value.components(separatedBy: "=>")
+        guard subComponents.count == 2, let index = VectorIndex(rawValue: subComponents[0]) else {
             return nil
         }
+        var bitString = subComponents[1].trimmingCharacters(in: .whitespacesAndNewlines)
+        if bitString.hasSuffix(",") {
+            bitString = String(bitString.dropLast())
+        }
+        if let bit = BitLiteral(rawValue: bitString) {
+            self.index = index
+            self.value = SignalLiteral.bit(value: bit)
+            return
+        }
+        if let logic = LogicLiteral(rawValue: bitString) {
+            self.index = index
+            self.value = SignalLiteral.logic(value: logic)
+            return
+        }
+        return nil
     }
 
-    public init(bit: BitLiteral) {
-        switch bit {
-        case .high:
-            self = .high
-        case .low:
-            self = .low
-        }
+    public init(index: VectorIndex, value: SignalLiteral) {
+        self.index = index
+        self.value = value
     }
 
 }
