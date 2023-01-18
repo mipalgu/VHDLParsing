@@ -140,6 +140,9 @@ public enum LogicLiteral: String, Equatable, Hashable, Codable, Sendable {
         }
     }
 
+    /// Initialise this logic literal from a ``BitLiteral`` value.
+    /// - Parameter bit: The ``BitLiteral`` to convert to a ``LogicLiteral``.
+    @inlinable
     public init(bit: BitLiteral) {
         switch bit {
         case .high:

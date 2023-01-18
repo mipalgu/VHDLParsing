@@ -129,4 +129,10 @@ final class LogicLiteralTests: XCTestCase {
         XCTAssertEqual(LogicLiteral.weakSignalLow.vectorLiteral, "L")
     }
 
+    /// Test ``BitLiteral`` initialiser.
+    func testBitLiteralInit() {
+        XCTAssertEqual(LogicLiteral(bit: .high), .high)
+        XCTAssertEqual(LogicLiteral(bit: .low), .low)
+    }
+
 }
