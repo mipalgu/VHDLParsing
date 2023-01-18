@@ -160,10 +160,16 @@ public enum SignalLiteral: RawRepresentable, Equatable, Hashable, Codable, Senda
                 }
                 return .integer(value: size.min)
             case .bitVector(let size):
-                return .vector(value: .bits(value: [BitLiteral](repeating: .low, count: size.size)))
+                return .vector(
+                    value: .bits(value: BitVector(values: [BitLiteral](repeating: .low, count: size.size)))
+                )
             case .stdLogicVector(let size), .signed(let size), .unsigned(let size),
                 .stdULogicVector(let size):
-                return .vector(value: .logics(value: [LogicLiteral](repeating: .low, count: size.size)))
+                return .vector(
+                    value: .logics(
+                        value: LogicVector(values: [LogicLiteral](repeating: .low, count: size.size))
+                    )
+                )
             }
         }
     }
@@ -228,7 +234,7 @@ public enum SignalLiteral: RawRepresentable, Equatable, Hashable, Codable, Senda
                     .stdULogicVector(let size):
                     return value.size == size.size
                 case .bitVector(let size):
-                    return values.count == size.size && values.allSatisfy { $0 == .low || $0 == .high }
+                    return values.count == size.size && values.values.allSatisfy { $0 == .low || $0 == .high }
                 }
             default:
                 switch type {

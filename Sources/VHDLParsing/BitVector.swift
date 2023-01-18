@@ -58,6 +58,10 @@ public struct BitVector: RawRepresentable, Equatable, Hashable, Codable, Sendabl
 
     public let values: [BitLiteral]
 
+    public var count: Int {
+        values.count
+    }
+
     public var rawValue: String {
         "\"" + values.map(\.vectorLiteral).joined() + "\""
     }

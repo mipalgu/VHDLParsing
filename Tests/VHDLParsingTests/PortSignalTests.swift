@@ -102,13 +102,16 @@ final class PortSignalTests: XCTestCase {
         self.signal.type = .ranged(type: .stdLogicVector(size: .downto(upper: 7, lower: 0)))
         self.signal.name = VariableName(text: "y")
         self.signal.mode = .input
-        self.signal.defaultValue = .literal(value: .vector(value: .hexademical(value: [.ten, .ten])))
+        self.signal.defaultValue = .literal(
+            value: .vector(value: .hexademical(value: HexVector(values: [.ten, .ten])))
+        )
         self.signal.comment = comment
         XCTAssertEqual(self.signal.type, .ranged(type: .stdLogicVector(size: .downto(upper: 7, lower: 0))))
         XCTAssertEqual(self.signal.name, VariableName(text: "y"))
         XCTAssertEqual(self.signal.mode, .input)
         XCTAssertEqual(
-            self.signal.defaultValue, .literal(value: .vector(value: .hexademical(value: [.ten, .ten])))
+            self.signal.defaultValue,
+            .literal(value: .vector(value: .hexademical(value: HexVector(values: [.ten, .ten]))))
         )
         XCTAssertEqual(self.signal.comment, comment)
     }

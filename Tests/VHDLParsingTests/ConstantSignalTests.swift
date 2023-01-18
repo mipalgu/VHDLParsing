@@ -141,7 +141,9 @@ final class ConstantSignalTests: XCTestCase {
         let expected2 = ConstantSignal(
             name: VariableName(text: "x"),
             type: .ranged(type: .stdLogicVector(size: .downto(upper: 3, lower: 0))),
-            value: .literal(value: .vector(value: .bits(value: [.low, .high, .low, .high]))),
+            value: .literal(
+                value: .vector(value: .bits(value: BitVector(values: [.low, .high, .low, .high])))
+            ),
             comment: comment
         )
         XCTAssertNotNil(expected2)
@@ -152,7 +154,9 @@ final class ConstantSignalTests: XCTestCase {
         let expected3 = ConstantSignal(
             name: VariableName(text: "x"),
             type: .ranged(type: .stdLogicVector(size: .downto(upper: 3, lower: 0))),
-            value: .literal(value: .vector(value: .bits(value: [.low, .high, .low, .high]))),
+            value: .literal(
+                value: .vector(value: .bits(value: BitVector(values: [.low, .high, .low, .high])))
+            ),
             comment: nil
         )
         XCTAssertNotNil(expected3)

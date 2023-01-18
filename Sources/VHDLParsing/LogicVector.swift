@@ -58,6 +58,10 @@ public struct LogicVector: RawRepresentable, Equatable, Hashable, Codable, Senda
 
     public let values: [LogicLiteral]
 
+    public var count: Int {
+        values.count
+    }
+
     public var rawValue: String {
         "\"" + values.map(\.vectorLiteral).joined() + "\""
     }

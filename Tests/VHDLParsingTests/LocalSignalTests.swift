@@ -90,12 +90,15 @@ final class LocalSignalTests: XCTestCase {
     func testGettersAndSetters() {
         self.signal.type = .ranged(type: .stdLogicVector(size: .downto(upper: 3, lower: 0)))
         self.signal.name = VariableName(text: "y")
-        self.signal.defaultValue = .literal(value: .vector(value: .bits(value: [.low, .low, .low, .low])))
+        self.signal.defaultValue = .literal(
+            value: .vector(value: .bits(value: BitVector(values: [.low, .low, .low, .low])))
+        )
         self.signal.comment = Comment(text: "The signal y.")
         XCTAssertEqual(self.signal.type, .ranged(type: .stdLogicVector(size: .downto(upper: 3, lower: 0))))
         XCTAssertEqual(self.signal.name, VariableName(text: "y"))
         XCTAssertEqual(
-            self.signal.defaultValue, .literal(value: .vector(value: .bits(value: [.low, .low, .low, .low])))
+            self.signal.defaultValue,
+            .literal(value: .vector(value: .bits(value: BitVector(values: [.low, .low, .low, .low]))))
         )
         XCTAssertEqual(self.signal.comment, Comment(text: "The signal y."))
     }
@@ -147,7 +150,9 @@ final class LocalSignalTests: XCTestCase {
             LocalSignal(
                 type: .ranged(type: .stdLogicVector(size: .downto(upper: 3, lower: 0))),
                 name: name,
-                defaultValue: .literal(value: .vector(value: .hexademical(value: [.four]))),
+                defaultValue: .literal(
+                    value: .vector(value: .hexademical(value: HexVector(values: [.four])))
+                ),
                 comment: comment
             )
         )
