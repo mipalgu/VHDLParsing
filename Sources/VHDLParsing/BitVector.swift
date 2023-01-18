@@ -61,23 +61,25 @@ public struct BitVector: RawRepresentable, Equatable, Hashable, Codable, Sendabl
     public let values: [BitLiteral]
 
     /// The number of bits in the vector.
-    public var count: Int {
+    @inlinable public var count: Int {
         values.count
     }
 
     /// The `VHDL` code representing this bit vector literal.
-    public var rawValue: String {
+    @inlinable public var rawValue: String {
         "\"" + values.map(\.vectorLiteral).joined() + "\""
     }
 
     /// Initialise the stored properties.
     /// - Parameter values: The bits of this vector literal.
+    @inlinable
     public init(values: [BitLiteral]) {
         self.values = values
     }
 
     /// Initialise the literal from the `VHDL` representation.
     /// - Parameter rawValue: The `VHDL` code representing this bit vector literal.
+    @inlinable
     public init?(rawValue: String) {
         let value = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
         guard value.count < 256, value.hasPrefix("\""), value.hasSuffix("\"") else {
