@@ -1,4 +1,4 @@
-// OctalVector.swift
+// OctalVectorTests.swift
 // VHDLParsing
 // 
 // Created by Morgan McColl.
@@ -54,41 +54,39 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
-/// A type for representing a ``VectorLiteral`` of octal values.
-public struct OctalVector: RawRepresentable, Equatable, Hashable, Codable, Sendable {
+@testable import VHDLParsing
+import XCTest
 
-    /// The octal values in this literal.
-    public let values: [OctalLiteral]
+/// Test class for ``OctalVector``.
+final class OctalVectorTests: XCTestCase {
 
-    /// The `VHDL` code representing this vector literal.
-    public var rawValue: String {
-        "o\"" + String(values.map(\.rawValue)) + "\""
+    /// A vector under test.
+    let vector = OctalVector(values: [.one, .two, .three])
+
+    /// Test init sets stored properties correctly.
+    func testInit() {
+        XCTAssertEqual(vector.values, [.one, .two, .three])
     }
 
-    /// Creates a new ``OctalVector`` with the given values.
-    /// - Parameter values: The octal digits for this literal.
-    public init(values: [OctalLiteral]) {
-        self.values = values
+    /// Test `VHDL` code is generated correctly in `rawValue`.
+    func testRawValue() {
+        XCTAssertEqual(vector.rawValue, "o\"123\"")
     }
 
-    /// Creates a new ``OctalVector`` from the `VHDL` representation.
-    /// - Parameter rawValue: The vector literal containing octal values. Should be of the form
-    /// o"<octal digits>", e.g. o"123".
-    public init?(rawValue: String) {
-        let value = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard value.count < 256, value.first?.lowercased() == "o" else {
-            return nil
-        }
-        let dataString = value.dropFirst()
-        guard dataString.count > 1, dataString.hasPrefix("\""), dataString.hasSuffix("\"") else {
-            return nil
-        }
-        let data = dataString.dropFirst().dropLast()
-        let bits = data.compactMap { OctalLiteral(rawValue: $0) }
-        guard bits.count == data.count else {
-            return nil
-        }
-        self.values = bits
+    /// Test `VHDL` is parsed correctly in `init(rawValue:)`
+    func testRawValueInit() {
+        XCTAssertEqual(OctalVector(rawValue: "o\"123\""), vector)
+        XCTAssertEqual(OctalVector(rawValue: "o\"123\" "), vector)
+        XCTAssertEqual(OctalVector(rawValue: " o\"123\""), vector)
+        XCTAssertEqual(OctalVector(rawValue: " o\"123\" "), vector)
+        XCTAssertEqual(OctalVector(rawValue: "o\"\""), OctalVector(values: []))
+        XCTAssertNil(OctalVector(rawValue: "o\"\(String(repeating: "1", count: 256))\""))
+        XCTAssertNil(OctalVector(rawValue: "o\"123 \""))
+        XCTAssertNil(OctalVector(rawValue: "o\" 123\""))
+        XCTAssertNil(OctalVector(rawValue: "o\" 123 \""))
+        XCTAssertNil(OctalVector(rawValue: "o\"123\"a"))
+        XCTAssertNil(OctalVector(rawValue: "o\""))
+        XCTAssertNil(OctalVector(rawValue: "o\"A\""))
     }
 
 }
