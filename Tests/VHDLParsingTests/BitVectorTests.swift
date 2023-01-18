@@ -1,4 +1,4 @@
-// BitVector.swift
+// BitVectorTests.swift
 // VHDLParsing
 // 
 // Created by Morgan McColl.
@@ -54,41 +54,38 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
-/// A ``VectorLiteral`` of ``BitLiteral`` values.
-public struct BitVector: RawRepresentable, Equatable, Hashable, Codable, Sendable {
+@testable import VHDLParsing
+import XCTest
 
-    /// The bits.
-    public let values: [BitLiteral]
+/// Test class for ``BitVector``.
+final class BitVectorTests: XCTestCase {
 
-    /// The number of bits in the vector.
-    public var count: Int {
-        values.count
+    /// A vector under test.
+    let vector = BitVector(values: [.low, .high, .high, .low])
+
+    /// Test init sets properties correctly.
+    func testInit() {
+        XCTAssertEqual(vector.values, [.low, .high, .high, .low])
     }
 
-    /// The `VHDL` code representing this bit vector literal.
-    public var rawValue: String {
-        "\"" + values.map(\.vectorLiteral).joined() + "\""
+    /// Test rawValue produces correct string.
+    func testRawValue() {
+        XCTAssertEqual(vector.rawValue, "\"0110\"")
     }
 
-    /// Initialise the stored properties.
-    /// - Parameter values: The bits of this vector literal.
-    public init(values: [BitLiteral]) {
-        self.values = values
+    /// Test count is correct value.
+    func testCount() {
+        XCTAssertEqual(vector.count, 4)
     }
 
-    /// Initialise the literal from the `VHDL` representation.
-    /// - Parameter rawValue: The `VHDL` code representing this bit vector literal.
-    public init?(rawValue: String) {
-        let value = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard value.count < 256, value.hasPrefix("\""), value.hasSuffix("\"") else {
-            return nil
-        }
-        let data = value.dropFirst().dropLast()
-        let bits = data.compactMap { BitLiteral(rawValue: "'\($0)'") }
-        guard bits.count == data.count else {
-            return nil
-        }
-        self.values = bits
+    /// Test rawValue initialiser produces correct vector.
+    func testRawValueInit() {
+        XCTAssertEqual(BitVector(rawValue: "\"0110\""), vector)
+        XCTAssertEqual(BitVector(rawValue: " \"0110\""), vector)
+        XCTAssertEqual(BitVector(rawValue: "\"0110\" "), vector)
+        XCTAssertEqual(BitVector(rawValue: " \"0110\" "), vector)
+        XCTAssertEqual(BitVector(rawValue: "\"\""), BitVector(values: []))
+        XCTAssertNil(BitVector(rawValue: "\"\(String(repeating: "1", count: 256))\""))
     }
 
 }
