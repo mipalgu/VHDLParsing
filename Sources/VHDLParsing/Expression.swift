@@ -56,7 +56,13 @@
 
 import Foundation
 
-/// An `Expression` represents the RHS of a statement in VHDL.
+/// An `Expression` represents a stand-alone statement that resolves to some value in `VHDL`. Typical
+/// expressions would include all operations after the `<=` symbol in a `VHDL` assignment operation. Some
+/// examples include arithmetic operations (+, -, /, *), comparison operations (>, <, <=, >=, =, /=), bitwise
+/// operations (sll, srl, sla, sra, rol, ror), and may include references to pre-defined variables or literal
+/// values. This type should not be used to describe branch statements such as `if` or `case` statements, or
+/// loops such as `for` and `while` loops. For those types of expressions, use ``Statement``.
+/// - SeeAlso: ``Statement``.
 indirect public enum Expression: RawRepresentable,
     Equatable, Hashable, Codable, Sendable, CustomStringConvertible {
 
