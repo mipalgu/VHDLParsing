@@ -54,62 +54,65 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
-/// This type represents a value for a specific index in a vector type within `VHDL`. For example, consider a
-/// signal `x` with type `std_logic_vector(3 downto 0)`. We can assign specific bits within `x` by using the
-/// `VHDL` statement `x <= (3 => '1', others => '0');`. This statement says bit 3 of `x` should be set to 1
-/// and all other bits to be set to 0. This type can be used to represent both expressions `3 => '1'` and
-/// `others => '0'` as two separate instances of this type.
-public struct IndexedValue: RawRepresentable, Equatable, Hashable, Codable, Sendable {
+@testable import VHDLParsing
+import XCTest
 
-    /// The index within the vector type to assign the `value` to.
-    public let index: VectorIndex
+/// Test class for ``IndexedValue``.
+final class IndexedValueTests: XCTestCase {
 
-    /// The value to assign to the bit located at `index`.
-    public let value: SignalLiteral
+    /// A value under test.
+    let value = IndexedValue(index: .others, value: .bit(value: .high))
 
-    /// The `VHDL` representation of this type.
-    @inlinable public var rawValue: String {
-        "\(self.index.rawValue) => \(self.value.rawValue)"
+    /// Test initialiser sets stored properties correctly.
+    func testInit() {
+        XCTAssertEqual(value.index, .others)
+        XCTAssertEqual(value.value, .bit(value: .high))
     }
 
-    /// Initialise an indexed value from the `VHDL` code that represents it.
-    /// - Parameter rawValue: The `VHDL` code representing this indexed value. This code should be of the form
-    /// `<index> => <value>`. This initialiser will also parse strings that contain a comma in the suffix.
-    @inlinable
-    public init?(rawValue: String) {
-        let value = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard value.count < 256 else {
-            return nil
-        }
-        let subComponents = value.components(separatedBy: "=>")
-        guard subComponents.count == 2, let index = VectorIndex(rawValue: subComponents[0]) else {
-            return nil
-        }
-        var bitString = subComponents[1].trimmingCharacters(in: .whitespacesAndNewlines)
-        if bitString.hasSuffix(",") {
-            bitString = String(bitString.dropLast())
-        }
-        if let bit = BitLiteral(rawValue: bitString) {
-            self.index = index
-            self.value = SignalLiteral.bit(value: bit)
-            return
-        }
-        if let logic = LogicLiteral(rawValue: bitString) {
-            self.index = index
-            self.value = SignalLiteral.logic(value: logic)
-            return
-        }
-        return nil
+    /// Test `rawValue` creates `VHDL` code correctly.
+    func testRawValue() {
+        XCTAssertEqual(value.rawValue, "others => '1'")
+        XCTAssertEqual(IndexedValue(index: .index(value: 1), value: .bit(value: .low)).rawValue, "1 => '0'")
+        XCTAssertEqual(
+            IndexedValue(
+                index: .range(value: .downto(upper: 2, lower: 0)), value: .bit(value: .low)
+            ).rawValue,
+            "2 downto 0 => '0'"
+        )
     }
 
-    /// Intialise an indexed value with an index and value.
-    /// - Parameters:
-    ///   - index: The index within a vector type to assign the `value` to.
-    ///   - value: The value to assign to the bit located at `index`.
-    @inlinable
-    public init(index: VectorIndex, value: SignalLiteral) {
-        self.index = index
-        self.value = value
+    /// Test `init(rawValue:)` parses `VHDL` code correctly.
+    func testRawValueInit() {
+        XCTAssertEqual(IndexedValue(rawValue: "others => '1'"), value)
+        XCTAssertEqual(IndexedValue(rawValue: "others => '1' "), value)
+        XCTAssertEqual(IndexedValue(rawValue: " others => '1'"), value)
+        XCTAssertEqual(IndexedValue(rawValue: " others => '1' "), value)
+        XCTAssertEqual(IndexedValue(rawValue: "others => '1',"), value)
+        XCTAssertEqual(IndexedValue(rawValue: "others => '1', "), value)
+        XCTAssertEqual(IndexedValue(rawValue: " others => '1',"), value)
+        XCTAssertEqual(IndexedValue(rawValue: " others => '1', "), value)
+        XCTAssertEqual(
+            IndexedValue(rawValue: "3 downto 0 => '1',"),
+            IndexedValue(index: .range(value: .downto(upper: 3, lower: 0)), value: .bit(value: .high))
+        )
+        XCTAssertEqual(
+            IndexedValue(rawValue: "1 => '1'"),
+            IndexedValue(index: .index(value: 1), value: .bit(value: .high))
+        )
+        XCTAssertEqual(
+            IndexedValue(rawValue: "others => 'U'"),
+            IndexedValue(index: .others, value: .logic(value: .uninitialized))
+        )
+        XCTAssertNil(IndexedValue(rawValue: "others => '1' => '0'"))
+        XCTAssertNil(IndexedValue(rawValue: "2 => '1', others => '0'"))
+        XCTAssertNil(IndexedValue(rawValue: ""))
+        XCTAssertNil(IndexedValue(rawValue: " "))
+        XCTAssertNil(IndexedValue(rawValue: "\n"))
+        XCTAssertNil(IndexedValue(rawValue: "\(String(repeating: "1", count: 256)) => '1'"))
+        XCTAssertNil(IndexedValue(rawValue: "abx => '1'"))
+        XCTAssertNil(IndexedValue(rawValue: "signal x: std_logic_vector(3 downto 0) := (others => '1');"))
+        XCTAssertNil(IndexedValue(rawValue: "others => \"1\""))
+        XCTAssertNil(IndexedValue(rawValue: "others => 1"))
     }
 
 }
