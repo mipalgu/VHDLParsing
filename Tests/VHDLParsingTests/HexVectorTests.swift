@@ -90,6 +90,7 @@ final class HexVectorTests: XCTestCase {
         XCTAssertNil(HexVector(rawValue: "\"45\""))
         XCTAssertNil(HexVector(rawValue: ""))
         XCTAssertNil(HexVector(rawValue: "\"\""))
+        XCTAssertNil(HexVector(rawValue: "x\""))
     }
 
 }

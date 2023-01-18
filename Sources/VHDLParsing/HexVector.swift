@@ -79,7 +79,7 @@ public struct HexVector: RawRepresentable, Equatable, Hashable, Codable, Sendabl
             return nil
         }
         let dataString = value.dropFirst()
-        guard dataString.hasPrefix("\""), dataString.hasSuffix("\"") else {
+        guard dataString.count > 1, dataString.hasPrefix("\""), dataString.hasSuffix("\"") else {
             return nil
         }
         let data = dataString.dropFirst().dropLast()
