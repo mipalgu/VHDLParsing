@@ -61,17 +61,18 @@ public struct LogicVector: RawRepresentable, Equatable, Hashable, Codable, Senda
     public let values: [LogicLiteral]
 
     /// The number of values in this literal.
-    public var count: Int {
+    @inlinable public var count: Int {
         values.count
     }
 
     /// The `VHDL` representation of this vector literal.
-    public var rawValue: String {
+    @inlinable public var rawValue: String {
         "\"" + values.map(\.vectorLiteral).joined() + "\""
     }
 
     /// Creates a new ``LogicVector`` with the given values.
     /// - Parameter values: The bits in the vector.
+    @inlinable
     public init(values: [LogicLiteral]) {
         self.values = values
     }
@@ -79,6 +80,7 @@ public struct LogicVector: RawRepresentable, Equatable, Hashable, Codable, Senda
     /// Creates a new ``LogicVector`` from the `VHDL` representation.
     /// - Parameter rawValue: The `VHDL` representation. Should be of the form "<std_logic literals>", e.g.
     /// "1010".
+    @inlinable
     public init?(rawValue: String) {
         let value = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
         guard value.count < 256, value.count > 1, value.hasPrefix("\""), value.hasSuffix("\"") else {

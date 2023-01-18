@@ -61,18 +61,20 @@ public struct HexVector: RawRepresentable, Equatable, Hashable, Codable, Sendabl
     public let values: [HexLiteral]
 
     /// The `VHDL` code representing this literal value.
-    public var rawValue: String {
+    @inlinable public var rawValue: String {
         "x\"" + String(values.map(\.rawValue)) + "\""
     }
 
     /// Initialise the vector from it's values.
     /// - Parameter values: The hex values of the vector literal.
+    @inlinable
     public init(values: [HexLiteral]) {
         self.values = values
     }
 
     /// Initialise the vector from the `VHDL` code representing it.
     /// - Parameter rawValue: The `VHDL` code representing this vector literal.
+    @inlinable
     public init?(rawValue: String) {
         let value = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
         guard value.count < 256, value.first?.lowercased() == "x" else {

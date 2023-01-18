@@ -61,12 +61,13 @@ public struct OctalVector: RawRepresentable, Equatable, Hashable, Codable, Senda
     public let values: [OctalLiteral]
 
     /// The `VHDL` code representing this vector literal.
-    public var rawValue: String {
+    @inlinable public var rawValue: String {
         "o\"" + String(values.map(\.rawValue)) + "\""
     }
 
     /// Creates a new ``OctalVector`` with the given values.
     /// - Parameter values: The octal digits for this literal.
+    @inlinable
     public init(values: [OctalLiteral]) {
         self.values = values
     }
@@ -74,6 +75,7 @@ public struct OctalVector: RawRepresentable, Equatable, Hashable, Codable, Senda
     /// Creates a new ``OctalVector`` from the `VHDL` representation.
     /// - Parameter rawValue: The vector literal containing octal values. Should be of the form
     /// o"<octal digits>", e.g. o"123".
+    @inlinable
     public init?(rawValue: String) {
         let value = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
         guard value.count < 256, value.first?.lowercased() == "o" else {
