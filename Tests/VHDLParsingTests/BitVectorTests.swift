@@ -86,6 +86,14 @@ final class BitVectorTests: XCTestCase {
         XCTAssertEqual(BitVector(rawValue: " \"0110\" "), vector)
         XCTAssertEqual(BitVector(rawValue: "\"\""), BitVector(values: []))
         XCTAssertNil(BitVector(rawValue: "\"\(String(repeating: "1", count: 256))\""))
+        XCTAssertNil(BitVector(rawValue: "\""))
+        XCTAssertNil(BitVector(rawValue: "\"0"))
+        XCTAssertNil(BitVector(rawValue: "\"01"))
+        XCTAssertNil(BitVector(rawValue: "\"01 1\""))
+        XCTAssertNil(BitVector(rawValue: "\"011 \""))
+        XCTAssertNil(BitVector(rawValue: "\" 011\""))
+        XCTAssertNil(BitVector(rawValue: "\" 011 \""))
+        XCTAssertNil(BitVector(rawValue: "\"0110\"\""))
     }
 
 }

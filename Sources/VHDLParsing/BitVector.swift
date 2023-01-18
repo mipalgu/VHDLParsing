@@ -82,7 +82,7 @@ public struct BitVector: RawRepresentable, Equatable, Hashable, Codable, Sendabl
     @inlinable
     public init?(rawValue: String) {
         let value = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard value.count < 256, value.hasPrefix("\""), value.hasSuffix("\"") else {
+        guard value.count < 256, value.count > 1, value.hasPrefix("\""), value.hasSuffix("\"") else {
             return nil
         }
         let data = value.dropFirst().dropLast()
