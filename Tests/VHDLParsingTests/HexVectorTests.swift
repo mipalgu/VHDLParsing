@@ -1,4 +1,4 @@
-// HexVector.swift
+// HexVectorTests.swift
 // VHDLParsing
 // 
 // Created by Morgan McColl.
@@ -54,41 +54,42 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
-/// A literal string that represents hexadecimal values for assignment into a vector in `VHDL`.
-public struct HexVector: RawRepresentable, Equatable, Hashable, Codable, Sendable {
+@testable import VHDLParsing
+import XCTest
 
-    /// The hexadecimal digits.
-    public let values: [HexLiteral]
+/// Test class for ``HexVector``.
+final class HexVectorTests: XCTestCase {
 
-    /// The `VHDL` code representing this literal value.
-    public var rawValue: String {
-        "x\"" + String(values.map(\.rawValue)) + "\""
+    /// A vector under test.
+    let vector = HexVector(values: [.four, .five, .six])
+
+    /// Test properties are set correctly by init.
+    func testInit() {
+        XCTAssertEqual(vector.values, [.four, .five, .six])
     }
 
-    /// Initialise the vector from it's values.
-    /// - Parameter values: The hex values of the vector literal.
-    public init(values: [HexLiteral]) {
-        self.values = values
+    /// Test rawValue creates vhdl code correctly.
+    func testRawValues() {
+        XCTAssertEqual(vector.rawValue, "x\"456\"")
     }
 
-    /// Initialise the vector from the `VHDL` code representing it.
-    /// - Parameter rawValue: The `VHDL` code representing this vector literal.
-    public init?(rawValue: String) {
-        let value = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard value.count < 256, value.first?.lowercased() == "x" else {
-            return nil
-        }
-        let dataString = value.dropFirst()
-        guard dataString.hasPrefix("\""), dataString.hasSuffix("\"") else {
-            return nil
-        }
-        let data = dataString.dropFirst().dropLast()
-        let bits = data.compactMap { HexLiteral(rawValue: $0) }
-        guard bits.count == data.count else {
-            return nil
-        }
-        self.values = bits
-        return
+    /// Test init can parse VHDL code correctly.
+    func testRawValueInit() {
+        XCTAssertEqual(HexVector(rawValue: "x\"456\""), vector)
+        XCTAssertEqual(HexVector(rawValue: "x\"456\" "), vector)
+        XCTAssertEqual(HexVector(rawValue: " x\"456\""), vector)
+        XCTAssertEqual(HexVector(rawValue: " x\"456\" "), vector)
+        XCTAssertEqual(HexVector(rawValue: "x\"45A\""), HexVector(values: [.four, .five, .ten]))
+        XCTAssertEqual(HexVector(rawValue: "x\"\""), HexVector(values: []))
+        XCTAssertNil(HexVector(rawValue: "x\"G\""))
+        XCTAssertNil(HexVector(rawValue: "x\" \""))
+        XCTAssertNil(HexVector(rawValue: "x\" 456 \""))
+        XCTAssertNil(HexVector(rawValue: "x\"4 56\""))
+        XCTAssertNil(HexVector(rawValue: "x\"45 \""))
+        XCTAssertNil(HexVector(rawValue: "x\" 45\""))
+        XCTAssertNil(HexVector(rawValue: "\"45\""))
+        XCTAssertNil(HexVector(rawValue: ""))
+        XCTAssertNil(HexVector(rawValue: "\"\""))
     }
 
 }
