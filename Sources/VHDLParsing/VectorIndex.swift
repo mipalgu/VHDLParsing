@@ -73,7 +73,7 @@ public enum VectorIndex: RawRepresentable, Equatable, Hashable, Codable, Sendabl
     case range(value: VectorSize)
 
     /// The `VHDL` code representing this index.
-    public var rawValue: String {
+    @inlinable public var rawValue: String {
         switch self {
         case .index(let value):
             return "\(value)"
@@ -87,6 +87,7 @@ public enum VectorIndex: RawRepresentable, Equatable, Hashable, Codable, Sendabl
     /// Creates a new `VectorIndex` from the `VHDL` code representing it.
     /// - Parameter rawValue: The `VHDL` code representing the index. This code should only contain the index
     /// itself and no other statements or parantheses.
+    @inlinable
     public init?(rawValue: String) {
         let value = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
         guard value.count < 256 else {
