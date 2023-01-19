@@ -281,4 +281,14 @@ final class StringVHDLMethodsTests: XCTestCase {
         XCTAssertEqual(" a b\nc \n d  \n \n e\n\n\nf   g\n".words, ["a", "b", "c", "d", "e", "f", "g"])
     }
 
+    /// Test `firstWord`.
+    func testFirstWord() {
+        XCTAssertEqual(" a b\nc \n d  \n \n e\n\n\nf   g\n".firstWord, "a")
+    }
+
+    /// Test `lastWord`.
+    func testLastWord() {
+        XCTAssertEqual(" a b\nc \n d  \n \n e\n\n\nf   g\n".lastWord, "g")
+    }
+
 }

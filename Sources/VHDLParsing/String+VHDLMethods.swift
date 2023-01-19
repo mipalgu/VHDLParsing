@@ -72,6 +72,26 @@ extension String {
         "    "
     }
 
+    @usableFromInline var firstWord: String? {
+        guard
+            let components = self.trimmingCharacters(in: .whitespacesAndNewlines)
+                .split(on: .whitespacesAndNewlines)
+        else {
+            return nil
+        }
+        return components.0.first
+    }
+
+    @usableFromInline var lastWord: String? {
+        guard
+            let index = self.trimmingCharacters(in: .whitespacesAndNewlines).unicodeScalars
+                .lastIndex(where: { CharacterSet.whitespacesAndNewlines.contains($0) })
+        else {
+            return nil
+        }
+        return String(self[index...]).trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
     /// Remove all `VHDL` comments and empty lines from the string.
     @usableFromInline var withoutComments: String {
         performWithoutComments(for: self)
