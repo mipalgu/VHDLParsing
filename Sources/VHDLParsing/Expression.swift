@@ -77,12 +77,6 @@ indirect public enum Expression: RawRepresentable,
     /// A precedence operation. This is equivalent to placing brackets around an Expression.
     case precedence(value: Expression)
 
-    /// A comment.
-    case comment(comment: Comment)
-
-    /// An expression with a comment.
-    case expressionWithComment(expression: Expression, comment: Comment)
-
     case conditional(condition: ConditionalExpression)
 
     /// The raw value is a string.
@@ -99,10 +93,6 @@ indirect public enum Expression: RawRepresentable,
             return operation.rawValue
         case .precedence(let value):
             return "(\(value.rawValue))"
-        case .comment(let comment):
-            return "\(comment)"
-        case .expressionWithComment(let expression, let comment):
-            return "\(expression.rawValue); \(comment)"
         case .conditional(let condition):
             return condition.rawValue
         }
@@ -118,31 +108,10 @@ indirect public enum Expression: RawRepresentable,
     /// Create an `Expression` from valid VHDL code.
     /// - Parameter rawValue: The code to convert to this expression.
     public init?(rawValue: String) {
-        let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard trimmedString.count < 256 else {
+        let value = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard value.count < 256 else {
             return nil
         }
-        guard !trimmedString.hasPrefix("--") else {
-            guard let comment = Comment(rawValue: trimmedString) else {
-                return nil
-            }
-            self = .comment(comment: comment)
-            return
-        }
-        guard !trimmedString.contains("--") else {
-            let components = trimmedString.components(separatedBy: "--")
-            guard components.count >= 2, let expression = Expression(rawValue: components[0]) else {
-                return nil
-            }
-            let comment = "-- " + components[1...].joined(separator: "--")
-                .trimmingCharacters(in: .whitespaces)
-            guard let commentValue = Comment(rawValue: comment) else {
-                return nil
-            }
-            self = .expressionWithComment(expression: expression, comment: commentValue)
-            return
-        }
-        let value = trimmedString.uptoSemicolon
         if let literal = SignalLiteral(rawValue: value) {
             self = .literal(value: literal)
             return
