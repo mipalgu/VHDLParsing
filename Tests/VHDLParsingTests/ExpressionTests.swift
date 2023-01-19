@@ -318,4 +318,27 @@ final class ExpressionTests: XCTestCase {
         )
     }
 
+    /// Test `description` matches `rawValue`.
+    func testDescription() {
+        let expression = Expression.conditional(
+            condition: .comparison(
+                value: .greaterThan(
+                    lhs: .binary(
+                        operation: .addition(
+                            lhs: .variable(name: VariableName(text: "a")),
+                            rhs: .variable(name: VariableName(text: "b"))
+                        )
+                    ),
+                    rhs: .binary(
+                        operation: .addition(
+                            lhs: .variable(name: VariableName(text: "c")),
+                            rhs: .variable(name: VariableName(text: "d"))
+                        )
+                    )
+                )
+            )
+        )
+        XCTAssertEqual(expression.description, expression.rawValue)
+    }
+
 }
