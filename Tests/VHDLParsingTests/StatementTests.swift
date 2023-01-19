@@ -175,4 +175,45 @@ final class StatementTests: XCTestCase {
         XCTAssertNil(Statement(rawValue: "-- signal x: std_logic\n := '1';"))
     }
 
+    /// Test `init(rawValue:)` parses `VHDL` code correctly for comments.
+    func testCommentRawValueInit() {
+        let comment = Comment(text: "signal x.")
+        XCTAssertEqual(Statement(rawValue: "-- signal x."), Statement.comment(value: comment))
+        XCTAssertEqual(Statement(rawValue: " -- signal x."), Statement.comment(value: comment))
+        XCTAssertEqual(Statement(rawValue: "-- signal x. "), Statement.comment(value: comment))
+        XCTAssertEqual(Statement(rawValue: " -- signal x. "), Statement.comment(value: comment))
+        XCTAssertEqual(Statement(rawValue: "-- signal x.\n"), Statement.comment(value: comment))
+        XCTAssertEqual(Statement(rawValue: "-- signal x.\n "), Statement.comment(value: comment))
+        XCTAssertEqual(Statement(rawValue: " -- signal x.\n"), Statement.comment(value: comment))
+        XCTAssertEqual(Statement(rawValue: " -- signal x.\n "), Statement.comment(value: comment))
+        XCTAssertEqual(Statement(rawValue: "-- signal x.\n\n"), Statement.comment(value: comment))
+        XCTAssertEqual(Statement(rawValue: "-- signal x.\n\n "), Statement.comment(value: comment))
+        XCTAssertEqual(Statement(rawValue: "-- signal x.\n\n\n"), Statement.comment(value: comment))
+        XCTAssertEqual(Statement(rawValue: "-- signal x.\n\n\n "), Statement.comment(value: comment))
+        XCTAssertEqual(
+            Statement(rawValue: "-- signal x.--"), Statement.comment(value: Comment(text: "signal x.--"))
+        )
+        XCTAssertEqual(Statement(rawValue: "--signal x."), Statement.comment(value: comment))
+        XCTAssertNil(Statement(rawValue: "-- signal x.\n--"))
+        XCTAssertNil(Statement(rawValue: "-- signal x.\n\n--"))
+        XCTAssertNil(Statement(rawValue: "-- signal x.\n\n\n--\n"))
+        XCTAssertNil(Statement(rawValue: "-- signal x;\n -- signal y."))
+    }
+
+    /// Test `init(rawValue:)` parses `VHDL` code correctly for assignments.
+    func testAssignmentRawValueInit() {
+        let value = Expression.literal(value: .bit(value: .high))
+        XCTAssertEqual(Statement(rawValue: "x <= '1';"), .assignment(name: varX, value: value))
+        XCTAssertEqual(Statement(rawValue: "x <= '1'; "), .assignment(name: varX, value: value))
+        XCTAssertEqual(Statement(rawValue: " x <= '1';"), .assignment(name: varX, value: value))
+        XCTAssertEqual(Statement(rawValue: " x <= '1'; "), .assignment(name: varX, value: value))
+        XCTAssertEqual(Statement(rawValue: "x <= '1';\n"), .assignment(name: varX, value: value))
+        XCTAssertEqual(Statement(rawValue: "x <= '1';\n "), .assignment(name: varX, value: value))
+        XCTAssertEqual(Statement(rawValue: "x   <=    '1' ; "), .assignment(name: varX, value: value))
+        XCTAssertNil(Statement(rawValue: "x <= '1' <= '0';"))
+        XCTAssertNil(Statement(rawValue: "x <= '2';"))
+        XCTAssertNil(Statement(rawValue: "x <= '1'"))
+        XCTAssertNil(Statement(rawValue: "2x <= '1';"))
+    }
+
 }

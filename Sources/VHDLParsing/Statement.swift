@@ -90,10 +90,14 @@ public enum Statement: RawRepresentable, Equatable, Hashable, Codable, Sendable 
         }
        if trimmedString.contains("<=") {
             let components = trimmedString.components(separatedBy: "<=")
+            guard components.count == 2 else {
+                return nil
+            }
+            let expression = components[1].trimmingCharacters(in: .whitespacesAndNewlines)
             guard
-                components.count == 2,
+                expression.hasSuffix(";"),
                 let name = VariableName(rawValue: components[0]),
-                let exp = Expression(rawValue: components[1])
+                let exp = Expression(rawValue: String(expression.dropLast()))
             else {
                 return nil
             }
