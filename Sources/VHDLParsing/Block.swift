@@ -78,11 +78,14 @@ indirect public enum Block: RawRepresentable, Equatable, Hashable, Codable, Send
     }
 
     public init?(rawValue: String) {
-        self.init(rawValue: rawValue, carry: [])
+        guard rawValue.count < 4096 else {
+            return nil
+        }
+        self.init(rawValue: rawValue.withoutComments, carry: [])
     }
 
     private init?(rawValue: String, carry: [Block]) {
-        let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines).withoutComments
+        let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
         guard trimmedString.contains(";") else {
             return nil
         }
@@ -137,10 +140,8 @@ indirect public enum Block: RawRepresentable, Equatable, Hashable, Codable, Send
         }
         if carry.count == 1 {
             self = carry[0]
-            return
         } else {
             self = .blocks(blocks: carry)
-            return
         }
     }
 
