@@ -58,28 +58,42 @@ public struct LocalSignal: RawRepresentable, Codable, Equatable, Hashable, Varia
     /// - Parameter rawValue: The VHDL code that defines this signal.
     public init?(rawValue: String) {
         let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard trimmedString.count < 256, trimmedString.hasPrefix("signal ") else {
+        guard
+            trimmedString.count < 256, trimmedString.hasPrefix("signal "), trimmedString.contains(";")
+        else {
             return nil
         }
         let components = trimmedString.components(separatedBy: ";")
-        guard components.count <= 2, !components.isEmpty else {
-            return nil
-        }
-        let comment = components.last.flatMap { Comment(rawValue: $0) }
-        let declaration = trimmedString.uptoSemicolon
-        guard !declaration.contains(":=") else {
-            let declComponents = declaration.components(separatedBy: ":=")
-            guard declComponents.count == 2 else {
+            .map { $0.trimmingCharacters(in: .whitespaces) }
+            .filter { !$0.isEmpty }
+        let comment: Comment?
+        if components.count >= 2 {
+            guard let newComment = Comment(rawValue: components[1...].joined(separator: ";")) else {
                 return nil
             }
-            self.init(
-                declaration: declComponents[0].trimmingCharacters(in: .whitespaces),
-                defaultValue: declComponents[1].trimmingCharacters(in: .whitespaces),
-                comment: comment
-            )
+            comment = newComment
+        } else {
+            comment = nil
+        }
+        guard let declaration = components.first else {
+            return nil
+        }
+        guard declaration.contains(":=") else {
+            guard let signal = LocalSignal(declaration: declaration, comment: comment) else {
+                return nil
+            }
+            self = signal
             return
         }
-        self.init(declaration: declaration, comment: comment)
+        let declComponents = declaration.components(separatedBy: ":=")
+        guard declComponents.count == 2 else {
+            return nil
+        }
+        self.init(
+            declaration: declComponents[0].trimmingCharacters(in: .whitespaces),
+            defaultValue: declComponents[1].trimmingCharacters(in: .whitespaces),
+            comment: comment
+        )
     }
 
     /// Initialises a new local signal from the given declaration, default value and comment VHDL components.

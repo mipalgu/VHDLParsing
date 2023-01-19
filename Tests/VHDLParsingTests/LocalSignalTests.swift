@@ -161,4 +161,18 @@ final class LocalSignalTests: XCTestCase {
         )
     }
 
+    /// Test failing values for rawValue init.
+    func testInvalidRawValueInit() {
+        XCTAssertNil(LocalSignal(rawValue: "signal x: std_logic := '1'; -- signal x.\n --"))
+        XCTAssertNil(LocalSignal(rawValue: "signal ;"))
+        XCTAssertNil(LocalSignal(rawValue: "signal x: std_logic := '1' := '0';"))
+        XCTAssertNil(LocalSignal(rawValue: "signal 2x: std_logic := '1';"))
+        XCTAssertNil(LocalSignal(rawValue: "signal "))
+        XCTAssertNil(LocalSignal(rawValue: ""))
+        XCTAssertNil(LocalSignal(rawValue: " "))
+        XCTAssertNil(LocalSignal(rawValue: "\n"))
+        XCTAssertNil(LocalSignal(rawValue: "signal x: std_logic ::= '1';"))
+        XCTAssertNil(LocalSignal(rawValue: "signal x: std_logics := '1';"))
+    }
+
 }
