@@ -123,11 +123,13 @@ public enum IfBlock: RawRepresentable, Equatable, Hashable, Codable, Sendable {
             return nil
         }
         let body = trimmedString[bodyIndex...]
+        let elseSet = Set(["else", "elsif"])
         let bodyComponents = value[bodyIndex...].components(separatedBy: .whitespacesAndNewlines)
-        if bodyComponents.contains("elsif") {
-            guard let elsifIndex = body.startIndex(for: "elsif") else {
-                return nil
-            }
+        .map {
+            $0.lowercased()
+        }
+        .filter { elseSet.contains($0) }
+        if bodyComponents.contains("elsif"), let elsifIndex = body.startIndex(for: "elsif") {
             let myBody = body[..<elsifIndex]
             let otherBody = trimmedString[elsifIndex...].dropFirst(3)
             guard
@@ -139,10 +141,7 @@ public enum IfBlock: RawRepresentable, Equatable, Hashable, Codable, Sendable {
             self = .ifElse(condition: condition, ifBlock: bodyBlock, elseBlock: block)
             return
         }
-        if bodyComponents.contains("else") {
-            guard let elseIndex = body.startIndex(for: "else") else {
-                return nil
-            }
+        if bodyComponents.contains("else"), let elseIndex = body.startIndex(for: "else") {
             let myBody = body[..<elseIndex]
             let otherBody = trimmedString[elseIndex..<endIndex].dropFirst(4)
             guard
