@@ -92,6 +92,7 @@ final class CommentTests: XCTestCase {
         XCTAssertNil(Comment(rawValue: ""))
         XCTAssertNil(Comment(rawValue: "-- "))
         XCTAssertNil(Comment(rawValue: "-- abc\ndef"))
+        XCTAssertNil(Comment(rawValue: "-- abc\n-- def"))
     }
 
 }
