@@ -96,6 +96,7 @@ final class IfBlockTests: XCTestCase {
         // let block3 = IfBlock.ifElse(condition: condition, ifBlock: Block, elseBlock: Block)
     }
 
+    /// Test standard `ifStatement` and `ifElse` case in `init(rawValue:)`.
     func testIfRawValueInit() {
         let raw = """
         if (x = y) then
