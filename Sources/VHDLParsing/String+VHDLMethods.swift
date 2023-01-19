@@ -233,22 +233,7 @@ extension String {
     /// - Returns: The first index within self that matches the substring.
     @usableFromInline
     func startIndex(for value: String) -> String.Index? {
-        let size = value.count
-        guard !value.isEmpty, self.count >= size else {
-            return nil
-        }
-        let offset = size - 1
-        let startIndex = self.index(self.startIndex, offsetBy: offset)
-        for i in self[startIndex...].indices {
-            guard
-                let wordStart = self.index(i, offsetBy: -offset, limitedBy: self.startIndex),
-                self[wordStart...i] == value
-            else {
-                continue
-            }
-            return wordStart
-        }
-        return nil
+        self[self.startIndex..<self.endIndex].startIndex(for: value)
     }
 
     /// Find the start index for a word.
