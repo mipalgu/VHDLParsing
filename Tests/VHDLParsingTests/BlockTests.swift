@@ -1,5 +1,5 @@
-// Block.swift
-// Machines
+// BlocksTests.swift
+// VHDLParsing
 // 
 // Created by Morgan McColl.
 // Copyright © 2023 Morgan McColl. All rights reserved.
@@ -54,63 +54,58 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
-indirect public enum Block: RawRepresentable, Equatable, Hashable, Codable, Sendable {
+@testable import VHDLParsing
+import XCTest
 
-    case blocks(blocks: [Block])
+/// Test class for ``Block``
+final class BlockTests: XCTestCase {
 
-    case statement(statement: Statement)
+    /// A variable called x.
+    let x = VariableName(text: "x")
 
-    case process(block: ProcessBlock)
-
-    case ifStatement(block: IfBlock)
-
-    public var rawValue: String {
-        switch self {
-        case .blocks(let blocks):
-            return blocks.map(\.rawValue).joined(separator: "\n")
-        case .process(let block):
-            return block.rawValue
-        case .ifStatement(let block):
-            return block.rawValue
-        case .statement(let statement):
-            return statement.rawValue
-        }
+    /// Test raw values are correct.
+    func testRawValues() {
+        let statement = Block.statement(
+            statement: Statement.assignment(name: x, value: .literal(value: .bit(value: .high)))
+        )
+        XCTAssertEqual(statement.rawValue, "x <= '1';")
+        let blocks = Block.blocks(blocks: [statement, statement])
+        XCTAssertEqual(blocks.rawValue, "x <= '1';\nx <= '1';")
     }
 
-    public init?(rawValue: String) {
-        let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines).withoutComments
-        guard trimmedString.contains(";") else {
-            return nil
-        }
-        if let ifStatement = IfBlock(rawValue: trimmedString) {
-            self = .ifStatement(block: ifStatement)
-            return
-        }
-        if let process = ProcessBlock(rawValue: trimmedString) {
-            self = .process(block: process)
-            return
-        }
-        // Check for single semicolon.
-        if
-            trimmedString.firstIndex(of: ";") == trimmedString.lastIndex(of: ";"),
-            trimmedString.hasSuffix(";")
-        {
-            guard let statement = Statement(rawValue: trimmedString) else {
-                return nil
-            }
-            self = .statement(statement: statement)
-            return
-        }
-        let blockStrings = trimmedString.components(separatedBy: ";")
-            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
-            .filter { !$0.isEmpty }
-        let blocks = blockStrings.compactMap {
-            Block(rawValue: $0 + ";")
-        }
-        guard blockStrings.count == blocks.count else {
-            return nil
-        }
-        self = .blocks(blocks: blocks)
+    /// Test statement raw value initialiser.
+    func testStatementRawValueInit() {
+        let expected = Block.statement(
+            statement: Statement.assignment(name: x, value: .literal(value: .bit(value: .high)))
+        )
+        XCTAssertEqual(Block(rawValue: "x <= '1';"), expected)
+        XCTAssertEqual(Block(rawValue: "x <= '1'; "), expected)
+        XCTAssertEqual(Block(rawValue: " x <= '1';"), expected)
+        XCTAssertEqual(Block(rawValue: " x <= '1'; "), expected)
+        XCTAssertEqual(Block(rawValue: "x <= '1'; -- signal x"), expected)
+        XCTAssertNil(Block(rawValue: "x; <= '1'"))
+        XCTAssertNil(Block(rawValue: "signal x: std_logic; <= '1'"))
+        XCTAssertNil(Block(rawValue: ""))
+        XCTAssertNil(Block(rawValue: " "))
+        XCTAssertNil(Block(rawValue: "\n"))
+        XCTAssertNil(Block(rawValue: "signal \(String(repeating: "x", count: 256)): std_logic;"))
+    }
+
+    /// Test multiple statements raw value init.
+    func testMultipleStatementsRawValueInit() {
+        let statement = Block.statement(
+            statement: Statement.assignment(name: x, value: .literal(value: .bit(value: .high)))
+        )
+        let expected = Block.blocks(blocks: [statement, statement])
+        XCTAssertEqual(Block(rawValue: "x <= '1';\nx <= '1';"), expected)
+        XCTAssertEqual(Block(rawValue: "x <= '1';\nx <= '1'; "), expected)
+        XCTAssertEqual(Block(rawValue: "x <= '1'; \nx <= '1';"), expected)
+        XCTAssertEqual(Block(rawValue: "x <= '1'; \nx <= '1'; "), expected)
+        XCTAssertEqual(Block(rawValue: "x <= '1'; -- signal x\nx <= '1';"), expected)
+        XCTAssertEqual(Block(rawValue: "x <= '1'; -- signal x\nx <= '1'; "), expected)
+        XCTAssertEqual(Block(rawValue: "x <= '1'; -- signal x\nx <= '1'; -- signal x"), expected)
+        XCTAssertEqual(Block(rawValue: "x <= '1';\n\n\nx <= '1'; -- signal x "), expected)
+        XCTAssertEqual(Block(rawValue: "x <= '1'; -- signal x\n\n\nx <= '1'; -- signal x "), expected)
     }
 
 }
