@@ -121,4 +121,58 @@ final class StatementTests: XCTestCase {
         XCTAssertNil(Statement(rawValue: "constant \(String(repeating: "x", count: 256)): std_logic := '1';"))
     }
 
+    /// Test `init(rawValue:)` parses `VHDL` code correctly for definitions.
+    func testDefinitionRawValueInit() {
+        let signal = LocalSignal(
+            type: .stdLogic,
+            name: varX,
+            defaultValue: .literal(value: .bit(value: .high)),
+            comment: Comment(text: "signal x.")
+        )
+        XCTAssertEqual(
+            Statement(rawValue: "signal x: std_logic := '1'; -- signal x."),
+            Statement.definition(signal: signal)
+        )
+        XCTAssertEqual(
+            Statement(rawValue: " signal x: std_logic := '1'; -- signal x."),
+            Statement.definition(signal: signal)
+        )
+        XCTAssertEqual(
+            Statement(rawValue: "signal x: std_logic := '1' ; -- signal x."),
+            Statement.definition(signal: signal)
+        )
+        XCTAssertEqual(
+            Statement(rawValue: " signal x: std_logic := '1' ; -- signal x."),
+            Statement.definition(signal: signal)
+        )
+        XCTAssertEqual(
+            Statement(rawValue: "signal x: std_logic; -- signal x."),
+            Statement.definition(
+                signal: LocalSignal(
+                    type: .stdLogic, name: varX, defaultValue: nil, comment: Comment(text: "signal x.")
+                )
+            )
+        )
+        XCTAssertEqual(
+            Statement(rawValue: "signal x: std_logic := '1';"),
+            Statement.definition(
+                signal: LocalSignal(
+                    type: .stdLogic,
+                    name: varX,
+                    defaultValue: .literal(value: .bit(value: .high)),
+                    comment: nil
+                )
+            )
+        )
+        XCTAssertEqual(
+            Statement(rawValue: "signal x: std_logic;"),
+            Statement.definition(
+                signal: LocalSignal(type: .stdLogic, name: varX, defaultValue: nil, comment: nil)
+            )
+        )
+        XCTAssertNil(Statement(rawValue: "signal x: std_logic := '1' -- signal x."))
+        XCTAssertNil(Statement(rawValue: "signal x: std_logic := '1'; -- signal x.\n --"))
+        XCTAssertNil(Statement(rawValue: "-- signal x: std_logic := '1';"))
+    }
+
 }
