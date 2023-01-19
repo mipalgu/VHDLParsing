@@ -116,6 +116,11 @@ extension String {
         return String(self[self.startIndex..<semicolonIndex]).trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
+    /// All the words in the string.
+    @usableFromInline var words: [String] {
+        self.components(separatedBy: .whitespacesAndNewlines).filter { !$0.isEmpty }
+    }
+
     /// Indent every line within the string by a specified amount.
     /// - Parameter amount: The number of tabs to indent.
     /// - Returns: The indented string.

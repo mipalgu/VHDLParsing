@@ -275,4 +275,10 @@ final class StringVHDLMethodsTests: XCTestCase {
         XCTAssertEqual(data.subExpressions, expected)
     }
 
+    /// Test words.
+    func testWords() {
+        XCTAssertEqual("Hello World!".words, ["Hello", "World!"])
+        XCTAssertEqual(" a b\nc \n d  \n \n e\n\n\nf   g\n".words, ["a", "b", "c", "d", "e", "f", "g"])
+    }
+
 }
