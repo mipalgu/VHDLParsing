@@ -70,6 +70,8 @@ final class VectorLiteralTests: XCTestCase {
             VectorLiteral.hexademical(value: HexVector(values: [.ten, .eleven])).rawValue, "x\"AB\""
         )
         XCTAssertEqual(VectorLiteral.octal(value: OctalVector(values: [.six, .seven])).rawValue, "o\"67\"")
+        let indexed = IndexedVector(values: [IndexedValue(index: .others, value: .bit(value: .high))])
+        XCTAssertEqual(VectorLiteral.indexed(values: indexed).rawValue, indexed.rawValue)
     }
 
     /// Test valid raw values initialise the correct ``VectorLiteral``.
@@ -90,6 +92,11 @@ final class VectorLiteralTests: XCTestCase {
             VectorLiteral(rawValue: "o\"67\""),
             VectorLiteral.octal(value: OctalVector(values: [.six, .seven]))
         )
+        let result = VectorLiteral(rawValue: "(others => '1')")
+        let expected = VectorLiteral.indexed(
+            values: IndexedVector(values: [IndexedValue(index: .others, value: .bit(value: .high))])
+        )
+        XCTAssertEqual(result, expected)
     }
 
     /// Test that a long rawValue returns nil in the init.
@@ -125,6 +132,11 @@ final class VectorLiteralTests: XCTestCase {
         XCTAssertEqual(VectorLiteral.logics(value: LogicVector(values: [.high, .low, .high])).size, 3)
         XCTAssertEqual(VectorLiteral.hexademical(value: HexVector(values: [.ten, .eleven])).size, 8)
         XCTAssertEqual(VectorLiteral.octal(value: OctalVector(values: [.six, .seven])).size, 6)
+        XCTAssertNil(
+            VectorLiteral.indexed(
+                values: IndexedVector(values: [IndexedValue(index: .others, value: .bit(value: .high))])
+            ).size
+        )
     }
 
 }

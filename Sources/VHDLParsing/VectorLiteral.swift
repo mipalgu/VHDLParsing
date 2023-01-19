@@ -70,6 +70,7 @@ public enum VectorLiteral: RawRepresentable, Equatable, Hashable, Codable, Senda
     /// An octal value.
     case octal(value: OctalVector)
 
+    /// An indexed literal setting values to specific indexes.
     case indexed(values: IndexedVector)
 
     /// The raw value is a string.
@@ -149,6 +150,8 @@ public enum VectorLiteral: RawRepresentable, Equatable, Hashable, Codable, Senda
         case (.hexademical(let lhs), .hexademical(let rhs)):
             return lhs == rhs
         case (.octal(let lhs), .octal(let rhs)):
+            return lhs == rhs
+        case (.indexed(let lhs), .indexed(let rhs)):
             return lhs == rhs
         default:
             return false
