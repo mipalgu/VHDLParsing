@@ -136,6 +136,26 @@ final class ExpressionTests: XCTestCase {
                 operation: .addition(lhs: .variable(name: aname), rhs: .literal(value: .integer(value: 5)))
             )
         )
+        XCTAssertEqual(
+            Expression(rawValue: "(a) + b"),
+            .binary(
+                operation: .addition(
+                    lhs: .precedence(value: .variable(name: aname)), rhs: .variable(name: bname)
+                )
+            )
+        )
+        XCTAssertEqual(
+            Expression(rawValue: "(a)+b"),
+            .binary(
+                operation: .addition(
+                    lhs: .precedence(value: .variable(name: aname)), rhs: .variable(name: bname)
+                )
+            )
+        )
+    }
+
+    /// Test invalid raw values return nil.
+    func testInvalidRawValueInit() {
         XCTAssertNil(Expression(rawValue: "()"))
         XCTAssertNil(Expression(rawValue: ""))
         XCTAssertNil(Expression(rawValue: " "))
