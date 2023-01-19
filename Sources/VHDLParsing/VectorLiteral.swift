@@ -92,7 +92,7 @@ public enum VectorLiteral: RawRepresentable, Equatable, Hashable, Codable, Senda
     }
 
     /// The number of bits in this vector literal.
-    @inlinable public var size: Int {
+    @inlinable public var size: Int? {
         switch self {
         case .bits(let values):
             return values.values.count
@@ -103,7 +103,7 @@ public enum VectorLiteral: RawRepresentable, Equatable, Hashable, Codable, Senda
         case .octal(let values):
             return values.values.count * 3
         case .indexed:
-            fatalError("Cannot determine size")
+            return nil
         }
     }
 
