@@ -336,52 +336,7 @@ extension String {
     /// strings within that match the same pattern.
     @usableFromInline
     func upToBalancedElements(startsWith: String, endsWith: String) -> Substring? {
-        guard !startsWith.isEmpty, !endsWith.isEmpty else {
-            return nil
-        }
-        let startSize = startsWith.count
-        let endSize = endsWith.count
-        var startCount = 0
-        var hasStarted = false
-        var index = self.startIndex
-        var beginIndex: String.Index?
-        while index < self.endIndex {
-            guard hasStarted else {
-                guard
-                    let startIndex = self.startIndex(for: startsWith),
-                    let nextIndex = self.index(startIndex, offsetBy: startSize, limitedBy: self.endIndex)
-                else {
-                    return nil
-                }
-                beginIndex = startIndex
-                index = nextIndex
-                hasStarted = true
-                startCount += 1
-                continue
-            }
-            let data = self[index...]
-            guard let endIndex = data.startIndex(for: endsWith) else {
-                return nil
-            }
-            if let nextStartIndex = data.startIndex(for: startsWith) {
-                guard nextStartIndex > endIndex else {
-                    startCount += 1
-                    index = self.index(nextStartIndex, offsetBy: startSize)
-                    continue
-                }
-            }
-            let lastIndex = self.index(endIndex, offsetBy: endSize)
-            guard startCount <= 1 else {
-                startCount -= 1
-                index = lastIndex
-                continue
-            }
-            guard let beginIndex = beginIndex else {
-                return nil
-            }
-            return self[beginIndex..<lastIndex]
-        }
-        return nil
+        self[self.startIndex..<self.endIndex].upToBalancedElements(startsWith: startsWith, endsWith: endsWith)
     }
 
     /// Helper function for removing the comments from a string.
