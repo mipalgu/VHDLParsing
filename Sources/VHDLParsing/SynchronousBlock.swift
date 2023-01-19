@@ -66,8 +66,6 @@ indirect public enum SynchronousBlock: RawRepresentable, Equatable, Hashable, Co
         switch self {
         case .blocks(let blocks):
             return blocks.map(\.rawValue).joined(separator: "\n")
-        // case .process(let block):
-        //     return block.rawValue
         case .ifStatement(let block):
             return block.rawValue
         case .statement(let statement):
@@ -94,13 +92,6 @@ indirect public enum SynchronousBlock: RawRepresentable, Equatable, Hashable, Co
             self = newBlock
             return
         }
-        // if let process = ProcessBlock(rawValue: trimmedString) {
-        //     guard let newBlock = SynchronousBlock(carry: carry + [.process(block: process)]) else {
-        //         return nil
-        //     }
-        //     self = newBlock
-        //     return
-        // }
         // Check for single semicolon.
         if
             trimmedString.firstIndex(of: ";") == trimmedString.lastIndex(of: ";"),
