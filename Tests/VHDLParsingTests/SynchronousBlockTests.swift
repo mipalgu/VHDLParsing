@@ -304,4 +304,25 @@ final class SynchronousBlockTests: XCTestCase {
         XCTAssertEqual(result, .blocks(blocks: [assignment, ifStatement, assignment]))
     }
 
+    /// Test multiple statements in a block.
+    func testMultipleStatementRawValueInit() {
+        let raw = """
+        x <= '0';
+        x <= '1';
+        y <= x;
+        """
+        let expected = SynchronousBlock.blocks(blocks: [
+            .statement(statement: .assignment(
+                name: VariableName(text: "x"), value: .literal(value: .bit(value: .low))
+            )),
+            .statement(statement: .assignment(
+                name: VariableName(text: "x"), value: .literal(value: .bit(value: .high))
+            )),
+            .statement(statement: .assignment(
+                name: VariableName(text: "y"), value: .variable(name: VariableName(text: "x"))
+            ))
+        ])
+        XCTAssertEqual(SynchronousBlock(rawValue: raw), expected)
+    }
+
 }

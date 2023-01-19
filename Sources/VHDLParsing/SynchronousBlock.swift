@@ -126,6 +126,10 @@ indirect public enum SynchronousBlock: RawRepresentable, Equatable, Hashable, Co
             self = newBlock
             return
         }
+        self.init(multiple: trimmedString, carry: carry)
+    }
+
+    private init?(multiple trimmedString: String, carry: [SynchronousBlock]) {
         let currentBlock = trimmedString.uptoSemicolon + ";"
         guard let statement = Statement(rawValue: currentBlock) else {
             return nil
