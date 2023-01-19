@@ -54,13 +54,21 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
+/// This type is used to represent an if-statement in `VHDL`. The if-statement may contain nested
+/// if-statements or `elsif` conditions.
 public enum IfBlock: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
+    /// An if-statement without an else block. E.g. `if <condition> then <code> end if;`
     case ifStatement(condition: Expression, ifBlock: SynchronousBlock)
 
+    /// An if-statement with an else block. E.g. `if <condition> then <code> else <other_code> end if;` This
+    /// case can also represent `elsif` blocks by placing other if-statements inside the `elseBlock`
+    /// parameter. E.g. `if <condition> then <code> elsif <other_condition> then <other_code> end if;` or
+    /// `if <condition> then <code> elsif <other_condition> then <other_code> else <default_code> end if;`
     case ifElse(condition: Expression, ifBlock: SynchronousBlock, elseBlock: SynchronousBlock)
 
-    public var rawValue: String {
+    /// The `VHDL` code representing this if-statement.
+    @inlinable public var rawValue: String {
         switch self {
         case .ifStatement(let condition, let code):
             return """
@@ -87,6 +95,11 @@ public enum IfBlock: RawRepresentable, Equatable, Hashable, Codable, Sendable {
         }
     }
 
+    // swiftlint:disable function_body_length
+
+    /// Initialise the if-statement from the `VHDL` representation.
+    /// - Parameter rawValue: The `VHDL` code executing this if-statement.
+    @inlinable
     public init?(rawValue: String) {
         let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
         let value = trimmedString.lowercased()
@@ -159,5 +172,7 @@ public enum IfBlock: RawRepresentable, Equatable, Hashable, Codable, Sendable {
         }
         self = .ifStatement(condition: condition, ifBlock: thenBlock)
     }
+
+    // swiftlint:enable function_body_length
 
 }
