@@ -54,18 +54,26 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
+/// A statement is a a full operation that contains expressions that resolve to some value or logic that is
+/// performed. A statement may be definitions, assignments to variables or comments.
 public enum Statement: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
+    /// A constant definition.
     case constant(value: ConstantSignal)
 
+    /// A definition of a variable.
     case definition(signal: LocalSignal)
 
+    /// Assigning a value to a variable that has been pre-defined.
     case assignment(name: VariableName, value: Expression)
 
+    /// A comment.
     case comment(value: Comment)
 
+    /// The raw value is a string.
     public typealias RawValue = String
 
+    /// The `VHDL` code that performs this statement.
     @inlinable public var rawValue: String {
         switch self {
         case .constant(let value):
@@ -79,6 +87,10 @@ public enum Statement: RawRepresentable, Equatable, Hashable, Codable, Sendable 
         }
     }
 
+    /// Creates a statement from the `VHDL` code that performs it.
+    /// - Parameter rawValue: The `VHDL` code that performs this statement. Note well that if a statement
+    /// usually requires a semicolon, then it must in the code representation for this initialiser to work.
+    @inlinable
     public init?(rawValue: String) {
         let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
         guard trimmedString.count < 256 else {
