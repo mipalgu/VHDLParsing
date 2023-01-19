@@ -125,7 +125,7 @@ extension String {
     /// Return a string that exists within self that starts with an open bracket and ends with the balanced
     /// closing bracket.
     @usableFromInline var uptoBalancedBracket: Substring? {
-        self.upToBalancedElements(startsWith: "(", endsWith: ")")
+        self[self.startIndex..<self.endIndex].uptoBalancedBracket
     }
 
     /// The string up to the first semicolon.
@@ -504,45 +504,43 @@ extension Substring {
     /// - Returns: The index if the word was found.
     @usableFromInline
     func startIndex(word: String) -> String.Index? {
-        let size = word.count
-        guard !word.isEmpty, self.count >= size else {
+        guard !word.isEmpty, !self.isEmpty else {
             return nil
         }
-        let offset = size - 1
-        let startIndex = self.index(self.startIndex, offsetBy: offset)
-        for i in self[startIndex...].indices {
-            guard
-                let wordStart = self.index(i, offsetBy: -offset, limitedBy: self.startIndex),
-                self[wordStart...i] == word
-            else {
-                continue
+        var index = self.startIndex
+        while index < self.endIndex {
+            guard let startIndex = self[index...].startIndex(for: word) else {
+                return nil
             }
-            let nextIndex = self.index(after: i)
-            let previousIndex = self.index(wordStart, offsetBy: -1, limitedBy: self.startIndex)
-            guard nextIndex < self.endIndex else {
-                if let previousIndex = previousIndex {
-                    guard
-                        CharacterSet.whitespacesAndNewlines.contains(self.unicodeScalars[previousIndex])
-                    else {
-                        return nil
-                    }
+            guard let previousIndex = self.index(startIndex, offsetBy: -1, limitedBy: self.startIndex) else {
+                guard let endIndex = self.index(
+                    startIndex, offsetBy: word.count, limitedBy: self.index(before: self.endIndex)
+                ) else {
+                    return startIndex
                 }
-                return wordStart
-            }
-            guard let previousIndex = previousIndex else {
-                guard
-                    CharacterSet.whitespacesAndNewlines.contains(self.unicodeScalars[nextIndex])
-                else {
+                guard CharacterSet.whitespacesAndNewlines.contains(self.unicodeScalars[endIndex]) else {
+                    index = self.index(startIndex, offsetBy: word.count)
                     continue
                 }
-                return wordStart
+                return startIndex
             }
-            if
+            guard let endIndex = self.index(
+                startIndex, offsetBy: word.count, limitedBy: self.index(before: self.endIndex)
+            ) else {
+                guard CharacterSet.whitespacesAndNewlines.contains(self.unicodeScalars[previousIndex]) else {
+                    index = self.index(startIndex, offsetBy: word.count)
+                    continue
+                }
+                return startIndex
+            }
+            guard
                 CharacterSet.whitespacesAndNewlines.contains(self.unicodeScalars[previousIndex]),
-                CharacterSet.whitespacesAndNewlines.contains(self.unicodeScalars[nextIndex])
-            {
-                return wordStart
+                CharacterSet.whitespacesAndNewlines.contains(self.unicodeScalars[endIndex])
+            else {
+                index = self.index(startIndex, offsetBy: word.count)
+                continue
             }
+            return startIndex
         }
         return nil
     }
