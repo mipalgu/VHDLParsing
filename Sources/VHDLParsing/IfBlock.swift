@@ -70,22 +70,11 @@ public enum IfBlock: RawRepresentable, Equatable, Hashable, Codable, Sendable {
             """
         case .ifElse(let condition, let thenBlock, let elseBlock):
             if case .ifStatement(let block) = elseBlock {
-                switch block {
-                case .ifStatement(let condition2, let code):
-                    return """
-                    if (\(condition.rawValue)) then
-                    \(thenBlock.rawValue.indent(amount: 1))
-                    elsif (\(condition2.rawValue)) then
-                    \(code.rawValue.indent(amount: 1))
-                    end if;
-                    """
-                case .ifElse:
-                    return """
-                    if (\(condition.rawValue)) then
-                    \(thenBlock.rawValue.indent(amount: 1))
-                    els\(block.rawValue)
-                    """
-                }
+                return """
+                if (\(condition.rawValue)) then
+                \(thenBlock.rawValue.indent(amount: 1))
+                els\(block.rawValue)
+                """
             } else {
                 return """
                 if (\(condition.rawValue)) then
