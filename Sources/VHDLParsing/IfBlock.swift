@@ -106,7 +106,70 @@ public enum IfBlock: RawRepresentable, Equatable, Hashable, Codable, Sendable {
     }
 
     public init?(rawValue: String) {
-        return nil
+        let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
+        let value = trimmedString.lowercased()
+        guard value.hasPrefix("if"), value.hasSuffix(";") else {
+            return nil
+        }
+        let newValue = value.dropLast().trimmingCharacters(in: .whitespacesAndNewlines)
+        guard newValue.hasSuffix("if") else {
+            return nil
+        }
+        let newValueString = newValue.dropLast(2).trimmingCharacters(in: .whitespacesAndNewlines)
+        guard
+            newValueString.hasSuffix("end"),
+            let conditionString = value.subExpressions?.first?.dropFirst().dropLast(),
+            let condition = Expression(rawValue: String(conditionString))
+        else {
+            return nil
+        }
+        let endIndex = newValueString.dropLast(3).endIndex
+        let lastIndex = trimmedString.index(conditionString.endIndex, offsetBy: 1)
+        guard
+            value.endIndex > lastIndex,
+            value[lastIndex..<endIndex].trimmingCharacters(in: .whitespacesAndNewlines).hasPrefix("then"),
+            let thenIndex = value.startIndex(for: "then"),
+            let bodyIndex = value.index(thenIndex, offsetBy: 4, limitedBy: value.endIndex)
+        else {
+            return nil
+        }
+        let body = trimmedString[bodyIndex...]
+        let bodyComponents = value[bodyIndex...].components(separatedBy: .whitespacesAndNewlines)
+        if bodyComponents.contains("elsif") {
+            guard let elsifIndex = body.startIndex(for: "elsif") else {
+                return nil
+            }
+            let myBody = body[..<elsifIndex]
+            let otherBody = trimmedString[elsifIndex...].dropFirst(3)
+            guard
+                let bodyBlock = Block(rawValue: String(myBody)),
+                let block = Block(rawValue: String(otherBody))
+            else {
+                return nil
+            }
+            self = .ifElse(condition: condition, ifBlock: bodyBlock, elseBlock: block)
+            return
+        }
+        if bodyComponents.contains("else") {
+            guard let elseIndex = body.startIndex(for: "else") else {
+                return nil
+            }
+            let myBody = body[..<elseIndex]
+            let otherBody = trimmedString[elseIndex..<endIndex].dropFirst(4)
+            guard
+                let bodyBlock = Block(rawValue: String(myBody)),
+                let block = Block(rawValue: String(otherBody))
+            else {
+                return nil
+            }
+            self = .ifElse(condition: condition, ifBlock: bodyBlock, elseBlock: block)
+            return
+        }
+        let thenBody = String(trimmedString[bodyIndex..<endIndex])
+        guard let thenBlock = Block(rawValue: thenBody) else {
+            return nil
+        }
+        self = .ifStatement(condition: condition, ifBlock: thenBlock)
     }
 
 }
