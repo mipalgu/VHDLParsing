@@ -69,10 +69,10 @@ final class IfBlockTests: XCTestCase {
     /// Test `rawValue` generates `VHDL` code correctly.
     func testRawValue() {
         let condition = Expression.conditional(condition: .comparison(value: .equality(lhs: x, rhs: y)))
-        let assignment = Block.statement(
+        let assignment = SynchronousBlock.statement(
             statement: Statement.assignment(name: VariableName(text: "x"), value: y)
         )
-        let reset = Block.statement(statement: Statement.assignment(
+        let reset = SynchronousBlock.statement(statement: Statement.assignment(
             name: VariableName(text: "x"), value: .literal(value: .bit(value: .low))
         ))
         let block = IfBlock.ifStatement(condition: condition, ifBlock: assignment)
@@ -108,7 +108,7 @@ final class IfBlockTests: XCTestCase {
                 condition: .conditional(
                     condition: .comparison(value: .equality(lhs: x, rhs: y))
                 ),
-                ifBlock: Block.statement(
+                ifBlock: SynchronousBlock.statement(
                     statement: Statement.assignment(name: VariableName(text: "x"), value: y)
                 )
             )

@@ -54,52 +54,52 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
-public struct Architecture: RawRepresentable, Equatable, Hashable, Codable, Sendable {
+// public struct Architecture: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
-    public let head: Block
+//     public let head: Block
 
-    public let body: Block
+//     public let body: Block
 
-    public let name: VariableName
+//     public let name: VariableName
 
-    public var rawValue: String {
-        """
-        architecture Behavioral of \(name.rawValue) is
-        \(head.rawValue.indent(amount: 1))
-        begin
-        \(body.rawValue.indent(amount: 1))
-        end Behavioral;
-        """
-    }
+//     public var rawValue: String {
+//         """
+//         architecture Behavioral of \(name.rawValue) is
+//         \(head.rawValue.indent(amount: 1))
+//         begin
+//         \(body.rawValue.indent(amount: 1))
+//         end Behavioral;
+//         """
+//     }
 
-    public init?(rawValue: String) {
-        let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
-        let startString = "architecture Behavioral of "
-        guard trimmedString.lowercased().hasPrefix(startString) else {
-            return nil
-        }
-        let architectureDef = trimmedString.dropFirst(startString.count)
-        let components = architectureDef.components(separatedBy: "is")
-        guard components.count >= 2, let name = VariableName(rawValue: components[0]) else {
-            return nil
-        }
-        let headAndBody = components[1...].joined(separator: "is")
-        guard
-            let headIndex = headAndBody.startIndex(for: "begin"),
-            let headBlock = Block(rawValue: String(headAndBody[headAndBody.startIndex..<headIndex]))
-        else {
-            return nil
-        }
-        let bodyCode = String(headAndBody[headIndex...].dropFirst("begin".count))
-        guard
-            let endIndex = bodyCode.startIndex(for: "end Behavioral;"),
-            let bodyBlock = Block(rawValue: String(bodyCode[bodyCode.startIndex..<endIndex]))
-        else {
-            return nil
-        }
-        self.head = headBlock
-        self.body = bodyBlock
-        self.name = name
-    }
+//     public init?(rawValue: String) {
+//         let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
+//         let startString = "architecture Behavioral of "
+//         guard trimmedString.lowercased().hasPrefix(startString) else {
+//             return nil
+//         }
+//         let architectureDef = trimmedString.dropFirst(startString.count)
+//         let components = architectureDef.components(separatedBy: "is")
+//         guard components.count >= 2, let name = VariableName(rawValue: components[0]) else {
+//             return nil
+//         }
+//         let headAndBody = components[1...].joined(separator: "is")
+//         guard
+//             let headIndex = headAndBody.startIndex(for: "begin"),
+//             let headBlock = Block(rawValue: String(headAndBody[headAndBody.startIndex..<headIndex]))
+//         else {
+//             return nil
+//         }
+//         let bodyCode = String(headAndBody[headIndex...].dropFirst("begin".count))
+//         guard
+//             let endIndex = bodyCode.startIndex(for: "end Behavioral;"),
+//             let bodyBlock = Block(rawValue: String(bodyCode[bodyCode.startIndex..<endIndex]))
+//         else {
+//             return nil
+//         }
+//         self.head = headBlock
+//         self.body = bodyBlock
+//         self.name = name
+//     }
 
-}
+// }

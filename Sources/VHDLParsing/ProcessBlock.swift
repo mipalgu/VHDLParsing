@@ -58,7 +58,7 @@ public struct ProcessBlock: RawRepresentable, Equatable, Hashable, Codable, Send
 
     public let sensitivityList: [VariableName]
 
-    public let code: Block
+    public let code: SynchronousBlock
 
     public var rawValue: String {
         let blocksCode = code.rawValue.indent(amount: 1)
@@ -98,7 +98,7 @@ public struct ProcessBlock: RawRepresentable, Equatable, Hashable, Codable, Send
         guard names.count == variables.count else {
             return nil
         }
-        guard let block = Block(rawValue: String(value.dropFirst(sensitivityList.count))) else {
+        guard let block = SynchronousBlock(rawValue: String(value.dropFirst(sensitivityList.count))) else {
             return nil
         }
         self.sensitivityList = variables

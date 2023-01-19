@@ -57,56 +57,58 @@
 @testable import VHDLParsing
 import XCTest
 
-/// Test class for ``Block``
-final class BlockTests: XCTestCase {
+/// Test class for ``SynchronousBlock``
+final class SynchronousBlockTests: XCTestCase {
 
     /// A variable called x.
     let x = VariableName(text: "x")
 
     /// Test raw values are correct.
     func testRawValues() {
-        let statement = Block.statement(
+        let statement = SynchronousBlock.statement(
             statement: Statement.assignment(name: x, value: .literal(value: .bit(value: .high)))
         )
         XCTAssertEqual(statement.rawValue, "x <= '1';")
-        let blocks = Block.blocks(blocks: [statement, statement])
+        let blocks = SynchronousBlock.blocks(blocks: [statement, statement])
         XCTAssertEqual(blocks.rawValue, "x <= '1';\nx <= '1';")
     }
 
     /// Test statement raw value initialiser.
     func testStatementRawValueInit() {
-        let expected = Block.statement(
+        let expected = SynchronousBlock.statement(
             statement: Statement.assignment(name: x, value: .literal(value: .bit(value: .high)))
         )
-        XCTAssertEqual(Block(rawValue: "x <= '1';"), expected)
-        XCTAssertEqual(Block(rawValue: "x <= '1'; "), expected)
-        XCTAssertEqual(Block(rawValue: " x <= '1';"), expected)
-        XCTAssertEqual(Block(rawValue: " x <= '1'; "), expected)
-        XCTAssertEqual(Block(rawValue: "x <= '1'; -- signal x"), expected)
-        XCTAssertNil(Block(rawValue: "x; <= '1'"))
-        XCTAssertNil(Block(rawValue: "signal x: std_logic; <= '1'"))
-        XCTAssertNil(Block(rawValue: ""))
-        XCTAssertNil(Block(rawValue: " "))
-        XCTAssertNil(Block(rawValue: "\n"))
-        XCTAssertNil(Block(rawValue: "signal \(String(repeating: "x", count: 256)): std_logic;"))
+        XCTAssertEqual(SynchronousBlock(rawValue: "x <= '1';"), expected)
+        XCTAssertEqual(SynchronousBlock(rawValue: "x <= '1'; "), expected)
+        XCTAssertEqual(SynchronousBlock(rawValue: " x <= '1';"), expected)
+        XCTAssertEqual(SynchronousBlock(rawValue: " x <= '1'; "), expected)
+        XCTAssertEqual(SynchronousBlock(rawValue: "x <= '1'; -- signal x"), expected)
+        XCTAssertNil(SynchronousBlock(rawValue: "x; <= '1'"))
+        XCTAssertNil(SynchronousBlock(rawValue: "signal x: std_logic; <= '1'"))
+        XCTAssertNil(SynchronousBlock(rawValue: ""))
+        XCTAssertNil(SynchronousBlock(rawValue: " "))
+        XCTAssertNil(SynchronousBlock(rawValue: "\n"))
+        XCTAssertNil(SynchronousBlock(rawValue: "signal \(String(repeating: "x", count: 256)): std_logic;"))
     }
 
     /// Test multiple statements raw value init.
     func testMultipleStatementsRawValueInit() {
-        let statement = Block.statement(
+        let statement = SynchronousBlock.statement(
             statement: Statement.assignment(name: x, value: .literal(value: .bit(value: .high)))
         )
-        let expected = Block.blocks(blocks: [statement, statement])
-        XCTAssertEqual(Block(rawValue: "x <= '1';\nx <= '1';"), expected)
-        XCTAssertEqual(Block(rawValue: "x <= '1';\nx <= '1'; "), expected)
-        XCTAssertEqual(Block(rawValue: "x <= '1'; \nx <= '1';"), expected)
-        XCTAssertEqual(Block(rawValue: "x <= '1'; \nx <= '1'; "), expected)
-        XCTAssertEqual(Block(rawValue: "x <= '1'; -- signal x\nx <= '1';"), expected)
-        XCTAssertEqual(Block(rawValue: "x <= '1'; -- signal x\nx <= '1'; "), expected)
-        XCTAssertEqual(Block(rawValue: "x <= '1'; -- signal x\nx <= '1'; -- signal x"), expected)
-        XCTAssertEqual(Block(rawValue: "x <= '1';\n\n\nx <= '1'; -- signal x "), expected)
-        XCTAssertEqual(Block(rawValue: "x <= '1'; -- signal x\n\n\nx <= '1'; -- signal x "), expected)
-        XCTAssertNil(Block(rawValue: "x <= '1';\n2x <= '1';"))
+        let expected = SynchronousBlock.blocks(blocks: [statement, statement])
+        XCTAssertEqual(SynchronousBlock(rawValue: "x <= '1';\nx <= '1';"), expected)
+        XCTAssertEqual(SynchronousBlock(rawValue: "x <= '1';\nx <= '1'; "), expected)
+        XCTAssertEqual(SynchronousBlock(rawValue: "x <= '1'; \nx <= '1';"), expected)
+        XCTAssertEqual(SynchronousBlock(rawValue: "x <= '1'; \nx <= '1'; "), expected)
+        XCTAssertEqual(SynchronousBlock(rawValue: "x <= '1'; -- signal x\nx <= '1';"), expected)
+        XCTAssertEqual(SynchronousBlock(rawValue: "x <= '1'; -- signal x\nx <= '1'; "), expected)
+        XCTAssertEqual(SynchronousBlock(rawValue: "x <= '1'; -- signal x\nx <= '1'; -- signal x"), expected)
+        XCTAssertEqual(SynchronousBlock(rawValue: "x <= '1';\n\n\nx <= '1'; -- signal x "), expected)
+        XCTAssertEqual(
+            SynchronousBlock(rawValue: "x <= '1'; -- signal x\n\n\nx <= '1'; -- signal x "), expected
+        )
+        XCTAssertNil(SynchronousBlock(rawValue: "x <= '1';\n2x <= '1';"))
     }
 
 }

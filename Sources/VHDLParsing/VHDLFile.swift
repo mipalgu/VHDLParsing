@@ -54,58 +54,58 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
-public struct VHDLFile: RawRepresentable, Equatable, Hashable, Codable, Sendable {
+// public struct VHDLFile: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
-    public let includes: [Include]
+//     public let includes: [Include]
 
-    public let entity: Entity
+//     public let entity: Entity
 
-    public let architecture: Architecture
+//     public let architecture: Architecture
 
-    public var rawValue: String {
-        let includeString = includes.map { $0.rawValue + ";" }.joined(separator: "\n")
-        return """
-        \(includeString)
+//     public var rawValue: String {
+//         let includeString = includes.map { $0.rawValue + ";" }.joined(separator: "\n")
+//         return """
+//         \(includeString)
 
-        \(entity.rawValue)
+//         \(entity.rawValue)
 
-        \(architecture.rawValue)
+//         \(architecture.rawValue)
 
-        """
-    }
+//         """
+//     }
 
-    public init(includes: [Include], entity: Entity, architecture: Architecture) {
-        self.includes = includes
-        self.entity = entity
-        self.architecture = architecture
-    }
+//     public init(includes: [Include], entity: Entity, architecture: Architecture) {
+//         self.includes = includes
+//         self.entity = entity
+//         self.architecture = architecture
+//     }
 
-    public init?(rawValue: String) {
-        let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard let includeEndIndex = trimmedString.startIndex(for: "entity") else {
-            return nil
-        }
-        let includesData = trimmedString[trimmedString.startIndex..<includeEndIndex]
-            .trimmingCharacters(in: .whitespacesAndNewlines)
-        let includesRaw = includesData.components(separatedBy: ";")
-        let includes = includesRaw.compactMap { Include(rawValue: $0) }
-        guard
-            includesRaw.count == includes.count,
-            let architectureIndex = trimmedString.startIndex(for: "architecture")
-        else {
-            return nil
-        }
-        let entityData = trimmedString[includeEndIndex..<architectureIndex]
-            .trimmingCharacters(in: .whitespacesAndNewlines)
-        let architectureData = trimmedString[architectureIndex...]
-            .trimmingCharacters(in: .whitespacesAndNewlines)
-        guard
-            let entity = Entity(rawValue: entityData),
-            let architecture = Architecture(rawValue: architectureData)
-        else {
-            return nil
-        }
-        self.init(includes: includes, entity: entity, architecture: architecture)
-    }
+//     public init?(rawValue: String) {
+//         let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
+//         guard let includeEndIndex = trimmedString.startIndex(for: "entity") else {
+//             return nil
+//         }
+//         let includesData = trimmedString[trimmedString.startIndex..<includeEndIndex]
+//             .trimmingCharacters(in: .whitespacesAndNewlines)
+//         let includesRaw = includesData.components(separatedBy: ";")
+//         let includes = includesRaw.compactMap { Include(rawValue: $0) }
+//         guard
+//             includesRaw.count == includes.count,
+//             let architectureIndex = trimmedString.startIndex(for: "architecture")
+//         else {
+//             return nil
+//         }
+//         let entityData = trimmedString[includeEndIndex..<architectureIndex]
+//             .trimmingCharacters(in: .whitespacesAndNewlines)
+//         let architectureData = trimmedString[architectureIndex...]
+//             .trimmingCharacters(in: .whitespacesAndNewlines)
+//         guard
+//             let entity = Entity(rawValue: entityData),
+//             let architecture = Architecture(rawValue: architectureData)
+//         else {
+//             return nil
+//         }
+//         self.init(includes: includes, entity: entity, architecture: architecture)
+//     }
 
-}
+// }

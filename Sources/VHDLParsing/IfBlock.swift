@@ -56,9 +56,9 @@
 
 public enum IfBlock: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
-    case ifStatement(condition: Expression, ifBlock: Block)
+    case ifStatement(condition: Expression, ifBlock: SynchronousBlock)
 
-    case ifElse(condition: Expression, ifBlock: Block, elseBlock: Block)
+    case ifElse(condition: Expression, ifBlock: SynchronousBlock, elseBlock: SynchronousBlock)
 
     public var rawValue: String {
         switch self {
@@ -142,8 +142,8 @@ public enum IfBlock: RawRepresentable, Equatable, Hashable, Codable, Sendable {
             let myBody = body[..<elsifIndex]
             let otherBody = trimmedString[elsifIndex...].dropFirst(3)
             guard
-                let bodyBlock = Block(rawValue: String(myBody)),
-                let block = Block(rawValue: String(otherBody))
+                let bodyBlock = SynchronousBlock(rawValue: String(myBody)),
+                let block = SynchronousBlock(rawValue: String(otherBody))
             else {
                 return nil
             }
@@ -157,8 +157,8 @@ public enum IfBlock: RawRepresentable, Equatable, Hashable, Codable, Sendable {
             let myBody = body[..<elseIndex]
             let otherBody = trimmedString[elseIndex..<endIndex].dropFirst(4)
             guard
-                let bodyBlock = Block(rawValue: String(myBody)),
-                let block = Block(rawValue: String(otherBody))
+                let bodyBlock = SynchronousBlock(rawValue: String(myBody)),
+                let block = SynchronousBlock(rawValue: String(otherBody))
             else {
                 return nil
             }
@@ -166,7 +166,7 @@ public enum IfBlock: RawRepresentable, Equatable, Hashable, Codable, Sendable {
             return
         }
         let thenBody = String(trimmedString[bodyIndex..<endIndex])
-        guard let thenBlock = Block(rawValue: thenBody) else {
+        guard let thenBlock = SynchronousBlock(rawValue: thenBody) else {
             return nil
         }
         self = .ifStatement(condition: condition, ifBlock: thenBlock)
