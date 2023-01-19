@@ -300,6 +300,13 @@ final class StringVHDLMethodsTests: XCTestCase {
         let raw2 = "abc"
         XCTAssertEqual(raw2.startIndex(word: "abc"), raw2.startIndex)
         XCTAssertNil("defghijk".startIndex(word: "abc"))
+        let raw3 = "if (x = y) then"
+        XCTAssertEqual(raw3.startIndex(word: "if"), raw3.startIndex)
+        let raw4 = "if (x = '1') then"
+        XCTAssertEqual(raw4.startIndex(word: "if"), raw4.startIndex)
+        XCTAssertNil("end if;".startIndex(word: "if"))
+        XCTAssertNil("elsif (x /= y) then".startIndex(word: "if"))
+        XCTAssertNil("end if;".startIndex(word: "if"))
     }
 
     /// Test `subExpression`.
