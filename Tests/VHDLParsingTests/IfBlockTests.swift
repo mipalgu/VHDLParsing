@@ -91,9 +91,177 @@ final class IfBlockTests: XCTestCase {
         end if;
         """
         XCTAssertEqual(block2.rawValue, expected2)
-        // let condition2 = Expression.conditional(condition: .comparison(value: .notEquals(lhs: x, rhs: y)))
-        // let assignment2 = Block.statement(statement: .assignment(name: VariableName(text: "y"), value: x))
-        // let block3 = IfBlock.ifElse(condition: condition, ifBlock: Block, elseBlock: Block)
+    }
+
+    /// Test `rawValue` with a recursive if-statement that doesn't contain an else case.
+    func testNoElseRawValue() {
+        let block = IfBlock.ifElse(
+            condition: .conditional(condition: .comparison(value: .equality(lhs: x, rhs: y))),
+            ifBlock: .statement(statement: .assignment(name: VariableName(text: "x"), value: y)),
+            elseBlock: .ifStatement(
+                block: .ifStatement(
+                    condition: .conditional(condition: .comparison(value: .notEquals(lhs: x, rhs: y))),
+                    ifBlock: .statement(statement: .assignment(name: VariableName(text: "y"), value: x))
+                )
+            )
+        )
+        let expected = """
+        if (x = y) then
+            x <= y;
+        elsif (x /= y) then
+            y <= x;
+        end if;
+        """
+        XCTAssertEqual(block.rawValue, expected)
+    }
+
+    /// Test `rawValue` with a recursive if-statement.
+    func testRecursiveRawValue() {
+        let block = IfBlock.ifElse(
+            condition: .conditional(condition: .comparison(value: .equality(lhs: x, rhs: y))),
+            ifBlock: .statement(statement: .assignment(name: VariableName(text: "x"), value: y)),
+            elseBlock: .ifStatement(
+                block: .ifElse(
+                    condition: .conditional(condition: .comparison(value: .notEquals(lhs: x, rhs: y))),
+                    ifBlock: .statement(statement: .assignment(name: VariableName(text: "y"), value: x)),
+                    elseBlock: .statement(
+                        statement: .assignment(
+                            name: VariableName(text: "x"), value: .literal(value: .bit(value: .low))
+                        )
+                    )
+                )
+            )
+        )
+        let expected = """
+        if (x = y) then
+            x <= y;
+        elsif (x /= y) then
+            y <= x;
+        else
+            x <= '0';
+        end if;
+        """
+        XCTAssertEqual(block.rawValue, expected)
+    }
+
+    // swiftlint:disable function_body_length
+
+    /// Test multiple level recursive if-statement.
+    func testComplexRecursiveRawValue() {
+        let block = IfBlock.ifElse(
+            condition: .conditional(condition: .comparison(value: .equality(lhs: x, rhs: y))),
+            ifBlock: .statement(statement: .assignment(name: VariableName(text: "x"), value: y)),
+            elseBlock: .ifStatement(
+                block: .ifElse(
+                    condition: .conditional(condition: .comparison(value: .notEquals(lhs: x, rhs: y))),
+                    ifBlock: .statement(statement: .assignment(name: VariableName(text: "y"), value: x)),
+                    elseBlock: .ifStatement(
+                        block: .ifElse(
+                            condition: .conditional(
+                                condition: .comparison(value: .greaterThan(lhs: x, rhs: y))
+                            ),
+                            ifBlock: .statement(
+                                statement: .assignment(
+                                    name: VariableName(text: "x"),
+                                    value: .binary(
+                                        operation: .addition(lhs: x, rhs: .literal(value: .integer(value: 1)))
+                                    )
+                                )
+                            ),
+                            elseBlock: .ifStatement(
+                                block: .ifElse(
+                                    condition: .conditional(
+                                        condition: .comparison(value: .lessThan(lhs: x, rhs: y))
+                                    ),
+                                    ifBlock: .statement(
+                                        statement: .assignment(
+                                            name: VariableName(text: "x"),
+                                            value: .binary(
+                                                operation: .subtraction(
+                                                    lhs: x, rhs: .literal(value: .integer(value: 1))
+                                                )
+                                            )
+                                        )
+                                    ),
+                                    elseBlock: .statement(
+                                        statement: .assignment(
+                                            name: VariableName(text: "x"),
+                                            value: .literal(value: .bit(value: .low))
+                                        )
+                                    )
+                                )
+                            )
+                        )
+                    )
+                )
+            )
+        )
+        let expected = """
+        if (x = y) then
+            x <= y;
+        elsif (x /= y) then
+            y <= x;
+        elsif (x > y) then
+            x <= x + 1;
+        elsif (x < y) then
+            x <= x - 1;
+        else
+            x <= '0';
+        end if;
+        """
+        XCTAssertEqual(block.rawValue, expected)
+    }
+
+    // swiftlint:enable function_body_length
+
+    /// Test `rawValue` with a nested if-statement.
+    func testNestedRawValue() {
+        let block = IfBlock.ifElse(
+            condition: .conditional(condition: .comparison(value: .equality(lhs: x, rhs: y))),
+            ifBlock: .blocks(
+                blocks: [
+                    .statement(statement: .assignment(name: VariableName(text: "x"), value: y)),
+                    .ifStatement(
+                        block: IfBlock.ifStatement(
+                            condition: .conditional(
+                                condition: .comparison(
+                                    value: .equality(lhs: x, rhs: .literal(value: .bit(value: .high)))
+                                )
+                            ),
+                            ifBlock: .statement(
+                                statement: .assignment(
+                                    name: VariableName(text: "x"), value: .literal(value: .bit(value: .low))
+                                )
+                            )
+                        )
+                    )
+                ]
+            ),
+            elseBlock: .ifStatement(
+                block: .ifElse(
+                    condition: .conditional(condition: .comparison(value: .notEquals(lhs: x, rhs: y))),
+                    ifBlock: .statement(statement: .assignment(name: VariableName(text: "y"), value: x)),
+                    elseBlock: .statement(
+                        statement: .assignment(
+                            name: VariableName(text: "x"), value: .literal(value: .bit(value: .low))
+                        )
+                    )
+                )
+            )
+        )
+        let expected = """
+        if (x = y) then
+            x <= y;
+            if (x = '1') then
+                x <= '0';
+            end if;
+        elsif (x /= y) then
+            y <= x;
+        else
+            x <= '0';
+        end if;
+        """
+        XCTAssertEqual(block.rawValue, expected)
     }
 
     /// Test standard `ifStatement` and `ifElse` case in `init(rawValue:)`.
