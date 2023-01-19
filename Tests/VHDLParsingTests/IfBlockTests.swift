@@ -398,6 +398,8 @@ final class IfBlockTests: XCTestCase {
             )
         )
         XCTAssertNil(IfBlock(rawValue: "ifs (x = y) then x <= y; end if;"))
+        XCTAssertNil(IfBlock(rawValue: "if s (x = y) then x <= y; end if;"))
+        XCTAssertNil(IfBlock(rawValue: "if (x = y) then x <= y end if;"))
         XCTAssertNil(IfBlock(rawValue: "if (x = y) then x <= y; end ifs;"))
         XCTAssertNil(IfBlock(rawValue: "if (x = y) then x <= y; end ifs ;"))
         XCTAssertNil(IfBlock(rawValue: "if (x = y) then x <= y; ends if;"))
