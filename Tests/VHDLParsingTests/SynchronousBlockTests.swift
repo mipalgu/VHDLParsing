@@ -187,6 +187,7 @@ final class SynchronousBlockTests: XCTestCase {
             SynchronousBlock(rawValue: "x <= '1'; -- signal x\n\n\nx <= '1'; -- signal x "), expected
         )
         XCTAssertNil(SynchronousBlock(rawValue: "x <= '1';\n2x <= '1';"))
+        XCTAssertNil(SynchronousBlock(rawValue: "\(String(repeating: "x", count: 4096)) <= '1';"))
     }
 
     /// Test statement and if blocks together.
@@ -243,6 +244,65 @@ final class SynchronousBlockTests: XCTestCase {
         end if;
         """
         XCTAssertEqual(SynchronousBlock(rawValue: raw), .blocks(blocks: [assignment, ifStatement]))
+    }
+
+    /// Test statement and if blocks together.
+    func testMixedRawValueInit2() {
+        let x = Expression.variable(name: x)
+        let y = Expression.variable(name: y)
+        let ifStatement = SynchronousBlock.ifStatement(block: IfBlock.ifElse(
+            condition: .conditional(condition: .comparison(value: .equality(lhs: x, rhs: y))),
+            ifBlock: .blocks(
+                blocks: [
+                    .statement(statement: .assignment(name: VariableName(text: "x"), value: y)),
+                    .ifStatement(
+                        block: IfBlock.ifStatement(
+                            condition: .conditional(
+                                condition: .comparison(
+                                    value: .equality(lhs: x, rhs: .literal(value: .bit(value: .high)))
+                                )
+                            ),
+                            ifBlock: .statement(
+                                statement: .assignment(
+                                    name: VariableName(text: "x"), value: .literal(value: .bit(value: .low))
+                                )
+                            )
+                        )
+                    )
+                ]
+            ),
+            elseBlock: .ifStatement(
+                block: .ifElse(
+                    condition: .conditional(condition: .comparison(value: .notEquals(lhs: x, rhs: y))),
+                    ifBlock: .statement(statement: .assignment(name: VariableName(text: "y"), value: x)),
+                    elseBlock: .statement(
+                        statement: .assignment(
+                            name: VariableName(text: "x"), value: .literal(value: .bit(value: .low))
+                        )
+                    )
+                )
+            )
+        ))
+        let assignment = SynchronousBlock.statement(
+            statement: .assignment(name: self.x, value: .literal(value: .bit(value: .high)))
+        )
+        let raw = """
+        x <= '1';
+        if (x = y) then
+            x <= y;
+            if (x = '1') then
+                x <= '0';
+            end if;
+        elsif (x /= y) then
+            y <= x;
+        else
+            x <= '0';
+        end if;
+        x <= '1';
+        """
+        XCTAssertEqual(
+            SynchronousBlock(rawValue: raw), .blocks(blocks: [assignment, ifStatement, assignment])
+        )
     }
 
 }

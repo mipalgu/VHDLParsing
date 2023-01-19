@@ -256,29 +256,74 @@ extension String {
     /// - Returns: The index if the word was found.
     @usableFromInline
     func startIndex(word: String) -> String.Index? {
-        let size = word.count
-        guard !word.isEmpty, self.count >= size else {
+        self[self.startIndex..<self.endIndex].startIndex(word: word)
+    }
+
+    func indexes(for words: [String]) -> [(String.Index, String.Index)] {
+        var indexes: [(String.Index, String.Index)] = []
+        let words = words.map { $0.lowercased() }
+        let lower = self.lowercased()
+        var index = self.startIndex
+        while index < self.endIndex {
+            let startIndexes: [String.Index] = words.compactMap {
+                guard let startIndex = lower[index...].startIndex(word: $0) else {
+                    return nil
+                }
+                index = startIndex
+                return startIndex
+            }
+            if
+                startIndexes.count == words.count,
+                startIndexes.sorted() == startIndexes,
+                let firstIndex = startIndexes.first,
+                let lastIndex = startIndexes.last,
+                let lastWord = words.last
+            {
+                let endIndex = self.index(lastIndex, offsetBy: lastWord.count)
+                let sub = self[firstIndex..<endIndex]
+                let subString = String(sub)
+                let subWords = subString.words
+                if subWords == words {
+                    indexes.append((firstIndex, endIndex))
+                    index = endIndex
+                    continue
+                }
+            }
+            index = self.index(after: index)
+        }
+        return indexes
+    }
+
+    func subExpression(beginningWith startWords: [String], endingWith endWords: [String]) -> Substring? {
+        let startIndexes = self.indexes(for: startWords)
+        let endIndexes = self.indexes(for: endWords)
+        let allIndexes = startIndexes.map { ($0.0, $0.1, startWords) } +
+            endIndexes.map { ($0.0, $0.1, endWords) }
+        let sortedIndexes = allIndexes.sorted { $0.0 < $1.0 }
+        var tracker = 0
+        var start: String.Index?
+        var end: String.Index?
+        for (i, j, w) in sortedIndexes {
+            if w == startWords {
+                if tracker == 0 {
+                    start = i
+                }
+                tracker += 1
+            } else {
+                if tracker == 0 {
+                    continue
+                }
+                tracker -= 1
+                if tracker == 0 {
+                    end = j
+                    break
+                }
+            }
+        }
+        guard let start = start, let end = end else {
             return nil
         }
-        let offset = size - 1
-        let startIndex = self.index(self.startIndex, offsetBy: offset)
-        for i in self[startIndex...].indices {
-            guard
-                let wordStart = self.index(i, offsetBy: -offset, limitedBy: self.startIndex),
-                self[wordStart...i] == word
-            else {
-                continue
-            }
-            let nextIndex = self.index(after: i)
-            guard nextIndex < self.endIndex else {
-                return wordStart
-            }
-            guard CharacterSet.whitespacesAndNewlines.contains(self.unicodeScalars[nextIndex]) else {
-                continue
-            }
-            return wordStart
-        }
-        return nil
+        return self[start..<end]
     }
 
     /// Find a string that starts with a specified string and ends with a specified string including
@@ -473,13 +518,31 @@ extension Substring {
                 continue
             }
             let nextIndex = self.index(after: i)
+            let previousIndex = self.index(wordStart, offsetBy: -1, limitedBy: self.startIndex)
             guard nextIndex < self.endIndex else {
+                if let previousIndex = previousIndex {
+                    guard
+                        CharacterSet.whitespacesAndNewlines.contains(self.unicodeScalars[previousIndex])
+                    else {
+                        return nil
+                    }
+                }
                 return wordStart
             }
-            guard CharacterSet.whitespacesAndNewlines.contains(self.unicodeScalars[nextIndex]) else {
-                continue
+            guard let previousIndex = previousIndex else {
+                guard
+                    CharacterSet.whitespacesAndNewlines.contains(self.unicodeScalars[nextIndex])
+                else {
+                    continue
+                }
+                return wordStart
             }
-            return wordStart
+            if
+                CharacterSet.whitespacesAndNewlines.contains(self.unicodeScalars[previousIndex]),
+                CharacterSet.whitespacesAndNewlines.contains(self.unicodeScalars[nextIndex])
+            {
+                return wordStart
+            }
         }
         return nil
     }

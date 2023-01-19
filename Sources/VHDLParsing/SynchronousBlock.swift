@@ -54,14 +54,19 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
+/// A type for representing code that exists within a `process` block in `VHDL`.
 indirect public enum SynchronousBlock: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
+    /// Several blocks of synchronous code.
     case blocks(blocks: [SynchronousBlock])
 
+    /// A single statement.
     case statement(statement: Statement)
 
+    /// An if-statement.
     case ifStatement(block: IfBlock)
 
+    /// The `VHDL` code that performs this block.
     public var rawValue: String {
         switch self {
         case .blocks(let blocks):
@@ -85,7 +90,30 @@ indirect public enum SynchronousBlock: RawRepresentable, Equatable, Hashable, Co
         guard trimmedString.contains(";") else {
             return nil
         }
-        if let ifStatement = IfBlock(rawValue: trimmedString) {
+        let words = trimmedString.words
+        if words.first?.lowercased() == "if" {
+            guard let ifStatement = IfBlock(rawValue: trimmedString) else {
+                guard let ifString = trimmedString.subExpression(
+                    beginningWith: ["if"], endingWith: ["end", "if"]
+                ) else {
+                    return nil
+                }
+                let remaining = trimmedString[ifString.endIndex...].trimmingCharacters(
+                    in: .whitespacesAndNewlines
+                )
+                guard
+                    remaining.hasPrefix(";"),
+                    let ifStatement = IfBlock(rawValue: String(ifString)),
+                    let remainingBlock = SynchronousBlock(
+                        rawValue: String(remaining.dropFirst()),
+                        carry: carry + [.ifStatement(block: ifStatement)]
+                    )
+                else {
+                    return nil
+                }
+                self = remainingBlock
+                return
+            }
             guard let newBlock = SynchronousBlock(carry: carry + [.ifStatement(block: ifStatement)]) else {
                 return nil
             }

@@ -302,4 +302,39 @@ final class StringVHDLMethodsTests: XCTestCase {
         XCTAssertNil("defghijk".startIndex(word: "abc"))
     }
 
+    /// Test `subExpression`.
+    func testSubExpression() {
+        let raw = """
+        x <= '1';
+        if (x = y) then
+            x <= y;
+            if (x = '1') then
+                x <= '0';
+            end if;
+        elsif (x /= y) then
+            y <= x;
+        else
+            x <= '0';
+        end if;
+        x <= '1';
+        """
+        let expected = """
+        if (x = y) then
+            x <= y;
+            if (x = '1') then
+                x <= '0';
+            end if;
+        elsif (x /= y) then
+            y <= x;
+        else
+            x <= '0';
+        end if
+        """
+        guard let subExpression = raw.subExpression(beginningWith: ["if"], endingWith: ["end", "if;"]) else {
+            XCTFail("Failed to get sub expression.")
+            return
+        }
+        XCTAssertEqual(String(subExpression), expected)
+    }
+
 }
