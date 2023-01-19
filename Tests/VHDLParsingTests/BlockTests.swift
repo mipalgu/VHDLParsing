@@ -106,6 +106,7 @@ final class BlockTests: XCTestCase {
         XCTAssertEqual(Block(rawValue: "x <= '1'; -- signal x\nx <= '1'; -- signal x"), expected)
         XCTAssertEqual(Block(rawValue: "x <= '1';\n\n\nx <= '1'; -- signal x "), expected)
         XCTAssertEqual(Block(rawValue: "x <= '1'; -- signal x\n\n\nx <= '1'; -- signal x "), expected)
+        XCTAssertNil(Block(rawValue: "x <= '1';\n2x <= '1';"))
     }
 
 }
