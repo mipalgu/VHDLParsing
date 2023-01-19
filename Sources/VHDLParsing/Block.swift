@@ -78,16 +78,26 @@ indirect public enum Block: RawRepresentable, Equatable, Hashable, Codable, Send
     }
 
     public init?(rawValue: String) {
+        self.init(rawValue: rawValue, carry: [])
+    }
+
+    private init?(rawValue: String, carry: [Block]) {
         let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines).withoutComments
         guard trimmedString.contains(";") else {
             return nil
         }
         if let ifStatement = IfBlock(rawValue: trimmedString) {
-            self = .ifStatement(block: ifStatement)
+            guard let newBlock = Block(carry: carry + [.ifStatement(block: ifStatement)]) else {
+                return nil
+            }
+            self = newBlock
             return
         }
         if let process = ProcessBlock(rawValue: trimmedString) {
-            self = .process(block: process)
+            guard let newBlock = Block(carry: carry + [.process(block: process)]) else {
+                return nil
+            }
+            self = newBlock
             return
         }
         // Check for single semicolon.
@@ -95,22 +105,43 @@ indirect public enum Block: RawRepresentable, Equatable, Hashable, Codable, Send
             trimmedString.firstIndex(of: ";") == trimmedString.lastIndex(of: ";"),
             trimmedString.hasSuffix(";")
         {
-            guard let statement = Statement(rawValue: trimmedString) else {
+            guard
+                let statement = Statement(rawValue: trimmedString),
+                let newBlock = Block(carry: carry + [.statement(statement: statement)])
+            else {
                 return nil
             }
-            self = .statement(statement: statement)
+            self = newBlock
             return
         }
-        let blockStrings = trimmedString.components(separatedBy: ";")
-            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
-            .filter { !$0.isEmpty }
-        let blocks = blockStrings.compactMap {
-            Block(rawValue: $0 + ";")
-        }
-        guard blockStrings.count == blocks.count else {
+        let currentBlock = trimmedString.uptoSemicolon + ";"
+        guard let statement = Statement(rawValue: currentBlock) else {
             return nil
         }
-        self = .blocks(blocks: blocks)
+        let remaining = String(trimmedString.dropFirst(currentBlock.count))
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        let newBlock = Block.statement(statement: statement)
+        guard !remaining.isEmpty else {
+            guard let block = Block(carry: carry + [newBlock]) else {
+                return nil
+            }
+            self = block
+            return
+        }
+        self.init(rawValue: remaining, carry: carry + [newBlock])
+    }
+
+    private init?(carry: [Block]) {
+        guard !carry.isEmpty else {
+            return nil
+        }
+        if carry.count == 1 {
+            self = carry[0]
+            return
+        } else {
+            self = .blocks(blocks: carry)
+            return
+        }
     }
 
 }
