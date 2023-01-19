@@ -147,6 +147,15 @@ final class PortSignalTests: XCTestCase {
         XCTAssertEqual(PortSignal(rawValue: "x : out std_logic;"), self.signal)
         self.signal.comment = Comment(text: "signal x")
         XCTAssertEqual(PortSignal(rawValue: "x : out std_logic; -- signal x"), self.signal)
+        XCTAssertEqual(
+            PortSignal(rawValue: " x :    in  std_logic  :=  '1'  ;"),
+            PortSignal(
+                type: .stdLogic,
+                name: VariableName(text: "x"),
+                mode: .input,
+                defaultValue: .literal(value: .bit(value: .high))
+            )
+        )
     }
 
     /// Test rawValue init works for vector types.

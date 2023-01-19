@@ -77,7 +77,7 @@ public struct PortSignal: ExternalType, RawRepresentable, Codable, Hashable, Var
         guard assignmentComponents.count <= 2, let typeDeclaration = assignmentComponents.first else {
             return nil
         }
-        let typeComponents = typeDeclaration.components(separatedBy: .whitespaces)
+        let typeComponents = typeDeclaration.components(separatedBy: .whitespaces).filter { !$0.isEmpty }
         guard typeComponents.count >= 2 else {
             return nil
         }
