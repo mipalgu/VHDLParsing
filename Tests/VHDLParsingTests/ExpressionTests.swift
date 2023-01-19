@@ -152,6 +152,14 @@ final class ExpressionTests: XCTestCase {
                 )
             )
         )
+        XCTAssertEqual(
+            Expression(rawValue: "(a) > b"),
+            .conditional(
+                condition: .comparison(value: .greaterThan(
+                    lhs: .precedence(value: .variable(name: aname)), rhs: .variable(name: bname)
+                ))
+            )
+        )
     }
 
     /// Test invalid raw values return nil.
@@ -168,6 +176,7 @@ final class ExpressionTests: XCTestCase {
         XCTAssertNil(Expression(rawValue: "a + b;-- a\n--b"))
         XCTAssertNil(Expression(rawValue: "a + b;-- a\n--b\n--c"))
         XCTAssertNil(Expression(rawValue: "a; +-- b;"))
+        XCTAssertNil(Expression(rawValue: "(a) ++ b"))
     }
 
     /// Test init works for statement with multiple sub expressions.
