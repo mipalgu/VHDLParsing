@@ -91,28 +91,25 @@ indirect public enum SynchronousBlock: RawRepresentable, Equatable, Hashable, Co
             return nil
         }
         if trimmedString.firstWord?.lowercased() == "if" {
-            guard let ifStatement = IfBlock(rawValue: trimmedString) else {
-                guard let ifString = trimmedString.subExpression(
-                    beginningWith: ["if"], endingWith: ["end", "if;"]
-                ) else {
-                    return nil
-                }
-                guard
-                    let ifStatement = IfBlock(rawValue: String(ifString)),
-                    let remainingBlock = SynchronousBlock(
-                        rawValue: String(trimmedString[ifString.endIndex...]),
-                        carry: carry + [.ifStatement(block: ifStatement)]
-                    )
-                else {
-                    return nil
-                }
-                self = remainingBlock
+            if
+                let ifStatement = IfBlock(rawValue: trimmedString),
+                let newBlock = SynchronousBlock(carry: carry + [.ifStatement(block: ifStatement)])
+            {
+                self = newBlock
                 return
             }
-            guard let newBlock = SynchronousBlock(carry: carry + [.ifStatement(block: ifStatement)]) else {
+            guard
+                let ifString = trimmedString.subExpression(beginningWith: ["if"], endingWith: ["end", "if;"]),
+                let ifStatement = IfBlock(rawValue: String(ifString)),
+                ifString.endIndex < trimmedString.endIndex,
+                let remainingBlock = SynchronousBlock(
+                    rawValue: String(trimmedString[ifString.endIndex...]),
+                    carry: carry + [.ifStatement(block: ifStatement)]
+                )
+            else {
                 return nil
             }
-            self = newBlock
+            self = remainingBlock
             return
         }
         // Check for single semicolon.
