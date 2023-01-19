@@ -67,7 +67,7 @@ indirect public enum SynchronousBlock: RawRepresentable, Equatable, Hashable, Co
     case ifStatement(block: IfBlock)
 
     /// The `VHDL` code that performs this block.
-    public var rawValue: String {
+    @inlinable public var rawValue: String {
         switch self {
         case .blocks(let blocks):
             return blocks.map(\.rawValue).joined(separator: "\n")
@@ -78,6 +78,8 @@ indirect public enum SynchronousBlock: RawRepresentable, Equatable, Hashable, Co
         }
     }
 
+    /// Initialise this `SynchronousBlock` from its `VHDL` representation.
+    /// - Parameter rawValue: The `VHDL` code that exists within a `process` block.
     public init?(rawValue: String) {
         guard rawValue.count < 4096 else {
             return nil
@@ -85,6 +87,10 @@ indirect public enum SynchronousBlock: RawRepresentable, Equatable, Hashable, Co
         self.init(rawValue: rawValue.withoutComments, carry: [])
     }
 
+    /// Accumulater method to parse the `rawValue` incrementally.
+    /// - Parameters:
+    ///   - rawValue: The current string to parse.
+    ///   - carry: The previous strings that have parsed correctly.
     private init?(rawValue: String, carry: [SynchronousBlock]) {
         let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
         guard trimmedString.contains(";") else {
@@ -129,6 +135,10 @@ indirect public enum SynchronousBlock: RawRepresentable, Equatable, Hashable, Co
         self.init(multiple: trimmedString, carry: carry)
     }
 
+    /// Initialise a `rawValue` with multiple statements.
+    /// - Parameters:
+    ///   - trimmedString: The trimmed string containing multiple statements.
+    ///   - carry: The previous strings that have parsed correctly.
     private init?(multiple trimmedString: String, carry: [SynchronousBlock]) {
         let currentBlock = trimmedString.uptoSemicolon + ";"
         guard let statement = Statement(rawValue: currentBlock) else {
@@ -147,6 +157,8 @@ indirect public enum SynchronousBlock: RawRepresentable, Equatable, Hashable, Co
         self.init(rawValue: remaining, carry: carry + [newBlock])
     }
 
+    /// Combine multiple `SynchronousBlock`s into a single `SynchronousBlock`.
+    /// - Parameter carry: The array containing the blocks to combine.
     private init?(carry: [SynchronousBlock]) {
         guard !carry.isEmpty else {
             return nil
