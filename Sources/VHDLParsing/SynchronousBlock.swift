@@ -94,7 +94,7 @@ indirect public enum SynchronousBlock: RawRepresentable, Equatable, Hashable, Co
         if words.first?.lowercased() == "if" {
             guard let ifStatement = IfBlock(rawValue: trimmedString) else {
                 guard let ifString = trimmedString.subExpression(
-                    beginningWith: ["if"], endingWith: ["end", "if"]
+                    beginningWith: ["if"], endingWith: ["end", "if;"]
                 ) else {
                     return nil
                 }
@@ -102,10 +102,9 @@ indirect public enum SynchronousBlock: RawRepresentable, Equatable, Hashable, Co
                     in: .whitespacesAndNewlines
                 )
                 guard
-                    remaining.hasPrefix(";"),
                     let ifStatement = IfBlock(rawValue: String(ifString)),
                     let remainingBlock = SynchronousBlock(
-                        rawValue: String(remaining.dropFirst()),
+                        rawValue: remaining,
                         carry: carry + [.ifStatement(block: ifStatement)]
                     )
                 else {

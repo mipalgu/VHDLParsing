@@ -300,9 +300,8 @@ final class SynchronousBlockTests: XCTestCase {
         end if;
         x <= '1';
         """
-        XCTAssertEqual(
-            SynchronousBlock(rawValue: raw), .blocks(blocks: [assignment, ifStatement, assignment])
-        )
+        let result = SynchronousBlock(rawValue: raw)
+        XCTAssertEqual(result, .blocks(blocks: [assignment, ifStatement, assignment]))
     }
 
 }
