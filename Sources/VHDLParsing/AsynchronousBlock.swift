@@ -1,5 +1,5 @@
-// Block.swift
-// Machines
+// AsynchronousBlock.swift
+// VHDLParsing
 // 
 // Created by Morgan McColl.
 // Copyright © 2023 Morgan McColl. All rights reserved.
@@ -54,21 +54,19 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
-indirect public enum SynchronousBlock: RawRepresentable, Equatable, Hashable, Codable, Sendable {
+indirect public enum AsynchronousBlock: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
-    case blocks(blocks: [SynchronousBlock])
+    case blocks(blocks: [AsynchronousBlock])
+
+    case process(block: ProcessBlock)
 
     case statement(statement: Statement)
-
-    case ifStatement(block: IfBlock)
 
     public var rawValue: String {
         switch self {
         case .blocks(let blocks):
             return blocks.map(\.rawValue).joined(separator: "\n")
-        // case .process(let block):
-        //     return block.rawValue
-        case .ifStatement(let block):
+        case .process(let block):
             return block.rawValue
         case .statement(let statement):
             return statement.rawValue
@@ -82,25 +80,18 @@ indirect public enum SynchronousBlock: RawRepresentable, Equatable, Hashable, Co
         self.init(rawValue: rawValue.withoutComments, carry: [])
     }
 
-    private init?(rawValue: String, carry: [SynchronousBlock]) {
+    private init?(rawValue: String, carry: [AsynchronousBlock]) {
         let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
         guard trimmedString.contains(";") else {
             return nil
         }
-        if let ifStatement = IfBlock(rawValue: trimmedString) {
-            guard let newBlock = SynchronousBlock(carry: carry + [.ifStatement(block: ifStatement)]) else {
+        if let process = ProcessBlock(rawValue: trimmedString) {
+            guard let newBlock = AsynchronousBlock(carry: carry + [.process(block: process)]) else {
                 return nil
             }
             self = newBlock
             return
         }
-        // if let process = ProcessBlock(rawValue: trimmedString) {
-        //     guard let newBlock = SynchronousBlock(carry: carry + [.process(block: process)]) else {
-        //         return nil
-        //     }
-        //     self = newBlock
-        //     return
-        // }
         // Check for single semicolon.
         if
             trimmedString.firstIndex(of: ";") == trimmedString.lastIndex(of: ";"),
@@ -108,7 +99,7 @@ indirect public enum SynchronousBlock: RawRepresentable, Equatable, Hashable, Co
         {
             guard
                 let statement = Statement(rawValue: trimmedString),
-                let newBlock = SynchronousBlock(carry: carry + [.statement(statement: statement)])
+                let newBlock = AsynchronousBlock(carry: carry + [.statement(statement: statement)])
             else {
                 return nil
             }
@@ -121,9 +112,9 @@ indirect public enum SynchronousBlock: RawRepresentable, Equatable, Hashable, Co
         }
         let remaining = String(trimmedString.dropFirst(currentBlock.count))
             .trimmingCharacters(in: .whitespacesAndNewlines)
-        let newBlock = SynchronousBlock.statement(statement: statement)
+        let newBlock = AsynchronousBlock.statement(statement: statement)
         guard !remaining.isEmpty else {
-            guard let block = SynchronousBlock(carry: carry + [newBlock]) else {
+            guard let block = AsynchronousBlock(carry: carry + [newBlock]) else {
                 return nil
             }
             self = block
@@ -132,7 +123,7 @@ indirect public enum SynchronousBlock: RawRepresentable, Equatable, Hashable, Co
         self.init(rawValue: remaining, carry: carry + [newBlock])
     }
 
-    private init?(carry: [SynchronousBlock]) {
+    private init?(carry: [AsynchronousBlock]) {
         guard !carry.isEmpty else {
             return nil
         }
