@@ -307,6 +307,9 @@ final class StringVHDLMethodsTests: XCTestCase {
         XCTAssertNil("end if;".startIndex(word: "if"))
         XCTAssertNil("elsif (x /= y) then".startIndex(word: "if"))
         XCTAssertNil("end if;".startIndex(word: "if"))
+        let raw5 = " abc"
+        XCTAssertEqual(raw5.startIndex(word: "abc"), raw5.index(after: raw5.startIndex))
+        XCTAssertNil("defabc".startIndex(word: "abc"))
     }
 
     /// Test `subExpression`.
