@@ -338,7 +338,7 @@ final class StringVHDLMethodsTests: XCTestCase {
             y <= x;
         else
             x <= '0';
-        end if
+        end if;
         """
         guard let subExpression = raw.subExpression(beginningWith: ["if"], endingWith: ["end", "if;"]) else {
             XCTFail("Failed to get sub expression.")

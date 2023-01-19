@@ -245,36 +245,42 @@ extension String {
     }
 
     func indexes(for words: [String]) -> [(String.Index, String.Index)] {
+        guard !self.isEmpty, !words.isEmpty else {
+            return []
+        }
         var indexes: [(String.Index, String.Index)] = []
         let words = words.map { $0.lowercased() }
-        let lower = self.lowercased()
-        var index = self.startIndex
-        while index < self.endIndex {
+        var string = self.lowercased()[self.startIndex..<self.endIndex]
+        while !string.isEmpty {
             let startIndexes: [String.Index] = words.compactMap {
-                guard let startIndex = lower[index...].startIndex(word: $0) else {
+                guard
+                    !$0.isEmpty,
+                    let startIndex = string.startIndex(word: $0)
+                else {
                     return nil
                 }
-                index = startIndex
+                string = string[startIndex...].dropFirst()
                 return startIndex
             }
-            if
+            if startIndexes.isEmpty {
+                return indexes
+            }
+            guard
                 startIndexes.count == words.count,
                 startIndexes.sorted() == startIndexes,
                 let firstIndex = startIndexes.first,
                 let lastIndex = startIndexes.last,
                 let lastWord = words.last
-            {
-                let endIndex = self.index(lastIndex, offsetBy: lastWord.count)
-                let sub = self[firstIndex..<endIndex]
-                let subString = String(sub)
-                let subWords = subString.words
-                if subWords == words {
-                    indexes.append((firstIndex, endIndex))
-                    index = endIndex
-                    continue
-                }
+            else {
+                continue
             }
-            index = self.index(after: index)
+            let endIndex = self.index(lastIndex, offsetBy: lastWord.count)
+            let sub = self[firstIndex..<endIndex]
+            let subString = String(sub)
+            let subWords = subString.words
+            if subWords == words {
+                indexes.append((firstIndex, endIndex))
+            }
         }
         return indexes
     }
