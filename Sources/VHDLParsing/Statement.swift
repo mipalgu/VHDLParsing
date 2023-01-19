@@ -62,7 +62,7 @@ public enum Statement: RawRepresentable, Equatable, Hashable, Codable, Sendable 
 
     case assignment(name: VariableName, value: Expression)
 
-    case expression(value: Expression)
+    case comment(value: Comment)
 
     case externalDefinition(value: PortSignal)
 
@@ -76,7 +76,7 @@ public enum Statement: RawRepresentable, Equatable, Hashable, Codable, Sendable 
             return signal.rawValue
         case .assignment(let name, let value):
             return "\(name) := \(value.rawValue)"
-        case .expression(let value):
+        case .comment(let value):
             return value.rawValue
         case .externalDefinition(let value):
             return value.rawValue
@@ -125,8 +125,8 @@ public enum Statement: RawRepresentable, Equatable, Hashable, Codable, Sendable 
             self = .externalDefinition(value: external)
             return
         }
-        if let exp = Expression(rawValue: value) {
-            self = .expression(value: exp)
+        if let exp = Comment(rawValue: value) {
+            self = .comment(value: exp)
             return
         }
         return nil
