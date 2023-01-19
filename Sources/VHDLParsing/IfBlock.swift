@@ -90,16 +90,23 @@ public enum IfBlock: RawRepresentable, Equatable, Hashable, Codable, Sendable {
     public init?(rawValue: String) {
         let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
         let value = trimmedString.lowercased()
-        guard value.hasPrefix("if"), value.hasSuffix(";") else {
+        let words = value.words
+        guard words.first?.lowercased() == "if", words.last?.hasSuffix(";") == true else {
             return nil
         }
         let newValue = value.dropLast().trimmingCharacters(in: .whitespacesAndNewlines)
-        guard newValue.hasSuffix("if") else {
+        guard
+            words.last?.lowercased() == "if;" || (
+                words.count > 1 && words.dropLast().last?.lowercased() == "if"
+            )
+        else {
             return nil
         }
         let newValueString = newValue.dropLast(2).trimmingCharacters(in: .whitespacesAndNewlines)
         guard
-            newValueString.hasSuffix("end"),
+            newValueString.words.last?.lowercased() == "end",
+            words.count > 1,
+            words[1].hasPrefix("("),
             let conditionString = value.subExpressions?.first?.dropFirst().dropLast(),
             let condition = Expression(rawValue: String(conditionString))
         else {

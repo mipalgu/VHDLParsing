@@ -381,4 +381,32 @@ final class IfBlockTests: XCTestCase {
         XCTAssertEqual(IfBlock(rawValue: raw), expected)
     }
 
+    /// Test `init(rawValue:)` returns nil for invalid values.
+    func testInvalidRawValueInit() {
+        XCTAssertEqual(
+            IfBlock(rawValue: "if (x = y) then x <= y; end if;"),
+            IfBlock.ifStatement(
+                condition: .conditional(condition: .comparison(value: .equality(lhs: x, rhs: y))),
+                ifBlock: .statement(statement: .assignment(name: VariableName(text: "x"), value: y))
+            )
+        )
+        XCTAssertEqual(
+            IfBlock(rawValue: "if (x = y) then x <= y; end if ;"),
+            IfBlock.ifStatement(
+                condition: .conditional(condition: .comparison(value: .equality(lhs: x, rhs: y))),
+                ifBlock: .statement(statement: .assignment(name: VariableName(text: "x"), value: y))
+            )
+        )
+        XCTAssertNil(IfBlock(rawValue: "ifs (x = y) then x <= y; end if;"))
+        XCTAssertNil(IfBlock(rawValue: "if (x = y) then x <= y; end ifs;"))
+        XCTAssertNil(IfBlock(rawValue: "if (x = y) then x <= y; end ifs ;"))
+        XCTAssertNil(IfBlock(rawValue: "if (x = y) then x <= y; ends if;"))
+        XCTAssertNil(IfBlock(rawValue: "if (x = y) thens x <= y; end if;"))
+        XCTAssertNil(IfBlock(rawValue: "if (x = y) then end if;"))
+        XCTAssertNil(IfBlock(rawValue: "if (x = y) x <= y; end if;"))
+        XCTAssertNil(IfBlock(rawValue: "if (x = y) then x <= y; elssif (x /= y) then y <= x; end if;"))
+        XCTAssertNil(IfBlock(rawValue: "if (x = y) then x <= y; elsif s(x /= y) then y <= x; end if;"))
+        XCTAssertNil(IfBlock(rawValue: "if (x = y) then x <= y; else (x /= y) then y <= x; end if;"))
+    }
+
 }
