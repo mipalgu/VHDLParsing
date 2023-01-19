@@ -72,11 +72,13 @@ indirect public enum Expression: RawRepresentable,
     /// A literal value.
     case literal(value: SignalLiteral)
 
+    /// An arithmetic expression that uses two operands.
     case binary(operation: BinaryOperation)
 
     /// A precedence operation. This is equivalent to placing brackets around an Expression.
     case precedence(value: Expression)
 
+    /// A conditional expression.
     case conditional(condition: ConditionalExpression)
 
     /// The raw value is a string.
@@ -98,7 +100,8 @@ indirect public enum Expression: RawRepresentable,
         }
     }
 
-    public var description: String {
+    /// The equivalent VHDL code of this expression.
+    @inlinable public var description: String {
         rawValue
     }
 

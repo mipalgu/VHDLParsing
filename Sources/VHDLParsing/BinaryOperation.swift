@@ -128,6 +128,7 @@ public enum BinaryOperation: RawRepresentable, Equatable, Hashable, Codable, Sen
     ///   - lhs: The left-hand side expression.
     ///   - rhs: The right-hand side expression.
     ///   - char: The operator betweent the lhs and rhs.
+    @usableFromInline
     init?(lhs: Expression, rhs: Expression, str: String) {
         switch str.trimmingCharacters(in: .whitespaces) {
         case "-":
