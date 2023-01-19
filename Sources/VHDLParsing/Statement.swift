@@ -61,7 +61,7 @@ public enum Statement: RawRepresentable, Equatable, Hashable, Codable, Sendable 
     /// A constant definition, e.g. `constant x: std_logic := '1';`.
     case constant(value: ConstantSignal)
 
-    /// A definition of a variable, e.g. `signal x: std_logic;`.
+    /// A definition of a signal, e.g. `signal x: std_logic;`.
     case definition(signal: LocalSignal)
 
     /// Assigning a value to a variable that has been pre-defined, e.g. `a <= b + 1;`.
