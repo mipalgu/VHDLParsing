@@ -162,4 +162,54 @@ final class IfBlockTests: XCTestCase {
         XCTAssertEqual(IfBlock(rawValue: raw), expected)
     }
 
+    /// Test nested if-statement.
+    func testNestedRawValueInit() {
+        let raw = """
+        if (x = y) then
+            x <= y;
+            if (x = '1') then
+                x <= '0';
+            end if;
+        elsif (x /= y) then
+            y <= x;
+        else
+            x <= '0';
+        end if;
+        """
+        let expected = IfBlock.ifElse(
+            condition: .conditional(condition: .comparison(value: .equality(lhs: x, rhs: y))),
+            ifBlock: .blocks(
+                blocks: [
+                    .statement(statement: .assignment(name: VariableName(text: "x"), value: y)),
+                    .ifStatement(
+                        block: IfBlock.ifStatement(
+                            condition: .conditional(
+                                condition: .comparison(
+                                    value: .equality(lhs: x, rhs: .literal(value: .bit(value: .high)))
+                                )
+                            ),
+                            ifBlock: .statement(
+                                statement: .assignment(
+                                    name: VariableName(text: "x"), value: .literal(value: .bit(value: .low))
+                                )
+                            )
+                        )
+                    )
+                ]
+            ),
+            elseBlock: .ifStatement(
+                block: .ifElse(
+                    condition: .conditional(condition: .comparison(value: .notEquals(lhs: x, rhs: y))),
+                    ifBlock: .statement(statement: .assignment(name: VariableName(text: "y"), value: x)),
+                    elseBlock: .statement(
+                        statement: .assignment(
+                            name: VariableName(text: "x"), value: .literal(value: .bit(value: .low))
+                        )
+                    )
+                )
+            )
+        )
+        XCTAssertEqual(IfBlock(rawValue: raw), expected)
+    }
+
 }
