@@ -295,6 +295,11 @@ final class StringVHDLMethodsTests: XCTestCase {
     func testStartIndexWord() {
         let raw = "abcd abc abc"
         XCTAssertEqual(raw.startIndex(word: "abc"), raw.index(raw.startIndex, offsetBy: 5))
+        XCTAssertNil("".startIndex(word: "abc"))
+        XCTAssertNil(raw.startIndex(word: ""))
+        let raw2 = "abc"
+        XCTAssertEqual(raw2.startIndex(word: "abc"), raw2.startIndex)
+        XCTAssertNil("defghijk".startIndex(word: "abc"))
     }
 
 }
