@@ -90,21 +90,17 @@ indirect public enum SynchronousBlock: RawRepresentable, Equatable, Hashable, Co
         guard trimmedString.contains(";") else {
             return nil
         }
-        let words = trimmedString.words
-        if words.first?.lowercased() == "if" {
+        if trimmedString.firstWord?.lowercased() == "if" {
             guard let ifStatement = IfBlock(rawValue: trimmedString) else {
                 guard let ifString = trimmedString.subExpression(
                     beginningWith: ["if"], endingWith: ["end", "if;"]
                 ) else {
                     return nil
                 }
-                let remaining = trimmedString[ifString.endIndex...].trimmingCharacters(
-                    in: .whitespacesAndNewlines
-                )
                 guard
                     let ifStatement = IfBlock(rawValue: String(ifString)),
                     let remainingBlock = SynchronousBlock(
-                        rawValue: remaining,
+                        rawValue: String(trimmedString[ifString.endIndex...]),
                         carry: carry + [.ifStatement(block: ifStatement)]
                     )
                 else {
