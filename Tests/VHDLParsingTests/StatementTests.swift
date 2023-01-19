@@ -172,7 +172,7 @@ final class StatementTests: XCTestCase {
         )
         XCTAssertNil(Statement(rawValue: "signal x: std_logic := '1' -- signal x."))
         XCTAssertNil(Statement(rawValue: "signal x: std_logic := '1'; -- signal x.\n --"))
-        XCTAssertNil(Statement(rawValue: "-- signal x: std_logic := '1';"))
+        XCTAssertNil(Statement(rawValue: "-- signal x: std_logic\n := '1';"))
     }
 
 }
