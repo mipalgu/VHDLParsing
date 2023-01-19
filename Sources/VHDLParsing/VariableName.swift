@@ -90,8 +90,8 @@ public struct VariableName: RawRepresentable,
             trimmedName.count < 256,
             let firstChar = trimmedName.unicodeScalars.first,
             CharacterSet.letters.contains(firstChar),
-            rawValue.unicodeScalars.allSatisfy({ allowedChars.contains($0) }),
-            !Set<String>.vhdlAllReservedWords.contains(rawValue)
+            trimmedName.unicodeScalars.allSatisfy({ allowedChars.contains($0) }),
+            !Set<String>.vhdlAllReservedWords.contains(trimmedName)
         else {
             return nil
         }
