@@ -251,6 +251,36 @@ extension String {
         return nil
     }
 
+    /// Find the start index for a word.
+    /// - Parameter word: The word to search for.
+    /// - Returns: The index if the word was found.
+    @usableFromInline
+    func startIndex(word: String) -> String.Index? {
+        let size = word.count
+        guard !word.isEmpty, self.count >= size else {
+            return nil
+        }
+        let offset = size - 1
+        let startIndex = self.index(self.startIndex, offsetBy: offset)
+        for i in self[startIndex...].indices {
+            guard
+                let wordStart = self.index(i, offsetBy: -offset, limitedBy: self.startIndex),
+                self[wordStart...i] == word
+            else {
+                continue
+            }
+            let nextIndex = self.index(after: i)
+            guard nextIndex < self.endIndex else {
+                return wordStart
+            }
+            guard CharacterSet.whitespacesAndNewlines.contains(self.unicodeScalars[nextIndex]) else {
+                continue
+            }
+            return wordStart
+        }
+        return nil
+    }
+
     /// Find a string that starts with a specified string and ends with a specified string including
     /// substrings following the same pattern. For example, consider the string \"a(b(c)d)e\", starting with
     /// \"(\" and ending with \")\". The result would be \"(b(c)d)\".
@@ -417,6 +447,36 @@ extension Substring {
                 let wordStart = self.index(i, offsetBy: -offset, limitedBy: self.startIndex),
                 self[wordStart...i] == value
             else {
+                continue
+            }
+            return wordStart
+        }
+        return nil
+    }
+
+    /// Find the start index for a word.
+    /// - Parameter word: The word to search for.
+    /// - Returns: The index if the word was found.
+    @usableFromInline
+    func startIndex(word: String) -> String.Index? {
+        let size = word.count
+        guard !word.isEmpty, self.count >= size else {
+            return nil
+        }
+        let offset = size - 1
+        let startIndex = self.index(self.startIndex, offsetBy: offset)
+        for i in self[startIndex...].indices {
+            guard
+                let wordStart = self.index(i, offsetBy: -offset, limitedBy: self.startIndex),
+                self[wordStart...i] == word
+            else {
+                continue
+            }
+            let nextIndex = self.index(after: i)
+            guard nextIndex < self.endIndex else {
+                return wordStart
+            }
+            guard CharacterSet.whitespacesAndNewlines.contains(self.unicodeScalars[nextIndex]) else {
                 continue
             }
             return wordStart
