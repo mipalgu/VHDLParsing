@@ -1,4 +1,4 @@
-// AsynchronousBlock.swift
+// AAsynchronousBlock.swift
 // VHDLParsing
 // 
 // Created by Morgan McColl.
@@ -73,6 +73,8 @@ indirect public enum AsynchronousBlock: RawRepresentable, Equatable, Hashable, C
         }
     }
 
+    /// Initialise this `AsynchronousBlock` from its `VHDL` representation.
+    /// - Parameter rawValue: The `VHDL` code that exists within a `process` block.
     public init?(rawValue: String) {
         guard rawValue.count < 4096 else {
             return nil
@@ -80,16 +82,37 @@ indirect public enum AsynchronousBlock: RawRepresentable, Equatable, Hashable, C
         self.init(rawValue: rawValue.withoutComments, carry: [])
     }
 
+    /// Accumulater method to parse the `rawValue` incrementally.
+    /// - Parameters:
+    ///   - rawValue: The current string to parse.
+    ///   - carry: The previous strings that have parsed correctly.
     private init?(rawValue: String, carry: [AsynchronousBlock]) {
         let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
         guard trimmedString.contains(";") else {
             return nil
         }
-        if let process = ProcessBlock(rawValue: trimmedString) {
-            guard let newBlock = AsynchronousBlock(carry: carry + [.process(block: process)]) else {
+        if trimmedString.firstWord?.lowercased() == "process" {
+            if
+                let process = ProcessBlock(rawValue: trimmedString),
+                let newBlock = AsynchronousBlock(carry: carry + [.process(block: process)])
+            {
+                self = newBlock
+                return
+            }
+            guard
+                let processString = trimmedString.subExpression(
+                    beginningWith: ["if"], endingWith: ["end", "if;"]
+                ),
+                let process = ProcessBlock(rawValue: String(processString)),
+                processString.endIndex < trimmedString.endIndex,
+                let remainingBlock = AsynchronousBlock(
+                    rawValue: String(trimmedString[processString.endIndex...]),
+                    carry: carry + [.process(block: process)]
+                )
+            else {
                 return nil
             }
-            self = newBlock
+            self = remainingBlock
             return
         }
         // Check for single semicolon.
@@ -106,6 +129,14 @@ indirect public enum AsynchronousBlock: RawRepresentable, Equatable, Hashable, C
             self = newBlock
             return
         }
+        self.init(multiple: trimmedString, carry: carry)
+    }
+
+    /// Initialise a `rawValue` with multiple statements.
+    /// - Parameters:
+    ///   - trimmedString: The trimmed string containing multiple statements.
+    ///   - carry: The previous strings that have parsed correctly.
+    private init?(multiple trimmedString: String, carry: [AsynchronousBlock]) {
         let currentBlock = trimmedString.uptoSemicolon + ";"
         guard let statement = Statement(rawValue: currentBlock) else {
             return nil
@@ -123,6 +154,8 @@ indirect public enum AsynchronousBlock: RawRepresentable, Equatable, Hashable, C
         self.init(rawValue: remaining, carry: carry + [newBlock])
     }
 
+    /// Combine multiple `AsynchronousBlock`s into a single `AsynchronousBlock`.
+    /// - Parameter carry: The array containing the blocks to combine.
     private init?(carry: [AsynchronousBlock]) {
         guard !carry.isEmpty else {
             return nil
