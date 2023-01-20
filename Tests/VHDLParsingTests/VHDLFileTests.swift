@@ -152,4 +152,140 @@ final class VHDLFileTests: XCTestCase {
         XCTAssertEqual(file.rawValue, expected)
     }
 
+    /// Test `init(rawValue:)` works for test file.
+    func testRawValueInit() {
+        let raw = """
+        library IEEE;
+        use IEEE.std_logic_1164.all;
+
+        entity TestEntity is
+            port(
+                clk: in std_logic
+            );
+        end TestEntity;
+
+        architecture Behavioral of TestEntity is
+            signal x: std_logic;
+            signal y: std_logic;
+        begin
+            process(clk)
+            begin
+                if (rising_edge(clk)) then
+                    y <= x;
+                end if;
+            end process;
+        end Behavioral;
+
+        """
+        XCTAssertEqual(VHDLFile(rawValue: raw), file)
+    }
+
+    /// Test invalid `init(rawValue:)` returns nil.
+    func testInvalidRawValueInit() {
+        XCTAssertNil(VHDLFile(rawValue: ""))
+        XCTAssertNil(VHDLFile(rawValue: "library IEEE"))
+    }
+
+    /// Test invalid entity in raw value init.
+    func testInvalidEntityRawValueInit() {
+        let raw = """
+        entity TestEntity is
+            port(
+                clk: in std_logic
+            );
+        end TestEntity;
+        """
+        XCTAssertEqual(VHDLFile(rawValue: raw), VHDLFile(architectures: [], entities: entities, includes: []))
+        let raw2 = """
+        entity is
+            port(
+                clk: in std_logic
+            );
+        end TestEntity;
+        """
+        XCTAssertNil(VHDLFile(rawValue: raw2))
+        let raw3 = """
+        entity TestEntity
+            port(
+                clk: in std_logic
+            );
+        end TestEntity;
+        """
+        XCTAssertNil(VHDLFile(rawValue: raw3))
+        let raw4 = """
+        entity TestEntity is
+            port(
+                clk: in std_logic
+            );
+        endTestEntity;
+        """
+        XCTAssertNil(VHDLFile(rawValue: raw4))
+    }
+
+    // swiftlint:disable function_body_length
+
+    /// Test architecture raw value init.
+    func testArchitectureRawValueInit() {
+        let raw = """
+        architecture Behavioral of TestEntity is
+            signal x: std_logic;
+            signal y: std_logic;
+        begin
+            process(clk)
+            begin
+                if (rising_edge(clk)) then
+                    y <= x;
+                end if;
+            end process;
+        end Behavioral;
+        """
+        XCTAssertEqual(
+            VHDLFile(rawValue: raw), VHDLFile(architectures: architectures, entities: [], includes: [])
+        )
+        let raw2 = """
+        architecture Behavioral of TestEntity
+            signal x: std_logic;
+            signal y: std_logic;
+        begin
+            process(clk)
+            begin
+                if (rising_edge(clk)) then
+                    y <= x;
+                end if;
+            end process;
+        end Behavioral;
+        """
+        XCTAssertNil(VHDLFile(rawValue: raw2))
+        let raw3 = """
+        architecture Behavioral of2 TestEntity is
+            signal x: std_logic;
+            signal y: std_logic;
+        begin
+            process(clk)
+            begin
+                if (rising_edge(clk)) then
+                    y <= x;
+                end if;
+            end process;
+        end Behavioral;
+        """
+        XCTAssertNil(VHDLFile(rawValue: raw3))
+        let raw4 = """
+        architecture Behavioral of TestEntity is
+            signal x: std_logic;
+            signal y: std_logic;
+        begins
+            process(clk)
+            begin
+                if (rising_edge(clk)) then
+                    y <= x;
+                end if;
+            end process;
+        end Behavioral;
+        """
+        XCTAssertNil(VHDLFile(rawValue: raw4))
+    }
+
+    // swiftlint:enable function_body_length
+
 }
