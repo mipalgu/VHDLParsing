@@ -248,11 +248,11 @@ extension String {
     /// - Parameter words: The sentence to match against as an array of ordered words.
     /// - Returns: The indexes of all occurrences of the sentence within the string.
     func indexes(for words: [String]) -> [(String.Index, String.Index)] {
-        let wordPattern = words.map { $0.lowercased() }.joined(separator: "\\s+")
+        let wordPattern = words.map { $0.lowercased() }.joined(separator: "\\s+") // whitespace.
         guard
             !self.isEmpty,
             !words.isEmpty,
-            let regex = try? Regex("(:?^|\\s)" + wordPattern + "(:?^|\\s)")
+            let regex = try? Regex("(^|\\s)" + wordPattern + "(^|\\s)") // start of line or whitespace.
         else {
             return []
         }
