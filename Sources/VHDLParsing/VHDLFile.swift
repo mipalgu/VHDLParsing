@@ -130,7 +130,7 @@ public struct VHDLFile: RawRepresentable, Equatable, Hashable, Codable, Sendable
         include trimmedString: String, architectures: [Architecture], entities: [Entity], includes: [Include]
     ) {
         let include = trimmedString.uptoSemicolon + ";"
-        guard let newInclude = Include(rawValue: include) else {
+        guard trimmedString.contains(";"), let newInclude = Include(rawValue: include) else {
             return nil
         }
         let newRemaining = String(trimmedString.dropFirst(include.count))
