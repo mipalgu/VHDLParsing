@@ -75,7 +75,7 @@ extension String {
     @usableFromInline var firstWord: String? {
         guard
             let components = self.trimmingCharacters(in: .whitespacesAndNewlines)
-                .split(on: .whitespacesAndNewlines)
+                .split(on: .whitespacesAndNewlines.union(CharacterSet(charactersIn: "(")))
         else {
             return nil
         }
