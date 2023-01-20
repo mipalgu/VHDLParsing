@@ -104,7 +104,7 @@ final class AsynchronousBlockTests: XCTestCase {
             )
         )
         let expected = """
-        process (clk)
+        process(clk)
         begin
             if (rising_edge(clk)) then
                 x <= y;

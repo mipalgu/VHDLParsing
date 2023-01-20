@@ -110,7 +110,7 @@ final class ArchitectureTests: XCTestCase {
         architecture Behavioral of TestEntity is
             signal x: std_logic;
         begin
-            process (clk)
+            process(clk)
             begin
                 if (rising_edge(clk)) then
                     x <= '1';

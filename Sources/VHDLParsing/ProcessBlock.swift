@@ -75,7 +75,7 @@ public struct ProcessBlock: RawRepresentable, Equatable, Hashable, Codable, Send
             """
         }
         return """
-        process (\(sensitivityList.map(\.rawValue).joined(separator: ", ")))
+        process(\(sensitivityList.map(\.rawValue).joined(separator: ", ")))
         begin
         \(blocksCode)
         end process;
