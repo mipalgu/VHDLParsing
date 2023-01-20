@@ -245,44 +245,16 @@ extension String {
     }
 
     func indexes(for words: [String]) -> [(String.Index, String.Index)] {
-        guard !self.isEmpty, !words.isEmpty else {
+        let wordPattern = words.map { $0.lowercased() }.joined(separator: "\\s+")
+        guard
+            !self.isEmpty,
+            !words.isEmpty,
+            let regex = try? Regex("(:?^|\\s)" + wordPattern + "(:?^|\\s)")
+        else {
             return []
         }
-        var indexes: [(String.Index, String.Index)] = []
-        let words = words.map { $0.lowercased() }
-        var string = self.lowercased()[self.startIndex..<self.endIndex]
-        while !string.isEmpty {
-            let startIndexes: [String.Index] = words.compactMap {
-                guard
-                    !$0.isEmpty,
-                    let startIndex = string.startIndex(word: $0)
-                else {
-                    return nil
-                }
-                string = string[startIndex...].dropFirst()
-                return startIndex
-            }
-            if startIndexes.isEmpty {
-                return indexes
-            }
-            guard
-                startIndexes.count == words.count,
-                startIndexes.sorted() == startIndexes,
-                let firstIndex = startIndexes.first,
-                let lastIndex = startIndexes.last,
-                let lastWord = words.last
-            else {
-                continue
-            }
-            let endIndex = self.index(lastIndex, offsetBy: lastWord.count)
-            let sub = self[firstIndex..<endIndex]
-            let subString = String(sub)
-            let subWords = subString.words
-            if subWords == words {
-                indexes.append((firstIndex, endIndex))
-            }
-        }
-        return indexes
+        let matches = self.lowercased().matches(of: regex)
+        return matches.map { ($0.range.lowerBound, $0.range.upperBound) }
     }
 
     func subExpression(beginningWith startWords: [String], endingWith endWords: [String]) -> Substring? {

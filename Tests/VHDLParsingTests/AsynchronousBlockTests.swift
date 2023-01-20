@@ -189,7 +189,8 @@ final class AsynchronousBlockTests: XCTestCase {
         x <= y;
         """
         let expected = AsynchronousBlock.blocks(blocks: [block, process, block, block])
-        XCTAssertEqual(AsynchronousBlock(rawValue: raw), expected)
+        let result = AsynchronousBlock(rawValue: raw)
+        XCTAssertEqual(result, expected)
     }
 
 }

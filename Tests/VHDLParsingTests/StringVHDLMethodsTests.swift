@@ -344,7 +344,20 @@ final class StringVHDLMethodsTests: XCTestCase {
             XCTFail("Failed to get sub expression.")
             return
         }
-        XCTAssertEqual(String(subExpression), expected)
+        XCTAssertEqual(subExpression.trimmingCharacters(in: .whitespacesAndNewlines), expected)
+    }
+
+    func testSubExpression2() {
+        // swiftlint:disable:next line_length
+        let raw = "process (clk)\nbegin\nif (rising_edge(clk)) then\nx <= y;\nend if;\nend process;\nx <= y;\nx <= y;"
+        let expected = "process (clk)\nbegin\nif (rising_edge(clk)) then\nx <= y;\nend if;\nend process;"
+        guard
+            let expression = raw.subExpression(beginningWith: ["process"], endingWith: ["end", "process;"])
+        else {
+            XCTFail("Failed to get sub expression.")
+            return
+        }
+        XCTAssertEqual(expression.trimmingCharacters(in: .whitespacesAndNewlines), expected)
     }
 
 }
