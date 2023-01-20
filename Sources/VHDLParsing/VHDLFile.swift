@@ -54,15 +54,20 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
+/// A file containing `VHDL` code.
 public struct VHDLFile: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
+    /// The architectures in the file.
     public let architectures: [Architecture]
 
+    /// The entities in the file.
     public let entities: [Entity]
 
+    /// The includes in the file.
     public let includes: [Include]
 
-    public var rawValue: String {
+    /// The equivalent `VHDL` code for this file.
+    @inlinable public var rawValue: String {
         let includesString = includes.sorted { $0.rawValue < $1.rawValue }
         .map { $0.rawValue }
         .joined(separator: "\n")
@@ -81,12 +86,20 @@ public struct VHDLFile: RawRepresentable, Equatable, Hashable, Codable, Sendable
         .trimmingCharacters(in: .whitespacesAndNewlines) + "\n"
     }
 
+    /// Creates a new `VHDLFile` from the given parameters.
+    /// - Parameters:
+    ///   - architectures: The architectures in the file.
+    ///   - entities: The entities in the file.
+    ///   - includes: The includes in the file.
+    @inlinable
     public init(architectures: [Architecture], entities: [Entity], includes: [Include]) {
         self.architectures = architectures
         self.entities = entities
         self.includes = includes
     }
 
+    /// Creates a new `VHDLFile` from the `VHDL` code within it.
+    /// - Parameter rawValue: The `VHDL` code in the file.
     public init?(rawValue: String) {
         let trimmedString = rawValue.withoutComments.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedString.isEmpty else {
@@ -95,6 +108,12 @@ public struct VHDLFile: RawRepresentable, Equatable, Hashable, Codable, Sendable
         self.init(remaining: trimmedString)
     }
 
+    /// An accumulator function for iteratively creating a `VHDLFile`.
+    /// - Parameters:
+    ///   - remaining: The remaining string to parse.
+    ///   - architectures: The architecture that have been previously parsed.
+    ///   - entities: The entities that have been previously parsed.
+    ///   - includes: The includes that have been previously parsed.
     private init?(
         remaining: String,
         architectures: [Architecture] = [],
@@ -127,6 +146,12 @@ public struct VHDLFile: RawRepresentable, Equatable, Hashable, Codable, Sendable
         }
     }
 
+    /// Parse an include in the given string.
+    /// - Parameters:
+    ///   - trimmedString: The include to parse.
+    ///   - architectures: The architecture already parsed. 
+    ///   - entities: The entities already parsed.
+    ///   - includes: The includes already parsed.
     private init?(
         include trimmedString: String, architectures: [Architecture], entities: [Entity], includes: [Include]
     ) {
@@ -143,6 +168,12 @@ public struct VHDLFile: RawRepresentable, Equatable, Hashable, Codable, Sendable
         )
     }
 
+    /// Parse an entity in the given string.
+    /// - Parameters:
+    ///   - trimmedString: The entity to parse.
+    ///   - architectures: The architectures already parsed.
+    ///   - entities: The entities already parsed.
+    ///   - includes: The includes already parsed.
     private init?(
         entity trimmedString: String, architectures: [Architecture], entities: [Entity], includes: [Include]
     ) {
@@ -172,6 +203,12 @@ public struct VHDLFile: RawRepresentable, Equatable, Hashable, Codable, Sendable
         )
     }
 
+    /// Parse an architecture in the given string.
+    /// - Parameters:
+    ///   - trimmedString: The architecture to parse.
+    ///   - architectures: The architectures already parsed.
+    ///   - entities: The entities already parsed.
+    ///   - includes: The includes already parsed.
     private init?(
         architecture trimmedString: String,
         architectures: [Architecture],
