@@ -54,24 +54,38 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
+/// A single when case including the code within it. The when statement exists within a case statement and
+/// represents code that is executed under a specific condition.
 public struct WhenCase: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
+    /// The condition of the when statement.
     public let condition: WhenCondition
 
+    /// The code that is executed when the condition is met.
     public let code: SynchronousBlock
 
-    public var rawValue: String {
+    /// The `VHDL` code representing this statement.
+    @inlinable public var rawValue: String {
         """
         when \(condition.rawValue) =>
         \(code.rawValue.indent(amount: 1))
         """
     }
 
+    /// Creates a new `WhenCase` with the given condition and code.
+    /// - Parameters:
+    ///   - condition: The condition of the when statement.
+    ///   - code: The code that is executed when the condition is met.
+    @inlinable
     public init(condition: WhenCondition, code: SynchronousBlock) {
         self.condition = condition
         self.code = code
     }
 
+    /// Creates a new `WhenCase` from the given `VHDL` code.
+    /// - Parameter rawValue: The `VHDL` code representing this statement. Code should be in the form:
+    /// `when <condition> => <code>`.
+    @inlinable
     public init?(rawValue: String) {
         let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
         guard trimmedString.contains("=>") else {
