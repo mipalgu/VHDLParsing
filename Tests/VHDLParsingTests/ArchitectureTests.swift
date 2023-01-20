@@ -136,6 +136,108 @@ final class ArchitectureTests: XCTestCase {
         end Behavioral;
         """
         XCTAssertEqual(Architecture(rawValue: raw), architecture)
+        let raw2 = """
+           architecture
+           Behavioral    of    TestEntity
+              is
+            signal x: std_logic;
+                  begin
+            process ( clk)
+            begin
+                if (  rising_edge(clk)   )
+                then
+                    x   <=    '1';
+                end
+                 if;
+            end
+            process;
+        end     Behavioral  ;
+        """
+        XCTAssertEqual(Architecture(rawValue: raw2), architecture)
     }
+
+    // swiftlint:disable function_body_length
+
+    /// Test invalid cases return nil in raw value init.
+    func testInvalidRawValueInit() {
+        let raw = """
+        architecture Behavioral of TestEntity
+            signal x: std_logic;
+        begin
+            process (clk)
+            begin
+                if (rising_edge(clk)) then
+                    x <= '1';
+                end if;
+            end process;
+        end Behavioral;
+        """
+        XCTAssertNil(Architecture(rawValue: raw))
+        let raw2 = """
+        architecture Behavioral of TestEntity is
+            signal x: std_logic;
+        begin
+            process (clk)
+            begin
+                if (rising_edge(clk)) then
+                    x <= '1';
+                end if;
+            end process;
+        end Behavioral
+        """
+        XCTAssertNil(Architecture(rawValue: raw2))
+        let raw3 = """
+        architecture Behavioral of TestEntity is
+            signal x: std_logic;
+        begin
+            process (clk)
+            begin
+                if (rising_edge(clk)) then
+                    x <= '1';
+                end if;
+            end process;
+        end Behaviorals;
+        """
+        XCTAssertNil(Architecture(rawValue: raw3))
+        let raw4 = """
+        architecture Behavioral of TestEntity is
+            signal x: std_logic;
+        begin
+            process (clk)
+            begin
+                if (rising_edge(clk)) then
+                    x <= '1';
+                end if;
+            end process;
+        Behavioral;
+        """
+        XCTAssertNil(Architecture(rawValue: raw4))
+        let raw5 = """
+        architecture Behavioral of TestEntity is
+            signal x: std_logic;
+            process (clk)
+                if (rising_edge(clk)) then
+                    x <= '1';
+                end if;
+            end process;
+        end Behavioral;
+        """
+        XCTAssertNil(Architecture(rawValue: raw5))
+        let raw6 = """
+        architecture Behavioral of TestEntity is
+            signal 2x: std_logic;
+        begin
+            process (clk)
+            begin
+                if (rising_edge(clk)) then
+                    x <= '1';
+                end if;
+            end process;
+        end Behavioral;
+        """
+        XCTAssertNil(Architecture(rawValue: raw6))
+    }
+
+    // swiftlint:enable function_body_length
 
 }
