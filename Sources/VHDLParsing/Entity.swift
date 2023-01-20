@@ -54,13 +54,17 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
+/// A `VHDL` entity statement.
 public struct Entity: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
+    /// The name of the entity.
     public let name: VariableName
 
+    /// The port declaration in the entity.
     public let port: PortBlock
 
-    public var rawValue: String {
+    /// The `VHDL` code for this `Entity`.
+    @inlinable public var rawValue: String {
         """
         entity \(self.name.rawValue) is
         \(port.rawValue.indent(amount: 1))
@@ -68,11 +72,19 @@ public struct Entity: RawRepresentable, Equatable, Hashable, Codable, Sendable {
         """
     }
 
+    /// Creates a new `Entity` with the given name and port declaration.
+    /// - Parameters:
+    ///   - name: The name of the entity.
+    ///   - port: The port declaration.
+    @inlinable
     public init(name: VariableName, port: PortBlock) {
         self.name = name
         self.port = port
     }
 
+    /// Creates a new `Entity` from the given `VHDL` code.
+    /// - Parameter rawValue: The `VHDL` code defining the entity.
+    @inlinable
     public init?(rawValue: String) {
         let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines).withoutComments
         guard trimmedString.firstWord?.lowercased() == "entity" else {
