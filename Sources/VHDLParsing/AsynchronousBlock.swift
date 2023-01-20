@@ -101,7 +101,7 @@ indirect public enum AsynchronousBlock: RawRepresentable, Equatable, Hashable, C
             }
             guard
                 let processString = trimmedString.subExpression(
-                    beginningWith: ["if"], endingWith: ["end", "if;"]
+                    beginningWith: ["process"], endingWith: ["end", "process;"]
                 ),
                 let process = ProcessBlock(rawValue: String(processString)),
                 processString.endIndex < trimmedString.endIndex,

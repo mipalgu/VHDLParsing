@@ -90,7 +90,8 @@ final class AsynchronousBlockTests: XCTestCase {
     func testRawValue() {
         let statement = Statement.assignment(name: x, value: varY)
         let block = AsynchronousBlock.statement(statement: statement)
-        XCTAssertEqual(block.rawValue, "x <= y;")
+        let blockRaw = "x <= y;"
+        XCTAssertEqual(block.rawValue, blockRaw)
         let process = AsynchronousBlock.process(
             block: ProcessBlock(
                 sensitivityList: [clk],
@@ -112,9 +113,83 @@ final class AsynchronousBlockTests: XCTestCase {
         """
         XCTAssertEqual(process.rawValue, expected)
         let blocks = [block, process, block, block]
-        let blockRaw = "x <= y;"
         let expected2 = [blockRaw, expected, blockRaw, blockRaw].joined(separator: "\n")
         XCTAssertEqual(AsynchronousBlock.blocks(blocks: blocks).rawValue, expected2)
+    }
+
+    /// Test raw value init for process.
+    func testProcessRawValueInit() {
+        let statement = Statement.assignment(name: x, value: varY)
+        let raw = """
+        process (clk)
+        begin
+            if (rising_edge(clk)) then
+                x <= y;
+            end if;
+        end process;
+        """
+        let process = AsynchronousBlock.process(
+            block: ProcessBlock(
+                sensitivityList: [clk],
+                code: .ifStatement(
+                    block: IfBlock.ifStatement(
+                        condition: .conditional(condition: .edge(value: .rising(expression: varClk))),
+                        ifBlock: .statement(statement: statement)
+                    )
+                )
+            )
+        )
+        XCTAssertEqual(AsynchronousBlock(rawValue: raw), process)
+    }
+
+    /// Test raw value init for statement.
+    func testStatementRawValueInit() {
+        let statement = Statement.assignment(name: x, value: varY)
+        let block = AsynchronousBlock.statement(statement: statement)
+        let raw = "x <= y;"
+        XCTAssertEqual(AsynchronousBlock(rawValue: raw), block)
+    }
+
+    /// test raw value init for multiple statements.
+    func testMultipleStatementsRawValueInit() {
+        let statement = Statement.assignment(name: x, value: varY)
+        let block = AsynchronousBlock.statement(statement: statement)
+        let raw = """
+        x <= y;
+        x <= y;
+        x <= y;
+        """
+        XCTAssertEqual(AsynchronousBlock(rawValue: raw), .blocks(blocks: [block, block, block]))
+    }
+
+    /// Test init works for multiple statements.
+    func testMultipleRawValueInit() {
+        let statement = Statement.assignment(name: x, value: varY)
+        let block = AsynchronousBlock.statement(statement: statement)
+        let process = AsynchronousBlock.process(
+            block: ProcessBlock(
+                sensitivityList: [clk],
+                code: .ifStatement(
+                    block: IfBlock.ifStatement(
+                        condition: .conditional(condition: .edge(value: .rising(expression: varClk))),
+                        ifBlock: .statement(statement: statement)
+                    )
+                )
+            )
+        )
+        let raw = """
+        x <= y;
+        process (clk)
+        begin
+            if (rising_edge(clk)) then
+                x <= y;
+            end if;
+        end process;
+        x <= y;
+        x <= y;
+        """
+        let expected = AsynchronousBlock.blocks(blocks: [block, process, block, block])
+        XCTAssertEqual(AsynchronousBlock(rawValue: raw), expected)
     }
 
 }
