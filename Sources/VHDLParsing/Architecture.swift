@@ -54,17 +54,24 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
+/// An architecture block in `VHDL`.
 public struct Architecture: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
+    /// The body of the architecture. This code exists after the `begin` keyword and before the `end` keyword.
     public let body: AsynchronousBlock
 
+    /// The entity name.
     public let entity: VariableName
 
+    /// The head of the architecture. This code exists after the `architecture` definition and before the
+    /// `begin` keyword.
     public let head: ArchitectureHead
 
+    /// The name of the architecture.
     public let name: VariableName
 
-    public var rawValue: String {
+    /// The `VHDL` code representation of this architecture.
+    @inlinable public var rawValue: String {
         """
         architecture \(name.rawValue) of \(entity.rawValue) is
         \(head.rawValue.indent(amount: 1))
@@ -74,6 +81,13 @@ public struct Architecture: RawRepresentable, Equatable, Hashable, Codable, Send
         """
     }
 
+    /// Creates a new architecture with the given parameters.
+    /// - Parameters:
+    ///   - body: The body of the architecture.
+    ///   - entity: The entity name.
+    ///   - head: The head of the architecture.
+    ///   - name: The name of the architecture.
+    @inlinable
     public init(body: AsynchronousBlock, entity: VariableName, head: ArchitectureHead, name: VariableName) {
         self.body = body
         self.entity = entity
@@ -81,6 +95,9 @@ public struct Architecture: RawRepresentable, Equatable, Hashable, Codable, Send
         self.name = name
     }
 
+    /// Creates a new architecture from the given `VHDL` code.
+    /// - Parameter rawValue: The `VHDL` code defining the architecture.
+    @inlinable
     public init?(rawValue: String) {
         let trimmedString = rawValue.withoutComments.trimmingCharacters(in: .whitespacesAndNewlines)
         guard let isIndex = trimmedString.startIndex(word: "is") else {
