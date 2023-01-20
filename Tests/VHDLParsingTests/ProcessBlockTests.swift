@@ -112,4 +112,17 @@ final class ProcessBlockTests: XCTestCase {
         XCTAssertEqual(processWithoutSentitivityList.rawValue, expected2)
     }
 
+    /// Test `init(rawValue:)` parses `VHDL` code correctly.
+    func testRawValueInit() {
+        let raw = """
+        process (clk)
+        begin
+            if (rising_edge(clk)) then
+                x <= y;
+            end if;
+        end process;
+        """
+        XCTAssertEqual(ProcessBlock(rawValue: raw), process)
+    }
+
 }

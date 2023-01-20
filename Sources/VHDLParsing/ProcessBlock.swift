@@ -85,31 +85,40 @@ public struct ProcessBlock: RawRepresentable, Equatable, Hashable, Codable, Send
 
     public init?(rawValue: String) {
         let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
-        let lowercased = trimmedString.lowercased()
-        guard lowercased.hasPrefix("process"), lowercased.hasSuffix("end process;") else {
-            return nil
-        }
-        let value = String(trimmedString.dropFirst("process".count).dropLast("end process;".count))
         guard
-            let sensitivityList = value.uptoBalancedBracket,
-            sensitivityList.hasPrefix("("),
-            sensitivityList.hasSuffix(")")
+            trimmedString.firstWord?.lowercased() == "process",
+            trimmedString.hasSuffix(";")
         else {
             return nil
         }
-        let list = String(sensitivityList.dropFirst().dropLast())
-        let names = list.components(separatedBy: ",").map {
-            $0.trimmingCharacters(in: .whitespacesAndNewlines)
-        }
-        let variables = names.compactMap { VariableName(rawValue: $0) }
-        guard names.count == variables.count else {
+        let noSemicolon = trimmedString.dropLast().trimmingCharacters(in: .whitespacesAndNewlines)
+        guard noSemicolon.lastWord?.lowercased() == "process" else {
             return nil
         }
-        guard let block = SynchronousBlock(rawValue: String(value.dropFirst(sensitivityList.count))) else {
+        let noProcess = noSemicolon.dropFirst(7).dropLast(8).trimmingCharacters(in: .whitespacesAndNewlines)
+        guard noProcess.lastWord?.lowercased() == "end" else {
+            return nil
+        }
+        let trimmed = noProcess.dropLast(3).trimmingCharacters(in: .whitespacesAndNewlines)
+        guard trimmed.hasPrefix("("), let bracketsString = trimmed.uptoBalancedBracket else {
+            return nil
+        }
+        let list = bracketsString.dropFirst().dropLast()
+        let components = list.components(separatedBy: ",").map {
+            $0.trimmingCharacters(in: .whitespacesAndNewlines)
+        }
+        let variables = components.compactMap { VariableName(rawValue: $0) }
+        guard variables.count == components.count else {
+            return nil
+        }
+        let noList = trimmed.dropFirst(bracketsString.count).trimmingCharacters(in: .whitespacesAndNewlines)
+        guard noList.firstWord?.lowercased() == "begin", let content = SynchronousBlock(
+            rawValue: noList.dropFirst(5).trimmingCharacters(in: .whitespacesAndNewlines)
+        ) else {
             return nil
         }
         self.sensitivityList = variables
-        self.code = block
+        self.code = content
     }
 
 }
