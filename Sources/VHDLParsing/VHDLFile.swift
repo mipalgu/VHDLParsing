@@ -111,7 +111,7 @@ public struct VHDLFile: RawRepresentable, Equatable, Hashable, Codable, Sendable
     /// An accumulator function for iteratively creating a `VHDLFile`.
     /// - Parameters:
     ///   - remaining: The remaining string to parse.
-    ///   - architectures: The architecture that have been previously parsed.
+    ///   - architectures: The architectures that have been previously parsed.
     ///   - entities: The entities that have been previously parsed.
     ///   - includes: The includes that have been previously parsed.
     private init?(
@@ -149,7 +149,7 @@ public struct VHDLFile: RawRepresentable, Equatable, Hashable, Codable, Sendable
     /// Parse an include in the given string.
     /// - Parameters:
     ///   - trimmedString: The include to parse.
-    ///   - architectures: The architecture already parsed. 
+    ///   - architectures: The architectures already parsed. 
     ///   - entities: The entities already parsed.
     ///   - includes: The includes already parsed.
     private init?(
