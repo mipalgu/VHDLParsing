@@ -112,6 +112,48 @@ final class EntityTests: XCTestCase {
         end TestEntity;
         """
         XCTAssertEqual(Entity(rawValue: raw), entity)
+        XCTAssertNil(Entity(rawValue: String(raw.dropFirst())))
+        XCTAssertNil(Entity(rawValue: String(raw.dropLast())))
+        let raw5 = """
+        entity     TestEntity
+        is
+            port   (
+                  x:   in   std_logic  ;
+                y :  out   std_logic
+            ) ;
+        end    TestEntity     ;
+        """
+        XCTAssertEqual(Entity(rawValue: raw5), entity)
+    }
+
+    /// Test invlaid values for raw value init.
+    func testInvalidRawValueInit() {
+        let raw2 = """
+        entity 2TestEntity is
+            port(
+                x: in std_logic;
+                y: out std_logic
+            );
+        end TestEntity;
+        """
+        XCTAssertNil(Entity(rawValue: raw2))
+        let raw3 = """
+        entity 2TestEntity is
+            port(
+                x: in std_logic;
+                y: out std_logic
+            );
+        end;
+        """
+        XCTAssertNil(Entity(rawValue: raw3))
+        let raw4 = """
+        entity 2TestEntity is
+            port(
+                x: in std_logic;
+                y: out std_logic
+            );
+        """
+        XCTAssertNil(Entity(rawValue: raw4))
     }
 
 }
