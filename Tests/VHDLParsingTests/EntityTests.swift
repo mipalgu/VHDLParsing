@@ -1,5 +1,5 @@
-// Entity.swift
-// Machines
+// EntityTests.swift
+// VHDLParsing
 // 
 // Created by Morgan McColl.
 // Copyright © 2023 Morgan McColl. All rights reserved.
@@ -54,58 +54,64 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
-public struct Entity: RawRepresentable, Equatable, Hashable, Codable, Sendable {
+@testable import VHDLParsing
+import XCTest
 
-    public let name: VariableName
+/// Test class for ``Entity``.
+final class EntityTests: XCTestCase {
 
-    public let port: PortBlock
+    /// Then name of the entity.
+    let entityName = VariableName(text: "TestEntity")
 
-    public var rawValue: String {
-        """
-        entity \(self.name.rawValue) is
-        \(port.rawValue.indent(amount: 1))
-        end \(self.name.rawValue);
-        """
+    // swiftlint:disable implicitly_unwrapped_optional
+
+    /// The port in the entity.
+    let port: PortBlock! = PortBlock(signals: [
+        PortSignal(type: .stdLogic, name: VariableName(text: "x"), mode: .input),
+        PortSignal(type: .stdLogic, name: VariableName(text: "y"), mode: .output)
+    ])
+
+    // swiftlint:enable implicitly_unwrapped_optional
+
+    /// The entity under test.
+    lazy var entity = Entity(name: entityName, port: port)
+
+    /// Setup the entity before every test.
+    override func setUp() {
+        super.setUp()
+        entity = Entity(name: entityName, port: port)
     }
 
-    public init(name: VariableName, port: PortBlock) {
-        self.name = name
-        self.port = port
+    /// Test the init sets the stored properties correctly.
+    func testInit() {
+        XCTAssertEqual(entity.name, entityName)
+        XCTAssertEqual(entity.port, port)
     }
 
-    public init?(rawValue: String) {
-        let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines).withoutComments
-        guard trimmedString.firstWord?.lowercased() == "entity" else {
-            return nil
-        }
-        let nameAndPort = trimmedString.dropFirst(7)
-        let nameAndIs = nameAndPort.components(separatedBy: "is")
-        guard
-            let nameString = nameAndIs.first,
-            let name = VariableName(rawValue: nameString),
-            nameAndIs.count >= 2
-        else {
-            return nil
-        }
-        let remaining = nameAndIs[1...].joined(separator: "is")
-            .trimmingCharacters(in: .whitespacesAndNewlines)
-        let nameRaw = nameString.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard remaining.hasSuffix(";") else {
-            return nil
-        }
-        let noSemicolon = remaining.dropLast().trimmingCharacters(in: .whitespacesAndNewlines)
-        guard noSemicolon.hasSuffix("\(nameRaw)") else {
-            return nil
-        }
-        let noName = noSemicolon.dropLast(nameRaw.count).trimmingCharacters(in: .whitespacesAndNewlines)
-        guard noName.lastWord?.lowercased() == "end" else {
-            return nil
-        }
-        let portRaw = noName.dropLast(3)
-        guard let port = PortBlock(rawValue: String(portRaw)) else {
-            return nil
-        }
-        self.init(name: name, port: port)
+    /// Test that `rawValue` is correct.
+    func testRawValue() {
+        let expected = """
+        entity TestEntity is
+            port(
+                x: in std_logic;
+                y: out std_logic
+            );
+        end TestEntity;
+        """
+        XCTAssertEqual(entity.rawValue, expected)
+    }
+
+    /// Test `init(rawValue:)` parses the `VHDL` code correctly.
+    func testRawValueInit() {
+        let raw = """
+        entity TestEntity is
+            port(
+                x: in std_logic;
+                y: out std_logic
+            );
+        end TestEntity;
+        """
+        XCTAssertEqual(Entity(rawValue: raw), entity)
     }
 
 }
