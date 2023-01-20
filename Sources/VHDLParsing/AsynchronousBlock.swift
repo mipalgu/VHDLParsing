@@ -54,15 +54,20 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
+/// A block of code that exists within an architecture body. This code executes asynchronously.
 indirect public enum AsynchronousBlock: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
+    /// Many blocks of asynchronous code.
     case blocks(blocks: [AsynchronousBlock])
 
+    /// A process statement.
     case process(block: ProcessBlock)
 
+    /// A single statement.
     case statement(statement: Statement)
 
-    public var rawValue: String {
+    /// The `VHDL` code representing this block.
+    @inlinable public var rawValue: String {
         switch self {
         case .blocks(let blocks):
             return blocks.map(\.rawValue).joined(separator: "\n")
