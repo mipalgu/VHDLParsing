@@ -123,6 +123,58 @@ final class ProcessBlockTests: XCTestCase {
         end process;
         """
         XCTAssertEqual(ProcessBlock(rawValue: raw), process)
+        XCTAssertNil(ProcessBlock(rawValue: String(raw.dropLast())))
+        XCTAssertNil(ProcessBlock(rawValue: String(raw.dropFirst())))
+        XCTAssertNil(ProcessBlock(rawValue: String(raw.dropLast().dropLast() + ";")))
+        let raw2 = """
+          \nprocess\n   (clk)
+               \nbegin
+            if   ( rising_edge(clk) )   then
+                x  <=    y;
+            end if ;
+        end
+            process  ;
+        """
+        XCTAssertEqual(ProcessBlock(rawValue: raw2), process)
+    }
+
+    /// Test invalid cases for raw value init.
+    func testInvalidRawValueInit() {
+        let raw2 = """
+        process (clk)
+        begin
+            if (rising_edge(clk)) then
+                x <= y;
+            end if;
+        process;
+        """
+        XCTAssertNil(ProcessBlock(rawValue: raw2))
+        let raw3 = """
+        process clk
+        begin
+            if (rising_edge(clk)) then
+                x <= y;
+            end if;
+        end process;
+        """
+        XCTAssertNil(ProcessBlock(rawValue: raw3))
+        let raw4 = """
+        process (2clk)
+        begin
+            if (rising_edge(clk)) then
+                x <= y;
+            end if;
+        end process;
+        """
+        XCTAssertNil(ProcessBlock(rawValue: raw4))
+        let raw5 = """
+        process (clk)
+            if (rising_edge(clk)) then
+                x <= y;
+            end if;
+        end process;
+        """
+        XCTAssertNil(ProcessBlock(rawValue: raw5))
     }
 
 }
