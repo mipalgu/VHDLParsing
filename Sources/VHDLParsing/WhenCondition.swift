@@ -66,6 +66,7 @@ public enum WhenCondition: RawRepresentable, Equatable, Hashable, Codable, Senda
     /// A selection of values.
     case selection(expressions: [Expression])
 
+    /// A range of indices.
     case range(range: VectorSize)
 
     /// The `VHDL` code for this condition.
