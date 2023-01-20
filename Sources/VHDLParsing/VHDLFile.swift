@@ -78,6 +78,7 @@ public struct VHDLFile: RawRepresentable, Equatable, Hashable, Codable, Sendable
         \(architecturesString)
 
         """
+        .trimmingCharacters(in: .whitespacesAndNewlines) + "\n"
     }
 
     public init(architectures: [Architecture], entities: [Entity], includes: [Include]) {

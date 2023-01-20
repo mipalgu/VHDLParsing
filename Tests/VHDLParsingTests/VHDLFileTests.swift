@@ -288,4 +288,70 @@ final class VHDLFileTests: XCTestCase {
 
     // swiftlint:enable function_body_length
 
+    /// Test multiple entities
+    func testMultipleEntities() {
+        let raw = """
+        entity TestEntity is
+            port(
+                clk: in std_logic
+            );
+        end TestEntity;
+
+        entity TestEntity2 is
+            port(
+                clk: in std_logic
+            );
+        end TestEntity2;
+
+        """
+        let entity1 = entities[0]
+        let entity2 = Entity(name: VariableName(text: "TestEntity2"), port: entity1.port)
+        XCTAssertEqual(
+            VHDLFile(rawValue: raw), VHDLFile(architectures: [], entities: [entity1, entity2], includes: [])
+        )
+        XCTAssertEqual(VHDLFile(rawValue: raw)?.rawValue, raw)
+    }
+
+    /// Test multiple architectures
+    func testMultipleArchitectures() {
+        let raw = """
+        architecture Behavioral of TestEntity is
+            signal x: std_logic;
+            signal y: std_logic;
+        begin
+            process(clk)
+            begin
+                if (rising_edge(clk)) then
+                    y <= x;
+                end if;
+            end process;
+        end Behavioral;
+
+        architecture Behavioral of TestEntity2 is
+            signal x: std_logic;
+            signal y: std_logic;
+        begin
+            process(clk)
+            begin
+                if (rising_edge(clk)) then
+                    y <= x;
+                end if;
+            end process;
+        end Behavioral;
+
+        """
+        let architecture1 = architectures[0]
+        let architecture2 = Architecture(
+            body: architecture1.body,
+            entity: VariableName(text: "TestEntity2"),
+            head: architecture1.head,
+            name: architecture1.name
+        )
+        XCTAssertEqual(
+            VHDLFile(rawValue: raw),
+            VHDLFile(architectures: [architecture1, architecture2], entities: [], includes: [])
+        )
+        XCTAssertEqual(VHDLFile(rawValue: raw)?.rawValue, raw)
+    }
+
 }
