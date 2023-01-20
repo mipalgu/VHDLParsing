@@ -244,6 +244,9 @@ extension String {
         self[self.startIndex..<self.endIndex].startIndex(word: word)
     }
 
+    /// Find the indexes of all occurrences of a given sentence within the string.
+    /// - Parameter words: The sentence to match against as an array of ordered words.
+    /// - Returns: The indexes of all occurrences of the sentence within the string.
     func indexes(for words: [String]) -> [(String.Index, String.Index)] {
         let wordPattern = words.map { $0.lowercased() }.joined(separator: "\\s+")
         guard
@@ -257,6 +260,12 @@ extension String {
         return matches.map { ($0.range.lowerBound, $0.range.upperBound) }
     }
 
+    /// Find the substrings that start with a given sentence and end with a given sentence. This method also
+    /// returns the subexpressions as well, matching starting sentences with ending sentences.
+    /// - Parameters:
+    ///   - startWords: The starting sentence.
+    ///   - endWords: The ending sentence.
+    /// - Returns: The substrings that start with `startWords` and end with `endWords`.
     func subExpression(beginningWith startWords: [String], endingWith endWords: [String]) -> Substring? {
         let startIndexes = self.indexes(for: startWords)
         let endIndexes = self.indexes(for: endWords)

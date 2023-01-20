@@ -347,6 +347,7 @@ final class StringVHDLMethodsTests: XCTestCase {
         XCTAssertEqual(subExpression.trimmingCharacters(in: .whitespacesAndNewlines), expected)
     }
 
+    /// Test process expression.
     func testSubExpression2() {
         // swiftlint:disable:next line_length
         let raw = "process (clk)\nbegin\nif (rising_edge(clk)) then\nx <= y;\nend if;\nend process;\nx <= y;\nx <= y;"
