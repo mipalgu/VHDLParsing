@@ -54,58 +54,154 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
-// public struct VHDLFile: RawRepresentable, Equatable, Hashable, Codable, Sendable {
+public struct VHDLFile: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
-//     public let includes: [Include]
+    public let architectures: [Architecture]
 
-//     public let entity: Entity
+    public let entities: [Entity]
 
-//     public let architecture: Architecture
+    public let includes: [Include]
 
-//     public var rawValue: String {
-//         let includeString = includes.map { $0.rawValue + ";" }.joined(separator: "\n")
-//         return """
-//         \(includeString)
+    public var rawValue: String {
+        let includesString = includes.sorted { $0.rawValue < $1.rawValue }
+            .map(\.rawValue)
+            .joined(separator: "\n")
+        let entitiesString = entities.sorted { $0.name < $1.name }.map(\.rawValue).joined(separator: "\n\n")
+        let architecturesString = architectures.sorted { $0.entity < $1.entity }
+            .map(\.rawValue)
+            .joined(separator: "\n\n")
+        return """
+        \(includesString)
 
-//         \(entity.rawValue)
+        \(entitiesString)
 
-//         \(architecture.rawValue)
+        \(architecturesString)
 
-//         """
-//     }
+        """
+    }
 
-//     public init(includes: [Include], entity: Entity, architecture: Architecture) {
-//         self.includes = includes
-//         self.entity = entity
-//         self.architecture = architecture
-//     }
+    public init(architectures: [Architecture], entities: [Entity], includes: [Include]) {
+        self.architectures = architectures
+        self.entities = entities
+        self.includes = includes
+    }
 
-//     public init?(rawValue: String) {
-//         let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
-//         guard let includeEndIndex = trimmedString.startIndex(for: "entity") else {
-//             return nil
-//         }
-//         let includesData = trimmedString[trimmedString.startIndex..<includeEndIndex]
-//             .trimmingCharacters(in: .whitespacesAndNewlines)
-//         let includesRaw = includesData.components(separatedBy: ";")
-//         let includes = includesRaw.compactMap { Include(rawValue: $0) }
-//         guard
-//             includesRaw.count == includes.count,
-//             let architectureIndex = trimmedString.startIndex(for: "architecture")
-//         else {
-//             return nil
-//         }
-//         let entityData = trimmedString[includeEndIndex..<architectureIndex]
-//             .trimmingCharacters(in: .whitespacesAndNewlines)
-//         let architectureData = trimmedString[architectureIndex...]
-//             .trimmingCharacters(in: .whitespacesAndNewlines)
-//         guard
-//             let entity = Entity(rawValue: entityData),
-//             let architecture = Architecture(rawValue: architectureData)
-//         else {
-//             return nil
-//         }
-//         self.init(includes: includes, entity: entity, architecture: architecture)
-//     }
+    public init?(rawValue: String) {
+        let trimmedString = rawValue.withoutComments.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedString.isEmpty else {
+            return nil
+        }
+        self.init(remaining: trimmedString)
+    }
 
-// }
+    private init?(
+        remaining: String,
+        architectures: [Architecture] = [],
+        entities: [Entity] = [],
+        includes: [Include] = []
+    ) {
+        let trimmedString = remaining.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedString.isEmpty else {
+            self.init(architectures: architectures, entities: entities, includes: includes)
+            return
+        }
+        let firstWord = trimmedString.firstWord?.lowercased()
+        if firstWord == "use" || firstWord == "library" {
+            self.init(
+                include: trimmedString, architectures: architectures, entities: entities, includes: includes
+            )
+        } else if firstWord == "entity" {
+            self.init(
+                entity: trimmedString, architectures: architectures, entities: entities, includes: includes
+            )
+        } else if firstWord == "architecture" {
+            self.init(
+                architecture: trimmedString,
+                architectures: architectures,
+                entities: entities,
+                includes: includes
+            )
+        } else {
+            return nil
+        }
+    }
+
+    private init?(
+        include trimmedString: String, architectures: [Architecture], entities: [Entity], includes: [Include]
+    ) {
+        let include = trimmedString.uptoSemicolon + ";"
+        guard let newInclude = Include(rawValue: include) else {
+            return nil
+        }
+        let newRemaining = String(trimmedString.dropFirst(include.count))
+        self.init(
+            remaining: newRemaining,
+            architectures: architectures,
+            entities: entities,
+            includes: includes + [newInclude]
+        )
+    }
+
+    private init?(
+        entity trimmedString: String, architectures: [Architecture], entities: [Entity], includes: [Include]
+    ) {
+        guard let isIndex = trimmedString.startIndex(word: "is") else {
+            return nil
+        }
+        let words = String(trimmedString[..<isIndex]).words
+        guard words.count == 2, words[0].lowercased() == "entity" else {
+            return nil
+        }
+        let name = words[1]
+        guard
+            let expression = trimmedString.subExpression(
+                beginningWith: ["entity", name], endingWith: ["end", name + ";"]
+            ),
+            let entity = Entity(rawValue: String(expression))
+        else {
+            return nil
+        }
+        let newRemaining = trimmedString.dropFirst(expression.count)
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        self.init(
+            remaining: newRemaining,
+            architectures: architectures,
+            entities: entities + [entity],
+            includes: includes
+        )
+    }
+
+    private init?(
+        architecture trimmedString: String,
+        architectures: [Architecture],
+        entities: [Entity],
+        includes: [Include]
+    ) {
+        guard let isIndex = trimmedString.startIndex(word: "is") else {
+            return nil
+        }
+        let words = String(trimmedString[..<isIndex]).words
+        guard words.count == 4, words[0].lowercased() == "architecture", words[2].lowercased() == "of" else {
+            return nil
+        }
+        let name = words[1]
+        let entity = words[3]
+        guard
+            let expression = trimmedString.subExpression(
+                beginningWith: ["architecture", name, "of", entity], endingWith: ["end", name + ";"]
+            ),
+            let architecture = Architecture(rawValue: String(expression))
+        else {
+            return nil
+        }
+        let newRemaining = trimmedString.dropFirst(expression.count)
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        self.init(
+            remaining: newRemaining,
+            architectures: architectures + [architecture],
+            entities: entities,
+            includes: includes
+        )
+    }
+
+}
