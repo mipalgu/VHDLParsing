@@ -54,7 +54,7 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
-@testable import VHDLMachines
+@testable import VHDLParsing
 import XCTest
 
 /// Test class for ``Include``.
@@ -62,9 +62,9 @@ final class IncludeTests: XCTestCase {
 
     /// Test raw values generate VHDL code correctly.
     func testRawValues() {
-        XCTAssertEqual(Include.library(value: "IEEE").rawValue, "library IEEE")
+        XCTAssertEqual(Include.library(value: "IEEE").rawValue, "library IEEE;")
         XCTAssertEqual(
-            Include.include(value: "IEEE.std_logic_1164.all").rawValue, "use IEEE.std_logic_1164.all"
+            Include.include(value: "IEEE.std_logic_1164.all").rawValue, "use IEEE.std_logic_1164.all;"
         )
     }
 
@@ -85,15 +85,15 @@ final class IncludeTests: XCTestCase {
 
     /// Test can create an ``Include`` from a raw value.
     func testRawValueInit() {
-        XCTAssertEqual(Include(rawValue: "library IEEE"), .library(value: "IEEE"))
+        XCTAssertEqual(Include(rawValue: "library IEEE;"), .library(value: "IEEE"))
         XCTAssertEqual(
-            Include(rawValue: "use IEEE.std_logic_1164.all"), .include(value: "IEEE.std_logic_1164.all")
+            Include(rawValue: "use IEEE.std_logic_1164.all;"), .include(value: "IEEE.std_logic_1164.all")
         )
         XCTAssertNil(Include(rawValue: "library"))
         XCTAssertNil(Include(rawValue: "use"))
-        XCTAssertEqual(Include(rawValue: "library   IEEE  "), .library(value: "IEEE"))
+        XCTAssertEqual(Include(rawValue: "library   IEEE  ;"), .library(value: "IEEE"))
         XCTAssertEqual(
-            Include(rawValue: "use   IEEE.std_logic_1164.all  "), .include(value: "IEEE.std_logic_1164.all")
+            Include(rawValue: "use   IEEE.std_logic_1164.all  ;"), .include(value: "IEEE.std_logic_1164.all")
         )
         XCTAssertNil(Include(rawValue: String(repeating: "l", count: 256)))
     }

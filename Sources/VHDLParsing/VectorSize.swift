@@ -132,6 +132,8 @@ public enum VectorSize: RawRepresentable, Equatable, Hashable, Codable, Sendable
             return
         }
         let components = value.components(separatedBy: " downto ")
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
         guard let lhs = Int(components.first ?? ""), let rhs = Int(components.last ?? ""), lhs >= rhs else {
             return nil
         }

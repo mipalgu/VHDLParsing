@@ -1,5 +1,5 @@
-// MachineRepresentation.swift
-// Machines
+// HexVectorTests.swift
+// VHDLParsing
 // 
 // Created by Morgan McColl.
 // Copyright © 2023 Morgan McColl. All rights reserved.
@@ -54,75 +54,44 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
-public struct MachineRepresentation: RawRepresentable,
-    Equatable, Hashable, Codable, MachineVHDLRepresentable {
+@testable import VHDLParsing
+import XCTest
 
-    public let statesRepresentations: [State: VectorLiteral]
+/// Test class for ``HexVector``.
+final class HexVectorTests: XCTestCase {
 
-    public let stateType: SignalType
+    /// A vector under test.
+    let vector = HexVector(values: [.four, .five, .six])
 
-    public let actionRepresentation: [ActionName: ConstantSignal]
-
-    public let commands: [SuspensionCommand: VectorLiteral]
-
-    public let command: SignalType
-
-    public let externalSignals: [PortSignal]
-
-    public let machine: Machine
-
-    public let actionType: SignalType
-
-    public let suspendedType: SignalType
-
-    public let ringletCounterType: SignalType
-
-    public let clockPeriod: ConstantSignal
-
-    public let ringletConstants: [ConstantSignal]
-
-    public var rawValue: String {
-        """
-        \(includeStrings)
-
-        \(entity)
-
-        \(architecture)
-
-        """
+    /// Test properties are set correctly by init.
+    func testInit() {
+        XCTAssertEqual(vector.values, [.four, .five, .six])
     }
 
-    public init?(machine: Machine) {
-        guard
-            let actions = machine.states.first?.actions,
-            let actionConstants = ConstantSignal.constants(for: actions),
-            let bits = SuspensionCommand.bitRepresentation,
-            let commandType = SuspensionCommand.bitsType,
-            let actionType = actionConstants.first?.type,
-            machine.clocks.count > machine.drivingClock,
-            let stateType = SignalType.type(for: machine.states),
-            let stateRepresentation = VectorLiteral.representation(for: machine.states)
-        else {
-            return nil
-        }
-        self.statesRepresentations = stateRepresentation
-        self.stateType = stateType
-        self.clockPeriod = ConstantSignal.clockPeriod(period: machine.clocks[machine.drivingClock].period)
-        self.actionType = actionType
-        self.actionRepresentation = Dictionary(
-            uniqueKeysWithValues: actionConstants.map { ($0.name, $0) }
-        )
-        self.commands = bits
-        self.command = commandType
-        self.externalSignals = machine.externalSignals
-        self.suspendedType = .stdLogic
-        self.ringletCounterType = .natural
-        self.machine = machine
-        self.ringletConstants = ConstantSignal.ringletConstants
+    /// Test rawValue creates vhdl code correctly.
+    func testRawValues() {
+        XCTAssertEqual(vector.rawValue, "x\"456\"")
     }
 
-    public init?(rawValue: String) {
-        fatalError("Not yet supported!")
+    /// Test init can parse VHDL code correctly.
+    func testRawValueInit() {
+        XCTAssertEqual(HexVector(rawValue: "x\"456\""), vector)
+        XCTAssertEqual(HexVector(rawValue: "x\"456\" "), vector)
+        XCTAssertEqual(HexVector(rawValue: " x\"456\""), vector)
+        XCTAssertEqual(HexVector(rawValue: " x\"456\" "), vector)
+        XCTAssertEqual(HexVector(rawValue: "x\"45A\""), HexVector(values: [.four, .five, .ten]))
+        XCTAssertEqual(HexVector(rawValue: "x\"\""), HexVector(values: []))
+        XCTAssertNil(HexVector(rawValue: "x\"G\""))
+        XCTAssertNil(HexVector(rawValue: "x\" \""))
+        XCTAssertNil(HexVector(rawValue: "x\" 456 \""))
+        XCTAssertNil(HexVector(rawValue: "x\"4 56\""))
+        XCTAssertNil(HexVector(rawValue: "x\"45 \""))
+        XCTAssertNil(HexVector(rawValue: "x\" 45\""))
+        XCTAssertNil(HexVector(rawValue: "\"45\""))
+        XCTAssertNil(HexVector(rawValue: ""))
+        XCTAssertNil(HexVector(rawValue: "\"\""))
+        XCTAssertNil(HexVector(rawValue: "x\""))
+        XCTAssertNil(HexVector(rawValue: "x\"\(String(repeating: "A", count: 256))\""))
     }
 
 }

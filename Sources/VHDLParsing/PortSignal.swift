@@ -36,22 +36,6 @@ public struct PortSignal: ExternalType, RawRepresentable, Codable, Hashable, Var
         return declaration + " := \(defaultValue.rawValue);\(comment)"
     }
 
-    var externalName: VariableName {
-        VariableName.name(for: self)
-    }
-
-    public var snapshot: LocalSignal {
-        LocalSignal(type: type, name: name, defaultValue: nil, comment: nil)
-    }
-
-    public var read: String {
-        "\(name.rawValue) <= \(externalName.rawValue);"
-    }
-
-    public var write: String {
-        "\(externalName.rawValue) <= \(name.rawValue);"
-    }
-
     /// Initialises a new external signal with the given type, name, mode, default value and comment.
     /// - Parameters:
     ///   - type: The type of the signal.
@@ -77,6 +61,7 @@ public struct PortSignal: ExternalType, RawRepresentable, Codable, Hashable, Var
     /// Initialise the external signal from the VHDL code that defines it.
     /// - Parameter rawValue: The VHDL code that defines this signal. This code is the statement found within
     /// the port declaration of an entity block.
+    @inlinable
     public init?(rawValue: String) {
         let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
         guard trimmedString.count < 256 else {
@@ -92,7 +77,7 @@ public struct PortSignal: ExternalType, RawRepresentable, Codable, Hashable, Var
         guard assignmentComponents.count <= 2, let typeDeclaration = assignmentComponents.first else {
             return nil
         }
-        let typeComponents = typeDeclaration.components(separatedBy: .whitespaces)
+        let typeComponents = typeDeclaration.components(separatedBy: .whitespaces).filter { !$0.isEmpty }
         guard typeComponents.count >= 2 else {
             return nil
         }
@@ -122,18 +107,6 @@ public struct PortSignal: ExternalType, RawRepresentable, Codable, Hashable, Var
         self.mode = mode
         self.defaultValue = defaultValue
         self.comment = comment
-    }
-
-    public init(clock: Clock) {
-        self.init(type: .stdLogic, name: clock.name, mode: .input, defaultValue: nil, comment: nil)
-    }
-
-    public static func commandSignal(type: SignalType) -> PortSignal {
-        PortSignal(type: type, name: .command, mode: .input)
-    }
-
-    public static func suspendedSignal(type: SignalType) -> PortSignal {
-        PortSignal(type: type, name: .suspended, mode: .output)
     }
 
 }

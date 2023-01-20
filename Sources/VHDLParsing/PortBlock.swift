@@ -56,13 +56,16 @@
 
 import Foundation
 
+/// A port statement in `VHDL`.
 public struct PortBlock: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
+    /// The signals in the port.
     public let signals: [PortSignal]
 
-    public var rawValue: String {
+    /// The `VHDL` code defining the port.
+    @inlinable public var rawValue: String {
         var signalsString = signals.map(\.rawValue).joined(separator: "\n").indent(amount: 1)
-        signalsString.dropLast(character: ";")
+        signalsString.removeLast(character: ";")
         return """
         port(
         \(signalsString)
@@ -70,21 +73,24 @@ public struct PortBlock: RawRepresentable, Equatable, Hashable, Codable, Sendabl
         """
     }
 
+    /// Creates a new `PortBlock` from the given `VHDL` code.
+    /// - Parameter rawValue: The `VHDL` code defining the port.
+    @inlinable
     public init?(rawValue: String) {
         let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard trimmedString.lowercased().hasPrefix("port(") && trimmedString.hasSuffix(");") else {
+        let words = trimmedString.components(separatedBy: .whitespacesAndNewlines)
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
+            .joined()
+        guard words.lowercased().hasPrefix("port(") && words.hasSuffix(");") else {
             return nil
         }
-        var signalsString = trimmedString.dropFirst("port(".count)
-            .dropLast(");".count)
+        let signalsString = trimmedString.dropFirst("port".count)
+            .dropLast()
             .trimmingCharacters(in: .whitespacesAndNewlines)
-        while signalsString.hasPrefix("--") {
-            guard let nextIndex = signalsString.firstIndex(of: "\n") else {
-                return nil
-            }
-            signalsString = signalsString[nextIndex...].trimmingCharacters(in: .whitespacesAndNewlines)
-        }
-        let signalsWithoutComments = signalsString.withoutComments
+            .dropFirst()
+            .dropLast()
+        let signalsWithoutComments = String(signalsString).withoutComments
         let signals = signalsWithoutComments.components(separatedBy: ";")
         let externalSignals = signals.compactMap(PortSignal.init(rawValue: ))
         guard signals.count == externalSignals.count else {
@@ -93,6 +99,9 @@ public struct PortBlock: RawRepresentable, Equatable, Hashable, Codable, Sendabl
         self.signals = externalSignals
     }
 
+    /// Define a port with the given signals.
+    /// - Parameter signals: The signals in the port.
+    @inlinable
     public init?(signals: [PortSignal]) {
         let signalNames = signals.map(\.name)
         let signalSet = Set(signalNames)

@@ -59,16 +59,19 @@
 public enum VectorLiteral: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
     /// A vector of bit values.
-    case bits(value: [BitLiteral])
+    case bits(value: BitVector)
 
     /// A vector of logic values.
-    case logics(value: [LogicLiteral])
+    case logics(value: LogicVector)
 
     /// A hexadecimal value.
-    case hexademical(value: [HexLiteral])
+    case hexademical(value: HexVector)
 
     /// An octal value.
-    case octal(value: [OctalLiteral])
+    case octal(value: OctalVector)
+
+    /// An indexed literal setting values to specific indexes.
+    case indexed(values: IndexedVector)
 
     /// The raw value is a string.
     public typealias RawValue = String
@@ -77,27 +80,31 @@ public enum VectorLiteral: RawRepresentable, Equatable, Hashable, Codable, Senda
     @inlinable public var rawValue: String {
         switch self {
         case .bits(let values):
-            return "\"" + values.map(\.vectorLiteral).joined() + "\""
+            return values.rawValue
         case .logics(let values):
-            return "\"" + values.map(\.vectorLiteral).joined() + "\""
+            return values.rawValue
         case .hexademical(let values):
-            return "x\"" + String(values.map(\.rawValue)) + "\""
+            return values.rawValue
         case .octal(let values):
-            return "o\"" + String(values.map(\.rawValue)) + "\""
+            return values.rawValue
+        case .indexed(let vector):
+            return vector.rawValue
         }
     }
 
     /// The number of bits in this vector literal.
-    @inlinable public var size: Int {
+    @inlinable public var size: Int? {
         switch self {
         case .bits(let values):
-            return values.count
+            return values.values.count
         case .logics(let values):
-            return values.count
+            return values.values.count
         case .hexademical(let values):
-            return values.count * 4
+            return values.values.count * 4
         case .octal(let values):
-            return values.count * 3
+            return values.values.count * 3
+        case .indexed:
+            return nil
         }
     }
 
@@ -109,46 +116,31 @@ public enum VectorLiteral: RawRepresentable, Equatable, Hashable, Codable, Senda
         guard value.count < 256 else {
             return nil
         }
-        guard !(value.first?.lowercased() == "x" || value.first?.lowercased() == "o") else {
-            let isHex = value.first?.lowercased() == "x"
-            let dataString = value.dropFirst()
-            guard dataString.hasPrefix("\""), dataString.hasSuffix("\"") else {
-                return nil
-            }
-            let data = dataString.dropFirst().dropLast()
-            if isHex {
-                let bits = data.compactMap { HexLiteral(rawValue: $0) }
-                guard bits.count == data.count else {
-                    return nil
-                }
-                self = .hexademical(value: bits)
-                return
-            } else {
-                let bits = data.compactMap { OctalLiteral(rawValue: $0) }
-                guard bits.count == data.count else {
-                    return nil
-                }
-                self = .octal(value: bits)
-                return
-            }
-        }
-        guard value.hasPrefix("\"") && value.hasSuffix("\"") else {
-            return nil
-        }
-        let data = value.dropFirst().dropLast()
-        let bits = data.compactMap { BitLiteral(rawValue: "'\($0)'") }
-        if bits.count == data.count {
-            self = .bits(value: bits)
+        if let vector = IndexedVector(rawValue: value) {
+            self = .indexed(values: vector)
             return
         }
-        let logics = data.compactMap { LogicLiteral(rawValue: "'\($0)'") }
-        guard logics.count == data.count else {
-            return nil
+        if let vector = HexVector(rawValue: value) {
+            self = .hexademical(value: vector)
+            return
         }
-        self = .logics(value: logics)
+        if let vector = OctalVector(rawValue: value) {
+            self = .octal(value: vector)
+            return
+        }
+        if let vector = BitVector(rawValue: value) {
+            self = .bits(value: vector)
+            return
+        }
+        if let vector = LogicVector(rawValue: value) {
+            self = .logics(value: vector)
+            return
+        }
+        return nil
     }
 
     /// Equality operation.
+    @inlinable
     public static func == (lhs: VectorLiteral, rhs: VectorLiteral) -> Bool {
         switch (lhs, rhs) {
         case (.bits(let lhs), .bits(let rhs)):
@@ -159,20 +151,11 @@ public enum VectorLiteral: RawRepresentable, Equatable, Hashable, Codable, Senda
             return lhs == rhs
         case (.octal(let lhs), .octal(let rhs)):
             return lhs == rhs
+        case (.indexed(let lhs), .indexed(let rhs)):
+            return lhs == rhs
         default:
             return false
         }
-    }
-
-    public static func representation(for states: [State]) -> [State: VectorLiteral]? {
-        guard let bitsRequired = BitLiteral.bitsRequired(for: states.count - 1) else {
-            return nil
-        }
-        return Dictionary(
-            uniqueKeysWithValues: states.sorted { $0.name < $1.name }.enumerated().map {
-                ($1, VectorLiteral.bits(value: BitLiteral.bitVersion(of: $0, bitsRequired: bitsRequired)))
-            }
-        )
     }
 
 }

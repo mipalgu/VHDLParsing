@@ -1,5 +1,5 @@
-// MachineRepresentationTests.swift
-// Machines
+// HexVector.swift
+// VHDLParsing
 // 
 // Created by Morgan McColl.
 // Copyright © 2023 Morgan McColl. All rights reserved.
@@ -54,20 +54,43 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
-@testable import VHDLMachines
-import XCTest
+/// A literal string that represents hexadecimal values for assignment into a vector in `VHDL`.
+public struct HexVector: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
-final class MachineRepresentationTests: XCTestCase {
+    /// The hexadecimal digits.
+    public let values: [HexLiteral]
 
-    var machine = MachineRepresentation(machine: Machine.initial(path: URL(fileURLWithPath: "/tmp")))
-
-    override func setUp() {
-        self.machine = MachineRepresentation(machine: Machine.initial(path: URL(fileURLWithPath: "/tmp")))
+    /// The `VHDL` code representing this literal value.
+    @inlinable public var rawValue: String {
+        "x\"" + String(values.map(\.rawValue)) + "\""
     }
 
-    func testInit() {
-        XCTAssertNotNil(machine)
-        print(machine?.rawValue ?? "nil")
+    /// Initialise the vector from it's values.
+    /// - Parameter values: The hex values of the vector literal.
+    @inlinable
+    public init(values: [HexLiteral]) {
+        self.values = values
+    }
+
+    /// Initialise the vector from the `VHDL` code representing it.
+    /// - Parameter rawValue: The `VHDL` code representing this vector literal.
+    @inlinable
+    public init?(rawValue: String) {
+        let value = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard value.count < 256, value.first?.lowercased() == "x" else {
+            return nil
+        }
+        let dataString = value.dropFirst()
+        guard dataString.count > 1, dataString.hasPrefix("\""), dataString.hasSuffix("\"") else {
+            return nil
+        }
+        let data = dataString.dropFirst().dropLast()
+        let bits = data.compactMap { HexLiteral(rawValue: $0) }
+        guard bits.count == data.count else {
+            return nil
+        }
+        self.values = bits
+        return
     }
 
 }

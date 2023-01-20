@@ -67,33 +67,38 @@ public enum Include: RawRepresentable, Equatable, Hashable, Codable, Sendable {
     public typealias RawValue = String
 
     /// The VHDL code equivalent to this include.
-    public var rawValue: String {
+    @inlinable public var rawValue: String {
         switch self {
         case .library(let value):
-            return "library \(value)"
+            return "library \(value);"
         case .include(let value):
-            return "use \(value)"
+            return "use \(value);"
         }
     }
 
     /// Create an include from the VHDL representation.
     /// - Parameter rawValue: The VHDL code for the include.
+    @inlinable
     public init?(rawValue: String) {
         let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard trimmedString.count < 256 else {
+        guard trimmedString.count < 256, trimmedString.hasSuffix(";") else {
             return nil
         }
-        let value = trimmedString.lowercased()
-        if value.hasPrefix("library ") {
-            self = .library(value: String(value.dropFirst(8)).trimmingCharacters(in: .whitespaces))
-        } else if value.hasPrefix("use ") {
-            self = .include(value: String(value.dropFirst(4)).trimmingCharacters(in: .whitespaces))
+        if trimmedString.firstWord?.lowercased() == "library" {
+            self = .library(
+                value: String(trimmedString.dropFirst(8).dropLast()).trimmingCharacters(in: .whitespaces)
+            )
+        } else if trimmedString.firstWord?.lowercased() == "use" {
+            self = .include(
+                value: String(trimmedString.dropFirst(4).dropLast()).trimmingCharacters(in: .whitespaces)
+            )
         } else {
             return nil
         }
     }
 
     /// Equality operation.
+    @inlinable
     public static func == (lhs: Include, rhs: Include) -> Bool {
         switch (lhs, rhs) {
         case (.library(let lhs), .library(let rhs)):

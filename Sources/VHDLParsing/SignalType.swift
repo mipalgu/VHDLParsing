@@ -159,13 +159,6 @@ public enum SignalType: RawRepresentable, Equatable, Hashable, Codable, Sendable
         return nil
     }
 
-    public static func type(for states: [State]) -> SignalType? {
-        guard let bitsRequired = BitLiteral.bitsRequired(for: states.count - 1) else {
-            return nil
-        }
-        return .ranged(type: .stdLogicVector(size: .downto(upper: bitsRequired - 1, lower: 0)))
-    }
-
 }
 
 /// `CustomStringConvertible` conformance.

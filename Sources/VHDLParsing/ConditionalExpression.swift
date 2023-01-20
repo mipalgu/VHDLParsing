@@ -54,39 +54,34 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
+/// A type for representing expression that can be used in a conditional statement.
 public enum ConditionalExpression: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
+    /// A comparison operation (>, >=, <, <=, =, /=, etc.).
     case comparison(value: ComparisonOperation)
 
-    case after(value: AfterStatement)
-
+    /// A check for a clock edge (rising_edge, falling_edge).
     case edge(value: EdgeCondition)
 
-    public var rawValue: String {
+    /// The `VHDL` code that represents this `ConditionalExpression`.
+    @inlinable public var rawValue: String {
         switch self {
         case .comparison(let value):
-            return value.rawValue
-        case .after(let value):
             return value.rawValue
         case .edge(let value):
             return value.rawValue
         }
     }
 
+    /// Creates a new `ConditionalExpression` from the given `VHDL` code.
+    /// - Parameter rawValue: The `VHDL` code that represents the `ConditionalExpression`.
+    @inlinable
     public init?(rawValue: String) {
         let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
         guard trimmedString.count < 256 else {
             return nil
         }
         let value = trimmedString.uptoSemicolon
-        if let afterStatement = AfterStatement(after: value) {
-            self = .after(value: afterStatement)
-            return
-        }
-        if let afterStatement = AfterStatement(rawValue: value) {
-            self = .after(value: afterStatement)
-            return
-        }
         if let edge = EdgeCondition(rawValue: value) {
             self = .edge(value: edge)
             return

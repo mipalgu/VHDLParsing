@@ -58,28 +58,42 @@ public struct LocalSignal: RawRepresentable, Codable, Equatable, Hashable, Varia
     /// - Parameter rawValue: The VHDL code that defines this signal.
     public init?(rawValue: String) {
         let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard trimmedString.count < 256, trimmedString.hasPrefix("signal ") else {
+        guard
+            trimmedString.count < 256, trimmedString.hasPrefix("signal "), trimmedString.contains(";")
+        else {
             return nil
         }
         let components = trimmedString.components(separatedBy: ";")
-        guard components.count <= 2, !components.isEmpty else {
-            return nil
-        }
-        let comment = components.last.flatMap { Comment(rawValue: $0) }
-        let declaration = trimmedString.uptoSemicolon
-        guard !declaration.contains(":=") else {
-            let declComponents = declaration.components(separatedBy: ":=")
-            guard declComponents.count == 2 else {
+            .map { $0.trimmingCharacters(in: .whitespaces) }
+            .filter { !$0.isEmpty }
+        let comment: Comment?
+        if components.count >= 2 {
+            guard let newComment = Comment(rawValue: components[1...].joined(separator: ";")) else {
                 return nil
             }
-            self.init(
-                declaration: declComponents[0].trimmingCharacters(in: .whitespaces),
-                defaultValue: declComponents[1].trimmingCharacters(in: .whitespaces),
-                comment: comment
-            )
+            comment = newComment
+        } else {
+            comment = nil
+        }
+        guard let declaration = components.first else {
+            return nil
+        }
+        guard declaration.contains(":=") else {
+            guard let signal = LocalSignal(declaration: declaration, comment: comment) else {
+                return nil
+            }
+            self = signal
             return
         }
-        self.init(declaration: declaration, comment: comment)
+        let declComponents = declaration.components(separatedBy: ":=")
+        guard declComponents.count == 2 else {
+            return nil
+        }
+        self.init(
+            declaration: declComponents[0].trimmingCharacters(in: .whitespaces),
+            defaultValue: declComponents[1].trimmingCharacters(in: .whitespaces),
+            comment: comment
+        )
     }
 
     /// Initialises a new local signal from the given declaration, default value and comment VHDL components.
@@ -124,83 +138,6 @@ public struct LocalSignal: RawRepresentable, Codable, Equatable, Hashable, Varia
         self.type = type
         self.comment = comment
         self.defaultValue = value
-    }
-
-}
-
-public extension LocalSignal {
-
-    static var ringletCounter: LocalSignal {
-        LocalSignal(
-            type: .natural,
-            name: .ringletCounter,
-            defaultValue: .literal(value: .integer(value: 0)),
-            comment: nil
-        )
-    }
-
-    static func internalState(actionType: SignalType) -> LocalSignal {
-        LocalSignal(
-            type: actionType,
-            name: .internalState,
-            defaultValue: .variable(name: .readSnapshot),
-            comment: nil
-        )
-    }
-
-    static func stateTrackers<T>(representation: T) -> [LocalSignal] where T: MachineVHDLRepresentable {
-        let stateType = representation.stateType
-        let machine = representation.machine
-        guard case .ranged(let vector) = stateType else {
-            fatalError("Incorrect type for states.")
-        }
-        let range = vector.size
-        let targetState: Expression?
-        let firstState: Expression?
-        if machine.states.count > machine.initialState {
-            firstState = .variable(name: VariableName.name(for: machine.states[machine.initialState]))
-        } else {
-            if machine.suspendedState != 0, let state = machine.states.first {
-                firstState = .variable(name: VariableName.name(for: state))
-            } else {
-                firstState = nil
-            }
-        }
-        if let suspendedState = machine.suspendedState {
-            targetState = .variable(name: VariableName.name(for: machine.states[suspendedState]))
-        } else {
-            targetState = firstState
-        }
-        return [
-            LocalSignal(
-                type: stateType,
-                name: .currentState,
-                defaultValue: targetState,
-                comment: nil
-            ),
-            LocalSignal(
-                type: stateType,
-                name: .targetState,
-                defaultValue: targetState,
-                comment: nil
-            ),
-            LocalSignal(
-                type: stateType,
-                name: .previousRinglet,
-                defaultValue: .literal(
-                    value: .vector(
-                        value: .logics(value: [LogicLiteral](repeating: .highImpedance, count: range.size))
-                    )
-                ),
-                comment: nil
-            ),
-            LocalSignal(
-                type: stateType,
-                name: .suspendedFrom,
-                defaultValue: firstState,
-                comment: nil
-            )
-        ]
     }
 
 }

@@ -54,19 +54,36 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
+/// A type for representing VHDL comparison operations. These operations exist within a
+/// ``ConditionalExpression``. The supported operations are:
+/// - Less than (operation <).
+/// - Less than or equal to (operation <=).
+/// - Greater than (operation >).
+/// - Greater than or equal to (operation >=).
+/// - Equality (operation =).
+/// - Not equal to (operation /=).
 public enum ComparisonOperation: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
+    /// The `lessThan` operation (<).
     case lessThan(lhs: Expression, rhs: Expression)
 
+    /// The `lessThanOrEqual` operation (<=).
     case lessThanOrEqual(lhs: Expression, rhs: Expression)
 
+    /// The `greaterThan` operation (>).
     case greaterThan(lhs: Expression, rhs: Expression)
 
+    /// The `greaterThanOrEqual` operation (>=).
     case greaterThanOrEqual(lhs: Expression, rhs: Expression)
 
+    /// The `equality` operation (=).
     case equality(lhs: Expression, rhs: Expression)
 
-    public var rawValue: String {
+    /// The `notEquals` operation (/=).
+    case notEquals(lhs: Expression, rhs: Expression)
+
+    /// The `VHDL` code equivalent to this operation.
+    @inlinable public var rawValue: String {
         switch self {
         case .lessThan(let lhs, let rhs):
             return "\(lhs.rawValue) < \(rhs.rawValue)"
@@ -78,9 +95,14 @@ public enum ComparisonOperation: RawRepresentable, Equatable, Hashable, Codable,
             return "\(lhs.rawValue) >= \(rhs.rawValue)"
         case .equality(let lhs, let rhs):
             return "\(lhs.rawValue) = \(rhs.rawValue)"
+        case .notEquals(let lhs, let rhs):
+            return "\(lhs.rawValue) /= \(rhs.rawValue)"
         }
     }
 
+    /// Creates a new ``ComparisonOperation`` from the given `VHDL` code.
+    /// - Parameter rawValue: The `VHDL` code that represents the operation.
+    @inlinable
     public init?(rawValue: String) {
         let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
         guard trimmedString.count < 256 else {
@@ -88,11 +110,11 @@ public enum ComparisonOperation: RawRepresentable, Equatable, Hashable, Codable,
         }
         let value = trimmedString.uptoSemicolon
         guard
-            let (operation, components) = ["<=", ">=", "<", ">", "="].lazy.compactMap(
+            let (operation, components) = ["<=", ">=", "/=", "<", ">", "="].lazy.compactMap(
                 { (op: String) -> (String, [String])? in
-                    let components = value.components(separatedBy: op)
-                        .map { $0.trimmingCharacters(in: .whitespaces) }
-                        .filter { !$0.isEmpty }
+                    let components = value.components(separatedBy: op).map {
+                        $0.trimmingCharacters(in: .whitespaces)
+                    }
                     guard components.count == 2 else {
                         return nil
                     }
@@ -104,7 +126,18 @@ public enum ComparisonOperation: RawRepresentable, Equatable, Hashable, Codable,
         else {
             return nil
         }
-        switch operation {
+        self.init(lhs: lhs, rhs: rhs, operation: operation)
+    }
+
+    /// Initialise the `ComparisonOperation` from the expressions and a string that represents the operation
+    /// that is being performed.
+    /// - Parameters:
+    ///   - lhs: The left-hand side expression.
+    ///   - rhs: The right-hand side expression.
+    ///   - operation: A string of a valid `VHDL` comparison operation.
+    @usableFromInline
+    init?(lhs: Expression, rhs: Expression, operation: String) {
+        switch operation.trimmingCharacters(in: .whitespacesAndNewlines) {
         case "<":
             self = .lessThan(lhs: lhs, rhs: rhs)
         case "<=":
@@ -115,6 +148,8 @@ public enum ComparisonOperation: RawRepresentable, Equatable, Hashable, Codable,
             self = .greaterThanOrEqual(lhs: lhs, rhs: rhs)
         case "=":
             self = .equality(lhs: lhs, rhs: rhs)
+        case "/=":
+            self = .notEquals(lhs: lhs, rhs: rhs)
         default:
             return nil
         }

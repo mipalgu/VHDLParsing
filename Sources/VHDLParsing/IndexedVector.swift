@@ -1,5 +1,5 @@
-// Block.swift
-// Machines
+// IndexedVector.swift
+// VHDLParsing
 // 
 // Created by Morgan McColl.
 // Copyright © 2023 Morgan McColl. All rights reserved.
@@ -54,34 +54,71 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
-indirect public enum Block: RawRepresentable, Equatable, Hashable, Codable, Sendable {
+/// A type for representing vector literals that assign specific bit/logic values to specific indices.
+/// This struct is used to represent `VHDL` expressions of the form `(0 => '0', 1 => '1', 2 => '0')`, etc.
+/// For example, consider a signal `x` that is a `std_logic_vector(7 downto 0)`. We may assign values to `x`
+/// by using the `VHDL` expression `x <= (7 => '1', 6 downto 3 => '0', others => '1')`. We can use an instance
+/// of this type to parse and generate the expression after the `<=` symbol.
+public struct IndexedVector: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
-    case statements(lines: [Statement])
+    /// The values for each index.
+    public let values: [IndexedValue]
 
-    case process(block: ProcessBlock)
-
-    case ifStatement(block: IfBlock)
-
-    public var rawValue: String {
-        switch self {
-        case .process(let block):
-            return block.rawValue
-        case .ifStatement(let block):
-            return block.rawValue
-        case .statements(let lines):
-            return lines.map {
-                let raw = $0.rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
-                guard raw.contains(";") else {
-                    return raw + ";"
-                }
-                return raw
-            }
-            .joined(separator: "\n")
-        }
+    /// The `VHDL` code representing this expression.
+    @inlinable public var rawValue: String {
+        "(" + values.map(\.rawValue).joined(separator: ", ") + ")"
     }
 
+    /// Initialise an instance of this type with the index values.
+    /// - Parameter values: The values at each index.
+    @inlinable
+    public init(values: [IndexedValue]) {
+        self.values = values
+    }
+
+    /// Create an instance of this type from the given `VHDL` code.
+    /// - Parameter rawValue: The `VHDL` representation. The `VHDL` code must be of the form
+    /// `(<index> => <value>, ...)`.
+    @inlinable
     public init?(rawValue: String) {
-        nil
+        let value = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard value.count < 256, value.hasPrefix("("), value.hasSuffix(")") else {
+            return nil
+        }
+        let values = String(value.dropLast().dropFirst()).withoutComments
+        let components = values.components(separatedBy: ",")
+        guard components.allSatisfy({ $0.contains("=>") }) else {
+            return nil
+        }
+        let bits: [IndexedValue] = components.compactMap {
+            IndexedValue(rawValue: $0)
+        }
+        guard bits.count == components.count else {
+            return nil
+        }
+        let hasLogic = bits.contains {
+            switch $0.value {
+            case .logic:
+                return true
+            default:
+                return false
+            }
+        }
+        if hasLogic {
+            let logics = bits.compactMap {
+                switch $0.value {
+                case .logic:
+                    return $0
+                case .bit(let bit):
+                    return IndexedValue(index: $0.index, value: .logic(value: LogicLiteral(bit: bit)))
+                default:
+                    return nil
+                }
+            }
+            self.values = logics
+        } else {
+            self.values = bits
+        }
     }
 
 }

@@ -54,7 +54,7 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
-@testable import VHDLMachines
+@testable import VHDLParsing
 import XCTest
 
 /// Tests for the ``PortSignal`` type.
@@ -102,13 +102,16 @@ final class PortSignalTests: XCTestCase {
         self.signal.type = .ranged(type: .stdLogicVector(size: .downto(upper: 7, lower: 0)))
         self.signal.name = VariableName(text: "y")
         self.signal.mode = .input
-        self.signal.defaultValue = .literal(value: .vector(value: .hexademical(value: [.ten, .ten])))
+        self.signal.defaultValue = .literal(
+            value: .vector(value: .hexademical(value: HexVector(values: [.ten, .ten])))
+        )
         self.signal.comment = comment
         XCTAssertEqual(self.signal.type, .ranged(type: .stdLogicVector(size: .downto(upper: 7, lower: 0))))
         XCTAssertEqual(self.signal.name, VariableName(text: "y"))
         XCTAssertEqual(self.signal.mode, .input)
         XCTAssertEqual(
-            self.signal.defaultValue, .literal(value: .vector(value: .hexademical(value: [.ten, .ten])))
+            self.signal.defaultValue,
+            .literal(value: .vector(value: .hexademical(value: HexVector(values: [.ten, .ten]))))
         )
         XCTAssertEqual(self.signal.comment, comment)
     }
@@ -144,6 +147,15 @@ final class PortSignalTests: XCTestCase {
         XCTAssertEqual(PortSignal(rawValue: "x : out std_logic;"), self.signal)
         self.signal.comment = Comment(text: "signal x")
         XCTAssertEqual(PortSignal(rawValue: "x : out std_logic; -- signal x"), self.signal)
+        XCTAssertEqual(
+            PortSignal(rawValue: " x :    in  std_logic  :=  '1'  ;"),
+            PortSignal(
+                type: .stdLogic,
+                name: VariableName(text: "x"),
+                mode: .input,
+                defaultValue: .literal(value: .bit(value: .high))
+            )
+        )
     }
 
     /// Test rawValue init works for vector types.

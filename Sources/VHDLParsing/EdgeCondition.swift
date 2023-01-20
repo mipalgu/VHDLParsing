@@ -54,13 +54,18 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
+/// A ``ConditionalExpression`` that checks for the presence of a clocks edge. This type represents
+/// the `rising_edge` and `falling_edge` functions in `VHDL`.
 public enum EdgeCondition: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
+    /// A clocks falling edge.
     case falling(expression: Expression)
 
+    /// A clocks rising edge.
     case rising(expression: Expression)
 
-    public var expression: Expression {
+    /// The expression that is checked by the edge condition.
+    @inlinable public var expression: Expression {
         switch self {
         case .falling(let expression):
             return expression
@@ -69,7 +74,8 @@ public enum EdgeCondition: RawRepresentable, Equatable, Hashable, Codable, Senda
         }
     }
 
-    public var rawValue: String {
+    /// The `VHDL` code that represents this edge condition.
+    @inlinable public var rawValue: String {
         switch self {
         case .falling(let expression):
             return "falling_edge(\(expression.rawValue))"
@@ -78,13 +84,16 @@ public enum EdgeCondition: RawRepresentable, Equatable, Hashable, Codable, Senda
         }
     }
 
+    /// Creates a new edge condition from the given `VHDL` code.
+    /// - Parameter rawValue: The `VHDL` code that represents the edge condition.
+    @inlinable
     public init?(rawValue: String) {
         let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
         guard trimmedString.count < 256 else {
             return nil
         }
         let value = trimmedString.lowercased()
-        if value.lowercased().hasPrefix("rising_edge") {
+        if value.lowercased().hasPrefix("rising_edge(") {
             let expression = trimmedString.dropFirst("rising_edge".count).trimmingCharacters(in: .whitespaces)
             guard
                 expression.hasPrefix("("),
@@ -94,7 +103,7 @@ public enum EdgeCondition: RawRepresentable, Equatable, Hashable, Codable, Senda
                 return nil
             }
             self = .rising(expression: expression)
-        } else if value.lowercased().hasPrefix("falling_edge") {
+        } else if value.lowercased().hasPrefix("falling_edge(") {
             let expression = trimmedString.dropFirst("falling_edge".count)
                 .trimmingCharacters(in: .whitespaces)
             guard

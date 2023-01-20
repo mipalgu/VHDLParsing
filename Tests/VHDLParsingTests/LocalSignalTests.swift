@@ -54,7 +54,7 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
-@testable import VHDLMachines
+@testable import VHDLParsing
 import XCTest
 
 /// Tests the ``LocalSignal`` type.
@@ -90,12 +90,15 @@ final class LocalSignalTests: XCTestCase {
     func testGettersAndSetters() {
         self.signal.type = .ranged(type: .stdLogicVector(size: .downto(upper: 3, lower: 0)))
         self.signal.name = VariableName(text: "y")
-        self.signal.defaultValue = .literal(value: .vector(value: .bits(value: [.low, .low, .low, .low])))
+        self.signal.defaultValue = .literal(
+            value: .vector(value: .bits(value: BitVector(values: [.low, .low, .low, .low])))
+        )
         self.signal.comment = Comment(text: "The signal y.")
         XCTAssertEqual(self.signal.type, .ranged(type: .stdLogicVector(size: .downto(upper: 3, lower: 0))))
         XCTAssertEqual(self.signal.name, VariableName(text: "y"))
         XCTAssertEqual(
-            self.signal.defaultValue, .literal(value: .vector(value: .bits(value: [.low, .low, .low, .low])))
+            self.signal.defaultValue,
+            .literal(value: .vector(value: .bits(value: BitVector(values: [.low, .low, .low, .low]))))
         )
         XCTAssertEqual(self.signal.comment, Comment(text: "The signal y."))
     }
@@ -147,13 +150,29 @@ final class LocalSignalTests: XCTestCase {
             LocalSignal(
                 type: .ranged(type: .stdLogicVector(size: .downto(upper: 3, lower: 0))),
                 name: name,
-                defaultValue: .literal(value: .vector(value: .hexademical(value: [.four]))),
+                defaultValue: .literal(
+                    value: .vector(value: .hexademical(value: HexVector(values: [.four])))
+                ),
                 comment: comment
             )
         )
         XCTAssertNil(
             LocalSignal(rawValue: "signal x : std_logic_vector(3 downto 0) := o\"4\"; -- The signal x.")
         )
+    }
+
+    /// Test failing values for rawValue init.
+    func testInvalidRawValueInit() {
+        XCTAssertNil(LocalSignal(rawValue: "signal x: std_logic := '1'; -- signal x.\n --"))
+        XCTAssertNil(LocalSignal(rawValue: "signal ;"))
+        XCTAssertNil(LocalSignal(rawValue: "signal x: std_logic := '1' := '0';"))
+        XCTAssertNil(LocalSignal(rawValue: "signal 2x: std_logic := '1';"))
+        XCTAssertNil(LocalSignal(rawValue: "signal "))
+        XCTAssertNil(LocalSignal(rawValue: ""))
+        XCTAssertNil(LocalSignal(rawValue: " "))
+        XCTAssertNil(LocalSignal(rawValue: "\n"))
+        XCTAssertNil(LocalSignal(rawValue: "signal x: std_logic ::= '1';"))
+        XCTAssertNil(LocalSignal(rawValue: "signal x: std_logics := '1';"))
     }
 
 }

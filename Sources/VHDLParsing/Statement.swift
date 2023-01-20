@@ -54,20 +54,29 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
+/// A statement is a a full operation that contains expressions that resolve to some value or logic that is
+/// performed. A statement may be definitions, assignments to variables or comments.
 public enum Statement: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
+    /// A constant definition, e.g. `constant x: std_logic := '1';`.
     case constant(value: ConstantSignal)
 
+    /// A definition of a signal, e.g. `signal x: std_logic;`.
     case definition(signal: LocalSignal)
 
+    /// Assigning a value to a variable that has been pre-defined, e.g. `a <= b + 1;`.
     case assignment(name: VariableName, value: Expression)
 
-    case expression(value: Expression)
+    /// A comment, e.g. `-- This is a comment.`.
+    case comment(value: Comment)
 
-    case externalDefinition(value: PortSignal)
+    /// The null statement.
+    case null
 
+    /// The raw value is a string.
     public typealias RawValue = String
 
+    /// The `VHDL` code that performs this statement.
     @inlinable public var rawValue: String {
         switch self {
         case .constant(let value):
@@ -75,67 +84,77 @@ public enum Statement: RawRepresentable, Equatable, Hashable, Codable, Sendable 
         case .definition(let signal):
             return signal.rawValue
         case .assignment(let name, let value):
-            return "\(name) := \(value.rawValue)"
-        case .expression(let value):
+            return "\(name) <= \(value.rawValue);"
+        case .comment(let value):
             return value.rawValue
-        case .externalDefinition(let value):
-            return value.rawValue
+        case .null:
+            return "null;"
         }
     }
 
+    // swiftlint:disable cyclomatic_complexity
+    // swiftlint:disable function_body_length
+
+    /// Creates a statement from the `VHDL` code that performs it.
+    /// - Parameter rawValue: The `VHDL` code that performs this statement. Note well that if a statement
+    /// usually requires a semicolon, then it must in the code representation for this initialiser to work.
+    @inlinable
     public init?(rawValue: String) {
         let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
         guard trimmedString.count < 256 else {
             return nil
         }
-        let value = trimmedString.lowercased()
-        guard !value.contains("<=") else {
-            let components = value.components(separatedBy: "<=")
+        if
+            trimmedString.count >= 5,
+            trimmedString[
+                trimmedString.startIndex..<trimmedString.index(trimmedString.startIndex, offsetBy: 4)
+            ].lowercased() == "null"
+        {
+            guard trimmedString.dropFirst(4).trimmingCharacters(in: .whitespacesAndNewlines) == ";" else {
+                return nil
+            }
+            self = .null
+            return
+        }
+        if let exp = Comment(rawValue: trimmedString) {
+            self = .comment(value: exp)
+            return
+        }
+       if trimmedString.contains("<=") {
+            let components = trimmedString.components(separatedBy: "<=")
+            guard components.count == 2 else {
+                return nil
+            }
+            let expression = components[1].trimmingCharacters(in: .whitespacesAndNewlines)
             guard
-                components.count == 2,
+                expression.hasSuffix(";"),
                 let name = VariableName(rawValue: components[0]),
-                let exp = Expression(rawValue: components[1].trimmingCharacters(in: .whitespacesAndNewlines))
+                let exp = Expression(rawValue: String(expression.dropLast()))
             else {
                 return nil
             }
             self = .assignment(name: name, value: exp)
             return
         }
-        guard !value.contains("constant ") else {
-            guard let constant = ConstantSignal(rawValue: value) else {
+        let value = trimmedString.lowercased()
+        if value.contains("constant ") {
+            guard let constant = ConstantSignal(rawValue: trimmedString) else {
                 return nil
             }
             self = .constant(value: constant)
             return
         }
-        guard !value.contains("signal ") else {
-            guard let signal = LocalSignal(rawValue: value) else {
+        if value.contains("signal ") {
+            guard let signal = LocalSignal(rawValue: trimmedString) else {
                 return nil
             }
             self = .definition(signal: signal)
             return
         }
-        let modes = Set(Mode.allCases.map(\.rawValue))
-        guard
-            !value.components(separatedBy: .whitespacesAndNewlines).contains(where: { modes.contains($0) })
-        else {
-            guard let external = PortSignal(rawValue: value) else {
-                return nil
-            }
-            self = .externalDefinition(value: external)
-            return
-        }
-        if let exp = Expression(rawValue: value) {
-            self = .expression(value: exp)
-            return
-        }
         return nil
     }
 
-    public static func readSnapshots(machine: Machine) -> [Statement] {
-        machine.externalSignals.map {
-            .assignment(name: $0.name, value: .variable(name: .name(for: $0)))
-        }
-    }
+    // swiftlint:enable function_body_length
+    // swiftlint:enable cyclomatic_complexity
 
 }

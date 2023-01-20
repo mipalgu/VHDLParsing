@@ -61,62 +61,6 @@ import Foundation
 public struct VariableName: RawRepresentable,
     CustomStringConvertible, Equatable, Hashable, Codable, Sendable, Comparable {
 
-    public static let clockPeriod = VariableName(text: "clockPeriod")
-
-    public static let ringletLength = VariableName(text: "ringletLength")
-
-    public static let ringletPerPs = VariableName(text: "RINGLETS_PER_PS")
-
-    public static let ringletPerNs = VariableName(text: "RINGLETS_PER_NS")
-
-    public static let ringletPerUs = VariableName(text: "RINGLETS_PER_US")
-
-    public static let ringletPerMs = VariableName(text: "RINGLETS_PER_MS")
-
-    public static let ringletPerS = VariableName(text: "RINGLETS_PER_S")
-
-    public static let ringletCounter = VariableName(text: "ringletCounter")
-
-    public static let suspended = VariableName(text: "suspended")
-
-    public static let command = VariableName(text: "command")
-
-    public static let currentState = VariableName(text: "currentState")
-
-    public static let targetState = VariableName(text: "targetState")
-
-    public static let previousRinglet = VariableName(text: "previousRinglet")
-
-    public static let suspendedFrom = VariableName(text: "suspendedFrom")
-
-    public static let internalState = VariableName(text: "internalState")
-
-    public static let readSnapshot = VariableName(text: ReservedAction.readSnapshot.rawValue)
-
-    public static let writeSnapshot = VariableName(text: ReservedAction.writeSnapshot.rawValue)
-
-    public static let checkTransition = VariableName(text: ReservedAction.checkTransition.rawValue)
-
-    public static let noOnEntry = VariableName(text: ReservedAction.noOnEntry.rawValue)
-
-    public static let onEntry = VariableName(text: "OnEntry")
-
-    public static let onExit = VariableName(text: "OnExit")
-
-    public static let onResume = VariableName(text: "OnResume")
-
-    public static let onSuspend = VariableName(text: "OnSuspend")
-
-    public static let `internal` = VariableName(text: "Internal")
-
-    public static let nullCommand = VariableName(text: "COMMAND_NULL")
-
-    public static let restartCommand = VariableName(text: "COMMAND_RESTART")
-
-    public static let resumeCommand = VariableName(text: "COMMAND_RESUME")
-
-    public static let suspendCommand = VariableName(text: "COMMAND_SUSPEND")
-
     /// The variable name.
     public let rawValue: String
 
@@ -146,8 +90,8 @@ public struct VariableName: RawRepresentable,
             trimmedName.count < 256,
             let firstChar = trimmedName.unicodeScalars.first,
             CharacterSet.letters.contains(firstChar),
-            rawValue.unicodeScalars.allSatisfy({ allowedChars.contains($0) }),
-            !Set<String>.vhdlAllReservedWords.contains(rawValue)
+            trimmedName.unicodeScalars.allSatisfy({ allowedChars.contains($0) }),
+            !Set<String>.vhdlAllReservedWords.contains(trimmedName)
         else {
             return nil
         }
@@ -170,22 +114,6 @@ public struct VariableName: RawRepresentable,
     @inlinable
     public func hash(into hasher: inout Hasher) {
         hasher.combine(self.rawValue.lowercased())
-    }
-
-    public static func name(for state: State) -> VariableName {
-        VariableName(text: "STATE_\(state.name.rawValue)")
-    }
-
-    public static func name(for external: PortSignal) -> VariableName {
-        VariableName(text: "EXTERNAL_\(external.name.rawValue)")
-    }
-
-    public static func name(for parameter: Parameter) -> VariableName {
-        VariableName(text: "PARAMETER_\(parameter.name.rawValue)")
-    }
-
-    public static func name(for returnable: ReturnableVariable) -> VariableName {
-        VariableName(text: "OUTPUT_\(returnable.name.rawValue)")
     }
 
 }

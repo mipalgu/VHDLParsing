@@ -59,72 +59,82 @@ import Foundation
 /// Add helper methods for VHDL parsing.
 extension String {
 
-    static var nullBlock: String {
+    /// A `VHDL` null block in a case statement.
+    @inlinable public static var nullBlock: String {
         """
         when others =>
         \(String.tab)null;
         """
     }
 
-    static var tab: String {
+    /// A tab is considered 4 spaces.
+    @usableFromInline static var tab: String {
         "    "
     }
 
-    var withoutComments: String {
-        var newString = self
-        let commentIndexes = newString.indexes(startingWith: "--", endingWith: "\n").reversed()
-        commentIndexes.forEach {
-            newString.removeSubrange($0...$1)
+    /// Get the first word in the string.
+    @usableFromInline var firstWord: String? {
+        guard
+            let components = self.trimmingCharacters(in: .whitespacesAndNewlines)
+                .split(
+                    on: .whitespacesAndNewlines.union(CharacterSet(charactersIn: "();")
+                        .union(.vhdlOperators)
+                        .union(.vhdlComparisonOperations))
+                )
+        else {
+            return nil
         }
-        return newString
+        return components.0.first
     }
 
-    func indent(amount: Int) -> String {
-        let indentAmount = String(repeating: String.tab, count: amount)
-        return self.components(separatedBy: .newlines).map { indentAmount + $0 }.joined(separator: "\n")
-    }
-
-    mutating func removeLast(character: Character) {
-        guard let lastIndex = self.lastIndex(of: character) else {
-            return
+    /// Get the last word in the string.
+    @usableFromInline var lastWord: String? {
+        let characters = CharacterSet.whitespacesAndNewlines.union(CharacterSet(charactersIn: "();")
+            .union(.vhdlOperators)
+            .union(.vhdlComparisonOperations))
+        guard
+            let index = self.trimmingCharacters(in: .whitespacesAndNewlines).unicodeScalars
+                .lastIndex(where: { characters.contains($0) })
+        else {
+            return nil
         }
-        _ = self.remove(at: lastIndex)
+        return String(self[index...]).trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
-    /// Find all expressions within self that exist within a set of brackets.
+    /// Remove all `VHDL` comments and empty lines from the string.
+    @usableFromInline var withoutComments: String {
+        performWithoutComments(for: self)
+    }
+
+    /// Remove all empty lines from the string.
+    @usableFromInline var withoutEmptyLines: String {
+        self.components(separatedBy: .newlines).lazy
+        .map {
+            $0.trimmingCharacters(in: .whitespaces)
+        }
+        .filter { !$0.isEmpty }
+        .joined(separator: "\n")
+    }
+
+    /// Find all expressions within self that exist within a set of brackets. The substrings returned may also
+    /// contain substrings with brackets within them.
     @usableFromInline var subExpressions: [Substring]? {
         var expressions: [Substring] = []
-        var openCount = 0
-        var openIndex = self.startIndex
-        for i in self.indices {
-            let c = self[i]
-            if c == "(" && openCount == 0 {
-                openCount += 1
-                openIndex = i
-                continue
+        var index = self.startIndex
+        while index < self.endIndex {
+            guard let brackets = self[index...].uptoBalancedBracket else {
+                return expressions
             }
-            if c == "(" {
-                openCount += 1
-                continue
-            }
-            if c == ")" && openCount == 0 {
-                return nil
-            }
-            if c == ")" {
-                openCount -= 1
-                if openCount == 0 {
-                    expressions.append(self[openIndex...i])
-                }
-            }
-        }
-        guard openCount == 0 else {
-            return nil
+            expressions.append(brackets)
+            index = brackets.endIndex
         }
         return expressions
     }
 
-    var uptoBalancedBracket: String? {
-        self.upToBalancedElements(startsWith: "(", endsWith: ")")
+    /// Return a string that exists within self that starts with an open bracket and ends with the balanced
+    /// closing bracket.
+    @usableFromInline var uptoBalancedBracket: Substring? {
+        self[self.startIndex..<self.endIndex].uptoBalancedBracket
     }
 
     /// The string up to the first semicolon.
@@ -135,26 +145,55 @@ extension String {
         return String(self[self.startIndex..<semicolonIndex]).trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
-    mutating func dropLast(character: Character) {
+    /// All the words in the string.
+    @usableFromInline var words: [String] {
+        self.components(separatedBy: .whitespacesAndNewlines).filter { !$0.isEmpty }
+    }
+
+    /// Indent every line within the string by a specified amount.
+    /// - Parameter amount: The number of tabs to indent.
+    /// - Returns: The indented string.
+    @inlinable
+    public func indent(amount: Int) -> String {
+        guard amount > 0 else {
+            return self
+        }
+        let indentAmount = String(repeating: String.tab, count: amount)
+        return self.components(separatedBy: .newlines).map { indentAmount + $0 }.joined(separator: "\n")
+    }
+
+    /// Remove the last specified character from the string.
+    /// - Parameter character: The character to remove from the end of the string.
+    @inlinable
+    public mutating func removeLast(character: Character) {
         guard let lastIndex = self.lastIndex(of: character) else {
             return
         }
-        self.remove(at: lastIndex)
+        _ = self.remove(at: lastIndex)
     }
 
-    mutating func indexes(startingWith: String, endingWith: String) -> [(String.Index, String.Index)] {
+    /// Grab indexes of all occurrences of a string that starts with a specified string and ends with a
+    /// specified string.
+    /// - Parameters:
+    ///   - startingWith: The starting delimiter for the substring.
+    ///   - endingWith: The ending delimter for the substring.
+    /// - Returns: All indexes for substrings that begin with `startingWith` and end with `endingWith`.
+    @usableFromInline
+    func indexes(startingWith: String, endingWith: String) -> [(String.Index, String.Index)] {
+        guard !startingWith.isEmpty, !endingWith.isEmpty else {
+            return []
+        }
         var indexes: [(String.Index, String.Index)] = []
-        var index = self.index(self.startIndex, offsetBy: startingWith.count)
+        var index = self.startIndex
         while index < self.endIndex {
-            let startWord = self[self.index(index, offsetBy: -startingWith.count)..<index]
-            guard startWord == startingWith else {
-                index = self.index(after: index)
-                continue
-            }
-            guard let endIndex = self[index...].startIndex(for: endingWith) else {
+            guard let startIndex = self[index...].startIndex(for: startingWith) else {
                 return indexes
             }
-            indexes.append((index, endIndex))
+            let nextIndex = self.index(after: startIndex)
+            guard nextIndex < endIndex, let endIndex = self[nextIndex...].startIndex(for: endingWith) else {
+                return indexes
+            }
+            indexes.append((startIndex, endIndex))
             index = self.index(after: endIndex)
         }
         return indexes
@@ -178,15 +217,219 @@ extension String {
         return ([components[0], components[1...].joined(separator: op)], char)
     }
 
-    func startIndex(for value: String) -> String.Index? {
-        let size = value.count
-        guard self.count >= size else {
+    /// Split the string on the first delimiter string within a set.
+    /// - Parameter strings: The strings to split on.
+    /// - Returns: The 2 halves of the string around the delimter and the delimiter that this string was split
+    /// on.
+    @usableFromInline
+    func split(on strings: Set<String>) -> ([String], String)? {
+        let sortedStrings: [(String, String.Index)] = strings.compactMap {
+            guard let index = self.startIndex(for: $0) else {
+                return nil
+            }
+            return ($0, index)
+        }
+        guard let (str, index) = sortedStrings.min(by: { $0.1 < $1.1 }) else {
             return nil
         }
-        let startIndex = self.index(self.startIndex, offsetBy: size)
+        let str1 = self[self.startIndex..<index]
+        let str2 = self[self.index(index, offsetBy: str.count)...]
+        return ([String(str1), String(str2)], str)
+    }
+
+    /// Return the starting index of a substring value within self.
+    /// - Parameter value: The substring to search for.
+    /// - Returns: The first index within self that matches the substring.
+    @usableFromInline
+    func startIndex(for value: String) -> String.Index? {
+        self[self.startIndex..<self.endIndex].startIndex(for: value)
+    }
+
+    /// Find the start index for a word.
+    /// - Parameter word: The word to search for.
+    /// - Returns: The index if the word was found.
+    @usableFromInline
+    func startIndex(word: String) -> String.Index? {
+        self[self.startIndex..<self.endIndex].startIndex(word: word)
+    }
+
+    /// Find the indexes of all occurrences of a given sentence within the string.
+    /// - Parameter words: The sentence to match against as an array of ordered words.
+    /// - Returns: The indexes of all occurrences of the sentence within the string.
+    @usableFromInline
+    func indexes(for words: [String]) -> [(String.Index, String.Index)] {
+        let wordPattern = words.map { $0.lowercased() }.joined(separator: "\\s+") // whitespace.
+        guard
+            !self.isEmpty,
+            !words.isEmpty,
+            let regex = try? Regex("(^|\\s)" + wordPattern + "($|\\s)") // start of line or whitespace.
+        else {
+            return []
+        }
+        let matches = self.lowercased().matches(of: regex)
+        return matches.map { ($0.range.lowerBound, $0.range.upperBound) }
+    }
+
+    /// Find the substrings that start with a given sentence and end with a given sentence. This method also
+    /// returns the subexpressions as well, matching starting sentences with ending sentences.
+    /// - Parameters:
+    ///   - startWords: The starting sentence.
+    ///   - endWords: The ending sentence.
+    /// - Returns: The substrings that start with `startWords` and end with `endWords`.
+    @usableFromInline
+    func subExpression(beginningWith startWords: [String], endingWith endWords: [String]) -> Substring? {
+        let startIndexes = self.indexes(for: startWords)
+        let endIndexes = self.indexes(for: endWords)
+        let allIndexes = startIndexes.map { ($0.0, $0.1, startWords) } +
+            endIndexes.map { ($0.0, $0.1, endWords) }
+        let sortedIndexes = allIndexes.sorted { $0.0 < $1.0 }
+        var tracker = 0
+        var start: String.Index?
+        var end: String.Index?
+        for (i, j, w) in sortedIndexes {
+            if w == startWords {
+                if tracker == 0 {
+                    start = i
+                }
+                tracker += 1
+            } else {
+                if tracker == 0 {
+                    continue
+                }
+                tracker -= 1
+                if tracker == 0 {
+                    end = j
+                    break
+                }
+            }
+        }
+        guard let start = start, let end = end else {
+            return nil
+        }
+        return self[start..<end]
+    }
+
+    /// Find a string that starts with a specified string and ends with a specified string including
+    /// substrings following the same pattern. For example, consider the string \"a(b(c)d)e\", starting with
+    /// \"(\" and ending with \")\". The result would be \"(b(c)d)\".
+    /// - Parameters:
+    ///   - startsWith: The begining delimiter for the substring.
+    ///   - endsWith: The ending delimiter for the substring.
+    /// - Returns: The substring that starts with `startsWith` and ends with `endsWith` including any
+    /// strings within that match the same pattern.
+    @usableFromInline
+    func upToBalancedElements(startsWith: String, endsWith: String) -> Substring? {
+        self[self.startIndex..<self.endIndex].upToBalancedElements(startsWith: startsWith, endsWith: endsWith)
+    }
+
+    /// Helper function for removing the comments from a string.
+    /// - Parameters:
+    ///   - value: The string to remove the comments from.
+    ///   - carry: An accumulator that holds the string without comments.
+    /// - Returns: The string without comments.
+    private func performWithoutComments(for value: String, carry: String = "") -> String {
+        guard let firstIndex = value.startIndex(for: "--") else {
+            return carry + value.withoutEmptyLines
+        }
+        let subString = value[firstIndex...]
+        guard let endIndex = subString.startIndex(for: "\n") else {
+            return carry + String(value[..<firstIndex]).withoutEmptyLines
+        }
+        var newString = value
+        newString.removeSubrange(firstIndex..<endIndex)
+        return performWithoutComments(
+            for: String(newString[firstIndex...]),
+            carry: carry + String(
+                newString[newString.startIndex..<firstIndex]
+            ).trimmingCharacters(in: .whitespaces)
+        )
+    }
+
+}
+
+/// Add `startIndex`.
+extension Substring {
+
+    /// Return a string that exists within self that starts with an open bracket and ends with the balanced
+    /// closing bracket.
+    @usableFromInline var uptoBalancedBracket: Substring? {
+        self.upToBalancedElements(startsWith: "(", endsWith: ")")
+    }
+
+    /// Find a string that starts with a specified string and ends with a specified string including
+    /// substrings following the same pattern. For example, consider the string \"a(b(c)d)e\", starting with
+    /// \"(\" and ending with \")\". The result would be \"(b(c)d)\".
+    /// - Parameters:
+    ///   - startsWith: The begining delimiter for the substring.
+    ///   - endsWith: The ending delimiter for the substring.
+    /// - Returns: The substring that starts with `startsWith` and ends with `endsWith` including any
+    /// strings within that match the same pattern.
+    @usableFromInline
+    func upToBalancedElements(startsWith: String, endsWith: String) -> Substring? {
+        guard !startsWith.isEmpty, !endsWith.isEmpty else {
+            return nil
+        }
+        let startSize = startsWith.count
+        let endSize = endsWith.count
+        var startCount = 0
+        var hasStarted = false
+        var index = self.startIndex
+        var beginIndex: String.Index?
+        while index < self.endIndex {
+            guard hasStarted else {
+                guard
+                    let startIndex = self.startIndex(for: startsWith),
+                    let nextIndex = self.index(startIndex, offsetBy: startSize, limitedBy: self.endIndex)
+                else {
+                    return nil
+                }
+                beginIndex = startIndex
+                index = nextIndex
+                hasStarted = true
+                startCount += 1
+                continue
+            }
+            let data = self[index...]
+            guard let endIndex = data.startIndex(for: endsWith) else {
+                return nil
+            }
+            if let nextStartIndex = data.startIndex(for: startsWith) {
+                guard nextStartIndex > endIndex else {
+                    startCount += 1
+                    index = self.index(nextStartIndex, offsetBy: startSize)
+                    continue
+                }
+            }
+            let lastIndex = self.index(endIndex, offsetBy: endSize)
+            guard startCount <= 1 else {
+                startCount -= 1
+                index = lastIndex
+                continue
+            }
+            guard let beginIndex = beginIndex else {
+                return nil
+            }
+            return self[beginIndex..<lastIndex]
+        }
+        return nil
+    }
+
+    /// Return the starting index of a substring value within self.
+    /// - Parameter value: The substring to search for.
+    /// - Returns: The first index within self that matches the substring.
+    @usableFromInline
+    func startIndex(for value: String) -> String.Index? {
+        let size = value.count
+        guard !value.isEmpty, self.count >= size else {
+            return nil
+        }
+        let offset = size - 1
+        let startIndex = self.index(self.startIndex, offsetBy: offset)
         for i in self[startIndex...].indices {
-            let wordStart = self.index(i, offsetBy: -size)
-            guard self[wordStart...i] == value else {
+            guard
+                let wordStart = self.index(i, offsetBy: -offset, limitedBy: self.startIndex),
+                self[wordStart...i].lowercased() == value.lowercased()
+            else {
                 continue
             }
             return wordStart
@@ -194,56 +437,48 @@ extension String {
         return nil
     }
 
-    func upToBalancedElements(startsWith: String, endsWith: String) -> String? {
-        var startCount = 0
-        var hasStarted = false
-        let startIndex = self.index(self.startIndex, offsetBy: startsWith.count)
-        let str = self[startIndex...]
-        for i in str.indices {
-            let startIndex = self.index(i, offsetBy: -startsWith.count)
-            let beginWord = self[startIndex...i]
-            if beginWord == startsWith {
-                startCount += 1
-                hasStarted = true
-                continue
-            }
-            guard let endsIndex = self.index(i, offsetBy: -endsWith.count, limitedBy: self.startIndex) else {
-                continue
-            }
-            let endWord = self[endsIndex...i]
-            if endWord == endsWith {
-                guard hasStarted, startCount > 0 else {
-                    return nil
-                }
-                startCount -= 1
-                if startCount == 0 {
-                    return String(self[self.startIndex...i])
-                }
-                continue
-            }
-        }
-        guard !hasStarted else {
+    /// Find the start index for a word.
+    /// - Parameter word: The word to search for.
+    /// - Returns: The index if the word was found.
+    @usableFromInline
+    func startIndex(word: String) -> String.Index? {
+        guard !word.isEmpty, !self.isEmpty else {
             return nil
         }
-        return self
-    }
-
-}
-
-extension Substring {
-
-    func startIndex(for value: String) -> String.Index? {
-        let size = value.count
-        guard self.count >= size else {
-            return nil
-        }
-        let startIndex = self.index(self.startIndex, offsetBy: size)
-        for i in self[startIndex...].indices {
-            let wordStart = self.index(i, offsetBy: -size)
-            guard self[wordStart...i] == value else {
+        var index = self.startIndex
+        while index < self.endIndex {
+            guard let startIndex = self[index...].startIndex(for: word) else {
+                return nil
+            }
+            guard let previousIndex = self.index(startIndex, offsetBy: -1, limitedBy: self.startIndex) else {
+                guard let endIndex = self.index(
+                    startIndex, offsetBy: word.count, limitedBy: self.index(before: self.endIndex)
+                ) else {
+                    return startIndex
+                }
+                guard CharacterSet.whitespacesAndNewlines.contains(self.unicodeScalars[endIndex]) else {
+                    index = self.index(startIndex, offsetBy: word.count)
+                    continue
+                }
+                return startIndex
+            }
+            guard let endIndex = self.index(
+                startIndex, offsetBy: word.count, limitedBy: self.index(before: self.endIndex)
+            ) else {
+                guard CharacterSet.whitespacesAndNewlines.contains(self.unicodeScalars[previousIndex]) else {
+                    index = self.index(startIndex, offsetBy: word.count)
+                    continue
+                }
+                return startIndex
+            }
+            guard
+                CharacterSet.whitespacesAndNewlines.contains(self.unicodeScalars[previousIndex]),
+                CharacterSet.whitespacesAndNewlines.contains(self.unicodeScalars[endIndex])
+            else {
+                index = self.index(startIndex, offsetBy: word.count)
                 continue
             }
-            return wordStart
+            return startIndex
         }
         return nil
     }

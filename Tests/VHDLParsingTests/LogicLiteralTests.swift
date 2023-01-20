@@ -54,7 +54,7 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
-@testable import VHDLMachines
+@testable import VHDLParsing
 import XCTest
 
 /// Test class for ``LogicLiteral``.
@@ -127,6 +127,12 @@ final class LogicLiteralTests: XCTestCase {
         XCTAssertEqual(LogicLiteral.weakSignal.vectorLiteral, "W")
         XCTAssertEqual(LogicLiteral.weakSignalHigh.vectorLiteral, "H")
         XCTAssertEqual(LogicLiteral.weakSignalLow.vectorLiteral, "L")
+    }
+
+    /// Test ``BitLiteral`` initialiser.
+    func testBitLiteralInit() {
+        XCTAssertEqual(LogicLiteral(bit: .high), .high)
+        XCTAssertEqual(LogicLiteral(bit: .low), .low)
     }
 
 }

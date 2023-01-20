@@ -54,55 +54,83 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
+/// A struct for representing a process block.
 public struct ProcessBlock: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
+    /// The sensitivity list of the process block.
     public let sensitivityList: [VariableName]
 
-    public let code: Block
+    /// The code within the process block.
+    public let code: SynchronousBlock
 
-    public var rawValue: String {
+    /// The `VHDL` representation of the process block.
+    @inlinable public var rawValue: String {
         let blocksCode = code.rawValue.indent(amount: 1)
         guard !sensitivityList.isEmpty else {
             return """
             process
+            begin
             \(blocksCode)
             end process;
             """
         }
         return """
-        process (\(sensitivityList.map(\.rawValue).joined(separator: ", ")))
+        process(\(sensitivityList.map(\.rawValue).joined(separator: ", ")))
+        begin
         \(blocksCode)
         end process;
         """
     }
 
+    /// Creates a new process block with the given sensitivity list and code.
+    /// - Parameters:
+    ///   - sensitivityList: The sentitivty list.
+    ///   - code: The code in the process block.
+    @inlinable
+    public init(sensitivityList: [VariableName], code: SynchronousBlock) {
+        self.sensitivityList = sensitivityList
+        self.code = code
+    }
+
+    /// Creates a new process block from the given `VHDL` representation.
+    /// - Parameter rawValue: The `VHDL` code for this process block.
+    @inlinable
     public init?(rawValue: String) {
-        let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
-        let lowercased = trimmedString.lowercased()
-        guard lowercased.hasPrefix("process"), lowercased.hasSuffix("end process;") else {
-            return nil
-        }
-        let value = String(trimmedString.dropFirst("process".count).dropLast("end process;".count))
+        let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines).withoutComments
         guard
-            let sensitivityList = value.uptoBalancedBracket,
-            sensitivityList.hasPrefix("("),
-            sensitivityList.hasSuffix(")")
+            trimmedString.firstWord?.lowercased() == "process",
+            trimmedString.hasSuffix(";")
         else {
             return nil
         }
-        let list = String(sensitivityList.dropFirst().dropLast())
-        let names = list.components(separatedBy: ",").map {
-            $0.trimmingCharacters(in: .whitespacesAndNewlines)
-        }
-        let variables = names.compactMap { VariableName(rawValue: $0) }
-        guard names.count == variables.count else {
+        let noSemicolon = trimmedString.dropLast().trimmingCharacters(in: .whitespacesAndNewlines)
+        guard noSemicolon.lastWord?.lowercased() == "process" else {
             return nil
         }
-        guard let block = Block(rawValue: String(value.dropFirst(sensitivityList.count))) else {
+        let noProcess = noSemicolon.dropFirst(7).dropLast(8).trimmingCharacters(in: .whitespacesAndNewlines)
+        guard noProcess.lastWord?.lowercased() == "end" else {
+            return nil
+        }
+        let trimmed = noProcess.dropLast(3).trimmingCharacters(in: .whitespacesAndNewlines)
+        guard trimmed.hasPrefix("("), let bracketsString = trimmed.uptoBalancedBracket else {
+            return nil
+        }
+        let list = bracketsString.dropFirst().dropLast()
+        let components = list.components(separatedBy: ",").map {
+            $0.trimmingCharacters(in: .whitespacesAndNewlines)
+        }
+        let variables = components.compactMap { VariableName(rawValue: $0) }
+        guard variables.count == components.count else {
+            return nil
+        }
+        let noList = trimmed.dropFirst(bracketsString.count).trimmingCharacters(in: .whitespacesAndNewlines)
+        guard noList.firstWord?.lowercased() == "begin", let content = SynchronousBlock(
+            rawValue: noList.dropFirst(5).trimmingCharacters(in: .whitespacesAndNewlines)
+        ) else {
             return nil
         }
         self.sensitivityList = variables
-        self.code = block
+        self.code = content
     }
 
 }

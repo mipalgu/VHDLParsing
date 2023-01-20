@@ -54,13 +54,17 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
+/// A `VHDL` entity statement.
 public struct Entity: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
+    /// The name of the entity.
     public let name: VariableName
 
+    /// The port declaration in the entity.
     public let port: PortBlock
 
-    public var rawValue: String {
+    /// The `VHDL` code for this `Entity`.
+    @inlinable public var rawValue: String {
         """
         entity \(self.name.rawValue) is
         \(port.rawValue.indent(amount: 1))
@@ -68,9 +72,22 @@ public struct Entity: RawRepresentable, Equatable, Hashable, Codable, Sendable {
         """
     }
 
+    /// Creates a new `Entity` with the given name and port declaration.
+    /// - Parameters:
+    ///   - name: The name of the entity.
+    ///   - port: The port declaration.
+    @inlinable
+    public init(name: VariableName, port: PortBlock) {
+        self.name = name
+        self.port = port
+    }
+
+    /// Creates a new `Entity` from the given `VHDL` code.
+    /// - Parameter rawValue: The `VHDL` code defining the entity.
+    @inlinable
     public init?(rawValue: String) {
-        let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard trimmedString.lowercased().hasPrefix("entity ") else {
+        let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines).withoutComments
+        guard trimmedString.firstWord?.lowercased() == "entity" else {
             return nil
         }
         let nameAndPort = trimmedString.dropFirst(7)
@@ -83,28 +100,24 @@ public struct Entity: RawRepresentable, Equatable, Hashable, Codable, Sendable {
             return nil
         }
         let remaining = nameAndIs[1...].joined(separator: "is")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
         let nameRaw = nameString.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard nameAndPort.hasSuffix("end \(nameRaw);") else {
+        guard remaining.hasSuffix(";") else {
             return nil
         }
-        let portRaw = remaining.dropLast(4 + nameRaw.count + 1)
+        let noSemicolon = remaining.dropLast().trimmingCharacters(in: .whitespacesAndNewlines)
+        guard noSemicolon.hasSuffix("\(nameRaw)") else {
+            return nil
+        }
+        let noName = noSemicolon.dropLast(nameRaw.count).trimmingCharacters(in: .whitespacesAndNewlines)
+        guard noName.lastWord?.lowercased() == "end" else {
+            return nil
+        }
+        let portRaw = noName.dropLast(3)
         guard let port = PortBlock(rawValue: String(portRaw)) else {
             return nil
         }
-        self.name = name
-        self.port = port
-    }
-
-    public init?(machine: Machine) {
-        let clocks = machine.clocks.map { PortSignal(clock: $0) }
-        guard
-            let name = VariableName(rawValue: machine.name),
-            let port = PortBlock(signals: machine.externalSignals + clocks)
-        else {
-            return nil
-        }
-        self.name = name
-        self.port = port
+        self.init(name: name, port: port)
     }
 
 }

@@ -54,7 +54,7 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
-@testable import VHDLMachines
+@testable import VHDLParsing
 import XCTest
 
 /// Test class for ``VariableName``.
@@ -114,6 +114,7 @@ final class VariableNameTests: XCTestCase {
         XCTAssertNil(VariableName(rawValue: "std_ulogic"))
         XCTAssertNil(VariableName(rawValue: "xor"))
         XCTAssertNil(VariableName(rawValue: "clk 12"))
+        XCTAssertEqual(VariableName(rawValue: "x "), VariableName(text: "x"))
     }
 
 }

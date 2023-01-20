@@ -1,5 +1,5 @@
-// ReservedAction.swift
-// Machines
+// OctalVector.swift
+// VHDLParsing
 // 
 // Created by Morgan McColl.
 // Copyright © 2023 Morgan McColl. All rights reserved.
@@ -54,46 +54,43 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
-public enum ReservedAction: RawRepresentable, Equatable, Hashable, Codable, Sendable, CaseIterable {
+/// A type for representing a ``VectorLiteral`` of octal values.
+public struct OctalVector: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
-    case readSnapshot
+    /// The octal values in this literal.
+    public let values: [OctalLiteral]
 
-    case writeSnapshot
-
-    case checkTransition
-
-    case noOnEntry
-
-    public var rawValue: String {
-        switch self {
-        case .readSnapshot:
-            return "ReadSnapshot"
-        case .writeSnapshot:
-            return "WriteSnapshot"
-        case .checkTransition:
-            return "CheckTransition"
-        case .noOnEntry:
-            return "NoOnEntry"
-        }
+    /// The `VHDL` code representing this vector literal.
+    @inlinable public var rawValue: String {
+        "o\"" + String(values.map(\.rawValue)) + "\""
     }
 
+    /// Creates a new ``OctalVector`` with the given values.
+    /// - Parameter values: The octal digits for this literal.
+    @inlinable
+    public init(values: [OctalLiteral]) {
+        self.values = values
+    }
+
+    /// Creates a new ``OctalVector`` from the `VHDL` representation.
+    /// - Parameter rawValue: The vector literal containing octal values. Should be of the form
+    /// o"<octal digits>", e.g. o"123".
+    @inlinable
     public init?(rawValue: String) {
-        let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard trimmedString.count < 256 else {
+        let value = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard value.count < 256, value.first?.lowercased() == "o" else {
             return nil
         }
-        switch trimmedString.lowercased() {
-        case "readsnapshot":
-            self = .readSnapshot
-        case "writesnapshot":
-            self = .writeSnapshot
-        case "checktransition":
-            self = .checkTransition
-        case "noonentry":
-            self = .noOnEntry
-        default:
+        let dataString = value.dropFirst()
+        guard dataString.count > 1, dataString.hasPrefix("\""), dataString.hasSuffix("\"") else {
             return nil
         }
+        let data = dataString.dropFirst().dropLast()
+        let bits = data.compactMap { OctalLiteral(rawValue: $0) }
+        guard bits.count == data.count else {
+            return nil
+        }
+        self.values = bits
     }
 
 }

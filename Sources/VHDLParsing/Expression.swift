@@ -56,7 +56,13 @@
 
 import Foundation
 
-/// An `Expression` represents the RHS of a statement in VHDL.
+/// An `Expression` represents a stand-alone statement that resolves to some value in `VHDL`. Typical
+/// expressions would include all operations after the `<=` symbol in a `VHDL` assignment operation. Some
+/// examples include arithmetic operations (+, -, /, *), comparison operations (>, <, <=, >=, =, /=), bitwise
+/// operations (sll, srl, sla, sra, rol, ror), and may include references to pre-defined variables or literal
+/// values. This type should not be used to describe branch statements such as `if` or `case` statements, or
+/// loops such as `for` and `while` loops. For those types of expressions, use ``Statement``.
+/// - SeeAlso: ``Statement``.
 indirect public enum Expression: RawRepresentable,
     Equatable, Hashable, Codable, Sendable, CustomStringConvertible {
 
@@ -66,27 +72,13 @@ indirect public enum Expression: RawRepresentable,
     /// A literal value.
     case literal(value: SignalLiteral)
 
-    /// An addition operation.
-    case addition(lhs: Expression, rhs: Expression)
-
-    /// A subtraction operation.
-    case subtraction(lhs: Expression, rhs: Expression)
-
-    /// A multiplication operation.
-    case multiplication(lhs: Expression, rhs: Expression)
-
-    /// A division operation.
-    case division(lhs: Expression, rhs: Expression)
+    /// An arithmetic expression that uses two operands.
+    case binary(operation: BinaryOperation)
 
     /// A precedence operation. This is equivalent to placing brackets around an Expression.
     case precedence(value: Expression)
 
-    /// A comment.
-    case comment(comment: Comment)
-
-    /// An expression with a comment.
-    case expressionWithComment(expression: Expression, comment: Comment)
-
+    /// A conditional expression.
     case conditional(condition: ConditionalExpression)
 
     /// The raw value is a string.
@@ -99,26 +91,17 @@ indirect public enum Expression: RawRepresentable,
             return name.rawValue
         case .literal(let value):
             return value.rawValue
-        case .addition(let lhs, let rhs):
-            return "\(lhs.rawValue) + \(rhs.rawValue)"
-        case .subtraction(let lhs, let rhs):
-            return "\(lhs.rawValue) - \(rhs.rawValue)"
-        case .multiplication(let lhs, let rhs):
-            return "\(lhs.rawValue) * \(rhs.rawValue)"
-        case .division(let lhs, let rhs):
-            return "\(lhs.rawValue) / \(rhs.rawValue)"
+        case .binary(let operation):
+            return operation.rawValue
         case .precedence(let value):
             return "(\(value.rawValue))"
-        case .comment(let comment):
-            return "\(comment)"
-        case .expressionWithComment(let expression, let comment):
-            return "\(expression.rawValue); \(comment)"
         case .conditional(let condition):
             return condition.rawValue
         }
     }
 
-    public var description: String {
+    /// The equivalent VHDL code of this expression.
+    @inlinable public var description: String {
         rawValue
     }
 
@@ -128,41 +111,12 @@ indirect public enum Expression: RawRepresentable,
     /// Create an `Expression` from valid VHDL code.
     /// - Parameter rawValue: The code to convert to this expression.
     public init?(rawValue: String) {
-        let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard trimmedString.count < 256 else {
+        let value = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard value.count < 256 else {
             return nil
         }
-        guard !trimmedString.hasPrefix("--") else {
-            guard let comment = Comment(rawValue: trimmedString) else {
-                return nil
-            }
-            self = .comment(comment: comment)
-            return
-        }
-        guard !trimmedString.contains("--") else {
-            let components = trimmedString.components(separatedBy: "--")
-            guard components.count >= 2, let expression = Expression(rawValue: components[0]) else {
-                return nil
-            }
-            let comment = "-- " + components[1...].joined(separator: "--")
-                .trimmingCharacters(in: .whitespaces)
-            guard let commentValue = Comment(rawValue: comment) else {
-                return nil
-            }
-            self = .expressionWithComment(expression: expression, comment: commentValue)
-            return
-        }
-        let value = trimmedString.uptoSemicolon
         if let literal = SignalLiteral(rawValue: value) {
             self = .literal(value: literal)
-            return
-        }
-        let operators = CharacterSet.vhdlOperators
-        guard operators.within(string: value) else {
-            guard let name = VariableName(rawValue: value) else {
-                return nil
-            }
-            self = .variable(name: name)
             return
         }
         if value.hasPrefix("(") && value.hasSuffix(")") {
@@ -183,26 +137,34 @@ indirect public enum Expression: RawRepresentable,
             let rhsStart = value.index(after: lastSubIndex)
             let rhs = value[rhsStart...]
             guard
-                let (parts, char) = String(rhs).split(on: .vhdlOperations),
+                let (parts, str) = String(rhs).split(on: Set<String>.vhdlOperations),
                 parts[0].trimmingCharacters(in: .whitespaces).isEmpty,
                 let other = parts.last,
                 let rhsExp = Expression(rawValue: other)
             else {
                 return nil
             }
-            self.init(lhs: .precedence(value: expression), rhs: rhsExp, char: char)
-            return
+            let lhsExp = Expression.precedence(value: expression)
+            if let comparison = ComparisonOperation(lhs: lhsExp, rhs: rhsExp, operation: str) {
+                self = .conditional(condition: .comparison(value: comparison))
+                return
+            }
+            if let binary = BinaryOperation(lhs: lhsExp, rhs: rhsExp, str: str) {
+                self = .binary(operation: binary)
+                return
+            }
+            return nil
         }
-        if let multiplicative = Expression(value: value, characters: .vhdlMultiplicativeOperations) {
-            self = multiplicative
-            return
-        }
-        if let additive = Expression(value: value, characters: .vhdlAdditiveOperations) {
-            self = additive
+        if let operation = BinaryOperation(rawValue: value) {
+            self = .binary(operation: operation)
             return
         }
         if let conditional = ConditionalExpression(rawValue: value) {
             self = .conditional(condition: conditional)
+            return
+        }
+        if let variable = VariableName(rawValue: value) {
+            self = .variable(name: variable)
             return
         }
         return nil
@@ -210,43 +172,5 @@ indirect public enum Expression: RawRepresentable,
 
     // swiftlint:enable function_body_length
     // swiftlint:enable cyclomatic_complexity
-
-    /// Create a binary `Expression` from a string and a set of possible operations.
-    /// - Parameters:
-    ///   - value: The string containing a binary operation.
-    ///   - characters: The valid characters representing the operator of this operation.
-    private init?(value: String, characters: CharacterSet) {
-        guard
-            let (parts, char) = value.split(on: characters),
-            let lhs = parts.first,
-            let rhs = parts.last,
-            let lhsExp = Expression(rawValue: lhs),
-            let rhsExp = Expression(rawValue: rhs)
-        else {
-            return nil
-        }
-        self.init(lhs: lhsExp, rhs: rhsExp, char: char)
-    }
-
-    /// Create a binary `Expression` from a left and right hand side and an operator.
-    /// - Parameters:
-    ///   - lhs: The left-hand side expression.
-    ///   - rhs: The right-hand side expression.
-    ///   - char: The operator betweent the lhs and rhs.
-    private init?(lhs: Expression, rhs: Expression, char: Character) {
-        switch char {
-        case "-":
-            self = .subtraction(lhs: lhs, rhs: rhs)
-        case "+":
-            self = .addition(lhs: lhs, rhs: rhs)
-        case "*":
-            self = .multiplication(lhs: lhs, rhs: rhs)
-        case "/":
-            self = .division(lhs: lhs, rhs: rhs)
-        default:
-            return nil
-        }
-        return
-    }
 
 }

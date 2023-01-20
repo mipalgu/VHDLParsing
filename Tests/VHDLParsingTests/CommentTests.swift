@@ -54,7 +54,7 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
-@testable import VHDLMachines
+@testable import VHDLParsing
 import XCTest
 
 /// Test class for ``Comment``.
@@ -92,6 +92,7 @@ final class CommentTests: XCTestCase {
         XCTAssertNil(Comment(rawValue: ""))
         XCTAssertNil(Comment(rawValue: "-- "))
         XCTAssertNil(Comment(rawValue: "-- abc\ndef"))
+        XCTAssertNil(Comment(rawValue: "-- abc\n-- def"))
     }
 
 }

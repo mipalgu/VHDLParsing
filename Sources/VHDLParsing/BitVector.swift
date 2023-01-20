@@ -1,5 +1,5 @@
-// SuspensionCommandTests.swift
-// Machines
+// BitVector.swift
+// VHDLParsing
 // 
 // Created by Morgan McColl.
 // Copyright © 2023 Morgan McColl. All rights reserved.
@@ -54,46 +54,43 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
-@testable import VHDLMachines
-import XCTest
+/// A ``VectorLiteral`` of ``BitLiteral`` values.
+public struct BitVector: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
-/// Test class for ``SuspensionCommand``.
-final class SuspensionCommandTests: XCTestCase {
+    /// The bits.
+    public let values: [BitLiteral]
 
-    /// Test raw values are correct.
-    func testRawValues() {
-        XCTAssertEqual(SuspensionCommand.null.rawValue, "COMMAND_NULL")
-        XCTAssertEqual(SuspensionCommand.suspend.rawValue, "COMMAND_SUSPEND")
-        XCTAssertEqual(SuspensionCommand.resume.rawValue, "COMMAND_RESUME")
-        XCTAssertEqual(SuspensionCommand.restart.rawValue, "COMMAND_RESTART")
+    /// The number of bits in the vector.
+    @inlinable public var count: Int {
+        values.count
     }
 
-    /// Test bit representation is correct.
-    func testBitRepresentation() {
-        let expected: [SuspensionCommand: VectorLiteral] = [
-            .null: .bits(value: [.low, .low]),
-            .restart: .bits(value: [.low, .high]),
-            .resume: .bits(value: [.high, .low]),
-            .suspend: .bits(value: [.high, .high])
-        ]
-        XCTAssertEqual(SuspensionCommand.bitRepresentation, expected)
+    /// The `VHDL` code representing this bit vector literal.
+    @inlinable public var rawValue: String {
+        "\"" + values.map(\.vectorLiteral).joined() + "\""
     }
 
-    /// Test the signal type is correct.
-    func testBitsType() {
-        XCTAssertEqual(
-            SuspensionCommand.bitsType, .ranged(type: .stdLogicVector(size: .downto(upper: 1, lower: 0)))
-        )
+    /// Initialise the stored properties.
+    /// - Parameter values: The bits of this vector literal.
+    @inlinable
+    public init(values: [BitLiteral]) {
+        self.values = values
     }
 
-    /// Test rawValue init creates correct case.
-    func testInit() {
-        XCTAssertEqual(SuspensionCommand(rawValue: "COMMAND_NULL"), .null)
-        XCTAssertEqual(SuspensionCommand(rawValue: "COMMAND_SUSPEND"), .suspend)
-        XCTAssertEqual(SuspensionCommand(rawValue: "COMMAND_RESUME"), .resume)
-        XCTAssertEqual(SuspensionCommand(rawValue: "COMMAND_RESTART"), .restart)
-        XCTAssertNil(SuspensionCommand(rawValue: "COMMAND_NIL"))
-        XCTAssertNil(SuspensionCommand(rawValue: "COMMAND_SUSPENDS2"))
+    /// Initialise the literal from the `VHDL` representation.
+    /// - Parameter rawValue: The `VHDL` code representing this bit vector literal.
+    @inlinable
+    public init?(rawValue: String) {
+        let value = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard value.count < 256, value.count > 1, value.hasPrefix("\""), value.hasSuffix("\"") else {
+            return nil
+        }
+        let data = value.dropFirst().dropLast()
+        let bits = data.compactMap { BitLiteral(rawValue: "'\($0)'") }
+        guard bits.count == data.count else {
+            return nil
+        }
+        self.values = bits
     }
 
 }
