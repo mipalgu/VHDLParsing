@@ -54,52 +54,76 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
-// public struct Architecture: RawRepresentable, Equatable, Hashable, Codable, Sendable {
+public struct Architecture: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
-//     public let head: Block
+    public let body: AsynchronousBlock
 
-//     public let body: Block
+    public let entity: VariableName
 
-//     public let name: VariableName
+    public let head: ArchitectureHead
 
-//     public var rawValue: String {
-//         """
-//         architecture Behavioral of \(name.rawValue) is
-//         \(head.rawValue.indent(amount: 1))
-//         begin
-//         \(body.rawValue.indent(amount: 1))
-//         end Behavioral;
-//         """
-//     }
+    public let name: VariableName
 
-//     public init?(rawValue: String) {
-//         let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
-//         let startString = "architecture Behavioral of "
-//         guard trimmedString.lowercased().hasPrefix(startString) else {
-//             return nil
-//         }
-//         let architectureDef = trimmedString.dropFirst(startString.count)
-//         let components = architectureDef.components(separatedBy: "is")
-//         guard components.count >= 2, let name = VariableName(rawValue: components[0]) else {
-//             return nil
-//         }
-//         let headAndBody = components[1...].joined(separator: "is")
-//         guard
-//             let headIndex = headAndBody.startIndex(for: "begin"),
-//             let headBlock = Block(rawValue: String(headAndBody[headAndBody.startIndex..<headIndex]))
-//         else {
-//             return nil
-//         }
-//         let bodyCode = String(headAndBody[headIndex...].dropFirst("begin".count))
-//         guard
-//             let endIndex = bodyCode.startIndex(for: "end Behavioral;"),
-//             let bodyBlock = Block(rawValue: String(bodyCode[bodyCode.startIndex..<endIndex]))
-//         else {
-//             return nil
-//         }
-//         self.head = headBlock
-//         self.body = bodyBlock
-//         self.name = name
-//     }
+    public var rawValue: String {
+        """
+        architecture \(name.rawValue) of \(entity.rawValue) is
+        \(head.rawValue.indent(amount: 1))
+        begin
+        \(body.rawValue.indent(amount: 1))
+        end \(name.rawValue);
+        """
+    }
 
-// }
+    public init(body: AsynchronousBlock, entity: VariableName, head: ArchitectureHead, name: VariableName) {
+        self.body = body
+        self.entity = entity
+        self.head = head
+        self.name = name
+    }
+
+    public init?(rawValue: String) {
+        let trimmedString = rawValue.withoutComments.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard let isIndex = trimmedString.startIndex(word: "is") else {
+            return nil
+        }
+        let definition = String(trimmedString[..<isIndex])
+        let definitionWords = definition.words
+        guard
+            definitionWords.count == 4,
+            definitionWords[0].lowercased() == "architecture",
+            definitionWords[2].lowercased() == "of",
+            let name = VariableName(rawValue: definitionWords[1]),
+            let entityName = VariableName(rawValue: definitionWords[3]),
+            trimmedString.hasSuffix(";")
+        else {
+            return nil
+        }
+        let withoutSemicolon = trimmedString.dropLast().trimmingCharacters(in: .whitespacesAndNewlines)
+        guard withoutSemicolon.lastWord?.lowercased() == name.rawValue.lowercased() else {
+            return nil
+        }
+        let withoutEndName = withoutSemicolon.dropLast(name.rawValue.count)
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        guard withoutEndName.lastWord?.lowercased() == "end" else {
+            return nil
+        }
+        let headAndBodyString = withoutEndName[isIndex...].dropFirst(2)
+            .dropLast(3)
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        guard let beginIndex = headAndBodyString.startIndex(word: "begin") else {
+            return nil
+        }
+        let head = headAndBodyString[..<beginIndex].trimmingCharacters(in: .whitespacesAndNewlines)
+        guard
+            let architectureHead = ArchitectureHead(rawValue: head),
+            let architectureBody = AsynchronousBlock(
+                rawValue: headAndBodyString[beginIndex...].dropFirst(5)
+                    .trimmingCharacters(in: .whitespacesAndNewlines)
+            )
+        else {
+            return nil
+        }
+        self.init(body: architectureBody, entity: entityName, head: architectureHead, name: name)
+    }
+
+}
