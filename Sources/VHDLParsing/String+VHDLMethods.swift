@@ -417,7 +417,7 @@ extension Substring {
         for i in self[startIndex...].indices {
             guard
                 let wordStart = self.index(i, offsetBy: -offset, limitedBy: self.startIndex),
-                self[wordStart...i] == value
+                self[wordStart...i].lowercased() == value.lowercased()
             else {
                 continue
             }
