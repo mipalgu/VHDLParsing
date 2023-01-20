@@ -57,6 +57,8 @@
 @testable import VHDLParsing
 import XCTest
 
+// swiftlint:disable type_body_length
+
 /// Test class for ``IfBlock``.
 final class IfBlockTests: XCTestCase {
 
@@ -412,3 +414,5 @@ final class IfBlockTests: XCTestCase {
     }
 
 }
+
+// swiftlint:enable type_body_length

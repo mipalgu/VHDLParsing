@@ -57,6 +57,8 @@
 @testable import VHDLParsing
 import XCTest
 
+// swiftlint:disable type_body_length
+
 /// Test class for ``SynchronousBlock``
 final class SynchronousBlockTests: XCTestCase {
 
@@ -220,6 +222,8 @@ final class SynchronousBlockTests: XCTestCase {
         XCTAssertNil(SynchronousBlock(rawValue: "\(String(repeating: "x", count: 4096)) <= '1';"))
     }
 
+    // swiftlint:disable function_body_length
+
     /// Test statement and if blocks together.
     func testMixedRawValueInit() {
         let x = Expression.variable(name: x)
@@ -334,6 +338,8 @@ final class SynchronousBlockTests: XCTestCase {
         XCTAssertEqual(result, .blocks(blocks: [assignment, ifStatement, assignment]))
     }
 
+    // swiftlint:enable function_body_length
+
     /// Test multiple statements in a block.
     func testMultipleStatementRawValueInit() {
         let raw = """
@@ -420,3 +426,5 @@ final class SynchronousBlockTests: XCTestCase {
     }
 
 }
+
+// swiftlint:enable type_body_length

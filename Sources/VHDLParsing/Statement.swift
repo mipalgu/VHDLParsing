@@ -93,6 +93,7 @@ public enum Statement: RawRepresentable, Equatable, Hashable, Codable, Sendable 
     }
 
     // swiftlint:disable cyclomatic_complexity
+    // swiftlint:disable function_body_length
 
     /// Creates a statement from the `VHDL` code that performs it.
     /// - Parameter rawValue: The `VHDL` code that performs this statement. Note well that if a statement
@@ -153,6 +154,7 @@ public enum Statement: RawRepresentable, Equatable, Hashable, Codable, Sendable 
         return nil
     }
 
+    // swiftlint:enable function_body_length
     // swiftlint:enable cyclomatic_complexity
 
 }

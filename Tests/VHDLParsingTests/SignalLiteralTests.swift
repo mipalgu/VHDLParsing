@@ -244,6 +244,8 @@ final class SignalLiteralTests: XCTestCase {
         )
     }
 
+    // swiftlint:disable function_body_length
+
     /// Test isValid function returns correct result for vector types.
     func testIsValidVectors() {
         XCTAssertTrue(
@@ -306,6 +308,8 @@ final class SignalLiteralTests: XCTestCase {
             .isValid(for: .stdLogic)
         )
     }
+
+    // swiftlint:enable function_body_length
 
     /// Test isValid function returns correct result for decimal types.
     func testIsValidDecimal() {
