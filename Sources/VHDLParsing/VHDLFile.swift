@@ -64,8 +64,8 @@ public struct VHDLFile: RawRepresentable, Equatable, Hashable, Codable, Sendable
 
     public var rawValue: String {
         let includesString = includes.sorted { $0.rawValue < $1.rawValue }
-            .map(\.rawValue)
-            .joined(separator: "\n")
+        .map { $0.rawValue }
+        .joined(separator: "\n")
         let entitiesString = entities.sorted { $0.name < $1.name }.map(\.rawValue).joined(separator: "\n\n")
         let architecturesString = architectures.sorted { $0.entity < $1.entity }
             .map(\.rawValue)
