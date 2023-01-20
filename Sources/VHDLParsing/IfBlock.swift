@@ -101,7 +101,7 @@ public enum IfBlock: RawRepresentable, Equatable, Hashable, Codable, Sendable {
     /// - Parameter rawValue: The `VHDL` code executing this if-statement.
     @inlinable
     public init?(rawValue: String) {
-        let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines).withoutComments
         let value = trimmedString.lowercased()
         let words = value.words
         guard words.first?.lowercased() == "if", words.last?.hasSuffix(";") == true else {

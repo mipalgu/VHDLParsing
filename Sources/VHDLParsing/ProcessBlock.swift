@@ -96,7 +96,7 @@ public struct ProcessBlock: RawRepresentable, Equatable, Hashable, Codable, Send
     /// - Parameter rawValue: The `VHDL` code for this process block.
     @inlinable
     public init?(rawValue: String) {
-        let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines).withoutComments
         guard
             trimmedString.firstWord?.lowercased() == "process",
             trimmedString.hasSuffix(";")
