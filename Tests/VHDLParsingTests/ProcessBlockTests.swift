@@ -1,5 +1,5 @@
-// ProcessBlock.swift
-// Machines
+// ProcessBlockTests.swift
+// VHDLParsing
 // 
 // Created by Morgan McColl.
 // Copyright © 2023 Morgan McColl. All rights reserved.
@@ -54,62 +54,62 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
-public struct ProcessBlock: RawRepresentable, Equatable, Hashable, Codable, Sendable {
+@testable import VHDLParsing
+import XCTest
 
-    public let sensitivityList: [VariableName]
+/// Test class for ``ProcessBlock``.
+final class ProcessBlockTests: XCTestCase {
 
-    public let code: SynchronousBlock
+    /// A variable `x`.
+    let x = VariableName(text: "x")
 
-    public var rawValue: String {
-        let blocksCode = code.rawValue.indent(amount: 1)
-        guard !sensitivityList.isEmpty else {
-            return """
-            process
-            begin
-            \(blocksCode)
-            end process;
-            """
-        }
-        return """
-        process (\(sensitivityList.map(\.rawValue).joined(separator: ", ")))
+    /// A variable `y`.
+    let y = VariableName(text: "y")
+
+    /// A variable `clk`.
+    let clk = VariableName(text: "clk")
+
+    /// Some test code.
+    var code: SynchronousBlock {
+        .ifStatement(block: .ifStatement(
+            condition: .conditional(condition: .edge(value: .rising(expression: .variable(name: clk)))),
+            ifBlock: .statement(statement: .assignment(name: x, value: .variable(name: y)))
+        ))
+    }
+
+    /// The process under test.
+    var process: ProcessBlock {
+        ProcessBlock(sensitivityList: [clk], code: code)
+    }
+
+    /// Test init sets stored properties correctly.
+    func testInit() {
+        let process = process
+        XCTAssertEqual(process.sensitivityList, [clk])
+        XCTAssertEqual(process.code, code)
+    }
+
+    /// Test `rawValue` creates `VHDL` code correctly.
+    func testRawValue() {
+        let expected = """
+        process (clk)
         begin
-        \(blocksCode)
+            if (rising_edge(clk)) then
+                x <= y;
+            end if;
         end process;
         """
-    }
-
-    public init(sensitivityList: [VariableName], code: SynchronousBlock) {
-        self.sensitivityList = sensitivityList
-        self.code = code
-    }
-
-    public init?(rawValue: String) {
-        let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
-        let lowercased = trimmedString.lowercased()
-        guard lowercased.hasPrefix("process"), lowercased.hasSuffix("end process;") else {
-            return nil
-        }
-        let value = String(trimmedString.dropFirst("process".count).dropLast("end process;".count))
-        guard
-            let sensitivityList = value.uptoBalancedBracket,
-            sensitivityList.hasPrefix("("),
-            sensitivityList.hasSuffix(")")
-        else {
-            return nil
-        }
-        let list = String(sensitivityList.dropFirst().dropLast())
-        let names = list.components(separatedBy: ",").map {
-            $0.trimmingCharacters(in: .whitespacesAndNewlines)
-        }
-        let variables = names.compactMap { VariableName(rawValue: $0) }
-        guard names.count == variables.count else {
-            return nil
-        }
-        guard let block = SynchronousBlock(rawValue: String(value.dropFirst(sensitivityList.count))) else {
-            return nil
-        }
-        self.sensitivityList = variables
-        self.code = block
+        XCTAssertEqual(process.rawValue, expected)
+        let processWithoutSentitivityList = ProcessBlock(sensitivityList: [], code: code)
+        let expected2 = """
+        process
+        begin
+            if (rising_edge(clk)) then
+                x <= y;
+            end if;
+        end process;
+        """
+        XCTAssertEqual(processWithoutSentitivityList.rawValue, expected2)
     }
 
 }
