@@ -136,6 +136,15 @@ final class ProcessBlockTests: XCTestCase {
             process  ;
         """
         XCTAssertEqual(ProcessBlock(rawValue: raw2), process)
+        let raw3 = """
+        process(clk)
+        begin
+            if (rising_edge(clk)) then
+                x <= y;
+            end if;
+        end process;
+        """
+        XCTAssertEqual(ProcessBlock(rawValue: raw3), process)
     }
 
     /// Test invalid cases for raw value init.

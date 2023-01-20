@@ -72,20 +72,29 @@ extension String {
         "    "
     }
 
+    /// Get the first word in the string.
     @usableFromInline var firstWord: String? {
         guard
             let components = self.trimmingCharacters(in: .whitespacesAndNewlines)
-                .split(on: .whitespacesAndNewlines.union(CharacterSet(charactersIn: "(")))
+                .split(
+                    on: .whitespacesAndNewlines.union(CharacterSet(charactersIn: "();")
+                        .union(.vhdlOperators)
+                        .union(.vhdlComparisonOperations))
+                )
         else {
             return nil
         }
         return components.0.first
     }
 
+    /// Get the last word in the string.
     @usableFromInline var lastWord: String? {
+        let characters = CharacterSet.whitespacesAndNewlines.union(CharacterSet(charactersIn: "();")
+            .union(.vhdlOperators)
+            .union(.vhdlComparisonOperations))
         guard
             let index = self.trimmingCharacters(in: .whitespacesAndNewlines).unicodeScalars
-                .lastIndex(where: { CharacterSet.whitespacesAndNewlines.contains($0) })
+                .lastIndex(where: { characters.contains($0) })
         else {
             return nil
         }
@@ -247,6 +256,7 @@ extension String {
     /// Find the indexes of all occurrences of a given sentence within the string.
     /// - Parameter words: The sentence to match against as an array of ordered words.
     /// - Returns: The indexes of all occurrences of the sentence within the string.
+    @usableFromInline
     func indexes(for words: [String]) -> [(String.Index, String.Index)] {
         let wordPattern = words.map { $0.lowercased() }.joined(separator: "\\s+") // whitespace.
         guard
@@ -266,6 +276,7 @@ extension String {
     ///   - startWords: The starting sentence.
     ///   - endWords: The ending sentence.
     /// - Returns: The substrings that start with `startWords` and end with `endWords`.
+    @usableFromInline
     func subExpression(beginningWith startWords: [String], endingWith endWords: [String]) -> Substring? {
         let startIndexes = self.indexes(for: startWords)
         let endIndexes = self.indexes(for: endWords)
