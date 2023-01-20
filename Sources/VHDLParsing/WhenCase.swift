@@ -58,6 +58,9 @@
 /// represents code that is executed under a specific condition.
 public struct WhenCase: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
+    /// An `others` case statement that does nothing.
+    public static let othersNull = WhenCase(condition: .others, code: .statement(statement: .null))
+
     /// The condition of the when statement.
     public let condition: WhenCondition
 

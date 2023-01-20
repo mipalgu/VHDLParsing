@@ -122,4 +122,11 @@ final class WhenCaseTests: XCTestCase {
         XCTAssertNil(WhenCase(rawValue: "when others =>\n    null2;"))
     }
 
+    /// Test others null block is correct.
+    func testOthersNull() {
+        let whenCase = WhenCase.othersNull
+        XCTAssertEqual(whenCase.condition, .others)
+        XCTAssertEqual(whenCase.code, .statement(statement: .null))
+    }
+
 }
