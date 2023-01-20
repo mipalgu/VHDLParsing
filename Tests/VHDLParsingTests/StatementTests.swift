@@ -81,6 +81,7 @@ final class StatementTests: XCTestCase {
         )
         let comment = Comment(text: "signal x.")
         XCTAssertEqual(Statement.comment(value: comment).rawValue, comment.rawValue)
+        XCTAssertEqual(Statement.null.rawValue, "null;")
     }
 
     /// Test `init(rawValue:)` parses `VHDL` code correctly for constant signals.
@@ -214,6 +215,18 @@ final class StatementTests: XCTestCase {
         XCTAssertNil(Statement(rawValue: "x <= '2';"))
         XCTAssertNil(Statement(rawValue: "x <= '1'"))
         XCTAssertNil(Statement(rawValue: "2x <= '1';"))
+    }
+
+    /// Test null raw value init.
+    func testNullRawValueInit() {
+        XCTAssertEqual(Statement(rawValue: "null;"), .null)
+        XCTAssertEqual(Statement(rawValue: "null; "), .null)
+        XCTAssertEqual(Statement(rawValue: " null;"), .null)
+        XCTAssertEqual(Statement(rawValue: " null; "), .null)
+        XCTAssertEqual(Statement(rawValue: "null;\n"), .null)
+        XCTAssertEqual(Statement(rawValue: "null;\n "), .null)
+        XCTAssertEqual(Statement(rawValue: "NULL;"), .null)
+        XCTAssertNil(Statement(rawValue: "null"))
     }
 
 }

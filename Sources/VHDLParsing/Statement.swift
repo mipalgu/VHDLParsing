@@ -70,6 +70,9 @@ public enum Statement: RawRepresentable, Equatable, Hashable, Codable, Sendable 
     /// A comment, e.g. `-- This is a comment.`.
     case comment(value: Comment)
 
+    /// The null statement.
+    case null
+
     /// The raw value is a string.
     public typealias RawValue = String
 
@@ -84,6 +87,8 @@ public enum Statement: RawRepresentable, Equatable, Hashable, Codable, Sendable 
             return "\(name) <= \(value.rawValue);"
         case .comment(let value):
             return value.rawValue
+        case .null:
+            return "null;"
         }
     }
 
@@ -95,6 +100,10 @@ public enum Statement: RawRepresentable, Equatable, Hashable, Codable, Sendable 
         let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
         guard trimmedString.count < 256 else {
             return nil
+        }
+        if trimmedString.count == 5, trimmedString.lowercased() == "null;" {
+            self = .null
+            return
         }
         if let exp = Comment(rawValue: trimmedString) {
             self = .comment(value: exp)
