@@ -54,13 +54,17 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
+/// A struct for representing a process block.
 public struct ProcessBlock: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
+    /// The sensitivity list of the process block.
     public let sensitivityList: [VariableName]
 
+    /// The code within the process block.
     public let code: SynchronousBlock
 
-    public var rawValue: String {
+    /// The `VHDL` representation of the process block.
+    @inlinable public var rawValue: String {
         let blocksCode = code.rawValue.indent(amount: 1)
         guard !sensitivityList.isEmpty else {
             return """
@@ -78,11 +82,19 @@ public struct ProcessBlock: RawRepresentable, Equatable, Hashable, Codable, Send
         """
     }
 
+    /// Creates a new process block with the given sensitivity list and code.
+    /// - Parameters:
+    ///   - sensitivityList: The sentitivty list.
+    ///   - code: The code in the process block.
+    @inlinable
     public init(sensitivityList: [VariableName], code: SynchronousBlock) {
         self.sensitivityList = sensitivityList
         self.code = code
     }
 
+    /// Creates a new process block from the given `VHDL` representation.
+    /// - Parameter rawValue: The `VHDL` code for this process block.
+    @inlinable
     public init?(rawValue: String) {
         let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
         guard
