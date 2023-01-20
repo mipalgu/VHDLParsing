@@ -252,7 +252,7 @@ extension String {
         guard
             !self.isEmpty,
             !words.isEmpty,
-            let regex = try? Regex("(^|\\s)" + wordPattern + "(^|\\s)") // start of line or whitespace.
+            let regex = try? Regex("(^|\\s)" + wordPattern + "($|\\s)") // start of line or whitespace.
         else {
             return []
         }
