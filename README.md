@@ -5,7 +5,7 @@
 [![Swift Lint](https://github.com/mipalgu/VHDLParsing/actions/workflows/swiftlint.yml/badge.svg)](https://github.com/mipalgu/VHDLParsing/actions/workflows/swiftlint.yml)
 
 
-A hacky and rushed `VHDL` parser written in `Swift`. This package parses `VHDL` files into a model that can be
+A `VHDL` parser written in `Swift`. This package parses `VHDL` files into a model that can be
 used in other projects. This parser is not complete and is not intended to have full compatibility with the
 entire `VHDL` language. It is intended to be used in other `mipalgu` projects, where parsing the entire `VHDL`
 language is not required to achieve intended outcomes.
