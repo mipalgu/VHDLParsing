@@ -99,6 +99,36 @@ final class SynchronousBlockTests: XCTestCase {
         XCTAssertEqual(bigBlocks.rawValue, expected2)
     }
 
+    /// Test raw value for caseStatement case.
+    func testCaseRawValue() {
+        let expected3 = """
+        case x is
+            when '1' =>
+                y <= '1';
+            when '0' =>
+                y <= '0';
+        end case;
+        """
+        let caseStatement = SynchronousBlock.caseStatement(block: CaseStatement(
+            condition: .variable(name: x),
+            cases: [
+                WhenCase(
+                    condition: .expression(expression: .literal(value: .bit(value: .high))),
+                    code: .statement(statement: .assignment(
+                        name: y, value: .literal(value: .bit(value: .high))
+                    ))
+                ),
+                WhenCase(
+                    condition: .expression(expression: .literal(value: .bit(value: .low))),
+                    code: .statement(statement: .assignment(
+                        name: y, value: .literal(value: .bit(value: .low))
+                    ))
+                )
+            ]
+        ))
+        XCTAssertEqual(caseStatement.rawValue, expected3)
+    }
+
     /// Test statement raw value initialiser.
     func testStatementRawValueInit() {
         let expected = SynchronousBlock.statement(
@@ -323,6 +353,70 @@ final class SynchronousBlockTests: XCTestCase {
             ))
         ])
         XCTAssertEqual(SynchronousBlock(rawValue: raw), expected)
+    }
+
+    /// Test case raw value init.
+    func testCaseRawValueInit() {
+        let raw = """
+        case x is
+            when '1' =>
+                y <= '1';
+            when '0' =>
+                y <= '0';
+        end case;
+        """
+        let caseStatement = SynchronousBlock.caseStatement(block: CaseStatement(
+            condition: .variable(name: x),
+            cases: [
+                WhenCase(
+                    condition: .expression(expression: .literal(value: .bit(value: .high))),
+                    code: .statement(statement: .assignment(
+                        name: y, value: .literal(value: .bit(value: .high))
+                    ))
+                ),
+                WhenCase(
+                    condition: .expression(expression: .literal(value: .bit(value: .low))),
+                    code: .statement(statement: .assignment(
+                        name: y, value: .literal(value: .bit(value: .low))
+                    ))
+                )
+            ]
+        ))
+        XCTAssertEqual(SynchronousBlock(rawValue: raw), caseStatement)
+        let raw2 = """
+        x <= '0';
+        x <= '0';
+        case x is
+            when '1' =>
+                y <= '1';
+            when '0' =>
+                y <= '0';
+        end case;
+        x <= '0';
+        x <= '0';
+        """
+        let assignment = SynchronousBlock.statement(
+            statement: .assignment(name: self.x, value: .literal(value: .bit(value: .low)))
+        )
+        let blocks = [assignment, assignment, caseStatement, assignment, assignment]
+        let expected = SynchronousBlock.blocks(blocks: blocks)
+        XCTAssertEqual(SynchronousBlock(rawValue: raw2), expected)
+    }
+
+    /// Test invalid case statement.
+    func testInvalidCaseStatement() {
+        let raw = """
+        x <= '0';
+        x <= '0';
+        case x is
+            when '1' =>
+                y <= '1';
+            when '0' =>
+                y <= '0';
+        x <= '0';
+        x <= '0';
+        """
+        XCTAssertNil(SynchronousBlock(rawValue: raw))
     }
 
 }

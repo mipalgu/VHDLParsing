@@ -66,6 +66,9 @@ indirect public enum SynchronousBlock: RawRepresentable, Equatable, Hashable, Co
     /// An if-statement.
     case ifStatement(block: IfBlock)
 
+    /// A case statement.
+    case caseStatement(block: CaseStatement)
+
     /// The `VHDL` code that performs this block.
     @inlinable public var rawValue: String {
         switch self {
@@ -75,6 +78,8 @@ indirect public enum SynchronousBlock: RawRepresentable, Equatable, Hashable, Co
             return block.rawValue
         case .statement(let statement):
             return statement.rawValue
+        case .caseStatement(let block):
+            return block.rawValue
         }
     }
 
@@ -87,6 +92,8 @@ indirect public enum SynchronousBlock: RawRepresentable, Equatable, Hashable, Co
         self.init(rawValue: rawValue.withoutComments, carry: [])
     }
 
+    // swiftlint:disable function_body_length
+
     /// Accumulater method to parse the `rawValue` incrementally.
     /// - Parameters:
     ///   - rawValue: The current string to parse.
@@ -95,6 +102,30 @@ indirect public enum SynchronousBlock: RawRepresentable, Equatable, Hashable, Co
         let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
         guard trimmedString.contains(";") else {
             return nil
+        }
+        if trimmedString.firstWord?.lowercased() == "case" {
+            if
+                let caseStatement = CaseStatement(rawValue: trimmedString),
+                let newBlock = SynchronousBlock(carry: carry + [.caseStatement(block: caseStatement)])
+            {
+                self = newBlock
+                return
+            }
+            guard
+                let caseString = trimmedString.subExpression(
+                    beginningWith: ["case"], endingWith: ["end", "case;"]
+                ),
+                let caseStatement = CaseStatement(rawValue: String(caseString)),
+                caseString.endIndex < trimmedString.endIndex,
+                let remainingBlock = SynchronousBlock(
+                    rawValue: String(trimmedString[caseString.endIndex...]),
+                    carry: carry + [.caseStatement(block: caseStatement)]
+                )
+            else {
+                return nil
+            }
+            self = remainingBlock
+            return
         }
         if trimmedString.firstWord?.lowercased() == "if" {
             if
@@ -134,6 +165,8 @@ indirect public enum SynchronousBlock: RawRepresentable, Equatable, Hashable, Co
         }
         self.init(multiple: trimmedString, carry: carry)
     }
+
+    // swiftlint:enable function_body_length
 
     /// Initialise a `rawValue` with multiple statements.
     /// - Parameters:
