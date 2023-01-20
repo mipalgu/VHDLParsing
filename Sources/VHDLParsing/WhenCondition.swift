@@ -66,6 +66,8 @@ public enum WhenCondition: RawRepresentable, Equatable, Hashable, Codable, Senda
     /// A selection of values.
     case selection(expressions: [Expression])
 
+    case range(range: VectorSize)
+
     /// The `VHDL` code for this condition.
     @inlinable public var rawValue: String {
         switch self {
@@ -75,6 +77,8 @@ public enum WhenCondition: RawRepresentable, Equatable, Hashable, Codable, Senda
             return expression.rawValue
         case .selection(let expressions):
             return expressions.map(\.rawValue).joined(separator: "|")
+        case .range(let range):
+            return range.rawValue
         }
     }
 
@@ -88,6 +92,10 @@ public enum WhenCondition: RawRepresentable, Equatable, Hashable, Codable, Senda
         }
         if trimmedString.count == 6, trimmedString.lowercased() == "others" {
             self = .others
+            return
+        }
+        if let range = VectorSize(rawValue: trimmedString) {
+            self = .range(range: range)
             return
         }
         if trimmedString.contains("|") {
