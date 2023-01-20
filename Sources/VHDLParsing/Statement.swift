@@ -92,6 +92,8 @@ public enum Statement: RawRepresentable, Equatable, Hashable, Codable, Sendable 
         }
     }
 
+    // swiftlint:disable cyclomatic_complexity
+
     /// Creates a statement from the `VHDL` code that performs it.
     /// - Parameter rawValue: The `VHDL` code that performs this statement. Note well that if a statement
     /// usually requires a semicolon, then it must in the code representation for this initialiser to work.
@@ -101,7 +103,15 @@ public enum Statement: RawRepresentable, Equatable, Hashable, Codable, Sendable 
         guard trimmedString.count < 256 else {
             return nil
         }
-        if trimmedString.count == 5, trimmedString.lowercased() == "null;" {
+        if
+            trimmedString.count >= 5,
+            trimmedString[
+                trimmedString.startIndex..<trimmedString.index(trimmedString.startIndex, offsetBy: 4)
+            ].lowercased() == "null"
+        {
+            guard trimmedString.dropFirst(4).trimmingCharacters(in: .whitespacesAndNewlines) == ";" else {
+                return nil
+            }
             self = .null
             return
         }
@@ -142,5 +152,7 @@ public enum Statement: RawRepresentable, Equatable, Hashable, Codable, Sendable 
         }
         return nil
     }
+
+    // swiftlint:enable cyclomatic_complexity
 
 }
