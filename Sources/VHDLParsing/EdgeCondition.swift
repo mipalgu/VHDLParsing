@@ -93,7 +93,8 @@ public enum EdgeCondition: RawRepresentable, Equatable, Hashable, Codable, Senda
             return nil
         }
         let value = trimmedString.lowercased()
-        if value.lowercased().hasPrefix("rising_edge(") {
+        let firstWord = value.firstWord?.lowercased()
+        if firstWord == "rising_edge" {
             let expression = trimmedString.dropFirst("rising_edge".count).trimmingCharacters(in: .whitespaces)
             guard
                 expression.hasPrefix("("),
@@ -103,7 +104,7 @@ public enum EdgeCondition: RawRepresentable, Equatable, Hashable, Codable, Senda
                 return nil
             }
             self = .rising(expression: expression)
-        } else if value.lowercased().hasPrefix("falling_edge(") {
+        } else if firstWord == "falling_edge" {
             let expression = trimmedString.dropFirst("falling_edge".count)
                 .trimmingCharacters(in: .whitespaces)
             guard
