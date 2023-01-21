@@ -63,6 +63,9 @@ public enum ConditionalExpression: RawRepresentable, Equatable, Hashable, Codabl
     /// A check for a clock edge (rising_edge, falling_edge).
     case edge(value: EdgeCondition)
 
+    /// A literal boolean value (true, false).
+    case literal(value: Bool)
+
     /// The `VHDL` code that represents this `ConditionalExpression`.
     @inlinable public var rawValue: String {
         switch self {
@@ -70,6 +73,8 @@ public enum ConditionalExpression: RawRepresentable, Equatable, Hashable, Codabl
             return value.rawValue
         case .edge(let value):
             return value.rawValue
+        case .literal(let value):
+            return "\(value)"
         }
     }
 
@@ -78,15 +83,18 @@ public enum ConditionalExpression: RawRepresentable, Equatable, Hashable, Codabl
     @inlinable
     public init?(rawValue: String) {
         let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard trimmedString.count < 256 else {
+        guard trimmedString.count < 256, !trimmedString.contains(";") else {
             return nil
         }
-        let value = trimmedString.uptoSemicolon
-        if let edge = EdgeCondition(rawValue: value) {
+        if let bool = Bool(trimmedString.lowercased()) {
+            self = .literal(value: bool)
+            return
+        }
+        if let edge = EdgeCondition(rawValue: trimmedString) {
             self = .edge(value: edge)
             return
         }
-        if let comparison = ComparisonOperation(rawValue: value) {
+        if let comparison = ComparisonOperation(rawValue: trimmedString) {
             self = .comparison(value: comparison)
             return
         }

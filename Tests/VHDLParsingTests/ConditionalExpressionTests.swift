@@ -72,13 +72,15 @@ final class ConditionalExpressionTests: XCTestCase {
         XCTAssertEqual(ConditionalExpression.comparison(value: comparison).rawValue, comparison.rawValue)
         let condition = EdgeCondition.rising(expression: x)
         XCTAssertEqual(ConditionalExpression.edge(value: condition).rawValue, condition.rawValue)
+        XCTAssertEqual(ConditionalExpression.literal(value: true).rawValue, "true")
+        XCTAssertEqual(ConditionalExpression.literal(value: false).rawValue, "false")
     }
 
     /// Test edge condition is created correctly.
     func testEdgeInit() {
         let condition = ConditionalExpression.edge(value: .rising(expression: x))
         XCTAssertEqual(ConditionalExpression(rawValue: "rising_edge(x)"), condition)
-        XCTAssertEqual(ConditionalExpression(rawValue: "rising_edge(x);"), condition)
+        XCTAssertNil(ConditionalExpression(rawValue: "rising_edge(x);"))
         XCTAssertNil(ConditionalExpression(rawValue: "x << 2"))
         XCTAssertNil(ConditionalExpression(rawValue: "rising_edge(\(String(repeating: "x", count: 256)))"))
     }
@@ -87,9 +89,21 @@ final class ConditionalExpressionTests: XCTestCase {
     func testComparisonInit() {
         let comparison = ConditionalExpression.comparison(value: .greaterThan(lhs: x, rhs: y))
         XCTAssertEqual(ConditionalExpression(rawValue: "x > y"), comparison)
-        XCTAssertEqual(ConditionalExpression(rawValue: "x > y;"), comparison)
+        XCTAssertNil(ConditionalExpression(rawValue: "x > y;"))
         XCTAssertNil(ConditionalExpression(rawValue: "x >> 2"))
         XCTAssertNil(ConditionalExpression(rawValue: "x > \(String(repeating: "y", count: 256))"))
+    }
+
+    /// Test literal condition is created correctly.
+    func testLiteralInit() {
+        let literal = ConditionalExpression.literal(value: true)
+        XCTAssertEqual(ConditionalExpression(rawValue: "true"), literal)
+        XCTAssertEqual(ConditionalExpression(rawValue: "TRUE"), literal)
+        XCTAssertEqual(ConditionalExpression(rawValue: "false"), .literal(value: false))
+        XCTAssertEqual(ConditionalExpression(rawValue: "FALSE"), .literal(value: false))
+        XCTAssertNil(ConditionalExpression(rawValue: "true;"))
+        XCTAssertNil(ConditionalExpression(rawValue: "x"))
+        XCTAssertNil(ConditionalExpression(rawValue: "true; false"))
     }
 
 }
