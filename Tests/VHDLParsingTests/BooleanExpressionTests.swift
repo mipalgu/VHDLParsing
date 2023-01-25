@@ -101,4 +101,20 @@ final class BooleanExpressionTests: XCTestCase {
         XCTAssertNil(BooleanExpression(rawValue: "(not x)"))
     }
 
+    /// Test `init(rawValue: )` for a string containing an `and` expression.
+    func testAndInit() {
+        XCTAssertEqual(BooleanExpression(rawValue: "x and y"), .and(lhs: x, rhs: y))
+        XCTAssertEqual(BooleanExpression(rawValue: "x and (y)"), .and(lhs: x, rhs: .precedence(value: y)))
+        XCTAssertEqual(BooleanExpression(rawValue: "(x) and y"), .and(lhs: .precedence(value: x), rhs: y))
+        XCTAssertNil(BooleanExpression(rawValue: "(x and y)"))
+        XCTAssertNil(BooleanExpression(rawValue: "x and"))
+        XCTAssertNil(BooleanExpression(rawValue: "and y"))
+        XCTAssertNil(BooleanExpression(rawValue: "x and y and z"))
+        XCTAssertNil(BooleanExpression(rawValue: "x and y z"))
+        XCTAssertNil(BooleanExpression(rawValue: "x and \(String(repeating: "y", count: 256))"))
+        XCTAssertNil(BooleanExpression(rawValue: "x and y + z"))
+        XCTAssertNil(BooleanExpression(rawValue: "x and !y"))
+        XCTAssertNil(BooleanExpression(rawValue: "x + y and z"))
+    }
+
 }

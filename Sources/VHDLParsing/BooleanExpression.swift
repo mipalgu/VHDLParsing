@@ -167,22 +167,50 @@ public enum BooleanExpression: RawRepresentable, Equatable, Hashable, Codable, S
     }
 
     private init?(lhs: String, rhs: String, splittingOn value: String) {
+        let lhsTrimmed = lhs.trimmingCharacters(in: .whitespacesAndNewlines)
+        let rhsTrimmed = rhs.trimmingCharacters(in: .whitespacesAndNewlines)
+        if lhsTrimmed.words.count > 1 {
+            guard
+                let lhsSubExpressions = lhsTrimmed.subExpressions,
+                lhsSubExpressions.count == 1,
+                let lhsFirst = lhsSubExpressions.first,
+                lhsFirst.startIndex == lhsTrimmed.startIndex,
+                lhsFirst.endIndex == lhsTrimmed.endIndex
+            else {
+                return nil
+            }
+        }
+        if rhsTrimmed.words.count > 1 {
+            guard
+                let rhsSubExpressions = rhsTrimmed.subExpressions,
+                rhsSubExpressions.count == 1,
+                let rhsFirst = rhsSubExpressions.first,
+                rhsFirst.startIndex == rhsTrimmed.startIndex,
+                rhsFirst.endIndex == rhsTrimmed.endIndex
+            else {
+                return nil
+            }
+        }
         guard let lhsExp = Expression(rawValue: lhs), let rhsExp = Expression(rawValue: rhs) else {
             return nil
         }
-        switch value.lowercased() {
+        self.init(lhs: lhsExp, rhs: rhsExp, operation: value)
+    }
+
+    private init?(lhs: Expression, rhs: Expression, operation: String) {
+        switch operation.lowercased() {
         case "and":
-            self = .and(lhs: lhsExp, rhs: rhsExp)
+            self = .and(lhs: lhs, rhs: rhs)
         case "or":
-            self = .or(lhs: lhsExp, rhs: rhsExp)
+            self = .or(lhs: lhs, rhs: rhs)
         case "nand":
-            self = .nand(lhs: lhsExp, rhs: rhsExp)
+            self = .nand(lhs: lhs, rhs: rhs)
         case "nor":
-            self = .nor(lhs: lhsExp, rhs: rhsExp)
+            self = .nor(lhs: lhs, rhs: rhs)
         case "xor":
-            self = .xor(lhs: lhsExp, rhs: rhsExp)
+            self = .xor(lhs: lhs, rhs: rhs)
         case "xnor":
-            self = .xnor(lhs: lhsExp, rhs: rhsExp)
+            self = .xnor(lhs: lhs, rhs: rhs)
         default:
             return nil
         }
