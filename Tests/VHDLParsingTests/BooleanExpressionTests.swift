@@ -1,5 +1,5 @@
-// Set+VHDLReservedWords.swift
-// Machines
+// BooleanExpressionTests.swift
+// VHDLParsing
 // 
 // Created by Morgan McColl.
 // Copyright © 2023 Morgan McColl. All rights reserved.
@@ -54,71 +54,49 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
-/// Add VHDL reserved words Sets.
-public extension Set where Element == String {
+@testable import VHDLParsing
+import XCTest
 
-    /// The boolean operations requiring two operands in `VHDL`.
-    static var vhdlBooleanBinaryOperations: Set<String> {
-        [
-            "and", "or", "nand", "nor", "xor", "xnor"
-        ]
+/// Test class for ``BooleanExpression``.
+final class BooleanExpressionTests: XCTestCase {
+
+    /// A variable `x`.
+    let x = Expression.variable(name: VariableName(text: "x"))
+
+    /// A variable `y`.
+    let y = Expression.variable(name: VariableName(text: "y"))
+
+    /// Test the raw values generate the correct `VHDL` code.
+    func testRawValue() {
+        XCTAssertEqual(BooleanExpression.not(value: x).rawValue, "not x")
+        XCTAssertEqual(BooleanExpression.and(lhs: x, rhs: y).rawValue, "x and y")
+        XCTAssertEqual(BooleanExpression.or(lhs: x, rhs: y).rawValue, "x or y")
+        XCTAssertEqual(BooleanExpression.nand(lhs: x, rhs: y).rawValue, "x nand y")
+        XCTAssertEqual(BooleanExpression.nor(lhs: x, rhs: y).rawValue, "x nor y")
+        XCTAssertEqual(BooleanExpression.xor(lhs: x, rhs: y).rawValue, "x xor y")
+        XCTAssertEqual(BooleanExpression.xnor(lhs: x, rhs: y).rawValue, "x xnor y")
     }
 
-    /// The `VHDL` signal types.
-    static var vhdlSignalTypes: Set<String> {
-        [
-            "std_logic",
-            "std_ulogic",
-            "signed",
-            "unsigned",
-            "std_logic_vector",
-            "std_ulogic_vector",
-            "bit",
-            "bit_vector",
-            "boolean",
-            "integer",
-            "natural",
-            "positive",
-            "real"
-        ]
-    }
-
-    /// The `VHDL` reserved words not including the `VHDL` signal types. If you need both, then use
-    /// `Set<String>.vhdlAllReservedWords`.
-    static var vhdlReservedWords: Set<String> {
-        [
-            "abs", "access", "after", "alias", "all", "and", "architecture", "array",
-            "assert", "attribute", "begin", "block", "body", "buffer", "bus", "case",
-            "component", "configuration", "constant", "disconnect", "downto", "else",
-            "elsif", "end", "entity", "exit", "file", "for", "function", "generate",
-            "generic", "group", "guarded", "if", "impure", "in", "inertial", "inout",
-            "is", "label", "library", "linkage", "literal", "loop", "map", "mod", "nand",
-            "new", "next", "nor", "not", "null", "of", "on", "open", "or", "others",
-            "out", "package", "port", "postponed", "procedure", "process", "pure",
-            "range", "record", "register", "reject", "return", "rol", "ror", "select",
-            "severity", "signal", "shared", "sla", "sli", "sra", "srl", "subtype",
-            "then", "to", "transport", "type", "unaffected", "units", "until", "use",
-            "variable", "wait", "when", "while", "with", "xnor", "xor"
-        ]
-    }
-
-    /// All `VHDL` reserved words including the `VHDL` signal types.
-    static var vhdlAllReservedWords: Set<String> {
-        Self.vhdlSignalTypes.union(Self.vhdlReservedWords)
-    }
-
-    /// The comparison operators supported in `VHDL`.
-    static var vhdlComparisonOperations: Set<String> {
-        [
-            ">", "<", "<=", ">=", "=", "/="
-        ]
-    }
-
-    /// All operators supported in `VHDL`.
-    static var vhdlOperations: Set<String> {
-        [
-            ">", "<", "<=", ">=", "=", "/=", "+", "-", "/", "*"
-        ]
+    /// Test `init(rawValue: )` for a string containing a `not` expression.
+    func testNotInit() {
+        XCTAssertEqual(BooleanExpression(rawValue: "not x"), BooleanExpression.not(value: x))
+        XCTAssertEqual(BooleanExpression(rawValue: " not x "), BooleanExpression.not(value: x))
+        XCTAssertEqual(
+            BooleanExpression(rawValue: "not (x)"), BooleanExpression.not(value: .precedence(value: x))
+        )
+        XCTAssertEqual(
+            BooleanExpression(rawValue: "not (x + y)"),
+            BooleanExpression.not(value: .precedence(value: .binary(operation: .addition(lhs: x, rhs: y))))
+        )
+        XCTAssertNil(BooleanExpression(rawValue: "not"))
+        XCTAssertNil(BooleanExpression(rawValue: "not x y"))
+        XCTAssertNil(BooleanExpression(rawValue: "not (x + y"))
+        XCTAssertNil(BooleanExpression(rawValue: "not x + y)"))
+        XCTAssertNil(BooleanExpression(rawValue: "not (x + y) + z"))
+        XCTAssertNil(BooleanExpression(rawValue: "not (x + y) z"))
+        XCTAssertNil(BooleanExpression(rawValue: "not \(String(repeating: "x", count: 256))"))
+        XCTAssertNil(BooleanExpression(rawValue: "not x + (y + z)"))
+        XCTAssertNil(BooleanExpression(rawValue: "not (!x)"))
     }
 
 }
