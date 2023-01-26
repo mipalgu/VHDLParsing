@@ -56,22 +56,35 @@
 
 import Foundation
 
+/// A boolean expression containing common boolean operations. This type represents an expression that can be
+/// represented as a single logic expression. For example, `a and b` is a valid expression, but `a and b or c`
+/// is not since it contains two logic operations. On the contrary, `a and (b or c)` is a valid expression
+/// since the expression is represented as an `and` operation on two subexpressions (one of which is also a
+/// logical expression).
 public enum BooleanExpression: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
+    /// An `and` operation.
     case and(lhs: Expression, rhs: Expression)
 
+    /// An `or` operation.
     case or(lhs: Expression, rhs: Expression)
 
+    /// A `nand` operation.
     case nand(lhs: Expression, rhs: Expression)
 
+    /// A `not` operation.
     case not(value: Expression)
 
+    /// A `nor` operation.
     case nor(lhs: Expression, rhs: Expression)
 
+    /// An `xor` operation.
     case xor(lhs: Expression, rhs: Expression)
 
+    /// An `xnor` operation.
     case xnor(lhs: Expression, rhs: Expression)
 
+    /// The `VHDL` code representing this expression.
     public var rawValue: String {
         switch self {
         case .and(let lhs, let rhs):
@@ -91,6 +104,8 @@ public enum BooleanExpression: RawRepresentable, Equatable, Hashable, Codable, S
         }
     }
 
+    /// Creates a new `BooleanExpression` from the given `VHDL` code.
+    /// - Parameter rawValue: The `VHDL` code representing the boolean expression.
     public init?(rawValue: String) {
         let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
         guard trimmedString.count < 256 else {
@@ -113,6 +128,8 @@ public enum BooleanExpression: RawRepresentable, Equatable, Hashable, Codable, S
         self = newValue
     }
 
+    /// Creates a new `BooleanExpression` expecting the code to be a `not` operation.
+    /// - Parameter trimmedString: The code containing the `not` operation.
     private init?(not trimmedString: String) {
         guard trimmedString.firstWord?.lowercased() == "not" else {
             return nil
@@ -136,6 +153,9 @@ public enum BooleanExpression: RawRepresentable, Equatable, Hashable, Codable, S
         return
     }
 
+    /// Creates a new `BooleanExpression` from the given code, expecting it to be a binary operation prefaced
+    /// with an opening bracket.
+    /// - Parameter value: The code to convert.
     private init?(brackets value: String) {
         guard let lhs = value.uptoBalancedBracket else {
             return nil
@@ -152,6 +172,10 @@ public enum BooleanExpression: RawRepresentable, Equatable, Hashable, Codable, S
         self.init(lhs: String(lhs), rhs: rhs, splittingOn: firstWord)
     }
 
+    /// Creates a new `BooleanExpression` from the given code, expecting it to be a specific operation.
+    /// - Parameters:
+    ///   - value: The code to parse.
+    ///   - splittingString: The expected operation within the code.
     private init?(value: String, splittingString: String) {
         guard
             let splitIndex = value.startIndex(word: splittingString),
@@ -166,6 +190,11 @@ public enum BooleanExpression: RawRepresentable, Equatable, Hashable, Codable, S
         self.init(lhs: lhs, rhs: rhs, splittingOn: splittingString)
     }
 
+    /// Creates a new `BooleanExpression` from the given code, expecting it to be a specific operation.
+    /// - Parameters:
+    ///   - lhs: The left hand expression.
+    ///   - rhs: The right hand expression.
+    ///   - value: The operation to perform.
     private init?(lhs: String, rhs: String, splittingOn value: String) {
         let lhsTrimmed = lhs.trimmingCharacters(in: .whitespacesAndNewlines)
         let rhsTrimmed = rhs.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -197,6 +226,11 @@ public enum BooleanExpression: RawRepresentable, Equatable, Hashable, Codable, S
         self.init(lhs: lhsExp, rhs: rhsExp, operation: value)
     }
 
+    /// Creates a new `BooleanExpression` from the given code, expecting it to be a specific binary operation.
+    /// - Parameters:
+    ///   - lhs: The first operand located at the left of the operation.
+    ///   - rhs: The second operand located at the right of the operation.
+    ///   - operation: The operation to perform.
     private init?(lhs: Expression, rhs: Expression, operation: String) {
         switch operation.lowercased() {
         case "and":
