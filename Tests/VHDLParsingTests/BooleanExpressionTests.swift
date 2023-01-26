@@ -117,4 +117,85 @@ final class BooleanExpressionTests: XCTestCase {
         XCTAssertNil(BooleanExpression(rawValue: "x + y and z"))
     }
 
+    /// Test `init(rawValue: )` for a string containing an `or` expression.
+    func testOrInit() {
+        XCTAssertEqual(BooleanExpression(rawValue: "x or y"), .or(lhs: x, rhs: y))
+        XCTAssertEqual(BooleanExpression(rawValue: "x or (y)"), .or(lhs: x, rhs: .precedence(value: y)))
+        XCTAssertEqual(BooleanExpression(rawValue: "(x) or y"), .or(lhs: .precedence(value: x), rhs: y))
+        XCTAssertNil(BooleanExpression(rawValue: "(x or y)"))
+        XCTAssertNil(BooleanExpression(rawValue: "x or"))
+        XCTAssertNil(BooleanExpression(rawValue: "or y"))
+        XCTAssertNil(BooleanExpression(rawValue: "x or y or z"))
+        XCTAssertNil(BooleanExpression(rawValue: "x or y z"))
+        XCTAssertNil(BooleanExpression(rawValue: "x or \(String(repeating: "y", count: 256))"))
+        XCTAssertNil(BooleanExpression(rawValue: "x or y + z"))
+        XCTAssertNil(BooleanExpression(rawValue: "x or !y"))
+        XCTAssertNil(BooleanExpression(rawValue: "x + y or z"))
+    }
+
+    /// Test `init(rawValue: )` for a string containing an `nand` expression.
+    func testNandInit() {
+        XCTAssertEqual(BooleanExpression(rawValue: "x nand y"), .nand(lhs: x, rhs: y))
+        XCTAssertEqual(BooleanExpression(rawValue: "x nand (y)"), .nand(lhs: x, rhs: .precedence(value: y)))
+        XCTAssertEqual(BooleanExpression(rawValue: "(x) nand y"), .nand(lhs: .precedence(value: x), rhs: y))
+        XCTAssertNil(BooleanExpression(rawValue: "(x nand y)"))
+        XCTAssertNil(BooleanExpression(rawValue: "(x nand y"))
+        XCTAssertNil(BooleanExpression(rawValue: "x nand"))
+        XCTAssertNil(BooleanExpression(rawValue: "nand y"))
+        XCTAssertNil(BooleanExpression(rawValue: "x nand y nand z"))
+        XCTAssertNil(BooleanExpression(rawValue: "x nand y z"))
+        XCTAssertNil(BooleanExpression(rawValue: "x nand \(String(repeating: "y", count: 256))"))
+        XCTAssertNil(BooleanExpression(rawValue: "x nand y + z"))
+        XCTAssertNil(BooleanExpression(rawValue: "x nand !y"))
+        XCTAssertNil(BooleanExpression(rawValue: "x + y nand z"))
+    }
+
+    /// Test `init(rawValue: )` for a string containing an `nor` expression.
+    func testNorInit() {
+        XCTAssertEqual(BooleanExpression(rawValue: "x nor y"), .nor(lhs: x, rhs: y))
+        XCTAssertEqual(BooleanExpression(rawValue: "x nor (y)"), .nor(lhs: x, rhs: .precedence(value: y)))
+        XCTAssertEqual(BooleanExpression(rawValue: "(x) nor y"), .nor(lhs: .precedence(value: x), rhs: y))
+        XCTAssertNil(BooleanExpression(rawValue: "(x nor y)"))
+        XCTAssertNil(BooleanExpression(rawValue: "x nor"))
+        XCTAssertNil(BooleanExpression(rawValue: "nor y"))
+        XCTAssertNil(BooleanExpression(rawValue: "x nor y nor z"))
+        XCTAssertNil(BooleanExpression(rawValue: "x nor y z"))
+        XCTAssertNil(BooleanExpression(rawValue: "x nor \(String(repeating: "y", count: 256))"))
+        XCTAssertNil(BooleanExpression(rawValue: "x nor y + z"))
+        XCTAssertNil(BooleanExpression(rawValue: "x nor !y"))
+        XCTAssertNil(BooleanExpression(rawValue: "x + y nor z"))
+    }
+
+    /// Test `init(rawValue: )` for a string containing an `xor` expression.
+    func testXorInit() {
+        XCTAssertEqual(BooleanExpression(rawValue: "x xor y"), .xor(lhs: x, rhs: y))
+        XCTAssertEqual(BooleanExpression(rawValue: "x xor (y)"), .xor(lhs: x, rhs: .precedence(value: y)))
+        XCTAssertEqual(BooleanExpression(rawValue: "(x) xor y"), .xor(lhs: .precedence(value: x), rhs: y))
+        XCTAssertNil(BooleanExpression(rawValue: "(x xor y)"))
+        XCTAssertNil(BooleanExpression(rawValue: "x xor"))
+        XCTAssertNil(BooleanExpression(rawValue: "xor y"))
+        XCTAssertNil(BooleanExpression(rawValue: "x xor y xor z"))
+        XCTAssertNil(BooleanExpression(rawValue: "x xor y z"))
+        XCTAssertNil(BooleanExpression(rawValue: "x xor \(String(repeating: "y", count: 256))"))
+        XCTAssertNil(BooleanExpression(rawValue: "x xor y + z"))
+        XCTAssertNil(BooleanExpression(rawValue: "x xor !y"))
+        XCTAssertNil(BooleanExpression(rawValue: "x + y xor z"))
+    }
+
+    /// Test `init(rawValue: )` for a string containing an `xnor` expression.
+    func testXnorInit() {
+        XCTAssertEqual(BooleanExpression(rawValue: "x xnor y"), .xnor(lhs: x, rhs: y))
+        XCTAssertEqual(BooleanExpression(rawValue: "x xnor (y)"), .xnor(lhs: x, rhs: .precedence(value: y)))
+        XCTAssertEqual(BooleanExpression(rawValue: "(x) xnor y"), .xnor(lhs: .precedence(value: x), rhs: y))
+        XCTAssertNil(BooleanExpression(rawValue: "(x xnor y)"))
+        XCTAssertNil(BooleanExpression(rawValue: "x xnor"))
+        XCTAssertNil(BooleanExpression(rawValue: "xnor y"))
+        XCTAssertNil(BooleanExpression(rawValue: "x xnor y xnor z"))
+        XCTAssertNil(BooleanExpression(rawValue: "x xnor y z"))
+        XCTAssertNil(BooleanExpression(rawValue: "x xnor \(String(repeating: "y", count: 256))"))
+        XCTAssertNil(BooleanExpression(rawValue: "x xnor y + z"))
+        XCTAssertNil(BooleanExpression(rawValue: "x xnor !y"))
+        XCTAssertNil(BooleanExpression(rawValue: "x + y xnor z"))
+    }
+
 }
