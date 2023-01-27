@@ -266,7 +266,9 @@ final class BooleanExpressionTests: XCTestCase {
     func testMultipleInit() {
         XCTAssertEqual(
             Expression(rawValue: "x and (y or z)"),
-            .logical(operation: .and(lhs: x, rhs: .precedence(value: .logical(operation: .or(lhs: y, rhs: z)))))
+            .logical(
+                operation: .and(lhs: x, rhs: .precedence(value: .logical(operation: .or(lhs: y, rhs: z))))
+            )
         )
     }
 
