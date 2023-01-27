@@ -170,24 +170,6 @@ public enum BooleanExpression: RawRepresentable, Equatable, Hashable, Codable, S
 
     /// Creates a new `BooleanExpression` from the given code, expecting it to be a specific operation.
     /// - Parameters:
-    ///   - value: The code to parse.
-    ///   - splittingString: The expected operation within the code.
-    private init?(value: String, splittingString: String) {
-        guard
-            let splitIndex = value.startIndex(word: splittingString),
-            let part2Index = value.index(
-                splitIndex, offsetBy: splittingString.count, limitedBy: value.index(before: value.endIndex)
-            )
-        else {
-            return nil
-        }
-        let lhs = String(value[value.startIndex..<splitIndex])
-        let rhs = String(value[part2Index...])
-        self.init(lhs: lhs, rhs: rhs, splittingOn: splittingString)
-    }
-
-    /// Creates a new `BooleanExpression` from the given code, expecting it to be a specific operation.
-    /// - Parameters:
     ///   - lhs: The left hand expression.
     ///   - rhs: The right hand expression.
     ///   - value: The operation to perform.
