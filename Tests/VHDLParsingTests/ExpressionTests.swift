@@ -213,6 +213,15 @@ final class ExpressionTests: XCTestCase {
         ))
         let result = Expression(rawValue: raw)
         XCTAssertEqual(result, expected)
+        let a = Expression.variable(name: aname)
+        let b = Expression.variable(name: bname)
+        let c = Expression.variable(name: cname)
+        XCTAssertEqual(
+            Expression(rawValue: "a * b * c"),
+            .binary(operation: .multiplication(
+                lhs: a, rhs: .binary(operation: .multiplication(lhs: b, rhs: c))
+            ))
+        )
     }
 
     /// Test complex expression is created correctly.
