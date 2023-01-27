@@ -115,47 +115,25 @@ public enum BooleanExpression: RawRepresentable, Equatable, Hashable, Codable, S
             self.init(brackets: trimmedString)
             return
         }
-        // if trimmedString.contains("(") {
-        //     self.init(parentheses: trimmedString)
-        //     return
-        // }
         if let notExpression = BooleanExpression(not: trimmedString) {
             self = notExpression
             return
         }
         guard
-            let (values, reversedOperation) = String(trimmedString.reversed()).split(
-                words: Set(Set<String>.vhdlBooleanBinaryOperations.map { String($0.reversed()) })
+            let (values, operation) = String(trimmedString).split(
+                words: .vhdlBooleanBinaryOperations
             ),
             values.count == 2
         else {
             return nil
         }
-        let rhs = String(values[0].reversed())
-        let lhs = String(values[1].reversed())
-        let operation = String(reversedOperation.reversed())
+        let lhs = String(values[0])
+        let rhs = String(values[1])
         guard let newValue = BooleanExpression(lhs: lhs, rhs: rhs, splittingOn: operation) else {
             return nil
         }
         self = newValue
     }
-
-    // init?(parentheses value: String) {
-    //     guard let subExpressions = value.subExpressions, !subExpressions.isEmpty else {
-    //         return nil
-    //     }
-    //     guard let startIndex = Set<String>.vhdlBooleanBinaryOperations.lazy.compactMap({
-    //         value.startIndex(word: $0)
-    //     })
-    //     .min() else {
-    //         return nil
-    //     }
-    //     if startIndex < subExpressions[0].startIndex {
-    //         guard let booleanExpression = BooleanExpression(rawValue: String(value[...subExpressions[0].startIndex])) else {
-    //             return nil
-    //         }
-    //     }
-    // }
 
     /// Creates a new `BooleanExpression` expecting the code to be a `not` operation.
     /// - Parameter trimmedString: The code containing the `not` operation.
