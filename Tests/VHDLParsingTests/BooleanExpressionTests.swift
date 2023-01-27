@@ -99,10 +99,20 @@ final class BooleanExpressionTests: XCTestCase {
         XCTAssertNil(BooleanExpression(rawValue: "not x y"))
         XCTAssertNil(BooleanExpression(rawValue: "not (x + y"))
         XCTAssertNil(BooleanExpression(rawValue: "not x + y)"))
-        XCTAssertNil(BooleanExpression(rawValue: "not (x + y) + z"))
+        XCTAssertEqual(
+            BooleanExpression(rawValue: "not (x + y) + z"),
+            .not(value: .binary(operation: .addition(
+                lhs: .precedence(value: .binary(operation: .addition(lhs: x, rhs: y))), rhs: z
+            )))
+        )
         XCTAssertNil(BooleanExpression(rawValue: "not (x + y) z"))
         XCTAssertNil(BooleanExpression(rawValue: "not \(String(repeating: "x", count: 256))"))
-        XCTAssertNil(BooleanExpression(rawValue: "not x + (y + z)"))
+        XCTAssertEqual(
+            BooleanExpression(rawValue: "not x + (y + z)"),
+            .not(value: .binary(operation: .addition(
+                lhs: x, rhs: .precedence(value: .binary(operation: .addition(lhs: y, rhs: z)))
+            )))
+        )
         XCTAssertNil(BooleanExpression(rawValue: "not (!x)"))
         XCTAssertEqual(
             BooleanExpression(rawValue: "not x + y"),

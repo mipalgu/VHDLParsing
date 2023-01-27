@@ -142,7 +142,7 @@ public enum BooleanExpression: RawRepresentable, Equatable, Hashable, Codable, S
             return nil
         }
         let value = trimmedString.dropFirst(3).trimmingCharacters(in: .whitespacesAndNewlines)
-        guard let expression = Expression(subExpression: value) else {
+        guard let expression = Expression(rawValue: value) else {
             return nil
         }
         self = .not(value: expression)
@@ -192,7 +192,7 @@ public enum BooleanExpression: RawRepresentable, Equatable, Hashable, Codable, S
     ///   - rhs: The right hand expression.
     ///   - value: The operation to perform.
     private init?(lhs: String, rhs: String, splittingOn value: String) {
-        guard let lhsExp = Expression(subExpression: lhs), let rhsExp = Expression(subExpression: rhs) else {
+        guard let lhsExp = Expression(rawValue: lhs), let rhsExp = Expression(rawValue: rhs) else {
             return nil
         }
         self.init(lhs: lhsExp, rhs: rhsExp, operation: value)
@@ -221,31 +221,6 @@ public enum BooleanExpression: RawRepresentable, Equatable, Hashable, Codable, S
         default:
             return nil
         }
-    }
-
-}
-
-/// Provide custom initialisers.
-private extension Expression {
-
-    /// Create a new `Expression` from a `rawValue` that might contain subexpressions in a binary operation.
-    /// - Parameter subExpression: The `VHDL` code to parse.
-    init?(subExpression: String) {
-        let trimmedString = subExpression.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard trimmedString.words.count > 1, let sub = trimmedString.subExpressions, sub.count >= 1 else {
-            self.init(rawValue: subExpression)
-            return
-        }
-        guard
-            let subExpressions = trimmedString.subExpressions,
-            subExpressions.count == 1,
-            let first = subExpressions.first,
-            first.startIndex == trimmedString.startIndex,
-            first.endIndex == trimmedString.endIndex
-        else {
-            return nil
-        }
-        self.init(rawValue: subExpression)
     }
 
 }
