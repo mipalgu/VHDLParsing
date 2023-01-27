@@ -81,6 +81,7 @@ indirect public enum Expression: RawRepresentable,
     /// A conditional expression.
     case conditional(condition: ConditionalExpression)
 
+    /// A boolean logic expression.
     case logical(operation: BooleanExpression)
 
     /// The raw value is a string.

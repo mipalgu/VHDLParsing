@@ -57,6 +57,8 @@
 @testable import VHDLParsing
 import XCTest
 
+// swiftlint:disable type_body_length
+
 /// Test class for ``Expression``.
 final class ExpressionTests: XCTestCase {
 
@@ -399,3 +401,5 @@ final class ExpressionTests: XCTestCase {
     }
 
 }
+
+// swiftlint:enable type_body_length
