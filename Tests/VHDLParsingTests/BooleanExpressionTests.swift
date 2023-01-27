@@ -302,6 +302,16 @@ final class BooleanExpressionTests: XCTestCase {
                 ))
             )
         )
+        XCTAssertEqual(
+            BooleanExpression(rawValue: "(x and y) or (x and (y and z))"),
+            .or(
+                lhs: .precedence(value: .logical(operation: .and(lhs: x, rhs: y))),
+                rhs: .precedence(value: .logical(operation: .and(
+                    lhs: x,
+                    rhs: .precedence(value: .logical(operation: .and(lhs: y, rhs: z)))
+                )))
+            )
+        )
     }
 
 }
