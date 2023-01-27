@@ -234,6 +234,15 @@ final class ExpressionTests: XCTestCase {
                 )
             )
         )
+        XCTAssertEqual(
+            Expression(rawValue: "((a + b) + c)"),
+            .precedence(value: .binary(
+                operation: .addition(
+                    lhs: .precedence(value: .binary(operation: .addition(lhs: a, rhs: b))),
+                    rhs: c
+                )
+            ))
+        )
     }
 
     /// Test complex expression is created correctly.
