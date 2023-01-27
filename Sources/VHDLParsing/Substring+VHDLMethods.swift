@@ -59,26 +59,6 @@ import Foundation
 /// Add `startIndex`.
 extension Substring {
 
-    @usableFromInline var topExpressions: [Substring]? {
-        var startIndex = self.startIndex
-        var currentIndex = self.startIndex
-        var subExpressions: [Substring] = []
-        while currentIndex < self.endIndex {
-            if self[currentIndex] == "(" {
-                subExpressions.append(self[startIndex...currentIndex])
-                guard let sub = self[currentIndex...].uptoBalancedBracket else {
-                    return nil
-                }
-                subExpressions.append(sub)
-                currentIndex = sub.endIndex
-                startIndex = sub.endIndex
-            }
-            currentIndex = self.index(after: currentIndex)
-        }
-        subExpressions.append(self[startIndex...])
-        return subExpressions
-    }
-
     /// Return a string that exists within self that starts with an open bracket and ends with the balanced
     /// closing bracket.
     @usableFromInline var uptoBalancedBracket: Substring? {

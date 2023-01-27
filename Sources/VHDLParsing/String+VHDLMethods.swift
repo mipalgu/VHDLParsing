@@ -131,10 +131,6 @@ extension String {
         return expressions
     }
 
-    @usableFromInline var topExpressions: [Substring]? {
-        self[self.startIndex..<self.endIndex].topExpressions
-    }
-
     /// Return a string that exists within self that starts with an open bracket and ends with the balanced
     /// closing bracket.
     @usableFromInline var uptoBalancedBracket: Substring? {
