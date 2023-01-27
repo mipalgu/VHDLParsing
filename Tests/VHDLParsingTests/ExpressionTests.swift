@@ -218,11 +218,21 @@ final class ExpressionTests: XCTestCase {
         let a = Expression.variable(name: aname)
         let b = Expression.variable(name: bname)
         let c = Expression.variable(name: cname)
+        let d = Expression.variable(name: dname)
         XCTAssertEqual(
             Expression(rawValue: "a * b * c"),
             .binary(operation: .multiplication(
                 lhs: a, rhs: .binary(operation: .multiplication(lhs: b, rhs: c))
             ))
+        )
+        XCTAssertEqual(
+            Expression(rawValue: "(a + b) + (c + d)"),
+            .binary(
+                operation: .addition(
+                    lhs: .precedence(value: .binary(operation: .addition(lhs: a, rhs: b))),
+                    rhs: .precedence(value: .binary(operation: .addition(lhs: c, rhs: d)))
+                )
+            )
         )
     }
 
