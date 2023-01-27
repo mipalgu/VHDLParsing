@@ -80,6 +80,17 @@ final class BooleanExpressionTests: XCTestCase {
         XCTAssertEqual(BooleanExpression.xnor(lhs: x, rhs: y).rawValue, "x xnor y")
     }
 
+    /// Test `init(lhs:, rhs:, operation:)` created correct instance.
+    func testExpressionInit() {
+        XCTAssertEqual(BooleanExpression(lhs: x, rhs: y, operation: "and"), .and(lhs: x, rhs: y))
+        XCTAssertEqual(BooleanExpression(lhs: x, rhs: y, operation: "or"), .or(lhs: x, rhs: y))
+        XCTAssertEqual(BooleanExpression(lhs: x, rhs: y, operation: "nand"), .nand(lhs: x, rhs: y))
+        XCTAssertEqual(BooleanExpression(lhs: x, rhs: y, operation: "nor"), .nor(lhs: x, rhs: y))
+        XCTAssertEqual(BooleanExpression(lhs: x, rhs: y, operation: "xor"), .xor(lhs: x, rhs: y))
+        XCTAssertEqual(BooleanExpression(lhs: x, rhs: y, operation: "xnor"), .xnor(lhs: x, rhs: y))
+        XCTAssertNil(BooleanExpression(lhs: x, rhs: y, operation: ""))
+    }
+
     /// Test `init(rawValue: )` for a string containing a `not` expression.
     func testNotInit() {
         XCTAssertEqual(BooleanExpression(rawValue: "not x"), BooleanExpression.not(value: x))

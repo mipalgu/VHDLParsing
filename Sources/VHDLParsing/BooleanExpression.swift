@@ -187,7 +187,7 @@ public enum BooleanExpression: RawRepresentable, Equatable, Hashable, Codable, S
     ///   - operation: The operation to perform.
     @usableFromInline
     init?(lhs: Expression, rhs: Expression, operation: String) {
-        switch operation.lowercased() {
+        switch operation.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() {
         case "and":
             self = .and(lhs: lhs, rhs: rhs)
         case "or":
