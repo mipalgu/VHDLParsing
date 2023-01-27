@@ -275,9 +275,20 @@ final class BooleanExpressionTests: XCTestCase {
     /// Test `init(rawValue: )` for a string containing multiple boolean expressions.
     func testMultipleInit() {
         XCTAssertEqual(
-            Expression(rawValue: "x and (y or z)"),
-            .logical(
-                operation: .and(lhs: x, rhs: .precedence(value: .logical(operation: .or(lhs: y, rhs: z))))
+            BooleanExpression(rawValue: "x and (y or z)"),
+            .and(lhs: x, rhs: .precedence(value: .logical(operation: .or(lhs: y, rhs: z))))
+        )
+        XCTAssertEqual(
+            BooleanExpression(rawValue: "x and y or (x and z) or (y and z)"),
+            .and(
+                lhs: x,
+                rhs: .logical(operation: .or(
+                    lhs: y,
+                    rhs: .logical(operation: .or(
+                        lhs: .precedence(value: .logical(operation: .and(lhs: x, rhs: z))),
+                        rhs: .precedence(value: .logical(operation: .and(lhs: y, rhs: z)))
+                    ))
+                ))
             )
         )
     }
