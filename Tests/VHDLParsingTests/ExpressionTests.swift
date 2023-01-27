@@ -392,11 +392,25 @@ final class ExpressionTests: XCTestCase {
         let a = Expression.variable(name: aname)
         let b = Expression.variable(name: bname)
         let c = Expression.variable(name: cname)
+        let d = Expression.variable(name: dname)
         XCTAssertEqual(Expression(rawValue: "a and b"), .logical(operation: .and(lhs: a, rhs: b)))
         XCTAssertEqual(Expression(rawValue: "not a"), .logical(operation: .not(value: a)))
         XCTAssertEqual(
             Expression(rawValue: "a or b and c"),
             .logical(operation: .and(lhs: .logical(operation: .or(lhs: a, rhs: b)), rhs: c))
+        )
+        XCTAssertEqual(
+            Expression(rawValue: "a xor (b and c) or d"),
+            .logical(operation: .xor(lhs: a, rhs: .logical(operation: .or(
+                lhs: .precedence(value: .logical(operation: .and(lhs: b, rhs: c))), rhs: d
+            ))))
+        )
+        XCTAssertEqual(
+            Expression(rawValue: "a xor (b and c) or not d"),
+            .logical(operation: .xor(lhs: a, rhs: .logical(operation: .or(
+                lhs: .precedence(value: .logical(operation: .and(lhs: b, rhs: c))),
+                rhs: .logical(operation: .not(value: d))
+            ))))
         )
     }
 
