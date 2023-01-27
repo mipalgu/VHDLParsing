@@ -57,6 +57,13 @@
 /// Add VHDL reserved words Sets.
 public extension Set where Element == String {
 
+    /// The boolean operations requiring two operands in `VHDL`.
+    static var vhdlBooleanBinaryOperations: Set<String> {
+        [
+            "and", "or", "nand", "nor", "xor", "xnor"
+        ]
+    }
+
     /// The `VHDL` signal types.
     static var vhdlSignalTypes: Set<String> {
         [
@@ -109,9 +116,9 @@ public extension Set where Element == String {
 
     /// All operators supported in `VHDL`.
     static var vhdlOperations: Set<String> {
-        [
+        Set([
             ">", "<", "<=", ">=", "=", "/=", "+", "-", "/", "*"
-        ]
+        ]).union(Set<String>.vhdlBooleanBinaryOperations)
     }
 
 }

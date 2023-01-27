@@ -57,6 +57,8 @@
 @testable import VHDLParsing
 import XCTest
 
+// swiftlint:disable type_body_length
+
 /// Test class for ``Expression``.
 final class ExpressionTests: XCTestCase {
 
@@ -106,6 +108,12 @@ final class ExpressionTests: XCTestCase {
         XCTAssertEqual(
             Expression.literal(value: .logic(value: .uninitialized)).rawValue,
             LogicLiteral.uninitialized.rawValue
+        )
+        XCTAssertEqual(
+            Expression.logical(
+                operation: .and(lhs: .variable(name: aname), rhs: .variable(name: bname))
+            ).rawValue,
+            "a and b"
         )
     }
 
@@ -207,6 +215,34 @@ final class ExpressionTests: XCTestCase {
         ))
         let result = Expression(rawValue: raw)
         XCTAssertEqual(result, expected)
+        let a = Expression.variable(name: aname)
+        let b = Expression.variable(name: bname)
+        let c = Expression.variable(name: cname)
+        let d = Expression.variable(name: dname)
+        XCTAssertEqual(
+            Expression(rawValue: "a * b * c"),
+            .binary(operation: .multiplication(
+                lhs: a, rhs: .binary(operation: .multiplication(lhs: b, rhs: c))
+            ))
+        )
+        XCTAssertEqual(
+            Expression(rawValue: "(a + b) + (c + d)"),
+            .binary(
+                operation: .addition(
+                    lhs: .precedence(value: .binary(operation: .addition(lhs: a, rhs: b))),
+                    rhs: .precedence(value: .binary(operation: .addition(lhs: c, rhs: d)))
+                )
+            )
+        )
+        XCTAssertEqual(
+            Expression(rawValue: "((a + b) + c)"),
+            .precedence(value: .binary(
+                operation: .addition(
+                    lhs: .precedence(value: .binary(operation: .addition(lhs: a, rhs: b))),
+                    rhs: c
+                )
+            ))
+        )
     }
 
     /// Test complex expression is created correctly.
@@ -370,4 +406,33 @@ final class ExpressionTests: XCTestCase {
         XCTAssertEqual(expression.description, expression.rawValue)
     }
 
+    /// Test expression creates logical expression correctly.
+    func testLogicalInit() {
+        let a = Expression.variable(name: aname)
+        let b = Expression.variable(name: bname)
+        let c = Expression.variable(name: cname)
+        let d = Expression.variable(name: dname)
+        XCTAssertEqual(Expression(rawValue: "a and b"), .logical(operation: .and(lhs: a, rhs: b)))
+        XCTAssertEqual(Expression(rawValue: "not a"), .logical(operation: .not(value: a)))
+        XCTAssertEqual(
+            Expression(rawValue: "a or b and c"),
+            .logical(operation: .and(lhs: .logical(operation: .or(lhs: a, rhs: b)), rhs: c))
+        )
+        XCTAssertEqual(
+            Expression(rawValue: "a xor (b and c) or d"),
+            .logical(operation: .xor(lhs: a, rhs: .logical(operation: .or(
+                lhs: .precedence(value: .logical(operation: .and(lhs: b, rhs: c))), rhs: d
+            ))))
+        )
+        XCTAssertEqual(
+            Expression(rawValue: "a xor (b and c) or not d"),
+            .logical(operation: .xor(lhs: a, rhs: .logical(operation: .or(
+                lhs: .precedence(value: .logical(operation: .and(lhs: b, rhs: c))),
+                rhs: .logical(operation: .not(value: d))
+            ))))
+        )
+    }
+
 }
+
+// swiftlint:enable type_body_length

@@ -81,6 +81,9 @@ indirect public enum Expression: RawRepresentable,
     /// A conditional expression.
     case conditional(condition: ConditionalExpression)
 
+    /// A boolean logic expression.
+    case logical(operation: BooleanExpression)
+
     /// The raw value is a string.
     public typealias RawValue = String
 
@@ -97,6 +100,8 @@ indirect public enum Expression: RawRepresentable,
             return "(\(value.rawValue))"
         case .conditional(let condition):
             return condition.rawValue
+        case .logical(let operation):
+            return operation.rawValue
         }
     }
 
@@ -119,7 +124,12 @@ indirect public enum Expression: RawRepresentable,
             self = .literal(value: literal)
             return
         }
-        if value.hasPrefix("(") && value.hasSuffix(")") {
+        if
+            value.hasPrefix("("),
+            value.hasSuffix(")"),
+            let bracketExp = value.uptoBalancedBracket,
+            bracketExp.startIndex == value.startIndex,
+            bracketExp.endIndex == value.endIndex {
             guard let expression = Expression(rawValue: String(value.dropFirst().dropLast())) else {
                 return nil
             }
@@ -153,6 +163,10 @@ indirect public enum Expression: RawRepresentable,
                 self = .binary(operation: binary)
                 return
             }
+            if let logical = BooleanExpression(lhs: lhsExp, rhs: rhsExp, operation: str) {
+                self = .logical(operation: logical)
+                return
+            }
             return nil
         }
         if let operation = BinaryOperation(rawValue: value) {
@@ -161,6 +175,10 @@ indirect public enum Expression: RawRepresentable,
         }
         if let conditional = ConditionalExpression(rawValue: value) {
             self = .conditional(condition: conditional)
+            return
+        }
+        if let logical = BooleanExpression(rawValue: value) {
+            self = .logical(operation: logical)
             return
         }
         if let variable = VariableName(rawValue: value) {
