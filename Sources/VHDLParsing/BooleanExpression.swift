@@ -85,7 +85,7 @@ public enum BooleanExpression: RawRepresentable, Equatable, Hashable, Codable, S
     case xnor(lhs: Expression, rhs: Expression)
 
     /// The `VHDL` code representing this expression.
-    public var rawValue: String {
+    @inlinable public var rawValue: String {
         switch self {
         case .and(let lhs, let rhs):
             return "\(lhs.rawValue) and \(rhs.rawValue)"
