@@ -128,8 +128,7 @@ indirect public enum Expression: RawRepresentable,
             value.hasPrefix("("),
             value.hasSuffix(")"),
             value.filter({ $0 == "(" }).count == 1,
-            value.filter({ $0 == ")" }).count == 1
-        {
+            value.filter({ $0 == ")" }).count == 1 {
             guard let expression = Expression(rawValue: String(value.dropFirst().dropLast())) else {
                 return nil
             }
