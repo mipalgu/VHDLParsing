@@ -107,6 +107,12 @@ final class ExpressionTests: XCTestCase {
             Expression.literal(value: .logic(value: .uninitialized)).rawValue,
             LogicLiteral.uninitialized.rawValue
         )
+        XCTAssertEqual(
+            Expression.logical(
+                operation: .and(lhs: .variable(name: aname), rhs: .variable(name: bname))
+            ).rawValue,
+            "a and b"
+        )
     }
 
     /// Test init successfully creates `Expression` for simple statements.
@@ -368,6 +374,19 @@ final class ExpressionTests: XCTestCase {
             )
         )
         XCTAssertEqual(expression.description, expression.rawValue)
+    }
+
+    /// Test expression creates logical expression correctly.
+    func testLogicalInit() {
+        let a = Expression.variable(name: aname)
+        let b = Expression.variable(name: bname)
+        let c = Expression.variable(name: cname)
+        XCTAssertEqual(Expression(rawValue: "a and b"), .logical(operation: .and(lhs: a, rhs: b)))
+        XCTAssertEqual(Expression(rawValue: "not a"), .logical(operation: .not(value: a)))
+        XCTAssertEqual(
+            Expression(rawValue: "a or b and c"),
+            .logical(operation: .and(lhs: .logical(operation: .or(lhs: a, rhs: b)), rhs: c))
+        )
     }
 
 }

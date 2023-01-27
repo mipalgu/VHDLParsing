@@ -115,18 +115,47 @@ public enum BooleanExpression: RawRepresentable, Equatable, Hashable, Codable, S
             self.init(brackets: trimmedString)
             return
         }
+        // if trimmedString.contains("(") {
+        //     self.init(parentheses: trimmedString)
+        //     return
+        // }
         if let notExpression = BooleanExpression(not: trimmedString) {
             self = notExpression
             return
         }
-        let values = ["and", "or", "not", "nand", "nor", "xor", "xnor"]
-        guard let newValue = values.lazy.compactMap({
-            BooleanExpression(value: trimmedString, splittingString: $0)
-        }).first else {
+        guard
+            let (values, reversedOperation) = String(trimmedString.reversed()).split(
+                words: Set(Set<String>.vhdlBooleanBinaryOperations.map { String($0.reversed()) })
+            ),
+            values.count == 2
+        else {
+            return nil
+        }
+        let rhs = String(values[0].reversed())
+        let lhs = String(values[1].reversed())
+        let operation = String(reversedOperation.reversed())
+        guard let newValue = BooleanExpression(lhs: lhs, rhs: rhs, splittingOn: operation) else {
             return nil
         }
         self = newValue
     }
+
+    // init?(parentheses value: String) {
+    //     guard let subExpressions = value.subExpressions, !subExpressions.isEmpty else {
+    //         return nil
+    //     }
+    //     guard let startIndex = Set<String>.vhdlBooleanBinaryOperations.lazy.compactMap({
+    //         value.startIndex(word: $0)
+    //     })
+    //     .min() else {
+    //         return nil
+    //     }
+    //     if startIndex < subExpressions[0].startIndex {
+    //         guard let booleanExpression = BooleanExpression(rawValue: String(value[...subExpressions[0].startIndex])) else {
+    //             return nil
+    //         }
+    //     }
+    // }
 
     /// Creates a new `BooleanExpression` expecting the code to be a `not` operation.
     /// - Parameter trimmedString: The code containing the `not` operation.
@@ -135,18 +164,7 @@ public enum BooleanExpression: RawRepresentable, Equatable, Hashable, Codable, S
             return nil
         }
         let value = trimmedString.dropFirst(3).trimmingCharacters(in: .whitespacesAndNewlines)
-        if CharacterSet.whitespacesAndNewlines.within(string: value) {
-            guard
-                let subExpressions = value.subExpressions,
-                subExpressions.count == 1,
-                let firstExpression = subExpressions.first,
-                firstExpression.endIndex == value.endIndex,
-                firstExpression.startIndex == value.startIndex
-            else {
-                return nil
-            }
-        }
-        guard let expression = Expression(rawValue: value) else {
+        guard let expression = Expression(subExpression: value) else {
             return nil
         }
         self = .not(value: expression)
@@ -196,31 +214,7 @@ public enum BooleanExpression: RawRepresentable, Equatable, Hashable, Codable, S
     ///   - rhs: The right hand expression.
     ///   - value: The operation to perform.
     private init?(lhs: String, rhs: String, splittingOn value: String) {
-        let lhsTrimmed = lhs.trimmingCharacters(in: .whitespacesAndNewlines)
-        let rhsTrimmed = rhs.trimmingCharacters(in: .whitespacesAndNewlines)
-        if lhsTrimmed.words.count > 1 {
-            guard
-                let lhsSubExpressions = lhsTrimmed.subExpressions,
-                lhsSubExpressions.count == 1,
-                let lhsFirst = lhsSubExpressions.first,
-                lhsFirst.startIndex == lhsTrimmed.startIndex,
-                lhsFirst.endIndex == lhsTrimmed.endIndex
-            else {
-                return nil
-            }
-        }
-        if rhsTrimmed.words.count > 1 {
-            guard
-                let rhsSubExpressions = rhsTrimmed.subExpressions,
-                rhsSubExpressions.count == 1,
-                let rhsFirst = rhsSubExpressions.first,
-                rhsFirst.startIndex == rhsTrimmed.startIndex,
-                rhsFirst.endIndex == rhsTrimmed.endIndex
-            else {
-                return nil
-            }
-        }
-        guard let lhsExp = Expression(rawValue: lhs), let rhsExp = Expression(rawValue: rhs) else {
+        guard let lhsExp = Expression(subExpression: lhs), let rhsExp = Expression(subExpression: rhs) else {
             return nil
         }
         self.init(lhs: lhsExp, rhs: rhsExp, operation: value)
@@ -231,7 +225,8 @@ public enum BooleanExpression: RawRepresentable, Equatable, Hashable, Codable, S
     ///   - lhs: The first operand located at the left of the operation.
     ///   - rhs: The second operand located at the right of the operation.
     ///   - operation: The operation to perform.
-    private init?(lhs: Expression, rhs: Expression, operation: String) {
+    @usableFromInline
+    init?(lhs: Expression, rhs: Expression, operation: String) {
         switch operation.lowercased() {
         case "and":
             self = .and(lhs: lhs, rhs: rhs)
@@ -248,6 +243,31 @@ public enum BooleanExpression: RawRepresentable, Equatable, Hashable, Codable, S
         default:
             return nil
         }
+    }
+
+}
+
+/// Provide custom initialisers.
+private extension Expression {
+
+    /// Create a new `Expression` from a `rawValue` that might contain subexpressions in a binary operation.
+    /// - Parameter subExpression: The `VHDL` code to parse.
+    init?(subExpression: String) {
+        let trimmedString = subExpression.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard trimmedString.words.count > 1, let sub = trimmedString.subExpressions, sub.count >= 1 else {
+            self.init(rawValue: subExpression)
+            return
+        }
+        guard
+            let subExpressions = trimmedString.subExpressions,
+            subExpressions.count == 1,
+            let first = subExpressions.first,
+            first.startIndex == trimmedString.startIndex,
+            first.endIndex == trimmedString.endIndex
+        else {
+            return nil
+        }
+        self.init(rawValue: subExpression)
     }
 
 }

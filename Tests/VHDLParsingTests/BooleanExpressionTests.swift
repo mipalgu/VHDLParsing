@@ -66,6 +66,9 @@ final class BooleanExpressionTests: XCTestCase {
     /// A variable `y`.
     let y = Expression.variable(name: VariableName(text: "y"))
 
+    /// A variable `z`.
+    let z = Expression.variable(name: VariableName(text: "z"))
+
     /// Test the raw values generate the correct `VHDL` code.
     func testRawValue() {
         XCTAssertEqual(BooleanExpression.not(value: x).rawValue, "not x")
@@ -88,6 +91,10 @@ final class BooleanExpressionTests: XCTestCase {
             BooleanExpression(rawValue: "not (x + y)"),
             BooleanExpression.not(value: .precedence(value: .binary(operation: .addition(lhs: x, rhs: y))))
         )
+        XCTAssertEqual(
+            BooleanExpression(rawValue: "not (not x)"),
+            .not(value: .precedence(value: .logical(operation: .not(value: x))))
+        )
         XCTAssertNil(BooleanExpression(rawValue: "not"))
         XCTAssertNil(BooleanExpression(rawValue: "not x y"))
         XCTAssertNil(BooleanExpression(rawValue: "not (x + y"))
@@ -97,7 +104,10 @@ final class BooleanExpressionTests: XCTestCase {
         XCTAssertNil(BooleanExpression(rawValue: "not \(String(repeating: "x", count: 256))"))
         XCTAssertNil(BooleanExpression(rawValue: "not x + (y + z)"))
         XCTAssertNil(BooleanExpression(rawValue: "not (!x)"))
-        XCTAssertNil(BooleanExpression(rawValue: "not x + y"))
+        XCTAssertEqual(
+            BooleanExpression(rawValue: "not x + y"),
+            .not(value: .binary(operation: .addition(lhs: x, rhs: y)))
+        )
         XCTAssertNil(BooleanExpression(rawValue: "(not x)"))
     }
 
@@ -109,12 +119,21 @@ final class BooleanExpressionTests: XCTestCase {
         XCTAssertNil(BooleanExpression(rawValue: "(x and y)"))
         XCTAssertNil(BooleanExpression(rawValue: "x and"))
         XCTAssertNil(BooleanExpression(rawValue: "and y"))
-        XCTAssertNil(BooleanExpression(rawValue: "x and y and z"))
+        XCTAssertEqual(
+            BooleanExpression(rawValue: "x and y and z"),
+            .and(lhs: .logical(operation: .and(lhs: x, rhs: y)), rhs: z)
+        )
         XCTAssertNil(BooleanExpression(rawValue: "x and y z"))
         XCTAssertNil(BooleanExpression(rawValue: "x and \(String(repeating: "y", count: 256))"))
-        XCTAssertNil(BooleanExpression(rawValue: "x and y + z"))
+        XCTAssertEqual(
+            BooleanExpression(rawValue: "x and y + z"),
+            .and(lhs: x, rhs: .binary(operation: .addition(lhs: y, rhs: z)))
+        )
         XCTAssertNil(BooleanExpression(rawValue: "x and !y"))
-        XCTAssertNil(BooleanExpression(rawValue: "x + y and z"))
+        XCTAssertEqual(
+            BooleanExpression(rawValue: "x + y and z"),
+            .and(lhs: .binary(operation: .addition(lhs: x, rhs: y)), rhs: z)
+        )
     }
 
     /// Test `init(rawValue: )` for a string containing an `or` expression.
@@ -125,12 +144,21 @@ final class BooleanExpressionTests: XCTestCase {
         XCTAssertNil(BooleanExpression(rawValue: "(x or y)"))
         XCTAssertNil(BooleanExpression(rawValue: "x or"))
         XCTAssertNil(BooleanExpression(rawValue: "or y"))
-        XCTAssertNil(BooleanExpression(rawValue: "x or y or z"))
+        XCTAssertEqual(
+            BooleanExpression(rawValue: "x or y or z"),
+            .or(lhs: .logical(operation: .or(lhs: x, rhs: y)), rhs: z)
+        )
         XCTAssertNil(BooleanExpression(rawValue: "x or y z"))
         XCTAssertNil(BooleanExpression(rawValue: "x or \(String(repeating: "y", count: 256))"))
-        XCTAssertNil(BooleanExpression(rawValue: "x or y + z"))
+        XCTAssertEqual(
+            BooleanExpression(rawValue: "x or y + z"),
+            .or(lhs: x, rhs: .binary(operation: .addition(lhs: y, rhs: z)))
+        )
         XCTAssertNil(BooleanExpression(rawValue: "x or !y"))
-        XCTAssertNil(BooleanExpression(rawValue: "x + y or z"))
+        XCTAssertEqual(
+            BooleanExpression(rawValue: "x + y or z"),
+            .or(lhs: .binary(operation: .addition(lhs: x, rhs: y)), rhs: z)
+        )
     }
 
     /// Test `init(rawValue: )` for a string containing an `nand` expression.
@@ -142,12 +170,21 @@ final class BooleanExpressionTests: XCTestCase {
         XCTAssertNil(BooleanExpression(rawValue: "(x nand y"))
         XCTAssertNil(BooleanExpression(rawValue: "x nand"))
         XCTAssertNil(BooleanExpression(rawValue: "nand y"))
-        XCTAssertNil(BooleanExpression(rawValue: "x nand y nand z"))
+        XCTAssertEqual(
+            BooleanExpression(rawValue: "x nand y nand z"),
+            .nand(lhs: .logical(operation: .nand(lhs: x, rhs: y)), rhs: z)
+        )
         XCTAssertNil(BooleanExpression(rawValue: "x nand y z"))
         XCTAssertNil(BooleanExpression(rawValue: "x nand \(String(repeating: "y", count: 256))"))
-        XCTAssertNil(BooleanExpression(rawValue: "x nand y + z"))
+        XCTAssertEqual(
+            BooleanExpression(rawValue: "x nand y + z"),
+            .nand(lhs: x, rhs: .binary(operation: .addition(lhs: y, rhs: z)))
+        )
         XCTAssertNil(BooleanExpression(rawValue: "x nand !y"))
-        XCTAssertNil(BooleanExpression(rawValue: "x + y nand z"))
+        XCTAssertEqual(
+            BooleanExpression(rawValue: "x + y nand z"),
+            .nand(lhs: .binary(operation: .addition(lhs: x, rhs: y)), rhs: z)
+        )
     }
 
     /// Test `init(rawValue: )` for a string containing an `nor` expression.
@@ -158,12 +195,21 @@ final class BooleanExpressionTests: XCTestCase {
         XCTAssertNil(BooleanExpression(rawValue: "(x nor y)"))
         XCTAssertNil(BooleanExpression(rawValue: "x nor"))
         XCTAssertNil(BooleanExpression(rawValue: "nor y"))
-        XCTAssertNil(BooleanExpression(rawValue: "x nor y nor z"))
+        XCTAssertEqual(
+            BooleanExpression(rawValue: "x nor y nor z"),
+            .nor(lhs: .logical(operation: .nor(lhs: x, rhs: y)), rhs: z)
+        )
         XCTAssertNil(BooleanExpression(rawValue: "x nor y z"))
         XCTAssertNil(BooleanExpression(rawValue: "x nor \(String(repeating: "y", count: 256))"))
-        XCTAssertNil(BooleanExpression(rawValue: "x nor y + z"))
+        XCTAssertEqual(
+            BooleanExpression(rawValue: "x nor y + z"),
+            .nor(lhs: x, rhs: .binary(operation: .addition(lhs: y, rhs: z)))
+        )
         XCTAssertNil(BooleanExpression(rawValue: "x nor !y"))
-        XCTAssertNil(BooleanExpression(rawValue: "x + y nor z"))
+        XCTAssertEqual(
+            BooleanExpression(rawValue: "x + y nor z"),
+            .nor(lhs: .binary(operation: .addition(lhs: x, rhs: y)), rhs: z)
+        )
     }
 
     /// Test `init(rawValue: )` for a string containing an `xor` expression.
@@ -174,12 +220,21 @@ final class BooleanExpressionTests: XCTestCase {
         XCTAssertNil(BooleanExpression(rawValue: "(x xor y)"))
         XCTAssertNil(BooleanExpression(rawValue: "x xor"))
         XCTAssertNil(BooleanExpression(rawValue: "xor y"))
-        XCTAssertNil(BooleanExpression(rawValue: "x xor y xor z"))
+        XCTAssertEqual(
+            BooleanExpression(rawValue: "x xor y xor z"),
+            .xor(lhs: .logical(operation: .xor(lhs: x, rhs: y)), rhs: z)
+        )
         XCTAssertNil(BooleanExpression(rawValue: "x xor y z"))
         XCTAssertNil(BooleanExpression(rawValue: "x xor \(String(repeating: "y", count: 256))"))
-        XCTAssertNil(BooleanExpression(rawValue: "x xor y + z"))
+        XCTAssertEqual(
+            BooleanExpression(rawValue: "x xor y + z"),
+            .xor(lhs: x, rhs: .binary(operation: .addition(lhs: y, rhs: z)))
+        )
         XCTAssertNil(BooleanExpression(rawValue: "x xor !y"))
-        XCTAssertNil(BooleanExpression(rawValue: "x + y xor z"))
+        XCTAssertEqual(
+            BooleanExpression(rawValue: "x + y xor z"),
+            .xor(lhs: .binary(operation: .addition(lhs: x, rhs: y)), rhs: z)
+        )
     }
 
     /// Test `init(rawValue: )` for a string containing an `xnor` expression.
@@ -190,12 +245,29 @@ final class BooleanExpressionTests: XCTestCase {
         XCTAssertNil(BooleanExpression(rawValue: "(x xnor y)"))
         XCTAssertNil(BooleanExpression(rawValue: "x xnor"))
         XCTAssertNil(BooleanExpression(rawValue: "xnor y"))
-        XCTAssertNil(BooleanExpression(rawValue: "x xnor y xnor z"))
+        XCTAssertEqual(
+            BooleanExpression(rawValue: "x xnor y xnor z"),
+            .xnor(lhs: .logical(operation: .xnor(lhs: x, rhs: y)), rhs: z)
+        )
         XCTAssertNil(BooleanExpression(rawValue: "x xnor y z"))
         XCTAssertNil(BooleanExpression(rawValue: "x xnor \(String(repeating: "y", count: 256))"))
-        XCTAssertNil(BooleanExpression(rawValue: "x xnor y + z"))
+        XCTAssertEqual(
+            BooleanExpression(rawValue: "x xnor y + z"),
+            .xnor(lhs: x, rhs: .binary(operation: .addition(lhs: y, rhs: z)))
+        )
         XCTAssertNil(BooleanExpression(rawValue: "x xnor !y"))
-        XCTAssertNil(BooleanExpression(rawValue: "x + y xnor z"))
+        XCTAssertEqual(
+            BooleanExpression(rawValue: "x + y xnor z"),
+            .xnor(lhs: .binary(operation: .addition(lhs: x, rhs: y)), rhs: z)
+        )
+    }
+
+    /// Test `init(rawValue: )` for a string containing multiple boolean expressions.
+    func testMultipleInit() {
+        XCTAssertEqual(
+            Expression(rawValue: "x and (y or z)"),
+            .logical(operation: .and(lhs: x, rhs: .precedence(value: .logical(operation: .or(lhs: y, rhs: z)))))
+        )
     }
 
 }

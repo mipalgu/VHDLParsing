@@ -116,6 +116,30 @@ extension String {
         .joined(separator: "\n")
     }
 
+    // @usableFromInline var wordsAndOperators: [String]? {
+    //     let words = self.words
+    //     let operations = Set<String>.vhdlOperations.union(Set<String>(["(", ")"]))
+    //     return words.flatMap {
+    //         var subWords = [$0]
+    //         operations.forEach { op in
+    //             subWords = subWords.flatMap { subWord in
+    //                 let splitted = subWord.components(separatedBy: op)
+                    
+    //             }
+    //         }
+    //         return subWords
+    //     }
+    // }
+
+    // @usableFromInline func splittingInclusively(word: String) -> [String] {
+    //     var splitted: [String] = []
+    //     var startIndex = self.startIndex
+    //     var index = self.startIndex
+    //     while index < self.endIndex {
+    //         self[startIndex...].startIndex(word: word)
+    //     }
+    // }
+
     /// Find all expressions within self that exist within a set of brackets. The substrings returned may also
     /// contain substrings with brackets within them.
     @usableFromInline var subExpressions: [Substring]? {
@@ -129,6 +153,10 @@ extension String {
             index = brackets.endIndex
         }
         return expressions
+    }
+
+    @usableFromInline var topExpressions: [Substring]? {
+        self[self.startIndex..<self.endIndex].topExpressions
     }
 
     /// Return a string that exists within self that starts with an open bracket and ends with the balanced
@@ -225,6 +253,25 @@ extension String {
     func split(on strings: Set<String>) -> ([String], String)? {
         let sortedStrings: [(String, String.Index)] = strings.compactMap {
             guard let index = self.startIndex(for: $0) else {
+                return nil
+            }
+            return ($0, index)
+        }
+        guard let (str, index) = sortedStrings.min(by: { $0.1 < $1.1 }) else {
+            return nil
+        }
+        let str1 = self[self.startIndex..<index]
+        let str2 = self[self.index(index, offsetBy: str.count)...]
+        return ([String(str1), String(str2)], str)
+    }
+
+    /// Split the string on the first word within a set.
+    /// - Parameter strings: The words to split on.
+    /// - Returns: The 2 halves of the string around the word and the word that this string was split on.
+    @usableFromInline
+    func split(words: Set<String>) -> ([String], String)? {
+        let sortedStrings: [(String, String.Index)] = words.compactMap {
+            guard let index = self.startIndex(word: $0) else {
                 return nil
             }
             return ($0, index)
@@ -349,6 +396,26 @@ extension String {
 
 /// Add `startIndex`.
 extension Substring {
+
+    @usableFromInline var topExpressions: [Substring]? {
+        var startIndex = self.startIndex
+        var currentIndex = self.startIndex
+        var subExpressions: [Substring] = []
+        while currentIndex < self.endIndex {
+            if self[currentIndex] == "(" {
+                subExpressions.append(self[startIndex...currentIndex])
+                guard let sub = self[currentIndex...].uptoBalancedBracket else {
+                    return nil
+                }
+                subExpressions.append(sub)
+                currentIndex = sub.endIndex
+                startIndex = sub.endIndex
+            }
+            currentIndex = self.index(after: currentIndex)
+        }
+        subExpressions.append(self[startIndex...])
+        return subExpressions
+    }
 
     /// Return a string that exists within self that starts with an open bracket and ends with the balanced
     /// closing bracket.
@@ -484,3 +551,119 @@ extension Substring {
     }
 
 }
+
+// indirect enum SubExpression {
+
+//     case binary(lhs: SubExpression, rhs: SubExpression, operation: Substring)
+
+//     case unary(operation: Substring, operand: SubExpression)
+
+//     case precedence(value: SubExpression)
+
+//     case variable(value: Substring)
+
+//     fileprivate init?(rawValue: Substring) {
+//         if rawValue.hasPrefix("("), rawValue.hasSuffix(")") {
+//             guard let newExpression = SubExpression(rawValue: rawValue.dropFirst().dropLast()) else {
+//                 return nil
+//             }
+//             self = .precedence(value: newExpression)
+//             return
+//         }
+//         let words = String(rawValue).words
+//         if words.count == 1 && !Set<String>.vhdlOperations.contains(words[0]) {
+//             self = .variable(value: rawValue)
+//             return
+//         }
+//         guard words.count > 1 else {
+//             return nil
+//         }
+//         let labelledExpressions = words.compactMap { SubExpressionLabel(word: $0) }
+//     }
+
+// }
+
+// private enum SubExpressionLabel {
+
+//     case multiplication
+
+//     case division
+
+//     case subtraction
+
+//     case addition
+
+//     case lessThan
+
+//     case lessThanEqual
+
+//     case greaterThan
+
+//     case greaterThanEqual
+
+//     case equal
+
+//     case notEqual
+
+//     case negation
+
+//     case and
+
+//     case or
+
+//     case nand
+
+//     case nor
+
+//     case xor
+
+//     case xnor
+
+//     case subExpression(value: String)
+
+//     init?(word: String) {
+//         let trimmedWord = word.trimmingCharacters(in: .whitespacesAndNewlines)
+//         guard trimmedWord.words.count == 1 else {
+//             return nil
+//         }
+//         switch trimmedWord.lowercased() {
+//         case "+":
+//             self = .addition
+//         case "-":
+//             self = .subtraction
+//         case "*":
+//             self = .multiplication
+//         case "/":
+//             self = .division
+//         case "<":
+//             self = .lessThan
+//         case "<=":
+//             self = .lessThanEqual
+//         case ">":
+//             self = .greaterThan
+//         case ">=":
+//             self = .greaterThanEqual
+//         case "=":
+//             self = .equal
+//         case "/=":
+//             self = .notEqual
+//         case "not":
+//             self = .negation
+//         case "and":
+//             self = .and
+//         case "or":
+//             self = .or
+//         case "nand":
+//             self = .nand
+//         case "nor":
+//             self = .nor
+//         case "xor":
+//             self = .xor
+//         case "xnor":
+//             self = .xnor
+//         default:
+//             self = .subExpression(value: word)
+//         }
+//     }
+
+// }

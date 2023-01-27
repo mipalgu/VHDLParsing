@@ -116,9 +116,9 @@ public extension Set where Element == String {
 
     /// All operators supported in `VHDL`.
     static var vhdlOperations: Set<String> {
-        [
+        Set([
             ">", "<", "<=", ">=", "=", "/=", "+", "-", "/", "*"
-        ]
+        ]).union(Set<String>.vhdlBooleanBinaryOperations)
     }
 
 }
