@@ -314,4 +314,43 @@ final class BooleanExpressionTests: XCTestCase {
         )
     }
 
+    /// Test a large expression.
+    func testBigConditional() {
+        XCTAssertEqual(
+            BooleanExpression(
+                rawValue: "(true) and (not (statusIn = '1' and count = \"0010\")) and (not (count = " +
+                    "\"0011\"))"
+            ),
+            .and(
+                lhs: .precedence(value: .literal(value: .boolean(value: true))),
+                rhs: .logical(operation: .and(
+                    lhs: .precedence(value: .logical(operation: .not(
+                        value: .precedence(value: .logical(operation: .and(
+                            lhs: .conditional(condition: .comparison(value: .equality(
+                                lhs: .variable(name: VariableName(text: "statusIn")),
+                                rhs: .literal(value: .bit(value: .high))
+                            ))),
+                            rhs: .conditional(condition: .comparison(value: .equality(
+                                lhs: .variable(name: VariableName(text: "count")),
+                                rhs: .literal(
+                                    value: .vector(value: .bits(
+                                        value: BitVector(values: [.low, .low, .high, .low])
+                                    ))
+                                )
+                            )))
+                        )))
+                    ))),
+                    rhs: .precedence(value: .logical(operation: .not(
+                        value: .precedence(value: .conditional(condition: .comparison(value: .equality(
+                            lhs: .variable(name: VariableName(text: "count")),
+                            rhs: .literal(value: .vector(
+                                value: .bits(value: BitVector(values: [.low, .low, .high, .high]))
+                            ))
+                        ))))
+                    )))
+                ))
+            )
+        )
+    }
+
 }
