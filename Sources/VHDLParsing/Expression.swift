@@ -120,6 +120,7 @@ indirect public enum Expression: RawRepresentable,
 
     /// Create an `Expression` from valid VHDL code.
     /// - Parameter rawValue: The code to convert to this expression.
+    @inlinable
     public init?(rawValue: String) {
         let value = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
         guard value.count < 256 else {
