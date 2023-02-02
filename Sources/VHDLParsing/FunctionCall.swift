@@ -54,13 +54,17 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
+/// This type represents `VHDL` code that is enacting a function call.
 public enum FunctionCall: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
+    /// A call to a function existing within the `math_real` package.
     case mathReal(function: MathRealFunctionCalls)
 
+    /// A call to a function that exists outside of the standard `VHDL` packages.
     case custom(function: CustomFunctionCall)
 
-    public var rawValue: String {
+    /// The `VHDL` code that calls the function.
+    @inlinable public var rawValue: String {
         switch self {
         case .mathReal(let function):
             return function.rawValue
@@ -69,6 +73,9 @@ public enum FunctionCall: RawRepresentable, Equatable, Hashable, Codable, Sendab
         }
     }
 
+    /// Creates a new instance of `FunctionCall` from the given `VHDL` code.
+    /// - Parameter rawValue: The `VHDL` code representing the function call.
+    @inlinable
     public init?(rawValue: String) {
         let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
         guard trimmedString.count < 256, !trimmedString.isEmpty else {
