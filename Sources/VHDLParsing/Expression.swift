@@ -84,6 +84,9 @@ indirect public enum Expression: RawRepresentable,
     /// A boolean logic expression.
     case logical(operation: BooleanExpression)
 
+    /// A type-cast operation.
+    case cast(operation: CastOperation)
+
     /// The raw value is a string.
     public typealias RawValue = String
 
@@ -101,6 +104,8 @@ indirect public enum Expression: RawRepresentable,
         case .conditional(let condition):
             return condition.rawValue
         case .logical(let operation):
+            return operation.rawValue
+        case .cast(let operation):
             return operation.rawValue
         }
     }
@@ -122,6 +127,10 @@ indirect public enum Expression: RawRepresentable,
         }
         if let literal = SignalLiteral(rawValue: value) {
             self = .literal(value: literal)
+            return
+        }
+        if let cast = CastOperation(rawValue: value) {
+            self = .cast(operation: cast)
             return
         }
         if
