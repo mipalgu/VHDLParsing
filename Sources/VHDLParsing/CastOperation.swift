@@ -54,35 +54,50 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
+/// A cast operation converting an expression to a specific ``SignalType``.
 public enum CastOperation: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
+    /// Convert to a `bit`.
     case bit(expression: Expression)
 
+    /// Convert to a `bit_vector`.
     case bitVector(expression: Expression)
 
+    /// Convert to a `boolean`.
     case boolean(expression: Expression)
 
+    /// Convert to an `integer`.
     case integer(expression: Expression)
 
+    /// Convert to a `natural`.
     case natural(expression: Expression)
 
+    /// Convert to a `positive`.
     case positive(expression: Expression)
 
+    /// Convert to a `real`.
     case real(expression: Expression)
 
+    /// Convert to a `signed`.
     case signed(expression: Expression)
 
+    /// Convert to a `std_logic`.
     case stdLogic(expression: Expression)
 
+    /// Convert to a `std_logic_vector`.
     case stdLogicVector(expression: Expression)
 
+    /// Convert to a `std_ulogic`.
     case stdULogic(expression: Expression)
 
+    /// Convert to a `std_ulogic_vector`.
     case stdULogicVector(expression: Expression)
 
+    /// Convert to an `unsigned`.
     case unsigned(expression: Expression)
 
-    public var rawValue: String {
+    /// The `VHDL` code performing the cast operation.
+    @inlinable public var rawValue: String {
         switch self {
         case .bit(let expression):
             return "bit(\(expression.rawValue))"
@@ -113,6 +128,12 @@ public enum CastOperation: RawRepresentable, Equatable, Hashable, Codable, Senda
         }
     }
 
+    // swiftlint:disable function_body_length
+    // swiftlint:disable cyclomatic_complexity
+
+    /// Creates a new ``CastOperation`` from a `String` representing the `VHDL` code performing the cast
+    /// operation.
+    /// - Parameter rawValue: The `VHDL` code performing the cast operation.
     public init?(rawValue: String) {
         let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
         guard
@@ -193,10 +214,18 @@ public enum CastOperation: RawRepresentable, Equatable, Hashable, Codable, Senda
         }
     }
 
+    // swiftlint:enable cyclomatic_complexity
+    // swiftlint:enable function_body_length
+
 }
 
+/// Add extra init for deriving the expression from a cast operation.
 private extension Expression {
 
+    /// Create an expression that exists within a cast operation.
+    /// - Parameters:
+    ///   - raw: The cast operation.
+    ///   - length: The length of the type that the expression is being casted to.
     init?(raw: String, length: Int) {
         let expressionString = raw.dropFirst(length).trimmingCharacters(in: .whitespacesAndNewlines)
         guard
