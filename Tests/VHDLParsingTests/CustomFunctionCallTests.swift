@@ -99,4 +99,9 @@ final class CustomFunctionCallTests: XCTestCase {
         XCTAssertNil(CustomFunctionCall(function: "2f", arguments: arguments))
     }
 
+    /// Test `init(rawValue:)`.
+    func testRawValueInit() {
+        XCTAssertNil(CustomFunctionCall(rawValue: "and(x)"))
+    }
+
 }

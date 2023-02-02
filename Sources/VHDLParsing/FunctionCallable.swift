@@ -80,7 +80,8 @@ public extension FunctionCallable where RawValue == String {
         guard
             trimmedString.count < 256,
             !trimmedString.isEmpty,
-            let firstWord = trimmedString.firstWord?.lowercased()
+            let firstWord = trimmedString.firstWord?.lowercased(),
+            !Set<String>.vhdlReservedWords.contains(firstWord)
         else {
             return nil
         }
