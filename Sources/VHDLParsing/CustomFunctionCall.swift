@@ -54,16 +54,26 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
+/// A custom function call. This struct represents a call to a function that does not exist within the
+/// standard `VHDL` packages.
 public struct CustomFunctionCall: FunctionCallable, Equatable, Hashable, Codable, Sendable {
 
+    /// The name of the function being called.
     public let name: VariableName
 
+    /// The arguments passed to the function.
     public let arguments: [Expression]
 
-    public var rawValue: String {
+    /// The `VHDL` code calling function `name` with `arguments`.
+    @inlinable public var rawValue: String {
         "\(self.name)(\(self.arguments.map(\.rawValue).joined(separator: ", ")))"
     }
 
+    /// Creates a new `CustomFunctionCall` with the given `name` and `arguments`.
+    /// - Parameters:
+    ///   - function: The function name as a string.
+    ///   - arguments: The arguments of the function call.
+    @inlinable
     public init?(function: String, arguments: [Expression]) {
         guard let name = VariableName(rawValue: function) else {
             return nil
@@ -71,6 +81,11 @@ public struct CustomFunctionCall: FunctionCallable, Equatable, Hashable, Codable
         self.init(name: name, arguments: arguments)
     }
 
+    /// Creates a new `CustomFunctionCall` with the given `name` and `arguments`.
+    /// - Parameters:
+    ///   - name: The name of the function.
+    ///   - arguments: The arguments of the function call.
+    @inlinable
     public init(name: VariableName, arguments: [Expression]) {
         self.name = name
         self.arguments = arguments
