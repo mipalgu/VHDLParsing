@@ -55,7 +55,7 @@
 // 
 
 /// A cast operation converting an expression to a specific ``SignalType``.
-public enum CastOperation: RawRepresentable, Equatable, Hashable, Codable, Sendable {
+public enum CastOperation: FunctionCallable, Equatable, Hashable, Codable, Sendable {
 
     /// Convert to a `bit`.
     case bit(expression: Expression)
@@ -140,46 +140,21 @@ public enum CastOperation: RawRepresentable, Equatable, Hashable, Codable, Senda
         }
     }
 
-    /// Creates a new ``CastOperation`` from a `String` representing the `VHDL` code performing the cast
-    /// operation.
-    /// - Parameter rawValue: The `VHDL` code performing the cast operation.
-    @inlinable
-    public init?(rawValue: String) {
-        let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard
-            trimmedString.count < 256,
-            !trimmedString.isEmpty,
-            let firstWord = trimmedString.firstWord?.lowercased()
-        else {
-            return nil
-        }
-        guard Set<String>.vhdlSignalTypes.contains(firstWord) else {
-            return nil
-        }
-        let expressionString = trimmedString.dropFirst(firstWord.count)
-            .trimmingCharacters(in: .whitespacesAndNewlines)
-        guard
-            let rawString = expressionString.uptoBalancedBracket,
-            rawString.endIndex == expressionString.endIndex,
-            rawString.hasPrefix("("),
-            rawString.hasSuffix(")"),
-            let expression = Expression(rawValue: String(rawString.dropFirst().dropLast()))
-        else {
-            return nil
-        }
-        self.init(type: firstWord, expression: expression)
-    }
-
     /// Creates a new ``CastOperation`` from the type casting to (as a string) and the expression that is to
     /// be casted.
     /// - Parameters:
     ///   - type: The type of the cast operation. This type must not contain any whitespace or newlines.
     ///   - expression: The expression to cast to the new type.
-    @usableFromInline
-    init?(type: String, expression: Expression) {
-        guard let maxSize = Set<String>.vhdlSignalTypes.map(\.count).max(), type.count <= maxSize else {
+    @inlinable
+    public init?(function type: String, arguments: [Expression]) {
+        guard
+            arguments.count == 1,
+            let maxSize = Set<String>.vhdlSignalTypes.map(\.count).max(),
+            type.count <= maxSize
+        else {
             return nil
         }
+        let expression = arguments[0]
         switch type.lowercased() {
         case "bit":
             self = .bit(expression: expression)
