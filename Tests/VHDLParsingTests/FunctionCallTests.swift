@@ -84,6 +84,8 @@ final class FunctionCallTests: XCTestCase {
         XCTAssertNil(FunctionCall(rawValue: "f(\(String(repeating: "x", count: 256)))"))
         XCTAssertNil(FunctionCall(rawValue: "2f(x)"))
         XCTAssertNil(FunctionCall(rawValue: ""))
+        XCTAssertNil(FunctionCall(rawValue: "(f(x))"))
+        XCTAssertNil(FunctionCall(rawValue: ";f(x)"))
     }
 
 }
