@@ -118,7 +118,6 @@ public enum CastOperation: RawRepresentable, Equatable, Hashable, Codable, Senda
         guard
             trimmedString.count < 256,
             !trimmedString.isEmpty,
-            !trimmedString.hasPrefix("("),
             let firstWord = trimmedString.firstWord?.lowercased()
         else {
             return nil
@@ -199,9 +198,10 @@ public enum CastOperation: RawRepresentable, Equatable, Hashable, Codable, Senda
 private extension Expression {
 
     init?(raw: String, length: Int) {
+        let expressionString = raw.dropFirst(length).trimmingCharacters(in: .whitespacesAndNewlines)
         guard
-            let rawString = raw.dropFirst(length).trimmingCharacters(in: .whitespacesAndNewlines)
-                .uptoBalancedBracket,
+            let rawString = expressionString.uptoBalancedBracket,
+            rawString.endIndex == expressionString.endIndex,
             rawString.hasPrefix("("),
             rawString.hasSuffix(")")
         else {
