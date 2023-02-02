@@ -54,14 +54,27 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
+/// Helper protocol for defining types that can be executed as a function call.
 public protocol FunctionCallable: RawRepresentable {
 
+    /// Create an instance of this type by specifying the name of the function being called and the arguments
+    /// passed into the function call.
+    /// - Parameters:
+    ///   - function: The name of the function.
+    ///   - arguments: The arguments passed into the function call.
     init?(function: String, arguments: [Expression])
 
 }
 
+/// Default implementation.
 public extension FunctionCallable where RawValue == String {
 
+    // swiftlint:disable function_body_length
+    // swiftlint:disable cyclomatic_complexity
+
+    /// Create an instance of this type by parsing the `VHDL` code calling this function.
+    /// - Parameter rawValue: The `VHDL` code that calls this function.
+    @inlinable
     init?(rawValue: String) {
         let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
         guard
@@ -85,32 +98,41 @@ public extension FunctionCallable where RawValue == String {
         var index = expressions.startIndex
         var allExpressions: [Expression] = []
         var bracketCount = 0
-        for i in expressions[index...].indices {
-            let c = expressions[i]
-            if c == "(" {
-                bracketCount += 1
-            } else if c == ")" {
-                bracketCount -= 1
-                if bracketCount < 0 {
-                    return nil
+        while index < expressions.endIndex {
+            for i in expressions[index...].indices {
+                let c = expressions[i]
+                if c == "(" {
+                    bracketCount += 1
+                } else if c == ")" {
+                    bracketCount -= 1
+                    if bracketCount < 0 {
+                        return nil
+                    }
                 }
-            }
-            if c == "," && bracketCount == 0 {
-                guard let expression = Expression(rawValue: String(expressions[index..<i])) else {
-                    return nil
+                if c == "," && bracketCount == 0 {
+                    guard let expression = Expression(rawValue: String(expressions[index..<i])) else {
+                        return nil
+                    }
+                    allExpressions.append(expression)
+                    index = expressions.index(after: i)
+                    if index == expressions.endIndex {
+                        return nil
+                    }
+                    break
                 }
-                allExpressions.append(expression)
-                index = expressions.index(after: i)
-                if index == expressions.endIndex {
-                    return nil
+                if i == expressions.index(before: expressions.endIndex) {
+                    guard let endExpression = Expression(rawValue: String(expressions[index...])) else {
+                        return nil
+                    }
+                    allExpressions.append(endExpression)
+                    index = expressions.endIndex
                 }
             }
         }
-        guard let endExpression = Expression(rawValue: String(expressions[index...])) else {
-            return nil
-        }
-        allExpressions.append(endExpression)
         self.init(function: firstWord, arguments: allExpressions)
     }
+
+    // swiftlint:enable cyclomatic_complexity
+    // swiftlint:enable function_body_length
 
 }

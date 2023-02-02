@@ -54,23 +54,32 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
+/// A function call where the function being called exists within the `math_real` package.
 public enum MathRealFunctionCalls: FunctionCallable, Equatable, Hashable, Codable, Sendable {
 
+    /// The `ceil` function.
     case ceil(expression: Expression)
 
+    /// The `floor` function.
     case floor(expression: Expression)
 
+    /// The `round` function.
     case round(expression: Expression)
 
+    /// The `sign` function.
     case sign(expression: Expression)
 
+    /// The `sqrt` function.
     case sqrt(expression: Expression)
 
+    /// The `fmax` function.
     case fmax(arg0: Expression, arg1: Expression)
 
+    /// The `fmin` function.
     case fmin(arg0: Expression, arg1: Expression)
 
-    public var rawValue: String {
+    /// The `VHDL` code representing this function call.
+    @inlinable public var rawValue: String {
         switch self {
         case .ceil(let expression):
             return "ceil(\(expression.rawValue))"
@@ -89,6 +98,11 @@ public enum MathRealFunctionCalls: FunctionCallable, Equatable, Hashable, Codabl
         }
     }
 
+    /// Create this type by specifying the function name and it's arguments.
+    /// - Parameters:
+    ///   - function: The name of the `math_real` function.
+    ///   - arguments: The arguments passed to the function call.
+    @inlinable
     public init?(function: String, arguments: [Expression]) {
         let name = function.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         if arguments.count == 1 {

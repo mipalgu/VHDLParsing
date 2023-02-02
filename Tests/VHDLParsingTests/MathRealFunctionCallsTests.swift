@@ -77,4 +77,35 @@ final class MathRealFunctionCallsTests: XCTestCase {
         XCTAssertEqual(MathRealFunctionCalls.fmin(arg0: x, arg1: y).rawValue, "fmin(x, y)")
     }
 
+    /// Test `init(rawValue:)` for `fmin` case.
+    func testFminInit() {
+        XCTAssertEqual(MathRealFunctionCalls(rawValue: "fmin(x, y)"), .fmin(arg0: x, arg1: y))
+        XCTAssertEqual(
+            MathRealFunctionCalls(rawValue: "fmin((x), y)"), .fmin(arg0: .precedence(value: x), arg1: y)
+        )
+        XCTAssertNil(MathRealFunctionCalls(rawValue: "fmin(x, y, z)"))
+        XCTAssertNil(MathRealFunctionCalls(rawValue: "fmin(x, y, )"))
+        XCTAssertNil(MathRealFunctionCalls(rawValue: "fmin(x, , y)"))
+        XCTAssertNil(MathRealFunctionCalls(rawValue: "fmin(x,, y)"))
+        XCTAssertNil(MathRealFunctionCalls(rawValue: "fmin(x, y,)"))
+        XCTAssertNil(MathRealFunctionCalls(rawValue: "fmin()"))
+        XCTAssertNil(MathRealFunctionCalls(rawValue: ""))
+        XCTAssertNil(MathRealFunctionCalls(rawValue: "fmin(x)"))
+    }
+
+    /// Test `init(rawValue:)` for functions with 2 arguments.
+    func testTwoArgumentFunctions() {
+        XCTAssertEqual(MathRealFunctionCalls(rawValue: "fmax(x, y)"), .fmax(arg0: x, arg1: y))
+    }
+
+    /// Test `init(rawValue:)` for functions with 1 argument.
+    func testOneArgumentFunctions() {
+        XCTAssertEqual(MathRealFunctionCalls(rawValue: "ceil(x)"), .ceil(expression: x))
+        XCTAssertEqual(MathRealFunctionCalls(rawValue: "floor(x)"), .floor(expression: x))
+        XCTAssertEqual(MathRealFunctionCalls(rawValue: "round(x)"), .round(expression: x))
+        XCTAssertEqual(MathRealFunctionCalls(rawValue: "sign(x)"), .sign(expression: x))
+        XCTAssertEqual(MathRealFunctionCalls(rawValue: "sqrt(x)"), .sqrt(expression: x))
+        XCTAssertNil(MathRealFunctionCalls(rawValue: "ceil(x, y)"))
+    }
+
 }
