@@ -140,13 +140,28 @@ public enum CastOperation: RawRepresentable, Equatable, Hashable, Codable, Senda
         else {
             return nil
         }
+        guard Set<String>.vhdlSignalTypes.contains(firstWord) else {
+            return nil
+        }
+        let expressionString = trimmedString.dropFirst(firstWord.count)
+            .trimmingCharacters(in: .whitespacesAndNewlines)
         guard
-            Set<String>.vhdlSignalTypes.contains(firstWord),
-            let expression = Expression(raw: trimmedString, length: firstWord.count)
+            let rawString = expressionString.uptoBalancedBracket,
+            rawString.endIndex == expressionString.endIndex,
+            rawString.hasPrefix("("),
+            rawString.hasSuffix(")"),
+            let expression = Expression(rawValue: String(rawString.dropFirst().dropLast()))
         else {
             return nil
         }
-        switch firstWord {
+        self.init(firstWord: firstWord, expression: expression)
+    }
+
+    init?(firstWord: String, expression: Expression) {
+        guard let maxSize = Set<String>.vhdlSignalTypes.map(\.count).max(), firstWord.count <= maxSize else {
+            return nil
+        }
+        switch firstWord.lowercased() {
         case "bit":
             self = .bit(expression: expression)
         case "bit_vector":
@@ -176,28 +191,6 @@ public enum CastOperation: RawRepresentable, Equatable, Hashable, Codable, Senda
         default:
             return nil
         }
-    }
-
-}
-
-/// Add extra init for deriving the expression from a cast operation.
-private extension Expression {
-
-    /// Create an expression that exists within a cast operation.
-    /// - Parameters:
-    ///   - raw: The cast operation.
-    ///   - length: The length of the type that the expression is being casted to.
-    init?(raw: String, length: Int) {
-        let expressionString = raw.dropFirst(length).trimmingCharacters(in: .whitespacesAndNewlines)
-        guard
-            let rawString = expressionString.uptoBalancedBracket,
-            rawString.endIndex == expressionString.endIndex,
-            rawString.hasPrefix("("),
-            rawString.hasSuffix(")")
-        else {
-            return nil
-        }
-        self.init(rawValue: String(rawString.dropFirst().dropLast()))
     }
 
 }
