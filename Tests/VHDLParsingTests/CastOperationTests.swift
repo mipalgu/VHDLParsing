@@ -161,4 +161,21 @@ final class CastOperationTests: XCTestCase {
         XCTAssertNil(CastOperation(type: "std_ulogic_vectors", expression: x))
     }
 
+    /// Test expression.
+    func testExpression() {
+        XCTAssertEqual(CastOperation.bit(expression: x).expression, x)
+        XCTAssertEqual(CastOperation.bitVector(expression: x).expression, x)
+        XCTAssertEqual(CastOperation.boolean(expression: x).expression, x)
+        XCTAssertEqual(CastOperation.integer(expression: x).expression, x)
+        XCTAssertEqual(CastOperation.natural(expression: x).expression, x)
+        XCTAssertEqual(CastOperation.positive(expression: x).expression, x)
+        XCTAssertEqual(CastOperation.real(expression: x).expression, x)
+        XCTAssertEqual(CastOperation.signed(expression: x).expression, x)
+        XCTAssertEqual(CastOperation.stdLogic(expression: x).expression, x)
+        XCTAssertEqual(CastOperation.stdLogicVector(expression: x).expression, x)
+        XCTAssertEqual(CastOperation.stdULogic(expression: x).expression, x)
+        XCTAssertEqual(CastOperation.stdULogicVector(expression: x).expression, x)
+        XCTAssertEqual(CastOperation.unsigned(expression: x).expression, x)
+    }
+
 }

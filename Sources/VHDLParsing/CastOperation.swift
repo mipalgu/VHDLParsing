@@ -96,6 +96,18 @@ public enum CastOperation: RawRepresentable, Equatable, Hashable, Codable, Senda
     /// Convert to an `unsigned`.
     case unsigned(expression: Expression)
 
+    /// The expression that is being cast.
+    @inlinable public var expression: Expression {
+        switch self {
+        case .bit(let expression), .bitVector(let expression), .boolean(let expression),
+            .integer(let expression), .natural(let expression), .positive(let expression),
+            .real(let expression), .signed(let expression), .stdLogic(let expression),
+            .stdLogicVector(let expression), .stdULogic(let expression), .stdULogicVector(let expression),
+            .unsigned(let expression):
+            return expression
+        }
+    }
+
     /// The `VHDL` code performing the cast operation.
     @inlinable public var rawValue: String {
         switch self {
