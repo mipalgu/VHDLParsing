@@ -131,6 +131,7 @@ public enum CastOperation: RawRepresentable, Equatable, Hashable, Codable, Senda
     /// Creates a new ``CastOperation`` from a `String` representing the `VHDL` code performing the cast
     /// operation.
     /// - Parameter rawValue: The `VHDL` code performing the cast operation.
+    @inlinable
     public init?(rawValue: String) {
         let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
         guard
@@ -154,14 +155,20 @@ public enum CastOperation: RawRepresentable, Equatable, Hashable, Codable, Senda
         else {
             return nil
         }
-        self.init(firstWord: firstWord, expression: expression)
+        self.init(type: firstWord, expression: expression)
     }
 
-    init?(firstWord: String, expression: Expression) {
-        guard let maxSize = Set<String>.vhdlSignalTypes.map(\.count).max(), firstWord.count <= maxSize else {
+    /// Creates a new ``CastOperation`` from the type casting to (as a string) and the expression that is to
+    /// be casted.
+    /// - Parameters:
+    ///   - type: The type of the cast operation. This type must not contain any whitespace or newlines.
+    ///   - expression: The expression to cast to the new type.
+    @usableFromInline
+    init?(type: String, expression: Expression) {
+        guard let maxSize = Set<String>.vhdlSignalTypes.map(\.count).max(), type.count <= maxSize else {
             return nil
         }
-        switch firstWord.lowercased() {
+        switch type.lowercased() {
         case "bit":
             self = .bit(expression: expression)
         case "bit_vector":

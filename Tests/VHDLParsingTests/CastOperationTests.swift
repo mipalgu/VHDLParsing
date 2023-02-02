@@ -138,27 +138,27 @@ final class CastOperationTests: XCTestCase {
 
     /// Test that `init(firstWord:, expression:)` created the correct case.
     func testWordInit() {
-        XCTAssertEqual(CastOperation(firstWord: "bit", expression: x), .bit(expression: x))
-        XCTAssertEqual(CastOperation(firstWord: "bit_vector", expression: x), .bitVector(expression: x))
-        XCTAssertEqual(CastOperation(firstWord: "boolean", expression: x), .boolean(expression: x))
-        XCTAssertEqual(CastOperation(firstWord: "integer", expression: x), .integer(expression: x))
-        XCTAssertEqual(CastOperation(firstWord: "natural", expression: x), .natural(expression: x))
-        XCTAssertEqual(CastOperation(firstWord: "positive", expression: x), .positive(expression: x))
-        XCTAssertEqual(CastOperation(firstWord: "real", expression: x), .real(expression: x))
-        XCTAssertEqual(CastOperation(firstWord: "signed", expression: x), .signed(expression: x))
-        XCTAssertEqual(CastOperation(firstWord: "std_logic", expression: x), .stdLogic(expression: x))
+        XCTAssertEqual(CastOperation(type: "bit", expression: x), .bit(expression: x))
+        XCTAssertEqual(CastOperation(type: "bit_vector", expression: x), .bitVector(expression: x))
+        XCTAssertEqual(CastOperation(type: "boolean", expression: x), .boolean(expression: x))
+        XCTAssertEqual(CastOperation(type: "integer", expression: x), .integer(expression: x))
+        XCTAssertEqual(CastOperation(type: "natural", expression: x), .natural(expression: x))
+        XCTAssertEqual(CastOperation(type: "positive", expression: x), .positive(expression: x))
+        XCTAssertEqual(CastOperation(type: "real", expression: x), .real(expression: x))
+        XCTAssertEqual(CastOperation(type: "signed", expression: x), .signed(expression: x))
+        XCTAssertEqual(CastOperation(type: "std_logic", expression: x), .stdLogic(expression: x))
         XCTAssertEqual(
-            CastOperation(firstWord: "std_logic_vector", expression: x),
+            CastOperation(type: "std_logic_vector", expression: x),
             .stdLogicVector(expression: x)
         )
-        XCTAssertEqual(CastOperation(firstWord: "std_ulogic", expression: x), .stdULogic(expression: x))
+        XCTAssertEqual(CastOperation(type: "std_ulogic", expression: x), .stdULogic(expression: x))
         XCTAssertEqual(
-            CastOperation(firstWord: "std_ulogic_vector", expression: x),
+            CastOperation(type: "std_ulogic_vector", expression: x),
             .stdULogicVector(expression: x)
         )
-        XCTAssertEqual(CastOperation(firstWord: "unsigned", expression: x), .unsigned(expression: x))
-        XCTAssertNil(CastOperation(firstWord: "bits", expression: x))
-        XCTAssertNil(CastOperation(firstWord: "std_ulogic_vectors", expression: x))
+        XCTAssertEqual(CastOperation(type: "unsigned", expression: x), .unsigned(expression: x))
+        XCTAssertNil(CastOperation(type: "bits", expression: x))
+        XCTAssertNil(CastOperation(type: "std_ulogic_vectors", expression: x))
     }
 
 }
