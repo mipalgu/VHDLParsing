@@ -128,9 +128,6 @@ public enum CastOperation: RawRepresentable, Equatable, Hashable, Codable, Senda
         }
     }
 
-    // swiftlint:disable function_body_length
-    // swiftlint:disable cyclomatic_complexity
-
     /// Creates a new ``CastOperation`` from a `String` representing the `VHDL` code performing the cast
     /// operation.
     /// - Parameter rawValue: The `VHDL` code performing the cast operation.
@@ -143,79 +140,43 @@ public enum CastOperation: RawRepresentable, Equatable, Hashable, Codable, Senda
         else {
             return nil
         }
+        guard
+            Set<String>.vhdlSignalTypes.contains(firstWord),
+            let expression = Expression(raw: trimmedString, length: firstWord.count)
+        else {
+            return nil
+        }
         switch firstWord {
         case "bit":
-            guard let expression = Expression(raw: trimmedString, length: firstWord.count) else {
-                return nil
-            }
             self = .bit(expression: expression)
         case "bit_vector":
-            guard let expression = Expression(raw: trimmedString, length: firstWord.count) else {
-                return nil
-            }
             self = .bitVector(expression: expression)
         case "boolean":
-            guard let expression = Expression(raw: trimmedString, length: firstWord.count) else {
-                return nil
-            }
             self = .boolean(expression: expression)
         case "integer":
-            guard let expression = Expression(raw: trimmedString, length: firstWord.count) else {
-                return nil
-            }
             self = .integer(expression: expression)
         case "natural":
-            guard let expression = Expression(raw: trimmedString, length: firstWord.count) else {
-                return nil
-            }
             self = .natural(expression: expression)
         case "positive":
-            guard let expression = Expression(raw: trimmedString, length: firstWord.count) else {
-                return nil
-            }
             self = .positive(expression: expression)
         case "real":
-            guard let expression = Expression(raw: trimmedString, length: firstWord.count) else {
-                return nil
-            }
             self = .real(expression: expression)
         case "signed":
-            guard let expression = Expression(raw: trimmedString, length: firstWord.count) else {
-                return nil
-            }
             self = .signed(expression: expression)
         case "std_logic":
-            guard let expression = Expression(raw: trimmedString, length: firstWord.count) else {
-                return nil
-            }
             self = .stdLogic(expression: expression)
         case "std_logic_vector":
-            guard let expression = Expression(raw: trimmedString, length: firstWord.count) else {
-                return nil
-            }
             self = .stdLogicVector(expression: expression)
         case "std_ulogic":
-            guard let expression = Expression(raw: trimmedString, length: firstWord.count) else {
-                return nil
-            }
             self = .stdULogic(expression: expression)
         case "std_ulogic_vector":
-            guard let expression = Expression(raw: trimmedString, length: firstWord.count) else {
-                return nil
-            }
             self = .stdULogicVector(expression: expression)
         case "unsigned":
-            guard let expression = Expression(raw: trimmedString, length: firstWord.count) else {
-                return nil
-            }
             self = .unsigned(expression: expression)
         default:
             return nil
         }
     }
-
-    // swiftlint:enable cyclomatic_complexity
-    // swiftlint:enable function_body_length
 
 }
 
