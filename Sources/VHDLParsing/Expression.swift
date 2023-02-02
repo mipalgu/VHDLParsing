@@ -84,6 +84,9 @@ indirect public enum Expression: RawRepresentable,
     /// A boolean logic expression.
     case logical(operation: BooleanExpression)
 
+    /// A type-cast operation.
+    case cast(operation: CastOperation)
+
     /// The raw value is a string.
     public typealias RawValue = String
 
@@ -102,6 +105,8 @@ indirect public enum Expression: RawRepresentable,
             return condition.rawValue
         case .logical(let operation):
             return operation.rawValue
+        case .cast(let operation):
+            return operation.rawValue
         }
     }
 
@@ -115,6 +120,7 @@ indirect public enum Expression: RawRepresentable,
 
     /// Create an `Expression` from valid VHDL code.
     /// - Parameter rawValue: The code to convert to this expression.
+    @inlinable
     public init?(rawValue: String) {
         let value = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
         guard value.count < 256 else {
@@ -122,6 +128,10 @@ indirect public enum Expression: RawRepresentable,
         }
         if let literal = SignalLiteral(rawValue: value) {
             self = .literal(value: literal)
+            return
+        }
+        if let cast = CastOperation(rawValue: value) {
+            self = .cast(operation: cast)
             return
         }
         if

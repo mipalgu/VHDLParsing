@@ -115,6 +115,9 @@ final class ExpressionTests: XCTestCase {
             ).rawValue,
             "a and b"
         )
+        XCTAssertEqual(
+            Expression.cast(operation: .real(expression: .variable(name: aname))).rawValue, "real(a)"
+        )
     }
 
     /// Test init successfully creates `Expression` for simple statements.
@@ -430,6 +433,47 @@ final class ExpressionTests: XCTestCase {
                 lhs: .precedence(value: .logical(operation: .and(lhs: b, rhs: c))),
                 rhs: .logical(operation: .not(value: d))
             ))))
+        )
+    }
+
+    /// Test init for cast expressions.
+    func testCastInit() {
+        let a = Expression.variable(name: aname)
+        let b = Expression.variable(name: bname)
+        // let c = Expression.variable(name: cname)
+        // let d = Expression.variable(name: dname)
+        XCTAssertEqual(Expression(rawValue: "real(a)"), .cast(operation: .real(expression: a)))
+        XCTAssertEqual(
+            Expression(rawValue: "(real(a))"), .precedence(value: .cast(operation: .real(expression: a)))
+        )
+        XCTAssertEqual(
+            Expression(rawValue: "real(a) + 5.0"),
+            .binary(operation: .addition(
+                lhs: .cast(operation: .real(expression: a)), rhs: .literal(value: .decimal(value: 5.0))
+            ))
+        )
+        XCTAssertEqual(
+            Expression(rawValue: "real(a) + (b - 5.0)"),
+            .binary(operation: .addition(
+                lhs: .cast(operation: .real(expression: a)),
+                rhs: .precedence(value: .binary(
+                    operation: .subtraction(lhs: b, rhs: .literal(value: .decimal(value: 5.0)))
+                ))
+            ))
+        )
+        XCTAssertEqual(
+            Expression(rawValue: "(b - real(a)) + 5.0"),
+            .binary(operation: .addition(
+                lhs: .precedence(value: .binary(operation: .subtraction(
+                    lhs: b,
+                    rhs: .cast(operation: .real(expression: a))
+                ))),
+                rhs: .literal(value: .decimal(value: 5.0))
+            ))
+        )
+        XCTAssertEqual(
+            Expression(rawValue: "real(a + b)"),
+            .cast(operation: .real(expression: .binary(operation: .addition(lhs: a, rhs: b))))
         )
     }
 
