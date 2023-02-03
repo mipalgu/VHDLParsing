@@ -91,6 +91,7 @@ final class CustomFunctionCallTests: XCTestCase {
     /// Test that the `VHDL` code is created correctly in `rawValue`.
     func testRawValue() {
         XCTAssertEqual(function.rawValue, "f(x, y)")
+        XCTAssertEqual(CustomFunctionCall(name: f, arguments: []).rawValue, "f()")
     }
 
     /// Test that the function init is correct.
