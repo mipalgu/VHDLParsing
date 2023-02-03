@@ -87,6 +87,7 @@ indirect public enum Expression: RawRepresentable,
     /// A type-cast operation.
     case cast(operation: CastOperation)
 
+    /// A function call.
     case functionCall(call: FunctionCall)
 
     /// The raw value is a string.
