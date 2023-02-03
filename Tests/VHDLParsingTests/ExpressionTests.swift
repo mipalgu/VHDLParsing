@@ -77,99 +77,75 @@ final class ExpressionTests: XCTestCase {
     /// A variable called `e`.
     let ename = VariableName(text: "e")
 
+    /// Expression `a`.
+    var a: Expression { .variable(name: aname) }
+
+    /// Expression `b`.
+    var b: Expression { .variable(name: bname) }
+
+    /// Expression `c`.
+    var c: Expression { .variable(name: cname) }
+
+    /// Expression `d`.
+    var d: Expression { .variable(name: dname) }
+
+    /// Expression `e`.
+    var e: Expression { .variable(name: ename) }
+
     /// Test raw values are correct.
     func testRawValues() {
-        XCTAssertEqual(Expression.variable(name: aname).rawValue, "a")
-        XCTAssertEqual(
-            Expression.binary(
-                operation: .addition(lhs: .variable(name: aname), rhs: .variable(name: bname))
-            ).rawValue,
-            "a + b"
-        )
-        XCTAssertEqual(
-            Expression.binary(
-                operation: .subtraction(lhs: .variable(name: aname), rhs: .variable(name: bname))
-            ).rawValue,
-            "a - b"
-        )
-        XCTAssertEqual(
-            Expression.binary(
-                operation: .multiplication(lhs: .variable(name: aname), rhs: .variable(name: bname))
-            ).rawValue,
-            "a * b"
-        )
-        XCTAssertEqual(
-            Expression.binary(
-                operation: .division(lhs: .variable(name: aname), rhs: .variable(name: bname))
-            ).rawValue,
-            "a / b"
-        )
-        XCTAssertEqual(Expression.precedence(value: .variable(name: aname)).rawValue, "(a)")
+        XCTAssertEqual(a.rawValue, "a")
+        XCTAssertEqual(Expression.binary(operation: .addition(lhs: a, rhs: b)).rawValue, "a + b")
+        XCTAssertEqual(Expression.binary(operation: .subtraction(lhs: a, rhs: b)).rawValue, "a - b")
+        XCTAssertEqual(Expression.binary(operation: .multiplication(lhs: a, rhs: b)).rawValue, "a * b")
+        XCTAssertEqual(Expression.binary(operation: .division(lhs: a, rhs: b)).rawValue, "a / b")
+        XCTAssertEqual(Expression.precedence(value: a).rawValue, "(a)")
         XCTAssertEqual(
             Expression.literal(value: .logic(value: .uninitialized)).rawValue,
             LogicLiteral.uninitialized.rawValue
         )
+        XCTAssertEqual(Expression.logical(operation: .and(lhs: a, rhs: b)).rawValue, "a and b")
+        XCTAssertEqual(Expression.cast(operation: .real(expression: a)).rawValue, "real(a)")
         XCTAssertEqual(
-            Expression.logical(
-                operation: .and(lhs: .variable(name: aname), rhs: .variable(name: bname))
-            ).rawValue,
-            "a and b"
-        )
-        XCTAssertEqual(
-            Expression.cast(operation: .real(expression: .variable(name: aname))).rawValue, "real(a)"
+            Expression.functionCall(call: .custom(
+                function: CustomFunctionCall(name: aname, arguments: [b])
+            )).rawValue,
+            "a(b)"
         )
     }
 
     /// Test init successfully creates `Expression` for simple statements.
     func testSimpleInit() {
-        XCTAssertEqual(Expression(rawValue: "a"), .variable(name: aname))
+        XCTAssertEqual(Expression(rawValue: "a"), a)
         XCTAssertNil(Expression(rawValue: "a;"))
-        XCTAssertEqual(Expression(rawValue: "(a)"), .precedence(value: .variable(name: aname)))
+        XCTAssertEqual(Expression(rawValue: "(a)"), .precedence(value: a))
         XCTAssertEqual(
-            Expression(rawValue: "a * b"),
-            .binary(operation: .multiplication(lhs: .variable(name: aname), rhs: .variable(name: bname)))
+            Expression(rawValue: "a * b"), .binary(operation: .multiplication(lhs: a, rhs: b))
         )
         XCTAssertEqual(
-            Expression(rawValue: "a / b"),
-            .binary(operation: .division(lhs: .variable(name: aname), rhs: .variable(name: bname)))
+            Expression(rawValue: "a / b"), .binary(operation: .division(lhs: a, rhs: b))
         )
         XCTAssertEqual(
-            Expression(rawValue: "a + b"),
-            .binary(operation: .addition(lhs: .variable(name: aname), rhs: .variable(name: bname)))
+            Expression(rawValue: "a + b"), .binary(operation: .addition(lhs: a, rhs: b))
         )
         XCTAssertEqual(
-            Expression(rawValue: "a - b"),
-            .binary(operation: .subtraction(lhs: .variable(name: aname), rhs: .variable(name: bname)))
+            Expression(rawValue: "a - b"), .binary(operation: .subtraction(lhs: a, rhs: b))
         )
         XCTAssertEqual(
             Expression(rawValue: "a + 5"),
-            .binary(
-                operation: .addition(lhs: .variable(name: aname), rhs: .literal(value: .integer(value: 5)))
-            )
+            .binary(operation: .addition(lhs: a, rhs: .literal(value: .integer(value: 5))))
         )
         XCTAssertEqual(
             Expression(rawValue: "(a) + b"),
-            .binary(
-                operation: .addition(
-                    lhs: .precedence(value: .variable(name: aname)), rhs: .variable(name: bname)
-                )
-            )
+            .binary(operation: .addition(lhs: .precedence(value: a), rhs: b))
         )
         XCTAssertEqual(
             Expression(rawValue: "(a)+b"),
-            .binary(
-                operation: .addition(
-                    lhs: .precedence(value: .variable(name: aname)), rhs: .variable(name: bname)
-                )
-            )
+            .binary(operation: .addition(lhs: .precedence(value: a), rhs: b))
         )
         XCTAssertEqual(
             Expression(rawValue: "(a) > b"),
-            .conditional(
-                condition: .comparison(value: .greaterThan(
-                    lhs: .precedence(value: .variable(name: aname)), rhs: .variable(name: bname)
-                ))
-            )
+            .conditional(condition: .comparison(value: .greaterThan(lhs: .precedence(value: a), rhs: b)))
         )
     }
 
@@ -194,12 +170,7 @@ final class ExpressionTests: XCTestCase {
     func testMultipleInit() {
         let raw = "(a - b) + c"
         let expected = Expression.binary(operation: .addition(
-            lhs: .precedence(
-                value: .binary(
-                    operation: .subtraction(lhs: .variable(name: aname), rhs: .variable(name: bname))
-                )
-            ),
-            rhs: .variable(name: cname)
+            lhs: .precedence(value: .binary(operation: .subtraction(lhs: a, rhs: b))), rhs: c
         ))
         let result = Expression(rawValue: raw)
         XCTAssertEqual(result, expected)
@@ -209,19 +180,10 @@ final class ExpressionTests: XCTestCase {
     func testMultipleInit2() {
         let raw = "a * (b - c)"
         let expected = Expression.binary(operation: .multiplication(
-            lhs: .variable(name: aname),
-            rhs: .precedence(
-                value: .binary(
-                    operation: .subtraction(lhs: .variable(name: bname), rhs: .variable(name: cname))
-                )
-            )
+            lhs: a, rhs: .precedence(value: .binary(operation: .subtraction(lhs: b, rhs: c)))
         ))
         let result = Expression(rawValue: raw)
         XCTAssertEqual(result, expected)
-        let a = Expression.variable(name: aname)
-        let b = Expression.variable(name: bname)
-        let c = Expression.variable(name: cname)
-        let d = Expression.variable(name: dname)
         XCTAssertEqual(
             Expression(rawValue: "a * b * c"),
             .binary(operation: .multiplication(
@@ -239,12 +201,9 @@ final class ExpressionTests: XCTestCase {
         )
         XCTAssertEqual(
             Expression(rawValue: "((a + b) + c)"),
-            .precedence(value: .binary(
-                operation: .addition(
-                    lhs: .precedence(value: .binary(operation: .addition(lhs: a, rhs: b))),
-                    rhs: c
-                )
-            ))
+            .precedence(value: .binary(operation: .addition(
+                lhs: .precedence(value: .binary(operation: .addition(lhs: a, rhs: b))), rhs: c
+            )))
         )
     }
 
@@ -253,15 +212,9 @@ final class ExpressionTests: XCTestCase {
         let raw = "(a - b) + c * d / e"
         let expected = Expression.binary(operation: .multiplication(
             lhs: .binary(operation: .addition(
-                lhs: .precedence(
-                    value: .binary(operation: .subtraction(
-                        lhs: .variable(name: aname),
-                        rhs: .variable(name: bname)
-                    ))
-                ),
-                rhs: .variable(name: cname)
+                lhs: .precedence(value: .binary(operation: .subtraction(lhs: a, rhs: b))), rhs: c
             )),
-            rhs: .binary(operation: .division(lhs: .variable(name: dname), rhs: .variable(name: ename)))
+            rhs: .binary(operation: .division(lhs: d, rhs: e))
         ))
         let result = Expression(rawValue: raw)
         XCTAssertEqual(result, expected)
@@ -271,18 +224,9 @@ final class ExpressionTests: XCTestCase {
     func testComplexInit2() {
         let raw = "a + b * (c + d) / e"
         let expected = Expression.binary(operation: .multiplication(
-            lhs: .binary(operation: .addition(
-                lhs: .variable(name: aname),
-                rhs: .variable(name: bname)
-            )),
+            lhs: .binary(operation: .addition(lhs: a, rhs: b)),
             rhs: .binary(operation: .division(
-                lhs: .precedence(
-                    value: .binary(operation: .addition(
-                        lhs: .variable(name: cname),
-                        rhs: .variable(name: dname)
-                    ))
-                ),
-                rhs: .variable(name: ename)
+                lhs: .precedence(value: .binary(operation: .addition(lhs: c, rhs: d))), rhs: e
             ))
         ))
         let result = Expression(rawValue: raw)
@@ -293,16 +237,8 @@ final class ExpressionTests: XCTestCase {
     func testComplexInit3() {
         let raw = "a + b * c + d / e"
         let expected = Expression.binary(operation: .multiplication(
-            lhs: .binary(operation: .addition(
-                lhs: .variable(name: aname),
-                rhs: .variable(name: bname)
-            )),
-            rhs: .binary(operation: .addition(
-                lhs: .variable(name: cname),
-                rhs: .binary(
-                    operation: .division(lhs: .variable(name: dname), rhs: .variable(name: ename))
-                )
-            ))
+            lhs: .binary(operation: .addition(lhs: a, rhs: b)),
+            rhs: .binary(operation: .addition(lhs: c, rhs: .binary(operation: .division(lhs: d, rhs: e))))
         ))
         let result = Expression(rawValue: raw)
         XCTAssertEqual(result, expected)
@@ -312,16 +248,11 @@ final class ExpressionTests: XCTestCase {
     func testComplexInit4() {
         let raw = "a + b * c + d / e - 5"
         let expected = Expression.binary(operation: .multiplication(
-            lhs: .binary(operation: .addition(
-                lhs: .variable(name: aname),
-                rhs: .variable(name: bname)
-            )),
+            lhs: .binary(operation: .addition(lhs: a, rhs: b)),
             rhs: .binary(operation: .addition(
-                lhs: .variable(name: cname),
+                lhs: c,
                 rhs: .binary(operation: .subtraction(
-                    lhs: .binary(
-                        operation: .division(lhs: .variable(name: dname), rhs: .variable(name: ename))
-                    ),
+                    lhs: .binary(operation: .division(lhs: d, rhs: e)),
                     rhs: .literal(value: .integer(value: 5))
                 ))
             ))
@@ -334,16 +265,8 @@ final class ExpressionTests: XCTestCase {
     func testComplexRawValue() {
         let expected = "a + b * c + d / e"
         let expression = Expression.binary(operation: .multiplication(
-            lhs: .binary(operation: .addition(
-                lhs: .variable(name: aname),
-                rhs: .variable(name: bname)
-            )),
-            rhs: .binary(operation: .addition(
-                lhs: .variable(name: cname),
-                rhs: .binary(
-                    operation: .division(lhs: .variable(name: dname), rhs: .variable(name: ename))
-                )
-            ))
+            lhs: .binary(operation: .addition(lhs: a, rhs: b)),
+            rhs: .binary(operation: .addition(lhs: c, rhs: .binary(operation: .division(lhs: d, rhs: e))))
         ))
         XCTAssertEqual(expected, expression.rawValue)
     }
@@ -353,36 +276,15 @@ final class ExpressionTests: XCTestCase {
         let raw = "a > b"
         XCTAssertEqual(
             Expression(rawValue: raw),
-            .conditional(
-                condition: .comparison(
-                    value: .greaterThan(
-                        lhs: .variable(name: VariableName(text: "a")),
-                        rhs: .variable(name: VariableName(text: "b"))
-                    )
-                )
-            )
+            .conditional(condition: .comparison(value: .greaterThan(lhs: a, rhs: b)))
         )
         let raw2 = "a + b > c + d"
         XCTAssertEqual(
             Expression(rawValue: raw2),
-            .conditional(
-                condition: .comparison(
-                    value: .greaterThan(
-                        lhs: .binary(
-                            operation: .addition(
-                                lhs: .variable(name: VariableName(text: "a")),
-                                rhs: .variable(name: VariableName(text: "b"))
-                            )
-                        ),
-                        rhs: .binary(
-                            operation: .addition(
-                                lhs: .variable(name: VariableName(text: "c")),
-                                rhs: .variable(name: VariableName(text: "d"))
-                            )
-                        )
-                    )
-                )
-            )
+            .conditional(condition: .comparison(value: .greaterThan(
+                lhs: .binary(operation: .addition(lhs: a, rhs: b)),
+                rhs: .binary(operation: .addition(lhs: c, rhs: d))
+            )))
         )
     }
 
@@ -391,18 +293,8 @@ final class ExpressionTests: XCTestCase {
         let expression = Expression.conditional(
             condition: .comparison(
                 value: .greaterThan(
-                    lhs: .binary(
-                        operation: .addition(
-                            lhs: .variable(name: VariableName(text: "a")),
-                            rhs: .variable(name: VariableName(text: "b"))
-                        )
-                    ),
-                    rhs: .binary(
-                        operation: .addition(
-                            lhs: .variable(name: VariableName(text: "c")),
-                            rhs: .variable(name: VariableName(text: "d"))
-                        )
-                    )
+                    lhs: .binary(operation: .addition(lhs: a, rhs: b)),
+                    rhs: .binary(operation: .addition(lhs: c, rhs: d))
                 )
             )
         )
@@ -411,10 +303,6 @@ final class ExpressionTests: XCTestCase {
 
     /// Test expression creates logical expression correctly.
     func testLogicalInit() {
-        let a = Expression.variable(name: aname)
-        let b = Expression.variable(name: bname)
-        let c = Expression.variable(name: cname)
-        let d = Expression.variable(name: dname)
         XCTAssertEqual(Expression(rawValue: "a and b"), .logical(operation: .and(lhs: a, rhs: b)))
         XCTAssertEqual(Expression(rawValue: "not a"), .logical(operation: .not(value: a)))
         XCTAssertEqual(
@@ -438,10 +326,6 @@ final class ExpressionTests: XCTestCase {
 
     /// Test init for cast expressions.
     func testCastInit() {
-        let a = Expression.variable(name: aname)
-        let b = Expression.variable(name: bname)
-        // let c = Expression.variable(name: cname)
-        // let d = Expression.variable(name: dname)
         XCTAssertEqual(Expression(rawValue: "real(a)"), .cast(operation: .real(expression: a)))
         XCTAssertEqual(
             Expression(rawValue: "(real(a))"), .precedence(value: .cast(operation: .real(expression: a)))
@@ -475,6 +359,41 @@ final class ExpressionTests: XCTestCase {
             Expression(rawValue: "real(a + b)"),
             .cast(operation: .real(expression: .binary(operation: .addition(lhs: a, rhs: b))))
         )
+    }
+
+    /// Test `init(rawValue:)` for function calls.
+    func testFunctionCallInit() {
+        let f = VariableName(text: "f")
+        let g = VariableName(text: "g")
+        XCTAssertEqual(
+            Expression(rawValue: "f()"),
+            .functionCall(call: .custom(function: CustomFunctionCall(name: f, arguments: [])))
+        )
+        XCTAssertEqual(
+            Expression(rawValue: "f(a, b, c, d)"),
+            .functionCall(call: .custom(function: CustomFunctionCall(name: f, arguments: [a, b, c, d])))
+        )
+        XCTAssertEqual(
+            Expression(rawValue: "(a + b) + f(c) - g(c * d)"),
+            .binary(operation: .addition(
+                lhs: .precedence(value: .binary(operation: .addition(lhs: a, rhs: b))),
+                rhs: .binary(operation: .subtraction(
+                    lhs: .functionCall(call: .custom(function: CustomFunctionCall(name: f, arguments: [c]))),
+                    rhs: .functionCall(call: .custom(function: CustomFunctionCall(
+                        name: g,
+                        arguments: [.binary(operation: .multiplication(lhs: c, rhs: d))]
+                    )))
+                ))
+            ))
+        )
+        XCTAssertEqual(Expression(rawValue: "f(g(a))"), .functionCall(call: .custom(
+            function: CustomFunctionCall(
+                name: f,
+                arguments: [
+                    .functionCall(call: .custom(function: CustomFunctionCall(name: g, arguments: [a])))
+                ]
+            )
+        )))
     }
 
 }

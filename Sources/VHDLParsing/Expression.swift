@@ -87,6 +87,8 @@ indirect public enum Expression: RawRepresentable,
     /// A type-cast operation.
     case cast(operation: CastOperation)
 
+    case functionCall(call: FunctionCall)
+
     /// The raw value is a string.
     public typealias RawValue = String
 
@@ -107,6 +109,8 @@ indirect public enum Expression: RawRepresentable,
             return operation.rawValue
         case .cast(let operation):
             return operation.rawValue
+        case .functionCall(let call):
+            return call.rawValue
         }
     }
 
@@ -132,6 +136,10 @@ indirect public enum Expression: RawRepresentable,
         }
         if let cast = CastOperation(rawValue: value) {
             self = .cast(operation: cast)
+            return
+        }
+        if let call = FunctionCall(rawValue: value) {
+            self = .functionCall(call: call)
             return
         }
         if
