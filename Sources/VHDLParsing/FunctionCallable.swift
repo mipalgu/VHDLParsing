@@ -88,6 +88,8 @@ public extension FunctionCallable where RawValue == String {
         let expressionString = trimmedString.dropFirst(firstWord.count)
             .trimmingCharacters(in: .whitespacesAndNewlines)
         guard
+            expressionString.hasPrefix("("),
+            expressionString.hasSuffix(")"),
             let rawString = expressionString.uptoBalancedBracket,
             rawString.endIndex == expressionString.endIndex,
             rawString.hasPrefix("("),

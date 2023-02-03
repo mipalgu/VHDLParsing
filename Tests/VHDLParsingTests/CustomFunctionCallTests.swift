@@ -104,6 +104,7 @@ final class CustomFunctionCallTests: XCTestCase {
     func testRawValueInit() {
         XCTAssertEqual(CustomFunctionCall(rawValue: "f()"), CustomFunctionCall(name: f, arguments: []))
         XCTAssertNil(CustomFunctionCall(rawValue: "and(x)"))
+        XCTAssertNil(CustomFunctionCall(rawValue: "a * (b - c)"))
     }
 
 }
