@@ -65,64 +65,6 @@ extension Substring {
         self.upToBalancedElements(startsWith: "(", endsWith: ")")
     }
 
-    /// Find a string that starts with a specified string and ends with a specified string including
-    /// substrings following the same pattern. For example, consider the string \"a(b(c)d)e\", starting with
-    /// \"(\" and ending with \")\". The result would be \"(b(c)d)\".
-    /// - Parameters:
-    ///   - startsWith: The begining delimiter for the substring.
-    ///   - endsWith: The ending delimiter for the substring.
-    /// - Returns: The substring that starts with `startsWith` and ends with `endsWith` including any
-    /// strings within that match the same pattern.
-    @usableFromInline
-    func upToBalancedElements(startsWith: String, endsWith: String) -> Substring? {
-        guard !startsWith.isEmpty, !endsWith.isEmpty else {
-            return nil
-        }
-        let startSize = startsWith.count
-        let endSize = endsWith.count
-        var startCount = 0
-        var hasStarted = false
-        var index = self.startIndex
-        var beginIndex: String.Index?
-        while index < self.endIndex {
-            guard hasStarted else {
-                guard
-                    let startIndex = self.startIndex(for: startsWith),
-                    let nextIndex = self.index(startIndex, offsetBy: startSize, limitedBy: self.endIndex)
-                else {
-                    return nil
-                }
-                beginIndex = startIndex
-                index = nextIndex
-                hasStarted = true
-                startCount += 1
-                continue
-            }
-            let data = self[index...]
-            guard let endIndex = data.startIndex(for: endsWith) else {
-                return nil
-            }
-            if let nextStartIndex = data.startIndex(for: startsWith) {
-                guard nextStartIndex > endIndex else {
-                    startCount += 1
-                    index = self.index(nextStartIndex, offsetBy: startSize)
-                    continue
-                }
-            }
-            let lastIndex = self.index(endIndex, offsetBy: endSize)
-            guard startCount <= 1 else {
-                startCount -= 1
-                index = lastIndex
-                continue
-            }
-            guard let beginIndex = beginIndex else {
-                return nil
-            }
-            return self[beginIndex..<lastIndex]
-        }
-        return nil
-    }
-
     /// Return the starting index of a substring value within self.
     /// - Parameter value: The substring to search for.
     /// - Returns: The first index within self that matches the substring.
@@ -188,6 +130,64 @@ extension Substring {
                 continue
             }
             return startIndex
+        }
+        return nil
+    }
+
+    /// Find a string that starts with a specified string and ends with a specified string including
+    /// substrings following the same pattern. For example, consider the string \"a(b(c)d)e\", starting with
+    /// \"(\" and ending with \")\". The result would be \"(b(c)d)\".
+    /// - Parameters:
+    ///   - startsWith: The begining delimiter for the substring.
+    ///   - endsWith: The ending delimiter for the substring.
+    /// - Returns: The substring that starts with `startsWith` and ends with `endsWith` including any
+    /// strings within that match the same pattern.
+    @usableFromInline
+    func upToBalancedElements(startsWith: String, endsWith: String) -> Substring? {
+        guard !startsWith.isEmpty, !endsWith.isEmpty else {
+            return nil
+        }
+        let startSize = startsWith.count
+        let endSize = endsWith.count
+        var startCount = 0
+        var hasStarted = false
+        var index = self.startIndex
+        var beginIndex: String.Index?
+        while index < self.endIndex {
+            guard hasStarted else {
+                guard
+                    let startIndex = self.startIndex(for: startsWith),
+                    let nextIndex = self.index(startIndex, offsetBy: startSize, limitedBy: self.endIndex)
+                else {
+                    return nil
+                }
+                beginIndex = startIndex
+                index = nextIndex
+                hasStarted = true
+                startCount += 1
+                continue
+            }
+            let data = self[index...]
+            guard let endIndex = data.startIndex(for: endsWith) else {
+                return nil
+            }
+            if let nextStartIndex = data.startIndex(for: startsWith) {
+                guard nextStartIndex > endIndex else {
+                    startCount += 1
+                    index = self.index(nextStartIndex, offsetBy: startSize)
+                    continue
+                }
+            }
+            let lastIndex = self.index(endIndex, offsetBy: endSize)
+            guard startCount <= 1 else {
+                startCount -= 1
+                index = lastIndex
+                continue
+            }
+            guard let beginIndex = beginIndex else {
+                return nil
+            }
+            return self[beginIndex..<lastIndex]
         }
         return nil
     }

@@ -59,14 +59,9 @@ import Foundation
 /// Add common VHDL character sets.
 extension CharacterSet {
 
-    /// All VHDL operators.
-    @inlinable public static var vhdlOperators: CharacterSet {
-        CharacterSet(charactersIn: "+-/*()")
-    }
-
-    /// The VHDL binary operators.
-    @inlinable public static var vhdlOperations: CharacterSet {
-        CharacterSet(charactersIn: "+-/*")
+    /// The allowed characters for `VHDL` variable names.
+    @inlinable public static var variableNames: CharacterSet {
+        CharacterSet.alphanumerics.union(CharacterSet(charactersIn: "_"))
     }
 
     /// The VHDL operators with additive precedence.
@@ -84,9 +79,14 @@ extension CharacterSet {
         CharacterSet(charactersIn: "*/")
     }
 
-    /// The allowed characters for `VHDL` variable names.
-    @inlinable public static var variableNames: CharacterSet {
-        CharacterSet.alphanumerics.union(CharacterSet(charactersIn: "_"))
+    /// All VHDL operators.
+    @inlinable public static var vhdlOperators: CharacterSet {
+        CharacterSet(charactersIn: "+-/*()")
+    }
+
+    /// The VHDL binary operators.
+    @inlinable public static var vhdlOperations: CharacterSet {
+        CharacterSet(charactersIn: "+-/*")
     }
 
     /// Whether a string contains characters in this character set.

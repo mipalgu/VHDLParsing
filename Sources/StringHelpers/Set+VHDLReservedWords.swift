@@ -57,35 +57,35 @@
 /// Add VHDL reserved words Sets.
 public extension Set where Element == String {
 
+    /// All `VHDL` reserved words including the `VHDL` signal types.
+    @inlinable static var vhdlAllReservedWords: Set<String> {
+        Self.vhdlSignalTypes.union(Self.vhdlReservedWords)
+    }
+
     /// The boolean operations requiring two operands in `VHDL`.
-    static var vhdlBooleanBinaryOperations: Set<String> {
+    @inlinable static var vhdlBooleanBinaryOperations: Set<String> {
         [
             "and", "or", "nand", "nor", "xor", "xnor"
         ]
     }
 
-    /// The `VHDL` signal types.
-    static var vhdlSignalTypes: Set<String> {
+    /// The comparison operators supported in `VHDL`.
+    @inlinable static var vhdlComparisonOperations: Set<String> {
         [
-            "std_logic",
-            "std_ulogic",
-            "signed",
-            "unsigned",
-            "std_logic_vector",
-            "std_ulogic_vector",
-            "bit",
-            "bit_vector",
-            "boolean",
-            "integer",
-            "natural",
-            "positive",
-            "real"
+            ">", "<", "<=", ">=", "=", "/="
         ]
+    }
+
+    /// All operators supported in `VHDL`.
+    @inlinable static var vhdlOperations: Set<String> {
+        Set([
+            ">", "<", "<=", ">=", "=", "/=", "+", "-", "/", "*"
+        ]).union(Set<String>.vhdlBooleanBinaryOperations)
     }
 
     /// The `VHDL` reserved words not including the `VHDL` signal types. If you need both, then use
     /// `Set<String>.vhdlAllReservedWords`.
-    static var vhdlReservedWords: Set<String> {
+    @inlinable static var vhdlReservedWords: Set<String> {
         [
             "abs", "access", "after", "alias", "all", "and", "architecture", "array",
             "assert", "attribute", "begin", "block", "body", "buffer", "bus", "case",
@@ -102,23 +102,23 @@ public extension Set where Element == String {
         ]
     }
 
-    /// All `VHDL` reserved words including the `VHDL` signal types.
-    static var vhdlAllReservedWords: Set<String> {
-        Self.vhdlSignalTypes.union(Self.vhdlReservedWords)
-    }
-
-    /// The comparison operators supported in `VHDL`.
-    static var vhdlComparisonOperations: Set<String> {
+    /// The `VHDL` signal types.
+    @inlinable static var vhdlSignalTypes: Set<String> {
         [
-            ">", "<", "<=", ">=", "=", "/="
+            "std_logic",
+            "std_ulogic",
+            "signed",
+            "unsigned",
+            "std_logic_vector",
+            "std_ulogic_vector",
+            "bit",
+            "bit_vector",
+            "boolean",
+            "integer",
+            "natural",
+            "positive",
+            "real"
         ]
-    }
-
-    /// All operators supported in `VHDL`.
-    static var vhdlOperations: Set<String> {
-        Set([
-            ">", "<", "<=", ">=", "=", "/=", "+", "-", "/", "*"
-        ]).union(Set<String>.vhdlBooleanBinaryOperations)
     }
 
 }
