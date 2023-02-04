@@ -54,8 +54,6 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
-import StringHelpers
-
 /// A type for representing code that exists within a `process` block in `VHDL`.
 indirect public enum SynchronousBlock: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 

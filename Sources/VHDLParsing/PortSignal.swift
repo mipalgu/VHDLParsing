@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import StringHelpers
 
 /// An external signal is equivalent to an external variable (or parameter) in an LLFSM. The external signal
 /// is a signal that exists above a VHDL entities scope. It is a signal that is not defined within the entity.
