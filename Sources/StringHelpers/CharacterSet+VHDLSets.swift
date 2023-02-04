@@ -74,6 +74,7 @@ extension CharacterSet {
         CharacterSet(charactersIn: "+-")
     }
 
+    /// The `VHDL` comparison operators (<, >, =).
     @inlinable public static var vhdlComparisonOperations: CharacterSet {
         CharacterSet(charactersIn: "=<>")
     }
@@ -83,6 +84,7 @@ extension CharacterSet {
         CharacterSet(charactersIn: "*/")
     }
 
+    /// The allowed characters for `VHDL` variable names.
     @inlinable public static var variableNames: CharacterSet {
         CharacterSet.alphanumerics.union(CharacterSet(charactersIn: "_"))
     }
