@@ -134,7 +134,7 @@ extension String {
     }
 
     /// Remove all empty lines from the string.
-    @usableFromInline var withoutEmptyLines: String {
+    @inlinable public var withoutEmptyLines: String {
         self.components(separatedBy: .newlines).lazy
         .map {
             $0.trimmingCharacters(in: .whitespaces)
@@ -158,6 +158,50 @@ extension String {
         }
         let indentAmount = String(repeating: String.tab, count: amount)
         return self.components(separatedBy: .newlines).map { indentAmount + $0 }.joined(separator: "\n")
+    }
+
+    /// Find the indexes of all occurrences of a given sentence within the string.
+    /// - Parameter words: The sentence to match against as an array of ordered words.
+    /// - Returns: The indexes of all occurrences of the sentence within the string.
+    @inlinable
+    public func indexes(for words: [String]) -> [(String.Index, String.Index)] {
+        let wordPattern = words.map { $0.lowercased() }.joined(separator: "\\s+") // whitespace.
+        guard
+            !self.isEmpty,
+            !words.isEmpty,
+            let regex = try? Regex("(^|\\s)" + wordPattern + "($|\\s)") // start of line or whitespace.
+        else {
+            return []
+        }
+        let matches = self.lowercased().matches(of: regex)
+        return matches.map { ($0.range.lowerBound, $0.range.upperBound) }
+    }
+
+    /// Grab indexes of all occurrences of a string that starts with a specified string and ends with a
+    /// specified string.
+    /// - Parameters:
+    ///   - startingWith: The starting delimiter for the substring.
+    ///   - endingWith: The ending delimter for the substring.
+    /// - Returns: All indexes for substrings that begin with `startingWith` and end with `endingWith`.
+    @inlinable
+    public func indexes(startingWith: String, endingWith: String) -> [(String.Index, String.Index)] {
+        guard !startingWith.isEmpty, !endingWith.isEmpty else {
+            return []
+        }
+        var indexes: [(String.Index, String.Index)] = []
+        var index = self.startIndex
+        while index < self.endIndex {
+            guard let startIndex = self[index...].startIndex(for: startingWith) else {
+                return indexes
+            }
+            let nextIndex = self.index(after: startIndex)
+            guard nextIndex < endIndex, let endIndex = self[nextIndex...].startIndex(for: endingWith) else {
+                return indexes
+            }
+            indexes.append((startIndex, endIndex))
+            index = self.index(after: endIndex)
+        }
+        return indexes
     }
 
     /// Remove the last specified character from the string.
@@ -282,50 +326,6 @@ extension String {
             return nil
         }
         return self[start..<end]
-    }
-
-    /// Find the indexes of all occurrences of a given sentence within the string.
-    /// - Parameter words: The sentence to match against as an array of ordered words.
-    /// - Returns: The indexes of all occurrences of the sentence within the string.
-    @usableFromInline
-    func indexes(for words: [String]) -> [(String.Index, String.Index)] {
-        let wordPattern = words.map { $0.lowercased() }.joined(separator: "\\s+") // whitespace.
-        guard
-            !self.isEmpty,
-            !words.isEmpty,
-            let regex = try? Regex("(^|\\s)" + wordPattern + "($|\\s)") // start of line or whitespace.
-        else {
-            return []
-        }
-        let matches = self.lowercased().matches(of: regex)
-        return matches.map { ($0.range.lowerBound, $0.range.upperBound) }
-    }
-
-    /// Grab indexes of all occurrences of a string that starts with a specified string and ends with a
-    /// specified string.
-    /// - Parameters:
-    ///   - startingWith: The starting delimiter for the substring.
-    ///   - endingWith: The ending delimter for the substring.
-    /// - Returns: All indexes for substrings that begin with `startingWith` and end with `endingWith`.
-    @usableFromInline
-    func indexes(startingWith: String, endingWith: String) -> [(String.Index, String.Index)] {
-        guard !startingWith.isEmpty, !endingWith.isEmpty else {
-            return []
-        }
-        var indexes: [(String.Index, String.Index)] = []
-        var index = self.startIndex
-        while index < self.endIndex {
-            guard let startIndex = self[index...].startIndex(for: startingWith) else {
-                return indexes
-            }
-            let nextIndex = self.index(after: startIndex)
-            guard nextIndex < endIndex, let endIndex = self[nextIndex...].startIndex(for: endingWith) else {
-                return indexes
-            }
-            indexes.append((startIndex, endIndex))
-            index = self.index(after: endIndex)
-        }
-        return indexes
     }
 
     /// Helper function for removing the comments from a string.
