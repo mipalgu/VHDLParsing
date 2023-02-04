@@ -73,7 +73,7 @@ extension String {
     }
 
     /// Get the first word in the string.
-    @usableFromInline var firstWord: String? {
+    @inlinable public var firstWord: String? {
         guard
             let components = self.trimmingCharacters(in: .whitespacesAndNewlines)
                 .split(
@@ -138,7 +138,7 @@ extension String {
     }
 
     /// The string up to the first semicolon.
-    @usableFromInline var uptoSemicolon: String {
+    @inlinable public var uptoSemicolon: String {
         guard let semicolonIndex = self.firstIndex(where: { $0 == ";" }) else {
             return self
         }
