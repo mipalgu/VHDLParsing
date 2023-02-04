@@ -88,7 +88,7 @@ extension String {
     }
 
     /// Get the last word in the string.
-    @usableFromInline var lastWord: String? {
+    @inlinable public var lastWord: String? {
         let characters = CharacterSet.whitespacesAndNewlines.union(CharacterSet(charactersIn: "();")
             .union(.vhdlOperators)
             .union(.vhdlComparisonOperations))
@@ -102,7 +102,7 @@ extension String {
     }
 
     /// Remove all `VHDL` comments and empty lines from the string.
-    @usableFromInline var withoutComments: String {
+    @inlinable public var withoutComments: String {
         performWithoutComments(for: self)
     }
 
@@ -118,7 +118,7 @@ extension String {
 
     /// Find all expressions within self that exist within a set of brackets. The substrings returned may also
     /// contain substrings with brackets within them.
-    @usableFromInline var subExpressions: [Substring]? {
+    @inlinable public var subExpressions: [Substring]? {
         var expressions: [Substring] = []
         var index = self.startIndex
         while index < self.endIndex {
@@ -133,7 +133,7 @@ extension String {
 
     /// Return a string that exists within self that starts with an open bracket and ends with the balanced
     /// closing bracket.
-    @usableFromInline var uptoBalancedBracket: Substring? {
+    @inlinable public var uptoBalancedBracket: Substring? {
         self[self.startIndex..<self.endIndex].uptoBalancedBracket
     }
 
@@ -146,7 +146,7 @@ extension String {
     }
 
     /// All the words in the string.
-    @usableFromInline var words: [String] {
+    @inlinable public var words: [String] {
         self.components(separatedBy: .whitespacesAndNewlines).filter { !$0.isEmpty }
     }
 
@@ -203,8 +203,8 @@ extension String {
     /// character set.
     /// - Parameter characters: The characters to split on.
     /// - Returns: A tuple containing the 2 halves of the string and the character that was split on.
-    @usableFromInline
-    func split(on characters: CharacterSet) -> ([String], Character)? {
+    @inlinable
+    public func split(on characters: CharacterSet) -> ([String], Character)? {
         guard let firstIndex = self.unicodeScalars.firstIndex(where: { characters.contains($0) }) else {
             return nil
         }
@@ -221,8 +221,8 @@ extension String {
     /// - Parameter strings: The strings to split on.
     /// - Returns: The 2 halves of the string around the delimter and the delimiter that this string was split
     /// on.
-    @usableFromInline
-    func split(on strings: Set<String>) -> ([String], String)? {
+    @inlinable
+    public func split(on strings: Set<String>) -> ([String], String)? {
         let sortedStrings: [(String, String.Index)] = strings.compactMap {
             guard let index = self.startIndex(for: $0) else {
                 return nil
@@ -240,8 +240,8 @@ extension String {
     /// Split the string on the first word within a set.
     /// - Parameter strings: The words to split on.
     /// - Returns: The 2 halves of the string around the word and the word that this string was split on.
-    @usableFromInline
-    func split(words: Set<String>) -> ([String], String)? {
+    @inlinable
+    public func split(words: Set<String>) -> ([String], String)? {
         let sortedStrings: [(String, String.Index)] = words.compactMap {
             guard let index = self.startIndex(word: $0) else {
                 return nil
@@ -259,16 +259,16 @@ extension String {
     /// Return the starting index of a substring value within self.
     /// - Parameter value: The substring to search for.
     /// - Returns: The first index within self that matches the substring.
-    @usableFromInline
-    func startIndex(for value: String) -> String.Index? {
+    @inlinable
+    public func startIndex(for value: String) -> String.Index? {
         self[self.startIndex..<self.endIndex].startIndex(for: value)
     }
 
     /// Find the start index for a word.
     /// - Parameter word: The word to search for.
     /// - Returns: The index if the word was found.
-    @usableFromInline
-    func startIndex(word: String) -> String.Index? {
+    @inlinable
+    public func startIndex(word: String) -> String.Index? {
         self[self.startIndex..<self.endIndex].startIndex(word: word)
     }
 
@@ -295,8 +295,10 @@ extension String {
     ///   - startWords: The starting sentence.
     ///   - endWords: The ending sentence.
     /// - Returns: The substrings that start with `startWords` and end with `endWords`.
-    @usableFromInline
-    func subExpression(beginningWith startWords: [String], endingWith endWords: [String]) -> Substring? {
+    @inlinable
+    public func subExpression(
+        beginningWith startWords: [String], endingWith endWords: [String]
+    ) -> Substring? {
         let startIndexes = self.indexes(for: startWords)
         let endIndexes = self.indexes(for: endWords)
         let allIndexes = startIndexes.map { ($0.0, $0.1, startWords) } +
@@ -346,7 +348,8 @@ extension String {
     ///   - value: The string to remove the comments from.
     ///   - carry: An accumulator that holds the string without comments.
     /// - Returns: The string without comments.
-    private func performWithoutComments(for value: String, carry: String = "") -> String {
+    @usableFromInline
+    func performWithoutComments(for value: String, carry: String = "") -> String {
         guard let firstIndex = value.startIndex(for: "--") else {
             return carry + value.withoutEmptyLines
         }

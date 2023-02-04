@@ -54,6 +54,8 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
+import StringHelpers
+
 /// This type is used to represent an if-statement in `VHDL`. The if-statement may contain nested
 /// if-statements or `elsif` conditions.
 public enum IfBlock: RawRepresentable, Equatable, Hashable, Codable, Sendable {

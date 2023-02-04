@@ -60,38 +60,38 @@ import Foundation
 extension CharacterSet {
 
     /// All VHDL operators.
-    @usableFromInline static var vhdlOperators: CharacterSet {
+    @inlinable public static var vhdlOperators: CharacterSet {
         CharacterSet(charactersIn: "+-/*()")
     }
 
     /// The VHDL binary operators.
-    @usableFromInline static var vhdlOperations: CharacterSet {
+    @inlinable public static var vhdlOperations: CharacterSet {
         CharacterSet(charactersIn: "+-/*")
     }
 
     /// The VHDL operators with additive precedence.
-    @usableFromInline static var vhdlAdditiveOperations: CharacterSet {
+    @inlinable public static var vhdlAdditiveOperations: CharacterSet {
         CharacterSet(charactersIn: "+-")
     }
 
-    @usableFromInline static var vhdlComparisonOperations: CharacterSet {
+    @inlinable public static var vhdlComparisonOperations: CharacterSet {
         CharacterSet(charactersIn: "=<>")
     }
 
     /// The VHDL operators with multiplicative precedence.
-    @usableFromInline static var vhdlMultiplicativeOperations: CharacterSet {
+    @inlinable public static var vhdlMultiplicativeOperations: CharacterSet {
         CharacterSet(charactersIn: "*/")
     }
 
-    @usableFromInline static var variableNames: CharacterSet {
+    @inlinable public static var variableNames: CharacterSet {
         CharacterSet.alphanumerics.union(CharacterSet(charactersIn: "_"))
     }
 
     /// Whether a string contains characters in this character set.
     /// - Parameter string: The string to check.
     /// - Returns: Whether the string contains characters in this character set.
-    @usableFromInline
-    func within(string: String) -> Bool {
+    @inlinable
+    public func within(string: String) -> Bool {
         string.unicodeScalars.contains { self.contains($0) }
     }
 

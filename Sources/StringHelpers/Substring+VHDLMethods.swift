@@ -61,7 +61,7 @@ extension Substring {
 
     /// Return a string that exists within self that starts with an open bracket and ends with the balanced
     /// closing bracket.
-    @usableFromInline var uptoBalancedBracket: Substring? {
+    @inlinable public var uptoBalancedBracket: Substring? {
         self.upToBalancedElements(startsWith: "(", endsWith: ")")
     }
 
@@ -126,8 +126,8 @@ extension Substring {
     /// Return the starting index of a substring value within self.
     /// - Parameter value: The substring to search for.
     /// - Returns: The first index within self that matches the substring.
-    @usableFromInline
-    func startIndex(for value: String) -> String.Index? {
+    @inlinable
+    public func startIndex(for value: String) -> String.Index? {
         let size = value.count
         guard !value.isEmpty, self.count >= size else {
             return nil
@@ -149,8 +149,8 @@ extension Substring {
     /// Find the start index for a word.
     /// - Parameter word: The word to search for.
     /// - Returns: The index if the word was found.
-    @usableFromInline
-    func startIndex(word: String) -> String.Index? {
+    @inlinable
+    public func startIndex(word: String) -> String.Index? {
         guard !word.isEmpty, !self.isEmpty else {
             return nil
         }
