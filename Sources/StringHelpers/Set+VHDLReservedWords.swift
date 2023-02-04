@@ -1,4 +1,4 @@
-// CharacterSet+VHDLSets.swift
+// Set+VHDLReservedWords.swift
 // Machines
 // 
 // Created by Morgan McColl.
@@ -54,45 +54,71 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
-import Foundation
+/// Add VHDL reserved words Sets.
+public extension Set where Element == String {
 
-/// Add common VHDL character sets.
-extension CharacterSet {
-
-    /// All VHDL operators.
-    @usableFromInline static var vhdlOperators: CharacterSet {
-        CharacterSet(charactersIn: "+-/*()")
+    /// All `VHDL` reserved words including the `VHDL` signal types.
+    @inlinable static var vhdlAllReservedWords: Set<String> {
+        Self.vhdlSignalTypes.union(Self.vhdlReservedWords)
     }
 
-    /// The VHDL binary operators.
-    @usableFromInline static var vhdlOperations: CharacterSet {
-        CharacterSet(charactersIn: "+-/*")
+    /// The boolean operations requiring two operands in `VHDL`.
+    @inlinable static var vhdlBooleanBinaryOperations: Set<String> {
+        [
+            "and", "or", "nand", "nor", "xor", "xnor"
+        ]
     }
 
-    /// The VHDL operators with additive precedence.
-    @usableFromInline static var vhdlAdditiveOperations: CharacterSet {
-        CharacterSet(charactersIn: "+-")
+    /// The comparison operators supported in `VHDL`.
+    @inlinable static var vhdlComparisonOperations: Set<String> {
+        [
+            ">", "<", "<=", ">=", "=", "/="
+        ]
     }
 
-    @usableFromInline static var vhdlComparisonOperations: CharacterSet {
-        CharacterSet(charactersIn: "=<>")
+    /// All operators supported in `VHDL`.
+    @inlinable static var vhdlOperations: Set<String> {
+        Set([
+            ">", "<", "<=", ">=", "=", "/=", "+", "-", "/", "*"
+        ]).union(Set<String>.vhdlBooleanBinaryOperations)
     }
 
-    /// The VHDL operators with multiplicative precedence.
-    @usableFromInline static var vhdlMultiplicativeOperations: CharacterSet {
-        CharacterSet(charactersIn: "*/")
+    /// The `VHDL` reserved words not including the `VHDL` signal types. If you need both, then use
+    /// `Set<String>.vhdlAllReservedWords`.
+    @inlinable static var vhdlReservedWords: Set<String> {
+        [
+            "abs", "access", "after", "alias", "all", "and", "architecture", "array",
+            "assert", "attribute", "begin", "block", "body", "buffer", "bus", "case",
+            "component", "configuration", "constant", "disconnect", "downto", "else",
+            "elsif", "end", "entity", "exit", "file", "for", "function", "generate",
+            "generic", "group", "guarded", "if", "impure", "in", "inertial", "inout",
+            "is", "label", "library", "linkage", "literal", "loop", "map", "mod", "nand",
+            "new", "next", "nor", "not", "null", "of", "on", "open", "or", "others",
+            "out", "package", "port", "postponed", "procedure", "process", "pure",
+            "range", "record", "register", "reject", "return", "rol", "ror", "select",
+            "severity", "signal", "shared", "sla", "sli", "sra", "srl", "subtype",
+            "then", "to", "transport", "type", "unaffected", "units", "until", "use",
+            "variable", "wait", "when", "while", "with", "xnor", "xor"
+        ]
     }
 
-    @usableFromInline static var variableNames: CharacterSet {
-        CharacterSet.alphanumerics.union(CharacterSet(charactersIn: "_"))
-    }
-
-    /// Whether a string contains characters in this character set.
-    /// - Parameter string: The string to check.
-    /// - Returns: Whether the string contains characters in this character set.
-    @usableFromInline
-    func within(string: String) -> Bool {
-        string.unicodeScalars.contains { self.contains($0) }
+    /// The `VHDL` signal types.
+    @inlinable static var vhdlSignalTypes: Set<String> {
+        [
+            "std_logic",
+            "std_ulogic",
+            "signed",
+            "unsigned",
+            "std_logic_vector",
+            "std_ulogic_vector",
+            "bit",
+            "bit_vector",
+            "boolean",
+            "integer",
+            "natural",
+            "positive",
+            "real"
+        ]
     }
 
 }

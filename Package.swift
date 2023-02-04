@@ -6,10 +6,16 @@ import PackageDescription
 let package = Package(
     name: "VHDLParsing",
     products: [
-        // Products define the executables and libraries a package produces, and make them visible to other packages.
+        // Products define the executables and libraries a package produces, and make them visible to other
+        // packages.
         .library(
             name: "VHDLParsing",
-            targets: ["VHDLParsing"]),
+            targets: ["VHDLParsing"]
+        ),
+        .library(
+            name: "StringHelpers",
+            targets: ["StringHelpers"]
+        )
     ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
@@ -18,12 +24,23 @@ let package = Package(
     ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
-        // Targets can depend on other targets in this package, and on products in packages this package depends on.
+        // Targets can depend on other targets in this package, and on products in packages this package
+        // depends on.
+        .target(
+            name: "StringHelpers",
+            dependencies: []
+        ),
         .target(
             name: "VHDLParsing",
-            dependencies: []),
+            dependencies: ["StringHelpers"]
+        ),
+        .testTarget(
+            name: "StringHelpersTests",
+            dependencies: ["StringHelpers"]
+        ),
         .testTarget(
             name: "VHDLParsingTests",
-            dependencies: ["VHDLParsing"]),
+            dependencies: ["VHDLParsing", "StringHelpers"]
+        )
     ]
 )

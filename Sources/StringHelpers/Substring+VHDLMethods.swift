@@ -61,8 +61,77 @@ extension Substring {
 
     /// Return a string that exists within self that starts with an open bracket and ends with the balanced
     /// closing bracket.
-    @usableFromInline var uptoBalancedBracket: Substring? {
+    @inlinable public var uptoBalancedBracket: Substring? {
         self.upToBalancedElements(startsWith: "(", endsWith: ")")
+    }
+
+    /// Return the starting index of a substring value within self.
+    /// - Parameter value: The substring to search for.
+    /// - Returns: The first index within self that matches the substring.
+    @inlinable
+    public func startIndex(for value: String) -> String.Index? {
+        let size = value.count
+        guard !value.isEmpty, self.count >= size else {
+            return nil
+        }
+        let offset = size - 1
+        let startIndex = self.index(self.startIndex, offsetBy: offset)
+        for i in self[startIndex...].indices {
+            guard
+                let wordStart = self.index(i, offsetBy: -offset, limitedBy: self.startIndex),
+                self[wordStart...i].lowercased() == value.lowercased()
+            else {
+                continue
+            }
+            return wordStart
+        }
+        return nil
+    }
+
+    /// Find the start index for a word.
+    /// - Parameter word: The word to search for.
+    /// - Returns: The index if the word was found.
+    @inlinable
+    public func startIndex(word: String) -> String.Index? {
+        guard !word.isEmpty, !self.isEmpty else {
+            return nil
+        }
+        var index = self.startIndex
+        while index < self.endIndex {
+            guard let startIndex = self[index...].startIndex(for: word) else {
+                return nil
+            }
+            guard let previousIndex = self.index(startIndex, offsetBy: -1, limitedBy: self.startIndex) else {
+                guard let endIndex = self.index(
+                    startIndex, offsetBy: word.count, limitedBy: self.index(before: self.endIndex)
+                ) else {
+                    return startIndex
+                }
+                guard CharacterSet.whitespacesAndNewlines.contains(self.unicodeScalars[endIndex]) else {
+                    index = self.index(startIndex, offsetBy: word.count)
+                    continue
+                }
+                return startIndex
+            }
+            guard let endIndex = self.index(
+                startIndex, offsetBy: word.count, limitedBy: self.index(before: self.endIndex)
+            ) else {
+                guard CharacterSet.whitespacesAndNewlines.contains(self.unicodeScalars[previousIndex]) else {
+                    index = self.index(startIndex, offsetBy: word.count)
+                    continue
+                }
+                return startIndex
+            }
+            guard
+                CharacterSet.whitespacesAndNewlines.contains(self.unicodeScalars[previousIndex]),
+                CharacterSet.whitespacesAndNewlines.contains(self.unicodeScalars[endIndex])
+            else {
+                index = self.index(startIndex, offsetBy: word.count)
+                continue
+            }
+            return startIndex
+        }
+        return nil
     }
 
     /// Find a string that starts with a specified string and ends with a specified string including
@@ -119,75 +188,6 @@ extension Substring {
                 return nil
             }
             return self[beginIndex..<lastIndex]
-        }
-        return nil
-    }
-
-    /// Return the starting index of a substring value within self.
-    /// - Parameter value: The substring to search for.
-    /// - Returns: The first index within self that matches the substring.
-    @usableFromInline
-    func startIndex(for value: String) -> String.Index? {
-        let size = value.count
-        guard !value.isEmpty, self.count >= size else {
-            return nil
-        }
-        let offset = size - 1
-        let startIndex = self.index(self.startIndex, offsetBy: offset)
-        for i in self[startIndex...].indices {
-            guard
-                let wordStart = self.index(i, offsetBy: -offset, limitedBy: self.startIndex),
-                self[wordStart...i].lowercased() == value.lowercased()
-            else {
-                continue
-            }
-            return wordStart
-        }
-        return nil
-    }
-
-    /// Find the start index for a word.
-    /// - Parameter word: The word to search for.
-    /// - Returns: The index if the word was found.
-    @usableFromInline
-    func startIndex(word: String) -> String.Index? {
-        guard !word.isEmpty, !self.isEmpty else {
-            return nil
-        }
-        var index = self.startIndex
-        while index < self.endIndex {
-            guard let startIndex = self[index...].startIndex(for: word) else {
-                return nil
-            }
-            guard let previousIndex = self.index(startIndex, offsetBy: -1, limitedBy: self.startIndex) else {
-                guard let endIndex = self.index(
-                    startIndex, offsetBy: word.count, limitedBy: self.index(before: self.endIndex)
-                ) else {
-                    return startIndex
-                }
-                guard CharacterSet.whitespacesAndNewlines.contains(self.unicodeScalars[endIndex]) else {
-                    index = self.index(startIndex, offsetBy: word.count)
-                    continue
-                }
-                return startIndex
-            }
-            guard let endIndex = self.index(
-                startIndex, offsetBy: word.count, limitedBy: self.index(before: self.endIndex)
-            ) else {
-                guard CharacterSet.whitespacesAndNewlines.contains(self.unicodeScalars[previousIndex]) else {
-                    index = self.index(startIndex, offsetBy: word.count)
-                    continue
-                }
-                return startIndex
-            }
-            guard
-                CharacterSet.whitespacesAndNewlines.contains(self.unicodeScalars[previousIndex]),
-                CharacterSet.whitespacesAndNewlines.contains(self.unicodeScalars[endIndex])
-            else {
-                index = self.index(startIndex, offsetBy: word.count)
-                continue
-            }
-            return startIndex
         }
         return nil
     }

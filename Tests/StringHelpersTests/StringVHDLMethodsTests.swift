@@ -54,7 +54,7 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
-@testable import VHDLParsing
+@testable import StringHelpers
 import XCTest
 
 /// Test class for `String` extension methods.
