@@ -68,9 +68,7 @@ public struct VHDLFile: RawRepresentable, Equatable, Hashable, Codable, Sendable
 
     /// The equivalent `VHDL` code for this file.
     @inlinable public var rawValue: String {
-        let includesString = includes.sorted { $0.rawValue < $1.rawValue }
-        .map { $0.rawValue }
-        .joined(separator: "\n")
+        let includesString = includes.map { $0.rawValue }.joined(separator: "\n")
         let entitiesString = entities.sorted { $0.name < $1.name }.map(\.rawValue).joined(separator: "\n\n")
         let architecturesString = architectures.sorted { $0.entity < $1.entity }
             .map(\.rawValue)
