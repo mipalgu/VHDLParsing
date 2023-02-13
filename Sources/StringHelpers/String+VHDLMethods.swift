@@ -166,8 +166,16 @@ extension String {
     /// represented as a 2-tuple (startIndex, endIndex) where endIndex is the next index after the last
     /// character of the last word.
     @inlinable
-    public func indexes(for words: [String]) -> [(String.Index, String.Index)] {
-        guard !self.isEmpty, !words.isEmpty else {
+    public func indexes(for sentence: [String]) -> [(String.Index, String.Index)] {
+        guard !self.isEmpty, !sentence.isEmpty else {
+            return []
+        }
+        let words = sentence.map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+        guard !words.contains("") else {
+            return []
+        }
+        let totalCount = words.joined(separator: " ").count
+        guard self.count >= totalCount else {
             return []
         }
         var indexes: [(String.Index, String.Index)] = []
@@ -179,6 +187,9 @@ extension String {
             var startIndex = self.startIndex
             var firstChar = self.startIndex
             while characterIndex < words[wordIndex].endIndex {
+                guard index < self.endIndex else {
+                    return indexes
+                }
                 let char = self[index]
                 let isWhiteSpace = char.isWhitespace
                 if isStart && isWhiteSpace {

@@ -121,4 +121,21 @@ final class StringIndexesTests: XCTestCase {
         XCTAssertEqual(result[0].1, raw.index(raw.startIndex, offsetBy: 75))
     }
 
+    /// Test indexes method null cases.
+    func testNullCases() {
+        let data = "ABC DEF AB E ABF DEA"
+        let sentence = ["ABE", "ABF"]
+        XCTAssertTrue(data.indexes(for: sentence).isEmpty)
+        let data2 = "ABC DEF ABE AB F DEA"
+        XCTAssertTrue(data2.indexes(for: sentence).isEmpty)
+        let data3 = "ABC DEF ABE ABF DE A"
+        let sentence2 = ["ABE", "ABF", "DEA"]
+        XCTAssertTrue(data3.indexes(for: sentence2).isEmpty)
+        let data4 = "ABC DEF ABE ABF DE A ABE"
+        XCTAssertTrue(data4.indexes(for: sentence2).isEmpty)
+        XCTAssertTrue("".indexes(for: sentence).isEmpty)
+        XCTAssertTrue("A".indexes(for: sentence).isEmpty)
+        XCTAssertTrue(data.indexes(for: ["ABC", " "]).isEmpty)
+    }
+
 }
