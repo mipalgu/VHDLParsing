@@ -1,7 +1,10 @@
 # VHDLParsing
 
 [![Swift Coverage Test](https://github.com/mipalgu/VHDLParsing/actions/workflows/cov.yml/badge.svg)](https://github.com/mipalgu/VHDLParsing/actions/workflows/cov.yml)
-[![Ubuntu 20.04 Swift CI](https://github.com/mipalgu/VHDLParsing/actions/workflows/ci-linux.yml/badge.svg)](https://github.com/mipalgu/VHDLParsing/actions/workflows/ci-linux.yml)
+[![Ubuntu 20.04 Swift Debug CI](https://github.com/mipalgu/VHDLParsing/actions/workflows/ci-linux-debug.yml/badge.svg)](https://github.com/mipalgu/VHDLParsing/actions/workflows/ci-linux-debug.yml)
+[![Ubuntu 20.04 Swift Release CI](https://github.com/mipalgu/VHDLParsing/actions/workflows/ci-linux-release.yml/badge.svg)](https://github.com/mipalgu/VHDLParsing/actions/workflows/ci-linux-release.yml)
+[![MacOS Monterey Swift Debug CI](https://github.com/mipalgu/VHDLParsing/actions/workflows/ci-macOS-debug.yml/badge.svg)](https://github.com/mipalgu/VHDLParsing/actions/workflows/ci-macOS-debug.yml)
+[![MacOS Monterey Swift Release CI](https://github.com/mipalgu/VHDLParsing/actions/workflows/ci-macOS-release.yml/badge.svg)](https://github.com/mipalgu/VHDLParsing/actions/workflows/ci-macOS-release.yml)
 [![Swift Lint](https://github.com/mipalgu/VHDLParsing/actions/workflows/swiftlint.yml/badge.svg)](https://github.com/mipalgu/VHDLParsing/actions/workflows/swiftlint.yml)
 
 
@@ -10,13 +13,32 @@ used in other projects. This parser is not complete and is not intended to have 
 entire `VHDL` language. It is intended to be used in other `mipalgu` projects, where parsing the entire `VHDL`
 language is not required to achieve intended outcomes.
 
+Most structures in `VHDL` have corresponding types in this package that conform to `RawRepresentable`. To
+parse an entire file, you may use the `VHDLFile` struct, passing the contents of a `VHDL` file to its `init`
+method.
+
+```swift
+guard
+    // Read contents of file
+    let contents = try? String(contentsOfFile: URL(fileURLWithPath: "path/to/file.vhd", isDirectory: false))
+    let file = VHDLFile(rawValue: contents) // VHDL structure.
+else {
+    // Handle error.
+}
+let includes: [Include] = file.includes // includes.
+let entities: [Entity] = file.entities // entity blocks.
+let architectures: [Architecture] = file.architectures // architecture blocks.
+```
+
+Please see the `About` section of this repository on `GitHub` for the latest documentation.
+
 ## Requirements
 
 - Swift 5.7 or later.
-- macOS 13 or later.
+- macOS 12 or later.
 - Linux (Ubuntu 20.04 or later).
 
-## Installation
+## Usage
 
 To use this package, it is preferred that you use the `Swift Package Manager`. To do so, add the following
 lines to your package manifest.
@@ -34,7 +56,7 @@ let package = Package(
             targets: ["MyPackage"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/mipalgu/VHDLParsing", from: "0.2.0")
+        .package(url: "https://github.com/mipalgu/VHDLParsing", from: "0.3.1")
     ],
     targets: [
         .target(
@@ -46,27 +68,6 @@ let package = Package(
     ]
 )
 ```
-
-## Usage
-
-Most structures in `VHDL` have corresponding types in this package that conform to `RawRepresentable`. To
-parse an entire file, you may use the `VHDLFile` struct, passing the contents of a `VHDL` file to its `init`
-method.
-
-```swift
-guard
-    // Read contents of file
-    let contents = try? String(contentsOfFile: URL(fileURLWithPath: "path/to/file.vhd"))
-    let file = VHDLFile(rawValue: contents) // VHDL structure.
-else {
-    // Handle error.
-}
-let includes: [Include] = file.includes // includes.
-let entities: [Entity] = file.entities // entity blocks.
-let architectures: [Architecture] = file.architectures // architecture blocks.
-```
-
-Please see the `About` section of this repository on `GitHub` for the latest documentation.
 
 ## Contributing
 
