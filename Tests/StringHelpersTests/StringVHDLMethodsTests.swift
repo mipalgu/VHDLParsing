@@ -57,6 +57,8 @@
 @testable import StringHelpers
 import XCTest
 
+// swiftlint:disable type_body_length
+
 /// Test class for `String` extension methods.
 final class StringVHDLMethodsTests: XCTestCase {
 
@@ -168,6 +170,21 @@ final class StringVHDLMethodsTests: XCTestCase {
         XCTAssertEqual(result5[1].0, data5.index(data5.startIndex, offsetBy: 28))
         XCTAssertEqual(data5[result5[1].0..<result5[1].1], "ABE ABF")
         XCTAssertEqual(result5[1].1, data5.index(data5.startIndex, offsetBy: 35))
+    }
+
+    /// Test indexes for block with words previously found in string.
+    func testIndexWordsBigText() {
+        // swiftlint:disable:next line_length
+        let raw = "process (clk)\nbegin\nif (rising_edge(clk)) then\nx <= y;\nend if;\nend process;\nx <= y;\nx <= y;"
+        let data = ["end", "process;"]
+        let result = raw.indexes(for: data)
+        guard result.count == 1 else {
+            XCTFail("Incorrect indexes returned \(result.count).")
+            return
+        }
+        XCTAssertEqual(result[0].0, raw.index(raw.startIndex, offsetBy: 63))
+        XCTAssertEqual(raw[result[0].0..<result[0].1], "end process;")
+        XCTAssertEqual(result[0].1, raw.index(raw.startIndex, offsetBy: 75))
     }
 
     /// Test `withoutEmptyLines` removes lines correctly.
@@ -408,3 +425,5 @@ final class StringVHDLMethodsTests: XCTestCase {
     }
 
 }
+
+// swiftlint:enable type_body_length

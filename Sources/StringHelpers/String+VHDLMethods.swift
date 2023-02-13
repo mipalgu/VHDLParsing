@@ -222,6 +222,9 @@ extension String {
                             firstChar = index
                         }
                         isStart = false
+                    } else if isStart {
+                        firstChar = index
+                        isStart = false
                     }
                     if words[wordIndex][characterIndex] == char {
                         characterIndex = words[wordIndex].index(after: characterIndex)
