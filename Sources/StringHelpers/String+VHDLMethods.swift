@@ -162,24 +162,25 @@ extension String {
 
     /// Find the indexes of all occurrences of a given sentence within the string.
     /// - Parameter words: The sentence to match against as an array of ordered words.
-    /// - Returns: The indexes of all occurrences of the sentence within the string. The indexes are represented as
-    /// a 2-tuple (startIndex, lastIndex) where lastIndex is the index of the last character of the last word.
+    /// - Returns: The indexes of all occurrences of the sentence within the string. The indexes are
+    /// represented as a 2-tuple (startIndex, endIndex) where endIndex is the next index after the end of the
+    /// last word.
     @inlinable
     public func indexes(for words: [String]) -> [(String.Index, String.Index)] {
         guard !self.isEmpty, !words.isEmpty else {
             return []
         }
-        if #available(macOS 13.0, *) {
-            let wordPattern = words.map { $0.lowercased() }.joined(separator: "\\s+") // whitespace.
-            guard
-                // start of line or whitespace.
-                let regex = try? Regex("(^|\\s)" + wordPattern + "($|\\s)")
-            else {
-                return []
-            }
-            let matches = self.lowercased().matches(of: regex)
-            return matches.map { ($0.range.lowerBound, $0.range.upperBound) }
-        } else {
+        // if #available(macOS 13.0, *) {
+        //     let wordPattern = words.map { $0.lowercased() }.joined(separator: "\\s+") // whitespace.
+        //     guard
+        //         // start of line or whitespace.
+        //         let regex = try? Regex("(^|\\s)" + wordPattern + "($|\\s)")
+        //     else {
+        //         return []
+        //     }
+        //     let matches = self.lowercased().matches(of: regex)
+        //     return matches.map { ($0.range.lowerBound, $0.range.upperBound) }
+        // } else {
             var indexes: [(String.Index, String.Index)] = []
             var index = self.startIndex
             while index < self.endIndex {
@@ -215,19 +216,72 @@ extension String {
                         continue
                     }
                     if isStart && words[wordIndex][characterIndex] == char {
-                        startIndex = index
+                        if wordIndex == 0 {
+                            startIndex = index
+                        } else {
+                            firstChar = index
+                        }
                         isStart = false
-                        firstChar = index
                     }
                     if words[wordIndex][characterIndex] == char {
                         characterIndex = words[wordIndex].index(after: characterIndex)
                         if characterIndex == words[wordIndex].endIndex {
+                            let nextIndex = self.index(after: index)
+                            if nextIndex == self.endIndex {
+                                if wordIndex + 1 >= words.count {
+                                    indexes.append((startIndex, index))
+                                }
+                                return indexes
+                            }
+                            let nextChar = self[nextIndex]
+                            if let nextScalar = nextChar.unicodeScalars.first {
+                                if CharacterSet.whitespacesAndNewlines.contains(nextScalar) {
+                                    index = nextIndex
+                                    isStart = true
+                                    if wordIndex >= words.count {
+                                        indexes.append((startIndex, index))
+                                        wordIndex = 0
+                                    } else {
+                                        wordIndex += 1
+                                    }
+                                    characterIndex = words[wordIndex].startIndex
+                                    continue
+                                }
+                                if wordIndex != 0 {
+                                    index = firstChar
+                                    continue
+                                }
+                                guard let nextIndex = self[index...].firstIndex(where: {
+                                    guard let scalar = $0.unicodeScalars.first else {
+                                        return false
+                                    }
+                                    return CharacterSet.whitespacesAndNewlines.contains(scalar)
+                                })
+                                else {
+                                    return indexes
+                                }
+                                index = nextIndex
+                                continue
+                            } else {
+                                if wordIndex >= words.count {
+                                    indexes.append((startIndex, index))
+                                }
+                            }
+                            index = nextIndex
                             wordIndex += 1
                             isStart = true
                             if wordIndex >= words.count {
-                                indexes.append((startIndex, index))
+                                if index == self.index(before: self.endIndex) {
+                                    indexes.append((startIndex, index))
+                                    return indexes
+                                }
+                                wordIndex = 0
+                                characterIndex = words[0].startIndex
+                                continue
                             }
+                            characterIndex = words[wordIndex].startIndex
                         }
+                        index = self.index(after: index)
                         continue
                     }
                     if wordIndex != 0 {
@@ -254,7 +308,7 @@ extension String {
             }
             return indexes
         }
-    }
+    // }
 
     /// Grab indexes of all occurrences of a string that starts with a specified string and ends with a
     /// specified string.
