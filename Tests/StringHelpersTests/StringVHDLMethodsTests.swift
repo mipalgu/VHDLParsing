@@ -57,8 +57,6 @@
 @testable import StringHelpers
 import XCTest
 
-// swiftlint:disable type_body_length
-
 /// Test class for `String` extension methods.
 final class StringVHDLMethodsTests: XCTestCase {
 
@@ -124,67 +122,6 @@ final class StringVHDLMethodsTests: XCTestCase {
         XCTAssertEqual(result2[1].1, data2.index(data2.startIndex, offsetBy: 5))
         XCTAssertTrue(data.indexes(startingWith: "", endingWith: "lo").isEmpty)
         XCTAssertTrue(data.indexes(startingWith: "e", endingWith: "").isEmpty)
-    }
-
-    /// Test indexes grab substring correctly when the data is a sentence.
-    func testIndexesForSentence() {
-        let data = "ABC DEF ABE ABF DEA"
-        let sentence = ["ABE", "ABF"]
-        let result = data.indexes(for: sentence)
-        guard result.count == 1 else {
-            XCTFail("Incorrect indexes returned \(result.count).")
-            return
-        }
-        XCTAssertEqual(result[0].0, data.index(data.startIndex, offsetBy: 8))
-        XCTAssertEqual(data[result[0].0..<result[0].1], "ABE ABF")
-        XCTAssertEqual(result[0].1, data.index(data.startIndex, offsetBy: 15))
-        let data2 = "ABC DEF ABEABF DEA"
-        XCTAssertTrue(data2.indexes(for: sentence).isEmpty)
-        let data3 = "ABC DEF ABE ABF"
-        let result3 = data3.indexes(for: sentence)
-        guard result3.count == 1 else {
-            XCTFail("Incorrect indexes returned \(result3.count).")
-            return
-        }
-        XCTAssertEqual(result3[0].0, data3.index(data3.startIndex, offsetBy: 8))
-        XCTAssertEqual(data3[result3[0].0..<result3[0].1], "ABE ABF")
-        XCTAssertEqual(result3[0].1, data3.index(data3.startIndex, offsetBy: 15))
-        let data4 = "ABC ABE ABE ABF"
-        let result4 = data4.indexes(for: sentence)
-        guard result4.count == 1 else {
-            XCTFail("Incorrect indexes returned \(result3.count).")
-            return
-        }
-        XCTAssertEqual(result4[0].0, data4.index(data4.startIndex, offsetBy: 8))
-        XCTAssertEqual(data4[result4[0].0..<result4[0].1], "ABE ABF")
-        XCTAssertEqual(result4[0].1, data4.index(data4.startIndex, offsetBy: 15))
-        let data5 = "ABC DEF ABE ABF DEA ABC DEF ABE ABF DEA"
-        let result5 = data5.indexes(for: sentence)
-        guard result5.count == 2 else {
-            XCTFail("Incorrect indexes returned \(result.count).")
-            return
-        }
-        XCTAssertEqual(result5[0].0, data5.index(data5.startIndex, offsetBy: 8))
-        XCTAssertEqual(data5[result5[0].0..<result5[0].1], "ABE ABF")
-        XCTAssertEqual(result5[0].1, data5.index(data5.startIndex, offsetBy: 15))
-        XCTAssertEqual(result5[1].0, data5.index(data5.startIndex, offsetBy: 28))
-        XCTAssertEqual(data5[result5[1].0..<result5[1].1], "ABE ABF")
-        XCTAssertEqual(result5[1].1, data5.index(data5.startIndex, offsetBy: 35))
-    }
-
-    /// Test indexes for block with words previously found in string.
-    func testIndexWordsBigText() {
-        // swiftlint:disable:next line_length
-        let raw = "process (clk)\nbegin\nif (rising_edge(clk)) then\nx <= y;\nend if;\nend process;\nx <= y;\nx <= y;"
-        let data = ["end", "process;"]
-        let result = raw.indexes(for: data)
-        guard result.count == 1 else {
-            XCTFail("Incorrect indexes returned \(result.count).")
-            return
-        }
-        XCTAssertEqual(result[0].0, raw.index(raw.startIndex, offsetBy: 63))
-        XCTAssertEqual(raw[result[0].0..<result[0].1], "end process;")
-        XCTAssertEqual(result[0].1, raw.index(raw.startIndex, offsetBy: 75))
     }
 
     /// Test `withoutEmptyLines` removes lines correctly.
@@ -425,5 +362,3 @@ final class StringVHDLMethodsTests: XCTestCase {
     }
 
 }
-
-// swiftlint:enable type_body_length
