@@ -7,7 +7,6 @@
      branches: [develop, main]
 
  jobs:
-
    exec-mac-ci:
      runs-on: macos-12
 
