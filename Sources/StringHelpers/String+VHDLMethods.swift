@@ -297,10 +297,17 @@ extension String {
         return indexes
     }
 
+    /// Find the index of the next word in the string that occurs after the given index. If the given index
+    /// represents a non-whitespace character, then find the next word after the next whitespace character.
+    /// - Parameter index: The index to start searching from.
+    /// - Returns: The next word or nil if no word exists.
     @usableFromInline
     func nextWord(after index: String.Index) -> String.Index? {
+        guard index < self.endIndex, index >= self.startIndex else {
+            return nil
+        }
         let nextIndex = self.index(after: index)
-        if nextIndex >= self.endIndex || nextIndex < self.startIndex {
+        guard nextIndex < self.endIndex, nextIndex >= self.startIndex else {
             return nil
         }
         let subString = self[nextIndex...]
