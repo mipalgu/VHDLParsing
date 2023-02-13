@@ -226,57 +226,26 @@ extension String {
                     if words[wordIndex][characterIndex] == char {
                         characterIndex = words[wordIndex].index(after: characterIndex)
                         if characterIndex == words[wordIndex].endIndex {
-                            let nextIndex = self.index(after: index)
-                            if nextIndex == self.endIndex {
-                                if wordIndex + 1 >= words.count {
-                                    indexes.append((startIndex, index))
-                                }
-                                return indexes
-                            }
-                            let nextChar = self[nextIndex]
-                            if let nextScalar = nextChar.unicodeScalars.first {
-                                if CharacterSet.whitespacesAndNewlines.contains(nextScalar) {
-                                    index = nextIndex
-                                    isStart = true
-                                    if wordIndex >= words.count {
-                                        indexes.append((startIndex, index))
-                                        wordIndex = 0
-                                    } else {
-                                        wordIndex += 1
-                                    }
-                                    characterIndex = words[wordIndex].startIndex
-                                    continue
-                                }
-                                if wordIndex != 0 {
-                                    index = firstChar
-                                    continue
-                                }
-                                guard let nextIndex = self[index...].firstIndex(where: {
-                                    guard let scalar = $0.unicodeScalars.first else {
-                                        return false
-                                    }
-                                    return CharacterSet.whitespacesAndNewlines.contains(scalar)
-                                })
-                                else {
+                            isStart = true
+                            let subString = self[firstChar...index]
+                            if !subString.isWord {
+                                guard let nextIndex = self.nextWord(after: startIndex) else {
                                     return indexes
                                 }
                                 index = nextIndex
+                                wordIndex = 0
+                                characterIndex = words[0].startIndex
                                 continue
-                            } else {
-                                if wordIndex >= words.count {
-                                    indexes.append((startIndex, index))
-                                }
                             }
-                            index = nextIndex
                             wordIndex += 1
-                            isStart = true
                             if wordIndex >= words.count {
-                                if index == self.index(before: self.endIndex) {
-                                    indexes.append((startIndex, index))
+                                indexes.append((startIndex, self.index(after: index)))
+                                guard let nextIndex = self.nextWord(after: index) else {
                                     return indexes
                                 }
                                 wordIndex = 0
                                 characterIndex = words[0].startIndex
+                                index = nextIndex
                                 continue
                             }
                             characterIndex = words[wordIndex].startIndex
@@ -286,24 +255,15 @@ extension String {
                     }
                     if wordIndex != 0 {
                         index = firstChar
-                        isStart = true
-                        wordIndex = 0
-                        characterIndex = words[0].startIndex
-                        continue
-                    }
-                    guard let nextIndex = self[index...].firstIndex(where: {
-                        guard let scalar = $0.unicodeScalars.first else {
-                            return false
+                    } else {
+                        guard let nextIndex = self.nextWord(after: index) else {
+                            return indexes
                         }
-                        return CharacterSet.whitespacesAndNewlines.contains(scalar)
-                    })
-                    else {
-                        return indexes
+                        index = nextIndex
                     }
-                    index = nextIndex
+                    wordIndex = 0
                     isStart = true
                     characterIndex = words[0].startIndex
-                    wordIndex = 0
                 }
             }
             return indexes
@@ -335,6 +295,30 @@ extension String {
             index = self.index(after: endIndex)
         }
         return indexes
+    }
+
+    @usableFromInline
+    func nextWord(after index: String.Index) -> String.Index? {
+        let nextIndex = self.index(after: index)
+        if nextIndex >= self.endIndex || nextIndex < self.startIndex {
+            return nil
+        }
+        let subString = self[nextIndex...]
+        guard let nextWordIndex = subString.firstIndex(where: {
+            guard let scalar = $0.unicodeScalars.first else {
+                return false
+            }
+            return CharacterSet.whitespacesAndNewlines.contains(scalar)
+        }) else {
+            return nil
+        }
+        let nextWordString = subString[nextWordIndex...]
+        return nextWordString.firstIndex {
+            guard let scalar = $0.unicodeScalars.first else {
+                return false
+            }
+            return !CharacterSet.whitespacesAndNewlines.contains(scalar)
+        }
     }
 
     /// Remove the last specified character from the string.

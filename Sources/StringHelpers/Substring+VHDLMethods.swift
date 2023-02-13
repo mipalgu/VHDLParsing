@@ -59,6 +59,15 @@ import Foundation
 /// Add `startIndex`.
 extension Substring {
 
+    @usableFromInline var isWord: Bool {
+        !self.isEmpty && !self.unicodeScalars.allSatisfy { CharacterSet.whitespacesAndNewlines.contains($0) }
+        && (
+            self.endIndex == self.base.endIndex || CharacterSet.whitespacesAndNewlines.contains(
+                self.base.unicodeScalars[self.endIndex]
+            )
+        )
+    }
+
     /// Return a string that exists within self that starts with an open bracket and ends with the balanced
     /// closing bracket.
     @inlinable public var uptoBalancedBracket: Substring? {
