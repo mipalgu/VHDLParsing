@@ -59,11 +59,17 @@ import Foundation
 /// Add `startIndex`.
 extension Substring {
 
+    /// Return whether this substring represents a word in the base string. This property will check the
+    /// characters around the substring for whitespaces.
     @usableFromInline var isWord: Bool {
         !self.isEmpty && !self.unicodeScalars.allSatisfy { CharacterSet.whitespacesAndNewlines.contains($0) }
         && (
             self.endIndex == self.base.endIndex || CharacterSet.whitespacesAndNewlines.contains(
                 self.base.unicodeScalars[self.endIndex]
+            )
+        ) && (
+            self.startIndex == self.base.startIndex || CharacterSet.whitespacesAndNewlines.contains(
+                self.base.unicodeScalars[self.base.index(before: self.startIndex)]
             )
         )
     }
