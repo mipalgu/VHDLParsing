@@ -163,8 +163,8 @@ extension String {
     /// Find the indexes of all occurrences of a given sentence within the string.
     /// - Parameter words: The sentence to match against as an array of ordered words.
     /// - Returns: The indexes of all occurrences of the sentence within the string. The indexes are
-    /// represented as a 2-tuple (startIndex, endIndex) where endIndex is the next index after the end of the
-    /// last word.
+    /// represented as a 2-tuple (startIndex, endIndex) where endIndex is the next index after the last
+    /// character of the last word.
     @inlinable
     public func indexes(for words: [String]) -> [(String.Index, String.Index)] {
         guard !self.isEmpty, !words.isEmpty else {
@@ -180,15 +180,7 @@ extension String {
             var firstChar = self.startIndex
             while characterIndex < words[wordIndex].endIndex {
                 let char = self[index]
-                guard let scalar = char.unicodeScalars.first else {
-                    index = self.index(after: index)
-                    if !isStart {
-                        wordIndex = 0
-                        characterIndex = words[wordIndex].startIndex
-                    }
-                    continue
-                }
-                let isWhiteSpace = CharacterSet.whitespacesAndNewlines.contains(scalar)
+                let isWhiteSpace = char.isWhitespace
                 if isStart && isWhiteSpace {
                     index = self.index(after: index)
                     continue
