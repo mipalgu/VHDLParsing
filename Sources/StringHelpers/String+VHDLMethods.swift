@@ -162,19 +162,98 @@ extension String {
 
     /// Find the indexes of all occurrences of a given sentence within the string.
     /// - Parameter words: The sentence to match against as an array of ordered words.
-    /// - Returns: The indexes of all occurrences of the sentence within the string.
+    /// - Returns: The indexes of all occurrences of the sentence within the string. The indexes are represented as
+    /// a 2-tuple (startIndex, lastIndex) where lastIndex is the index of the last character of the last word.
     @inlinable
     public func indexes(for words: [String]) -> [(String.Index, String.Index)] {
-        let wordPattern = words.map { $0.lowercased() }.joined(separator: "\\s+") // whitespace.
-        guard
-            !self.isEmpty,
-            !words.isEmpty,
-            let regex = try? Regex("(^|\\s)" + wordPattern + "($|\\s)") // start of line or whitespace.
-        else {
+        guard !self.isEmpty, !words.isEmpty else {
             return []
         }
-        let matches = self.lowercased().matches(of: regex)
-        return matches.map { ($0.range.lowerBound, $0.range.upperBound) }
+        if #available(macOS 13.0, *) {
+            let wordPattern = words.map { $0.lowercased() }.joined(separator: "\\s+") // whitespace.
+            guard
+                // start of line or whitespace.
+                let regex = try? Regex("(^|\\s)" + wordPattern + "($|\\s)")
+            else {
+                return []
+            }
+            let matches = self.lowercased().matches(of: regex)
+            return matches.map { ($0.range.lowerBound, $0.range.upperBound) }
+        } else {
+            var indexes: [(String.Index, String.Index)] = []
+            var index = self.startIndex
+            while index < self.endIndex {
+                var wordIndex = 0
+                var isStart = true
+                var characterIndex = words[wordIndex].startIndex
+                var startIndex = self.startIndex
+                var firstChar = self.startIndex
+                while characterIndex < words[wordIndex].endIndex {
+                    let char = self[index]
+                    guard let scalar = char.unicodeScalars.first else {
+                        index = self.index(after: index)
+                        if !isStart {
+                            wordIndex = 0
+                            characterIndex = words[wordIndex].startIndex
+                        }
+                        continue
+                    }
+                    let isWhiteSpace = CharacterSet.whitespacesAndNewlines.contains(scalar)
+                    if isStart && isWhiteSpace {
+                        index = self.index(after: index)
+                        continue
+                    }
+                    if isWhiteSpace {
+                        if wordIndex != 0 {
+                            index = firstChar
+                        } else {
+                            index = self.index(after: index)
+                        }
+                        wordIndex = 0
+                        characterIndex = words[0].startIndex
+                        isStart = true
+                        continue
+                    }
+                    if isStart && words[wordIndex][characterIndex] == char {
+                        startIndex = index
+                        isStart = false
+                        firstChar = index
+                    }
+                    if words[wordIndex][characterIndex] == char {
+                        characterIndex = words[wordIndex].index(after: characterIndex)
+                        if characterIndex == words[wordIndex].endIndex {
+                            wordIndex += 1
+                            isStart = true
+                            if wordIndex >= words.count {
+                                indexes.append((startIndex, index))
+                            }
+                        }
+                        continue
+                    }
+                    if wordIndex != 0 {
+                        index = firstChar
+                        isStart = true
+                        wordIndex = 0
+                        characterIndex = words[0].startIndex
+                        continue
+                    }
+                    guard let nextIndex = self[index...].firstIndex(where: {
+                        guard let scalar = $0.unicodeScalars.first else {
+                            return false
+                        }
+                        return CharacterSet.whitespacesAndNewlines.contains(scalar)
+                    })
+                    else {
+                        return indexes
+                    }
+                    index = nextIndex
+                    isStart = true
+                    characterIndex = words[0].startIndex
+                    wordIndex = 0
+                }
+            }
+            return indexes
+        }
     }
 
     /// Grab indexes of all occurrences of a string that starts with a specified string and ends with a
