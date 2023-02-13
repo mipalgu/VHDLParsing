@@ -160,22 +160,115 @@ extension String {
         return self.components(separatedBy: .newlines).map { indentAmount + $0 }.joined(separator: "\n")
     }
 
+    // swiftlint:disable function_body_length
+    // swiftlint:disable cyclomatic_complexity
+
     /// Find the indexes of all occurrences of a given sentence within the string.
     /// - Parameter words: The sentence to match against as an array of ordered words.
-    /// - Returns: The indexes of all occurrences of the sentence within the string.
+    /// - Returns: The indexes of all occurrences of the sentence within the string. The indexes are
+    /// represented as a 2-tuple (startIndex, endIndex) where endIndex is the next index after the last
+    /// character of the last word.
     @inlinable
-    public func indexes(for words: [String]) -> [(String.Index, String.Index)] {
-        let wordPattern = words.map { $0.lowercased() }.joined(separator: "\\s+") // whitespace.
-        guard
-            !self.isEmpty,
-            !words.isEmpty,
-            let regex = try? Regex("(^|\\s)" + wordPattern + "($|\\s)") // start of line or whitespace.
-        else {
+    public func indexes(for sentence: [String]) -> [(String.Index, String.Index)] {
+        guard !self.isEmpty, !sentence.isEmpty else {
             return []
         }
-        let matches = self.lowercased().matches(of: regex)
-        return matches.map { ($0.range.lowerBound, $0.range.upperBound) }
+        let words = sentence.map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+        guard !words.contains("") else {
+            return []
+        }
+        let totalCount = words.joined(separator: " ").count
+        guard self.count >= totalCount else {
+            return []
+        }
+        var indexes: [(String.Index, String.Index)] = []
+        var index = self.startIndex
+        while index < self.endIndex {
+            var wordIndex = 0
+            var isStart = true
+            var characterIndex = words[wordIndex].startIndex
+            var startIndex = self.startIndex
+            var firstChar = self.startIndex
+            while characterIndex < words[wordIndex].endIndex {
+                guard index < self.endIndex else {
+                    return indexes
+                }
+                let char = self[index]
+                let isWhiteSpace = char.isWhitespace
+                if isStart && isWhiteSpace {
+                    index = self.index(after: index)
+                    continue
+                }
+                if isWhiteSpace {
+                    if wordIndex != 0 {
+                        index = firstChar
+                    } else {
+                        index = self.index(after: index)
+                    }
+                    wordIndex = 0
+                    characterIndex = words[0].startIndex
+                    isStart = true
+                    continue
+                }
+                if isStart && words[wordIndex][characterIndex] == char {
+                    if wordIndex == 0 {
+                        startIndex = index
+                    } else {
+                        firstChar = index
+                    }
+                    isStart = false
+                } else if isStart {
+                    firstChar = index
+                    isStart = false
+                }
+                if words[wordIndex][characterIndex] == char {
+                    characterIndex = words[wordIndex].index(after: characterIndex)
+                    if characterIndex == words[wordIndex].endIndex {
+                        isStart = true
+                        let subString = self[firstChar...index]
+                        if !subString.isWord {
+                            guard let nextIndex = self.nextWord(after: startIndex) else {
+                                return indexes
+                            }
+                            index = nextIndex
+                            wordIndex = 0
+                            characterIndex = words[0].startIndex
+                            continue
+                        }
+                        wordIndex += 1
+                        if wordIndex >= words.count {
+                            indexes.append((startIndex, self.index(after: index)))
+                            guard let nextIndex = self.nextWord(after: index) else {
+                                return indexes
+                            }
+                            wordIndex = 0
+                            characterIndex = words[0].startIndex
+                            index = nextIndex
+                            continue
+                        }
+                        characterIndex = words[wordIndex].startIndex
+                    }
+                    index = self.index(after: index)
+                    continue
+                }
+                if wordIndex != 0 {
+                    index = firstChar
+                } else {
+                    guard let nextIndex = self.nextWord(after: index) else {
+                        return indexes
+                    }
+                    index = nextIndex
+                }
+                wordIndex = 0
+                isStart = true
+                characterIndex = words[0].startIndex
+            }
+        }
+        return indexes
     }
+
+    // swiftlint:enable cyclomatic_complexity
+    // swiftlint:enable function_body_length
 
     /// Grab indexes of all occurrences of a string that starts with a specified string and ends with a
     /// specified string.
@@ -202,6 +295,37 @@ extension String {
             index = self.index(after: endIndex)
         }
         return indexes
+    }
+
+    /// Find the index of the next word in the string that occurs after the given index. If the given index
+    /// represents a non-whitespace character, then find the next word after the next whitespace character.
+    /// - Parameter index: The index to start searching from.
+    /// - Returns: The next word or nil if no word exists.
+    @usableFromInline
+    func nextWord(after index: String.Index) -> String.Index? {
+        guard index < self.endIndex, index >= self.startIndex else {
+            return nil
+        }
+        let nextIndex = self.index(after: index)
+        guard nextIndex < self.endIndex, nextIndex >= self.startIndex else {
+            return nil
+        }
+        let subString = self[nextIndex...]
+        guard let nextWordIndex = subString.firstIndex(where: {
+            guard let scalar = $0.unicodeScalars.first else {
+                return false
+            }
+            return CharacterSet.whitespacesAndNewlines.contains(scalar)
+        }) else {
+            return nil
+        }
+        let nextWordString = subString[nextWordIndex...]
+        return nextWordString.firstIndex {
+            guard let scalar = $0.unicodeScalars.first else {
+                return false
+            }
+            return !CharacterSet.whitespacesAndNewlines.contains(scalar)
+        }
     }
 
     /// Remove the last specified character from the string.
