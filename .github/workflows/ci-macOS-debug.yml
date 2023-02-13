@@ -1,19 +1,20 @@
- name: MacOS Monterey Swift CI
+name: MacOS Monterey Swift Debug CI
 
- on:
-   push:
-     branches: [develop, main]
-   pull_request:
-     branches: [develop, main]
+on:
+  push:
+    branches: [develop, main]
+  pull_request:
+    branches: [develop, main]
 
- jobs:
-   exec-mac-ci:
-     runs-on: macos-12
+jobs:
 
-     steps:
-       - uses: swift-actions/setup-swift@v1
-         with:
-           swift-version: "5.7"
+  exec-mac-ci-debug:
+    runs-on: macos-12
+
+    steps:
+      - uses: swift-actions/setup-swift@v1
+        with:
+          swift-version: "5.7"
 
       #- name: Install guunits
       #  uses: mipalgu/install-guunits@main
@@ -32,11 +33,5 @@
       - name: Debug Build
         run: swift build -c debug
 
-      - name: Release build
-        run: swift build -c release
-
       - name: Debug Test
         run: swift test
-
-      - name: Release Test
-        run: swift test -c release
