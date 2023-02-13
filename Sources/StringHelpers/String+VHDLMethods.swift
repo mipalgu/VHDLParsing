@@ -160,6 +160,9 @@ extension String {
         return self.components(separatedBy: .newlines).map { indentAmount + $0 }.joined(separator: "\n")
     }
 
+    // swiftlint:disable function_body_length
+    // swiftlint:disable cyclomatic_complexity
+
     /// Find the indexes of all occurrences of a given sentence within the string.
     /// - Parameter words: The sentence to match against as an array of ordered words.
     /// - Returns: The indexes of all occurrences of the sentence within the string. The indexes are
@@ -263,6 +266,9 @@ extension String {
         }
         return indexes
     }
+
+    // swiftlint:enable cyclomatic_complexity
+    // swiftlint:enable function_body_length
 
     /// Grab indexes of all occurrences of a string that starts with a specified string and ends with a
     /// specified string.
