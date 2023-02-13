@@ -170,108 +170,96 @@ extension String {
         guard !self.isEmpty, !words.isEmpty else {
             return []
         }
-        // if #available(macOS 13.0, *) {
-        //     let wordPattern = words.map { $0.lowercased() }.joined(separator: "\\s+") // whitespace.
-        //     guard
-        //         // start of line or whitespace.
-        //         let regex = try? Regex("(^|\\s)" + wordPattern + "($|\\s)")
-        //     else {
-        //         return []
-        //     }
-        //     let matches = self.lowercased().matches(of: regex)
-        //     return matches.map { ($0.range.lowerBound, $0.range.upperBound) }
-        // } else {
-            var indexes: [(String.Index, String.Index)] = []
-            var index = self.startIndex
-            while index < self.endIndex {
-                var wordIndex = 0
-                var isStart = true
-                var characterIndex = words[wordIndex].startIndex
-                var startIndex = self.startIndex
-                var firstChar = self.startIndex
-                while characterIndex < words[wordIndex].endIndex {
-                    let char = self[index]
-                    guard let scalar = char.unicodeScalars.first else {
-                        index = self.index(after: index)
-                        if !isStart {
-                            wordIndex = 0
-                            characterIndex = words[wordIndex].startIndex
-                        }
-                        continue
-                    }
-                    let isWhiteSpace = CharacterSet.whitespacesAndNewlines.contains(scalar)
-                    if isStart && isWhiteSpace {
-                        index = self.index(after: index)
-                        continue
-                    }
-                    if isWhiteSpace {
-                        if wordIndex != 0 {
-                            index = firstChar
-                        } else {
-                            index = self.index(after: index)
-                        }
+        var indexes: [(String.Index, String.Index)] = []
+        var index = self.startIndex
+        while index < self.endIndex {
+            var wordIndex = 0
+            var isStart = true
+            var characterIndex = words[wordIndex].startIndex
+            var startIndex = self.startIndex
+            var firstChar = self.startIndex
+            while characterIndex < words[wordIndex].endIndex {
+                let char = self[index]
+                guard let scalar = char.unicodeScalars.first else {
+                    index = self.index(after: index)
+                    if !isStart {
                         wordIndex = 0
-                        characterIndex = words[0].startIndex
-                        isStart = true
-                        continue
+                        characterIndex = words[wordIndex].startIndex
                     }
-                    if isStart && words[wordIndex][characterIndex] == char {
-                        if wordIndex == 0 {
-                            startIndex = index
-                        } else {
-                            firstChar = index
-                        }
-                        isStart = false
-                    } else if isStart {
-                        firstChar = index
-                        isStart = false
-                    }
-                    if words[wordIndex][characterIndex] == char {
-                        characterIndex = words[wordIndex].index(after: characterIndex)
-                        if characterIndex == words[wordIndex].endIndex {
-                            isStart = true
-                            let subString = self[firstChar...index]
-                            if !subString.isWord {
-                                guard let nextIndex = self.nextWord(after: startIndex) else {
-                                    return indexes
-                                }
-                                index = nextIndex
-                                wordIndex = 0
-                                characterIndex = words[0].startIndex
-                                continue
-                            }
-                            wordIndex += 1
-                            if wordIndex >= words.count {
-                                indexes.append((startIndex, self.index(after: index)))
-                                guard let nextIndex = self.nextWord(after: index) else {
-                                    return indexes
-                                }
-                                wordIndex = 0
-                                characterIndex = words[0].startIndex
-                                index = nextIndex
-                                continue
-                            }
-                            characterIndex = words[wordIndex].startIndex
-                        }
-                        index = self.index(after: index)
-                        continue
-                    }
+                    continue
+                }
+                let isWhiteSpace = CharacterSet.whitespacesAndNewlines.contains(scalar)
+                if isStart && isWhiteSpace {
+                    index = self.index(after: index)
+                    continue
+                }
+                if isWhiteSpace {
                     if wordIndex != 0 {
                         index = firstChar
                     } else {
-                        guard let nextIndex = self.nextWord(after: index) else {
-                            return indexes
-                        }
-                        index = nextIndex
+                        index = self.index(after: index)
                     }
                     wordIndex = 0
-                    isStart = true
                     characterIndex = words[0].startIndex
+                    isStart = true
+                    continue
                 }
+                if isStart && words[wordIndex][characterIndex] == char {
+                    if wordIndex == 0 {
+                        startIndex = index
+                    } else {
+                        firstChar = index
+                    }
+                    isStart = false
+                } else if isStart {
+                    firstChar = index
+                    isStart = false
+                }
+                if words[wordIndex][characterIndex] == char {
+                    characterIndex = words[wordIndex].index(after: characterIndex)
+                    if characterIndex == words[wordIndex].endIndex {
+                        isStart = true
+                        let subString = self[firstChar...index]
+                        if !subString.isWord {
+                            guard let nextIndex = self.nextWord(after: startIndex) else {
+                                return indexes
+                            }
+                            index = nextIndex
+                            wordIndex = 0
+                            characterIndex = words[0].startIndex
+                            continue
+                        }
+                        wordIndex += 1
+                        if wordIndex >= words.count {
+                            indexes.append((startIndex, self.index(after: index)))
+                            guard let nextIndex = self.nextWord(after: index) else {
+                                return indexes
+                            }
+                            wordIndex = 0
+                            characterIndex = words[0].startIndex
+                            index = nextIndex
+                            continue
+                        }
+                        characterIndex = words[wordIndex].startIndex
+                    }
+                    index = self.index(after: index)
+                    continue
+                }
+                if wordIndex != 0 {
+                    index = firstChar
+                } else {
+                    guard let nextIndex = self.nextWord(after: index) else {
+                        return indexes
+                    }
+                    index = nextIndex
+                }
+                wordIndex = 0
+                isStart = true
+                characterIndex = words[0].startIndex
             }
-            return indexes
         }
-    // }
+        return indexes
+    }
 
     /// Grab indexes of all occurrences of a string that starts with a specified string and ends with a
     /// specified string.
