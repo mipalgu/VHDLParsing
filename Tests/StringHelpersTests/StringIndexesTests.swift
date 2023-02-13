@@ -138,4 +138,14 @@ final class StringIndexesTests: XCTestCase {
         XCTAssertTrue(data.indexes(for: ["ABC", " "]).isEmpty)
     }
 
+    /// Test `nextWord` function.
+    func testNextWord() {
+        let data = "ABC DEF ABE ABF DEA"
+        let index = data.index(after: data.startIndex)
+        XCTAssertEqual(data.nextWord(after: index), data.index(data.startIndex, offsetBy: 4))
+        XCTAssertNil(data.nextWord(after: data.endIndex))
+        let emptyString = ""
+        XCTAssertNil(emptyString.nextWord(after: emptyString.startIndex))
+    }
+
 }
