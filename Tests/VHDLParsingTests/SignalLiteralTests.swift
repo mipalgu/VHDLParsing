@@ -151,7 +151,9 @@ final class SignalLiteralTests: XCTestCase {
 
     /// Test default property sets the correct value.
     func testDefaultVectors() {
-        let expected = SignalLiteral.vector(value: .logics(value: LogicVector(values: [.low, .low, .low])))
+        let expected = SignalLiteral.vector(value: .indexed(
+            values: IndexedVector(values: [IndexedValue(index: .others, value: .bit(value: .low))])
+        ))
         let range = VectorSize.downto(
             upper: .literal(value: .integer(value: 2)), lower: .literal(value: .integer(value: 0))
         )
@@ -164,7 +166,7 @@ final class SignalLiteralTests: XCTestCase {
         XCTAssertEqual(SignalLiteral.default(for: .ranged(type: .stdULogicVector(size: range))), expected)
         XCTAssertEqual(
             SignalLiteral.default(for: .ranged(type: .bitVector(size: range))),
-            .vector(value: .bits(value: BitVector(values: [.low, .low, .low])))
+            expected
         )
     }
 

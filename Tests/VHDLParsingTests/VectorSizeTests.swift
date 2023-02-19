@@ -109,13 +109,21 @@ final class VectorSizeTests: XCTestCase {
     /// Test init returns nil for non-numeric `downto` case.
     func testNonNumericDowntoCase() {
         let raw = "a downto 4"
-        XCTAssertNil(VectorSize(rawValue: raw))
+        XCTAssertEqual(
+            VectorSize(rawValue: raw),
+            .downto(
+                upper: .variable(name: VariableName(text: "a")), lower: .literal(value: .integer(value: 4))
+            )
+        )
     }
 
     /// Test init returns nil for non-numeric `to` case.
     func testNonNumericToCase() {
         let raw = "2 to b"
-        XCTAssertNil(VectorSize(rawValue: raw))
+        XCTAssertEqual(
+            VectorSize(rawValue: raw),
+            .to(lower: .literal(value: .integer(value: 2)), upper: .variable(name: VariableName(text: "b")))
+        )
     }
 
     /// Test that init returns nil for invalid size.

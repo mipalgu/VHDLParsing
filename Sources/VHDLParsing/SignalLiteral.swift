@@ -154,8 +154,18 @@ public enum SignalLiteral: RawRepresentable, Equatable, Hashable, Codable, Senda
             return .logic(value: .low)
         case .ranged(let type):
             switch type {
-            case .integer:
-                return .integer(value: 0)
+            case .integer(let size):
+                guard
+                    case .literal(let maxLiteral) = size.max,
+                    case .integer(let maxValue) = maxLiteral,
+                    case .literal(let minLiteral) = size.min,
+                    case .integer(let minValue) = minLiteral,
+                    maxValue >= minValue,
+                    minValue > 0 || maxValue < 0
+                else {
+                    return .integer(value: 0)
+                }
+                return .integer(value: minValue)
             case .bitVector, .signed, .unsigned, .stdLogicVector, .stdULogicVector:
                 return .vector(value: .indexed(
                     values: IndexedVector(values: [IndexedValue(index: .others, value: .bit(value: .low))])

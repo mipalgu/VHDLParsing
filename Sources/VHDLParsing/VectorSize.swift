@@ -127,10 +127,17 @@ public enum VectorSize: RawRepresentable, Equatable, Hashable, Codable, Sendable
         guard hasDownto else {
             let components = value.components(separatedBy: " to ")
             guard
-                let lhs = Expression(rawValue: components.first ?? ""),
-                let rhs = Expression(rawValue: components.last ?? "")
+                let first = components.first,
+                let last = components.last,
+                let lhs = Expression(rawValue: first),
+                let rhs = Expression(rawValue: last)
             else {
                 return nil
+            }
+            if let lhsInt = Int(first), let rhsInt = Int(last) {
+                guard lhsInt <= rhsInt else {
+                    return nil
+                }
             }
             self = .to(lower: lhs, upper: rhs)
             return
@@ -139,10 +146,17 @@ public enum VectorSize: RawRepresentable, Equatable, Hashable, Codable, Sendable
             .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
             .filter { !$0.isEmpty }
         guard
-            let lhs = Expression(rawValue: components.first ?? ""),
-            let rhs = Expression(rawValue: components.last ?? "")
+            let first = components.first,
+            let last = components.last,
+            let lhs = Expression(rawValue: first),
+            let rhs = Expression(rawValue: last)
         else {
             return nil
+        }
+        if let lhsInt = Int(first), let rhsInt = Int(last) {
+            guard lhsInt >= rhsInt else {
+                return nil
+            }
         }
         self = .downto(upper: lhs, lower: rhs)
         return
