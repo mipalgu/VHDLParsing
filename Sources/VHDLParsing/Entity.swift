@@ -63,10 +63,20 @@ public struct Entity: RawRepresentable, Equatable, Hashable, Codable, Sendable {
     /// The port declaration in the entity.
     public let port: PortBlock
 
+    public let generic: GenericBlock?
+
     /// The `VHDL` code for this `Entity`.
     @inlinable public var rawValue: String {
-        """
+        guard let generic = self.generic else {
+            return """
+            entity \(self.name.rawValue) is
+            \(port.rawValue.indent(amount: 1))
+            end \(self.name.rawValue);
+            """
+        }
+        return """
         entity \(self.name.rawValue) is
+        \(generic.rawValue.indent(amount: 1))
         \(port.rawValue.indent(amount: 1))
         end \(self.name.rawValue);
         """
@@ -77,9 +87,10 @@ public struct Entity: RawRepresentable, Equatable, Hashable, Codable, Sendable {
     ///   - name: The name of the entity.
     ///   - port: The port declaration.
     @inlinable
-    public init(name: VariableName, port: PortBlock) {
+    public init(name: VariableName, port: PortBlock, generic: GenericBlock? = nil) {
         self.name = name
         self.port = port
+        self.generic = generic
     }
 
     /// Creates a new `Entity` from the given `VHDL` code.
@@ -113,11 +124,34 @@ public struct Entity: RawRepresentable, Equatable, Hashable, Codable, Sendable {
         guard noName.lastWord?.lowercased() == "end" else {
             return nil
         }
-        let portRaw = noName.dropLast(3)
-        guard let port = PortBlock(rawValue: String(portRaw)) else {
+        let remainingRaw = noName.dropLast(3).trimmingCharacters(in: .whitespacesAndNewlines)
+        let portRaw: String
+        let generic: GenericBlock?
+        if remainingRaw.lowercased().hasPrefix("generic") {
+            guard
+                let genericRaw = remainingRaw.dropFirst(7).uptoBalancedBracket,
+                let genericBlock = GenericBlock(rawValue: "generic" + String(genericRaw) + ";"),
+                let portIndex = remainingRaw.index(
+                    remainingRaw.startIndex, offsetBy: genericRaw.count + 7, limitedBy: remainingRaw.endIndex
+                ),
+                portIndex < remainingRaw.endIndex
+            else {
+                return nil
+            }
+            let raw = String(remainingRaw[portIndex...]).trimmingCharacters(in: .whitespacesAndNewlines)
+            guard raw.hasPrefix(";") else {
+                return nil
+            }
+            portRaw = String(raw.dropFirst())
+            generic = genericBlock
+        } else {
+            portRaw = remainingRaw
+            generic = nil
+        }
+        guard let port = PortBlock(rawValue: portRaw) else {
             return nil
         }
-        self.init(name: name, port: port)
+        self.init(name: name, port: port, generic: generic)
     }
 
 }
