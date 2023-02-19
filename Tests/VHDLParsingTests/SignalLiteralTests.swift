@@ -176,6 +176,8 @@ final class SignalLiteralTests: XCTestCase {
         XCTAssertEqual(SignalLiteral.default(for: .stdLogic), .logic(value: .low))
         XCTAssertEqual(SignalLiteral.default(for: .boolean), .boolean(value: false))
         XCTAssertEqual(SignalLiteral.default(for: .integer), .integer(value: 0))
+        XCTAssertEqual(SignalLiteral.default(for: .natural), .integer(value: 0))
+        XCTAssertEqual(SignalLiteral.default(for: .positive), .integer(value: 1))
         XCTAssertEqual(
             SignalLiteral.default(for: .ranged(type: .integer(size: .to(
                 lower: .literal(value: .integer(value: 5)), upper: .literal(value: .integer(value: 7))

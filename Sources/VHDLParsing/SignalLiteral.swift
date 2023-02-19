@@ -148,8 +148,10 @@ public enum SignalLiteral: RawRepresentable, Equatable, Hashable, Codable, Senda
             return .boolean(value: false)
         case .real:
             return .decimal(value: 0.0)
-        case .integer, .natural, .positive:
+        case .integer, .natural:
             return .integer(value: 0)
+        case .positive:
+            return .integer(value: 1)
         case .stdLogic, .stdULogic:
             return .logic(value: .low)
         case .ranged(let type):
