@@ -108,4 +108,39 @@ final class GenericTypeDeclarationTests: XCTestCase {
         XCTAssertEqual(generic2.rawValue, "x: std_logic;")
     }
 
+    /// Test `init(rawValue:)`.
+    func testRawValueInit() {
+        XCTAssertEqual(GenericTypeDeclaration(rawValue: "x: std_logic := '0';"), generic)
+        XCTAssertEqual(GenericTypeDeclaration(rawValue: "x: std_logic := '0'"), generic)
+        XCTAssertEqual(GenericTypeDeclaration(rawValue: "x\n:    std_logic     :=     '0'   ;"), generic)
+        generic.defaultValue = nil
+        XCTAssertEqual(GenericTypeDeclaration(rawValue: "x: std_logic;"), generic)
+        XCTAssertEqual(GenericTypeDeclaration(rawValue: "x: std_logic"), generic)
+        XCTAssertEqual(GenericTypeDeclaration(rawValue: "x\n:    std_logic     ;"), generic)
+        XCTAssertEqual(GenericTypeDeclaration(rawValue: "x    :    std_logic     ;     "), generic)
+        let complexGeneric = GenericTypeDeclaration(
+            name: x,
+            type: .ranged(type: .stdLogicVector(size: .downto(upper: 7, lower: 0))),
+            defaultValue: .literal(value: .vector(value: .indexed(values: IndexedVector(
+                values: [IndexedValue(index: .others, value: .logic(value: .low))]
+            ))))
+        )
+        XCTAssertEqual(
+            GenericTypeDeclaration(rawValue: "x: std_logic_vector(7 downto 0) := (others => '0');"),
+            complexGeneric
+        )
+        XCTAssertEqual(
+            GenericTypeDeclaration(rawValue: "x : std_logic_vector(7 downto 0) := (others => '0');"),
+            complexGeneric
+        )
+        XCTAssertNil(GenericTypeDeclaration(rawValue: "x: in std_logic;"))
+        XCTAssertNil(GenericTypeDeclaration(rawValue: "x: in std_logic := '0';"))
+        XCTAssertNil(GenericTypeDeclaration(rawValue: "x := '0';"))
+        XCTAssertNil(GenericTypeDeclaration(rawValue: ""))
+        XCTAssertNil(GenericTypeDeclaration(rawValue: String(repeating: "x", count: 256) + ": std_logic;"))
+        XCTAssertNil(GenericTypeDeclaration(rawValue: "x: std_logic := '0' := '1';"))
+        XCTAssertNil(GenericTypeDeclaration(rawValue: "x:std_logic := '0';"))
+        XCTAssertNil(GenericTypeDeclaration(rawValue: "x : := '0';"))
+    }
+
 }

@@ -54,15 +54,21 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
+/// A type representing a generic type declaration inside a generic block in `VHDL`. This struct parses and
+/// represents individual generic types within an entity.
 public struct GenericTypeDeclaration: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
+    /// The name of the type.
     public var name: VariableName
 
+    /// The type of the generic.
     public var type: SignalType
 
+    /// The default value of the generic.
     public var defaultValue: Expression?
 
-    public var rawValue: String {
+    /// The equivalent `VHDL` code of this generic type declaration.
+    @inlinable public var rawValue: String {
         let declaration = "\(name.rawValue): \(type.rawValue)"
         guard let value = defaultValue else {
             return declaration + ";"
@@ -70,12 +76,21 @@ public struct GenericTypeDeclaration: RawRepresentable, Equatable, Hashable, Cod
         return declaration + " := \(value.rawValue);"
     }
 
+    /// Initialise this declaration from it's stored properties.
+    /// - Parameters:
+    ///   - name: The name of the type.
+    ///   - type: The type of the generic.
+    ///   - defaultValue: The default value of the generic.
+    @inlinable
     public init(name: VariableName, type: SignalType, defaultValue: Expression? = nil) {
         self.name = name
         self.type = type
         self.defaultValue = defaultValue
     }
 
+    /// Initialise this declaration from it's `VHDL` code.
+    /// - Parameter rawValue: The `VHDL` code defining the new generic type.
+    @inlinable
     public init?(rawValue: String) {
         let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
         guard trimmedString.count < 256, !trimmedString.isEmpty else {
