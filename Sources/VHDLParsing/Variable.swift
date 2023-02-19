@@ -7,7 +7,7 @@
 
 import Foundation
 
-/// A variable in VHDL that represents machine and state variables in an LLFSM.
+/// A variable in VHDL.
 public protocol Variable {
 
     /// The type of the variable.
