@@ -75,7 +75,10 @@ final class IndexedValueTests: XCTestCase {
         XCTAssertEqual(IndexedValue(index: .index(value: 1), value: .bit(value: .low)).rawValue, "1 => '0'")
         XCTAssertEqual(
             IndexedValue(
-                index: .range(value: .downto(upper: 2, lower: 0)), value: .bit(value: .low)
+                index: .range(value: .downto(
+                    upper: .literal(value: .integer(value: 2)), lower: .literal(value: .integer(value: 0))
+                )),
+                value: .bit(value: .low)
             ).rawValue,
             "2 downto 0 => '0'"
         )
@@ -93,7 +96,12 @@ final class IndexedValueTests: XCTestCase {
         XCTAssertEqual(IndexedValue(rawValue: " others => '1', "), value)
         XCTAssertEqual(
             IndexedValue(rawValue: "3 downto 0 => '1',"),
-            IndexedValue(index: .range(value: .downto(upper: 3, lower: 0)), value: .bit(value: .high))
+            IndexedValue(
+                index: .range(value: .downto(
+                    upper: .literal(value: .integer(value: 3)), lower: .literal(value: .integer(value: 0))
+                )),
+                value: .bit(value: .high)
+            )
         )
         XCTAssertEqual(
             IndexedValue(rawValue: "1 => '1'"),

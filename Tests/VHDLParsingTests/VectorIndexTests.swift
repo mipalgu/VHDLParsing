@@ -64,7 +64,9 @@ final class VectorIndexTests: XCTestCase {
     func testRawValues() {
         XCTAssertEqual(VectorIndex.index(value: 4).rawValue, "4")
         XCTAssertEqual(VectorIndex.others.rawValue, "others")
-        let range = VectorSize.downto(upper: 4, lower: 1)
+        let range = VectorSize.downto(
+            upper: .literal(value: .integer(value: 4)), lower: .literal(value: .integer(value: 1))
+        )
         XCTAssertEqual(VectorIndex.range(value: range).rawValue, range.rawValue)
     }
 
@@ -102,11 +104,21 @@ final class VectorIndexTests: XCTestCase {
 
     /// Test `init(rawValue:)` works correctly for range values.
     func testRangeRawValueInit() {
-        XCTAssertEqual(VectorIndex(rawValue: "4 downto 0"), .range(value: .downto(upper: 4, lower: 0)))
-        XCTAssertEqual(VectorIndex(rawValue: "4 downto 0 "), .range(value: .downto(upper: 4, lower: 0)))
-        XCTAssertEqual(VectorIndex(rawValue: " 4 downto 0"), .range(value: .downto(upper: 4, lower: 0)))
-        XCTAssertEqual(VectorIndex(rawValue: " 4 downto 0 "), .range(value: .downto(upper: 4, lower: 0)))
-        XCTAssertEqual(VectorIndex(rawValue: "0 to 4"), .range(value: .to(lower: 0, upper: 4)))
+        XCTAssertEqual(VectorIndex(rawValue: "4 downto 0"), .range(value: .downto(
+            upper: .literal(value: .integer(value: 4)), lower: .literal(value: .integer(value: 0))
+        )))
+        XCTAssertEqual(VectorIndex(rawValue: "4 downto 0 "), .range(value: .downto(
+            upper: .literal(value: .integer(value: 4)), lower: .literal(value: .integer(value: 0))
+        )))
+        XCTAssertEqual(VectorIndex(rawValue: " 4 downto 0"), .range(value: .downto(
+            upper: .literal(value: .integer(value: 4)), lower: .literal(value: .integer(value: 0))
+        )))
+        XCTAssertEqual(VectorIndex(rawValue: " 4 downto 0 "), .range(value: .downto(
+            upper: .literal(value: .integer(value: 4)), lower: .literal(value: .integer(value: 0))
+        )))
+        XCTAssertEqual(VectorIndex(rawValue: "0 to 4"), .range(value: .to(
+            lower: .literal(value: .integer(value: 0)), upper: .literal(value: .integer(value: 4))
+        )))
         XCTAssertNil(VectorIndex(rawValue: "\(String(repeating: "1", count: 256)) downto 0"))
     }
 

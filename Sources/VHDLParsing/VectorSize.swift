@@ -59,16 +59,16 @@
 public enum VectorSize: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
     /// The `downto` case. This represents the range as an upper limit down to a lower limit.
-    case downto(upper: Int, lower: Int)
+    case downto(upper: Expression, lower: Expression)
 
     /// The `to` case. This represents the range as a lower limit to an upper limit.
-    case to(lower: Int, upper: Int)
+    case to(lower: Expression, upper: Expression)
 
     /// The raw value is a string.
     public typealias RawValue = String
 
     /// The upper bound in the range.
-    @inlinable public var max: Int {
+    @inlinable public var max: Expression {
         switch self {
         case .downto(let upper, _):
             return upper
@@ -78,7 +78,7 @@ public enum VectorSize: RawRepresentable, Equatable, Hashable, Codable, Sendable
     }
 
     /// The lower bound in this range.
-    @inlinable public var min: Int {
+    @inlinable public var min: Expression {
         switch self {
         case .downto(_, let lower):
             return lower
@@ -91,20 +91,23 @@ public enum VectorSize: RawRepresentable, Equatable, Hashable, Codable, Sendable
     @inlinable public var rawValue: String {
         switch self {
         case .downto(let upper, let lower):
-            return "\(upper) downto \(lower)"
+            return "\(upper.rawValue) downto \(lower.rawValue)"
         case .to(let lower, let upper):
-            return "\(lower) to \(upper)"
+            return "\(lower.rawValue) to \(upper.rawValue)"
         }
     }
 
     /// The number of bits in the vector.
-    @inlinable public var size: Int {
-        switch self {
-        case .downto(let upper, let lower):
-            return upper - lower + 1
-        case .to(let lower, let upper):
-            return upper - lower + 1
+    @inlinable public var size: Int? {
+        guard
+            case .literal(let maxLiteral) = self.max,
+            case .integer(let maxValue) = maxLiteral,
+            case .literal(let minLiteral) = self.min,
+            case .integer(let minValue) = minLiteral
+        else {
+            return nil
         }
+        return maxValue - minValue + 1
     }
 
     /// Initialse the type from a string. This will return `nil` if the string is not a valid VHDL range.
@@ -124,7 +127,8 @@ public enum VectorSize: RawRepresentable, Equatable, Hashable, Codable, Sendable
         guard hasDownto else {
             let components = value.components(separatedBy: " to ")
             guard
-                let lhs = Int(components.first ?? ""), let rhs = Int(components.last ?? ""), lhs <= rhs
+                let lhs = Expression(rawValue: components.first ?? ""),
+                let rhs = Expression(rawValue: components.last ?? "")
             else {
                 return nil
             }
@@ -134,7 +138,10 @@ public enum VectorSize: RawRepresentable, Equatable, Hashable, Codable, Sendable
         let components = value.components(separatedBy: " downto ")
             .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
             .filter { !$0.isEmpty }
-        guard let lhs = Int(components.first ?? ""), let rhs = Int(components.last ?? ""), lhs >= rhs else {
+        guard
+            let lhs = Expression(rawValue: components.first ?? ""),
+            let rhs = Expression(rawValue: components.last ?? "")
+        else {
             return nil
         }
         self = .downto(upper: lhs, lower: rhs)

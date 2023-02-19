@@ -62,9 +62,13 @@ final class VectorSizeTests: XCTestCase {
 
     /// Test raw value is created correctly.
     func testRawValue() {
-        let downto = VectorSize.downto(upper: 12, lower: 5)
+        let downto = VectorSize.downto(
+            upper: .literal(value: .integer(value: 12)), lower: .literal(value: .integer(value: 5))
+        )
         XCTAssertEqual(downto.rawValue, "12 downto 5")
-        let to = VectorSize.to(lower: 2, upper: 7)
+        let to = VectorSize.to(
+            lower: .literal(value: .integer(value: 2)), upper: .literal(value: .integer(value: 7))
+        )
         XCTAssertEqual(to.rawValue, "2 to 7")
     }
 
@@ -72,7 +76,9 @@ final class VectorSizeTests: XCTestCase {
     func testDowntoValidRawValueInit() {
         let raw = "12 downto 5"
         let result = VectorSize(rawValue: raw)
-        let expected = VectorSize.downto(upper: 12, lower: 5)
+        let expected = VectorSize.downto(
+            upper: .literal(value: .integer(value: 12)), lower: .literal(value: .integer(value: 5))
+        )
         XCTAssertEqual(result, expected)
     }
 
@@ -80,7 +86,9 @@ final class VectorSizeTests: XCTestCase {
     func testToValidRawValueInit() {
         let raw = "2 to 7"
         let result = VectorSize(rawValue: raw)
-        let expected = VectorSize.to(lower: 2, upper: 7)
+        let expected = VectorSize.to(
+            lower: .literal(value: .integer(value: 2)), upper: .literal(value: .integer(value: 7))
+        )
         XCTAssertEqual(result, expected)
     }
 
@@ -122,36 +130,52 @@ final class VectorSizeTests: XCTestCase {
     func testUppercasedRanges() {
         let raw = "2 TO 4"
         let result = VectorSize(rawValue: raw)
-        let expected = VectorSize.to(lower: 2, upper: 4)
+        let expected = VectorSize.to(
+            lower: .literal(value: .integer(value: 2)), upper: .literal(value: .integer(value: 4))
+        )
         XCTAssertEqual(result, expected)
         let raw2 = "4 DOWNTO 2"
         let result2 = VectorSize(rawValue: raw2)
-        let expected2 = VectorSize.downto(upper: 4, lower: 2)
+        let expected2 = VectorSize.downto(
+            upper: .literal(value: .integer(value: 4)), lower: .literal(value: .integer(value: 2))
+        )
         XCTAssertEqual(result2, expected2)
     }
 
     /// Test the size is correct.
     func testSize() {
-        let downto = VectorSize.downto(upper: 12, lower: 5)
+        let downto = VectorSize.downto(
+            upper: .literal(value: .integer(value: 12)), lower: .literal(value: .integer(value: 5))
+        )
         XCTAssertEqual(downto.size, 8)
-        let to = VectorSize.to(lower: 2, upper: 7)
+        let to = VectorSize.to(
+            lower: .literal(value: .integer(value: 2)), upper: .literal(value: .integer(value: 7))
+        )
         XCTAssertEqual(to.size, 6)
     }
 
     /// Test the min value is correct.
     func testMin() {
-        let downto = VectorSize.downto(upper: 12, lower: 5)
-        XCTAssertEqual(downto.min, 5)
-        let to = VectorSize.to(lower: 2, upper: 7)
-        XCTAssertEqual(to.min, 2)
+        let downto = VectorSize.downto(
+            upper: .literal(value: .integer(value: 12)), lower: .literal(value: .integer(value: 5))
+        )
+        XCTAssertEqual(downto.min, .literal(value: .integer(value: 5)))
+        let to = VectorSize.to(
+            lower: .literal(value: .integer(value: 2)), upper: .literal(value: .integer(value: 7))
+        )
+        XCTAssertEqual(to.min, .literal(value: .integer(value: 2)))
     }
 
     /// Test the max value is correct.
     func testMax() {
-        let downto = VectorSize.downto(upper: 12, lower: 5)
-        XCTAssertEqual(downto.max, 12)
-        let to = VectorSize.to(lower: 2, upper: 7)
-        XCTAssertEqual(to.max, 7)
+        let downto = VectorSize.downto(
+            upper: .literal(value: .integer(value: 12)), lower: .literal(value: .integer(value: 5))
+        )
+        XCTAssertEqual(downto.max, .literal(value: .integer(value: 12)))
+        let to = VectorSize.to(
+            lower: .literal(value: .integer(value: 2)), upper: .literal(value: .integer(value: 7))
+        )
+        XCTAssertEqual(to.max, .literal(value: .integer(value: 7)))
     }
 
 }

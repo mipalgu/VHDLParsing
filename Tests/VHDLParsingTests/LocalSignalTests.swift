@@ -88,13 +88,17 @@ final class LocalSignalTests: XCTestCase {
 
     /// Test the getters and setters work correctly.
     func testGettersAndSetters() {
-        self.signal.type = .ranged(type: .stdLogicVector(size: .downto(upper: 3, lower: 0)))
+        self.signal.type = .ranged(type: .stdLogicVector(size: .downto(
+            upper: .literal(value: .integer(value: 3)), lower: .literal(value: .integer(value: 0))
+        )))
         self.signal.name = VariableName(text: "y")
         self.signal.defaultValue = .literal(
             value: .vector(value: .bits(value: BitVector(values: [.low, .low, .low, .low])))
         )
         self.signal.comment = Comment(text: "The signal y.")
-        XCTAssertEqual(self.signal.type, .ranged(type: .stdLogicVector(size: .downto(upper: 3, lower: 0))))
+        XCTAssertEqual(self.signal.type, .ranged(type: .stdLogicVector(size: .downto(
+            upper: .literal(value: .integer(value: 3)), lower: .literal(value: .integer(value: 0))
+        ))))
         XCTAssertEqual(self.signal.name, VariableName(text: "y"))
         XCTAssertEqual(
             self.signal.defaultValue,
@@ -139,7 +143,9 @@ final class LocalSignalTests: XCTestCase {
         XCTAssertEqual(
             LocalSignal(rawValue: "signal x : std_logic_vector(3 downto 0); -- The signal x."),
             LocalSignal(
-                type: .ranged(type: .stdLogicVector(size: .downto(upper: 3, lower: 0))),
+                type: .ranged(type: .stdLogicVector(size: .downto(
+                    upper: .literal(value: .integer(value: 3)), lower: .literal(value: .integer(value: 0))
+                ))),
                 name: name,
                 defaultValue: nil,
                 comment: comment
@@ -148,7 +154,9 @@ final class LocalSignalTests: XCTestCase {
         XCTAssertEqual(
             LocalSignal(rawValue: "signal x : std_logic_vector(3 downto 0) := x\"4\"; -- The signal x."),
             LocalSignal(
-                type: .ranged(type: .stdLogicVector(size: .downto(upper: 3, lower: 0))),
+                type: .ranged(type: .stdLogicVector(size: .downto(
+                    upper: .literal(value: .integer(value: 3)), lower: .literal(value: .integer(value: 0))
+                ))),
                 name: name,
                 defaultValue: .literal(
                     value: .vector(value: .hexademical(value: HexVector(values: [.four])))

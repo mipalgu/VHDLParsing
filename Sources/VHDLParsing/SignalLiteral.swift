@@ -154,22 +154,12 @@ public enum SignalLiteral: RawRepresentable, Equatable, Hashable, Codable, Senda
             return .logic(value: .low)
         case .ranged(let type):
             switch type {
-            case .integer(let size):
-                if size.min <= 0 && size.max >= 0 {
-                    return .integer(value: 0)
-                }
-                return .integer(value: size.min)
-            case .bitVector(let size):
-                return .vector(
-                    value: .bits(value: BitVector(values: [BitLiteral](repeating: .low, count: size.size)))
-                )
-            case .stdLogicVector(let size), .signed(let size), .unsigned(let size),
-                .stdULogicVector(let size):
-                return .vector(
-                    value: .logics(
-                        value: LogicVector(values: [LogicLiteral](repeating: .low, count: size.size))
-                    )
-                )
+            case .integer:
+                return .integer(value: 0)
+            case .bitVector, .signed, .unsigned, .stdLogicVector, .stdULogicVector:
+                return .vector(value: .indexed(
+                    values: IndexedVector(values: [IndexedValue(index: .others, value: .bit(value: .low))])
+                ))
             }
         }
     }
@@ -208,7 +198,15 @@ public enum SignalLiteral: RawRepresentable, Equatable, Hashable, Codable, Senda
         case (.integer, .integer), (.integer, .real), (.decimal, .real):
             return true
         case (.integer(let value), .ranged(type: .integer(let size))):
-            return size.min <= value && value <= size.max
+            guard
+                case .literal(let literal) = size.min,
+                case .integer(let lhsValue) = literal,
+                case .literal(let rhsLiteral) = size.max,
+                case .integer(let rhsValue) = rhsLiteral
+            else {
+                return true
+            }
+            return lhsValue <= value && value <= rhsValue
         case (.bit, .bit), (.bit, .stdLogic), (.bit, .stdULogic):
             return true
         case (.logic(let value), .bit):

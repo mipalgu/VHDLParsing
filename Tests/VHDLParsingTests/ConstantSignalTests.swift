@@ -111,6 +111,8 @@ final class ConstantSignalTests: XCTestCase {
         XCTAssertEqual(signal?.rawValue, "constant x: std_logic := '1';")
     }
 
+    // swiftlint:disable function_body_length
+
     /// Test raw value init creates signal correctly.
     func testRawValueInit() {
         guard let comment = Comment(rawValue: "-- signal x.") else {
@@ -140,7 +142,9 @@ final class ConstantSignalTests: XCTestCase {
         )
         let expected2 = ConstantSignal(
             name: VariableName(text: "x"),
-            type: .ranged(type: .stdLogicVector(size: .downto(upper: 3, lower: 0))),
+            type: .ranged(type: .stdLogicVector(size: .downto(
+                upper: .literal(value: .integer(value: 3)), lower: .literal(value: .integer(value: 0))
+            ))),
             value: .literal(
                 value: .vector(value: .bits(value: BitVector(values: [.low, .high, .low, .high])))
             ),
@@ -153,7 +157,9 @@ final class ConstantSignalTests: XCTestCase {
         )
         let expected3 = ConstantSignal(
             name: VariableName(text: "x"),
-            type: .ranged(type: .stdLogicVector(size: .downto(upper: 3, lower: 0))),
+            type: .ranged(type: .stdLogicVector(size: .downto(
+                upper: .literal(value: .integer(value: 3)), lower: .literal(value: .integer(value: 0))
+            ))),
             value: .literal(
                 value: .vector(value: .bits(value: BitVector(values: [.low, .high, .low, .high])))
             ),
@@ -162,5 +168,7 @@ final class ConstantSignalTests: XCTestCase {
         XCTAssertNotNil(expected3)
         XCTAssertEqual(result3, expected3)
     }
+
+    // swiftlint:enable function_body_length
 
 }

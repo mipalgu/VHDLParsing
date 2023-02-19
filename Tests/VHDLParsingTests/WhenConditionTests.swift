@@ -74,7 +74,12 @@ final class WhenConditionTests: XCTestCase {
             ]).rawValue,
             "1|2|3"
         )
-        XCTAssertEqual(WhenCondition.range(range: .downto(upper: 3, lower: 0)).rawValue, "3 downto 0")
+        XCTAssertEqual(
+            WhenCondition.range(range: .downto(
+                upper: .literal(value: .integer(value: 3)), lower: .literal(value: .integer(value: 0))
+            )).rawValue,
+            "3 downto 0"
+        )
     }
 
     /// Test init for others case.
@@ -123,7 +128,9 @@ final class WhenConditionTests: XCTestCase {
 
     /// Test init for range case.
     func testRangeInit() {
-        let expected = WhenCondition.range(range: .downto(upper: 3, lower: 0))
+        let expected = WhenCondition.range(range: .downto(
+            upper: .literal(value: .integer(value: 3)), lower: .literal(value: .integer(value: 0))
+        ))
         XCTAssertEqual(WhenCondition(rawValue: "3 downto 0"), expected)
         XCTAssertEqual(WhenCondition(rawValue: "3 downto 0 "), expected)
         XCTAssertEqual(WhenCondition(rawValue: " 3 downto 0"), expected)
