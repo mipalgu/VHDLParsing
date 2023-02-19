@@ -63,6 +63,7 @@ public struct Entity: RawRepresentable, Equatable, Hashable, Codable, Sendable {
     /// The port declaration in the entity.
     public let port: PortBlock
 
+    /// The generic declaration in the entity.
     public let generic: GenericBlock?
 
     /// The `VHDL` code for this `Entity`.
@@ -125,6 +126,16 @@ public struct Entity: RawRepresentable, Equatable, Hashable, Codable, Sendable {
             return nil
         }
         let remainingRaw = noName.dropLast(3).trimmingCharacters(in: .whitespacesAndNewlines)
+        self.init(name: name, genericAndPort: remainingRaw)
+    }
+
+    /// Initialise a new `Entity` from the given name and code for the generic and port declaration.
+    /// - Parameters:
+    ///   - name: The name of the entity.
+    ///   - remainingRaw: The `VHDL` code within the entity declaration. This code must be trimmed before
+    /// being passed into this initialiser.
+    @usableFromInline
+    init?(name: VariableName, genericAndPort remainingRaw: String) {
         let portRaw: String
         let generic: GenericBlock?
         if remainingRaw.lowercased().hasPrefix("generic") {
