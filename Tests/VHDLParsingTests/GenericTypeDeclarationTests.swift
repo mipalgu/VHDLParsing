@@ -88,19 +88,6 @@ final class GenericTypeDeclarationTests: XCTestCase {
         XCTAssertNil(generic2.defaultValue)
     }
 
-    /// Test the setters work correctly.
-    func testPropertySetters() {
-        let y = VariableName(text: "y")
-        let type2 = SignalType.integer
-        let value2 = Expression.literal(value: .integer(value: 0))
-        generic.name = y
-        generic.type = type2
-        generic.defaultValue = value2
-        XCTAssertEqual(generic.name, y)
-        XCTAssertEqual(generic.type, type2)
-        XCTAssertEqual(generic.defaultValue, value2)
-    }
-
     /// Test raw value.
     func testRawValue() {
         XCTAssertEqual(generic.rawValue, "x: std_logic := '0';")
@@ -113,7 +100,7 @@ final class GenericTypeDeclarationTests: XCTestCase {
         XCTAssertEqual(GenericTypeDeclaration(rawValue: "x: std_logic := '0';"), generic)
         XCTAssertEqual(GenericTypeDeclaration(rawValue: "x: std_logic := '0'"), generic)
         XCTAssertEqual(GenericTypeDeclaration(rawValue: "x\n:    std_logic     :=     '0'   ;"), generic)
-        generic.defaultValue = nil
+        generic = GenericTypeDeclaration(name: x, type: type)
         XCTAssertEqual(GenericTypeDeclaration(rawValue: "x: std_logic;"), generic)
         XCTAssertEqual(GenericTypeDeclaration(rawValue: "x: std_logic"), generic)
         XCTAssertEqual(GenericTypeDeclaration(rawValue: "x\n:    std_logic     ;"), generic)

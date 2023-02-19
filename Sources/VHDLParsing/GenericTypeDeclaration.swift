@@ -59,13 +59,13 @@
 public struct GenericTypeDeclaration: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
     /// The name of the type.
-    public var name: VariableName
+    public let name: VariableName
 
     /// The type of the generic.
-    public var type: SignalType
+    public let type: SignalType
 
     /// The default value of the generic.
-    public var defaultValue: Expression?
+    public let defaultValue: Expression?
 
     /// The equivalent `VHDL` code of this generic type declaration.
     @inlinable public var rawValue: String {
