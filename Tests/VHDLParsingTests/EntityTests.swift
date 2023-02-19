@@ -73,13 +73,23 @@ final class EntityTests: XCTestCase {
 
     // swiftlint:enable implicitly_unwrapped_optional
 
+    /// A generic block in the entity.
+    let generic = GenericBlock(types: [
+        GenericTypeDeclaration(name: VariableName(text: "a"), type: .stdLogic),
+        GenericTypeDeclaration(name: VariableName(text: "b"), type: .stdLogic)
+    ])
+
     /// The entity under test.
     lazy var entity = Entity(name: entityName, port: port)
+
+    /// An entity under test that has a generic block.
+    lazy var entityWithGeneric = Entity(name: entityName, port: port, generic: generic)
 
     /// Setup the entity before every test.
     override func setUp() {
         super.setUp()
         entity = Entity(name: entityName, port: port)
+        entityWithGeneric = Entity(name: entityName, port: port, generic: generic)
     }
 
     /// Test the init sets the stored properties correctly.
@@ -99,6 +109,19 @@ final class EntityTests: XCTestCase {
         end TestEntity;
         """
         XCTAssertEqual(entity.rawValue, expected)
+        let genericExpected = """
+        entity TestEntity is
+            generic(
+                a: std_logic;
+                b: std_logic
+            );
+            port(
+                x: in std_logic;
+                y: out std_logic
+            );
+        end TestEntity;
+        """
+        XCTAssertEqual(entityWithGeneric.rawValue, genericExpected)
     }
 
     /// Test `init(rawValue:)` parses the `VHDL` code correctly.
@@ -154,6 +177,96 @@ final class EntityTests: XCTestCase {
             );
         """
         XCTAssertNil(Entity(rawValue: raw4))
+        let raw7 = """
+        entity TestEntity is
+            generic(
+                a: std_logic;
+                b: std_logic
+            );
+            port(
+                x: in std_logic;
+                y: out std_logic
+            );
+        ends TestEntity;
+        """
+        XCTAssertNil(Entity(rawValue: raw7))
+    }
+
+    /// Test `init(rawValue:)` when `rawValue` contains a generic block.
+    func testRawValueInitWithGeneric() {
+        let raw = """
+        entity TestEntity is
+            generic(
+                a: std_logic;
+                b: std_logic
+            );
+            port(
+                x: in std_logic;
+                y: out std_logic
+            );
+        end TestEntity;
+        """
+        XCTAssertEqual(Entity(rawValue: raw), entityWithGeneric)
+        let raw2 = """
+        entity TestEntity is
+            generic(
+                a: std_logic;
+                b: std_logic
+            );port(
+                x: in std_logic;
+                y: out std_logic
+            );
+        end TestEntity;
+        """
+        XCTAssertEqual(Entity(rawValue: raw2), entityWithGeneric)
+    }
+
+    /// Test `init(rawValue:)` with invalid generic.
+    func testInvalidRawValueInitWithGeneric() {
+        let raw3 = """
+        entity TestEntity is
+            generic(
+                a: std_logic;
+                b: std_logic
+            )
+            port(
+                x: in std_logic;
+                y: out std_logic
+            );
+        end TestEntity;
+        """
+        XCTAssertNil(Entity(rawValue: raw3))
+        let raw4 = """
+        entity TestEntity is
+            generic(
+                a: std_logic;
+                b: std_logic
+            );
+        end TestEntity;
+        """
+        XCTAssertNil(Entity(rawValue: raw4))
+        let raw5 = """
+        entity TestEntity is
+            generic port(
+                x: in std_logic;
+                y: out std_logic
+            );
+        end TestEntity;
+        """
+        XCTAssertNil(Entity(rawValue: raw5))
+        let raw6 = """
+        entity TestEntity is
+            generic(
+                a: std_logic;
+                b: std_logic
+            );
+            port(
+                x: in std_logic;
+                y: out std_logic
+            );
+        end TestsEntity;
+        """
+        XCTAssertNil(Entity(rawValue: raw6))
     }
 
 }
