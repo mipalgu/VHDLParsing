@@ -61,8 +61,8 @@ import Foundation
 /// examples include arithmetic operations (+, -, /, *), comparison operations (>, <, <=, >=, =, /=), bitwise
 /// operations (sll, srl, sla, sra, rol, ror), and may include references to pre-defined variables or literal
 /// values. This type should not be used to describe branch statements such as `if` or `case` statements, or
-/// loops such as `for` and `while` loops. For those types of expressions, use ``Statement``.
-/// - SeeAlso: ``Statement``.
+/// loops such as `for` and `while` loops. For those types of expressions, use ``SynchronousBlock``.
+/// - SeeAlso: ``SynchronousBlock``.
 indirect public enum Expression: RawRepresentable,
     Equatable, Hashable, Codable, Sendable, CustomStringConvertible {
 
