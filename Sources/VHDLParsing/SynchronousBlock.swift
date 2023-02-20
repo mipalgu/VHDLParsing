@@ -69,6 +69,7 @@ indirect public enum SynchronousBlock: RawRepresentable, Equatable, Hashable, Co
     /// A case statement.
     case caseStatement(block: CaseStatement)
 
+    /// A For loop.
     case forLoop(loop: ForLoop)
 
     /// The `VHDL` code that performs this block.
@@ -154,6 +155,16 @@ indirect public enum SynchronousBlock: RawRepresentable, Equatable, Hashable, Co
 
     // swiftlint:enable function_body_length
 
+    /// Initialise a `SynchronousBlock` from it's `VHDL` representation that also contains sub-blocks. This
+    /// initialiser tries to create a specific sub-block specified by the input parameters. If that sub-block
+    /// cannot be created, it will return `nil`. This initialiser only work for multi-statement sub-blocks
+    /// such as `if`, `case` and `for` blocks.
+    /// - Parameters:
+    ///   - trimmedString: The remaining trimmed raw data yet to be parsed.
+    ///   - blockCreator: A function that creates the sub-block in the raw data.
+    ///   - beginningWith: The words beginning the sub-block.
+    ///   - endingWith: The words ending the sub-block.
+    ///   - carry: The sub-blocks already parsed in the raw value.
     private init?<T>(
         trimmedString: String,
         blockCreator: (T) -> SynchronousBlock,

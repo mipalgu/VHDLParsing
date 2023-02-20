@@ -425,6 +425,37 @@ final class SynchronousBlockTests: XCTestCase {
         XCTAssertNil(SynchronousBlock(rawValue: raw))
     }
 
+    /// Test for loop creation.
+    func testForLoop() {
+        let raw = """
+        for x in 0 to 7 loop
+            y <= x;
+        end loop;
+        """
+        let expected = SynchronousBlock.forLoop(loop: ForLoop(
+            iterator: x,
+            range: .to(
+                lower: .literal(value: .integer(value: 0)), upper: .literal(value: .integer(value: 7))
+            ),
+            body: .statement(statement: .assignment(name: y, value: .variable(name: x)))
+        ))
+        XCTAssertEqual(SynchronousBlock(rawValue: raw), expected)
+        let raw2 = """
+        y <= x;
+        \(raw)
+        x <= y;
+        """
+        let yAssignment = SynchronousBlock.statement(
+            statement: .assignment(name: y, value: .variable(name: x))
+        )
+        let xAssignment = SynchronousBlock.statement(
+            statement: .assignment(name: x, value: .variable(name: y))
+        )
+        XCTAssertEqual(
+            SynchronousBlock(rawValue: raw2), .blocks(blocks: [yAssignment, expected, xAssignment])
+        )
+    }
+
 }
 
 // swiftlint:enable type_body_length
