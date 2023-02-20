@@ -54,13 +54,17 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
+/// A definition of a new variable in `VHDL`.
 public enum Definition: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
+    /// The variable is a signal.
     case signal(value: LocalSignal)
 
+    /// The variable is a constant.
     case constant(value: ConstantSignal)
 
-    public var rawValue: String {
+    /// The equivalent `VHDL` code for this definition.
+    @inlinable public var rawValue: String {
         switch self {
         case .signal(let value):
             return value.rawValue
@@ -69,6 +73,9 @@ public enum Definition: RawRepresentable, Equatable, Hashable, Codable, Sendable
         }
     }
 
+    /// Creates a new `Definition` from the given `VHDL` code.
+    /// - Parameter rawValue: The `VHDL` code to create the `Definition` from.
+    @inlinable
     public init?(rawValue: String) {
         let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
         guard trimmedString.count < 256 else {
