@@ -108,6 +108,67 @@ final class ForLoopTests: XCTestCase {
         end loop;
         """
         XCTAssertEqual(ForLoop(rawValue: expected), loop)
+        let expected2 = """
+        for x in 0 to 7 loop
+            y <= x;
+        end loop ;
+        """
+        XCTAssertEqual(ForLoop(rawValue: expected2), loop)
+        XCTAssertNil(ForLoop(rawValue: ""))
+        let raw = """
+        for x in 0 to 7
+            y <= x;
+        end loop;
+        """
+        XCTAssertNil(ForLoop(rawValue: raw))
+        let raw2 = "for x in 0 to 7 loop"
+        XCTAssertNil(ForLoop(rawValue: raw2))
+    }
+
+    /// Test invalud `init(rawValue:)` cases.
+    func testInvalidRawValueInit() {
+        let raw = """
+        for x in 0 to 7 loop
+            y <= x;
+        end loop
+        """
+        XCTAssertNil(ForLoop(rawValue: raw))
+        let raw2 = """
+        for x in 0 to 7 loop
+            y <= x;
+        end;
+        """
+        XCTAssertNil(ForLoop(rawValue: raw2))
+        let raw3 = """
+        for x in 0 to 7 loop
+            y <= x;
+        loop;
+        """
+        XCTAssertNil(ForLoop(rawValue: raw3))
+        let raw4 = """
+        for x in 0 to 7 loop
+            y <= x;
+        loop ;
+        """
+        XCTAssertNil(ForLoop(rawValue: raw4))
+        let raw5 = """
+        for x in 0 to 7 loop
+            y <== x;
+        end loop;
+        """
+        XCTAssertNil(ForLoop(rawValue: raw5))
+        let raw6 = """
+        for x in 0 too 7 loop
+            y <= x;
+        end loop;
+        """
+        XCTAssertNil(ForLoop(rawValue: raw6))
+        let raw7 = """
+        for 2x in 0 to 7 loop
+            y <= x;
+        end loop;
+        """
+        XCTAssertNil(ForLoop(rawValue: raw7))
     }
 
 }

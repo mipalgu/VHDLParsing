@@ -54,15 +54,20 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
+/// A structure for definine *synchronous* for loops. These are for loops that exist within a process block.
 public struct ForLoop: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
+    /// The iteratore of the for loop.
     public let iterator: VariableName
 
+    /// The range of the for loop. These are the values that are iterated over.
     public let range: VectorSize
 
+    /// The body of the for loop. This is the code that is executed during each iteration.
     public let body: SynchronousBlock
 
-    public var rawValue: String {
+    /// The equivalent `VHDL` code.
+    @inlinable public var rawValue: String {
         """
         for \(iterator.rawValue) in \(range.rawValue) loop
         \(body.rawValue.indent(amount: 1))
@@ -70,12 +75,21 @@ public struct ForLoop: RawRepresentable, Equatable, Hashable, Codable, Sendable 
         """
     }
 
+    /// Creates a new `ForLoop` with the given iterator, range, and body.
+    /// - Parameters:
+    ///   - iterator: The iterator of the for loop.
+    ///   - range: The range of the for loop. These are the values that are iterated over.
+    ///   - body: The body of the for loop. This is the code that is executed during each iteration.
+    @inlinable
     public init(iterator: VariableName, range: VectorSize, body: SynchronousBlock) {
         self.iterator = iterator
         self.range = range
         self.body = body
     }
 
+    /// Creates a new `ForLoop` from the given `VHDL` code.
+    /// - Parameter rawValue: The `VHDL` code defining the for-loop.
+    @inlinable
     public init?(rawValue: String) {
         let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
         guard
@@ -96,7 +110,7 @@ public struct ForLoop: RawRepresentable, Equatable, Hashable, Codable, Sendable 
             return nil
         }
         let size = iteratorAndRange.count + "loop".count + 1
-        guard trimmedString.count >= size else {
+        guard trimmedStringWithoutFor.count > size else {
             return nil
         }
         let body = trimmedStringWithoutFor[
