@@ -42,7 +42,9 @@ public struct LocalSignal: RawRepresentable, Codable, Equatable, Hashable, Varia
     /// - Warning: Make sure the `defaultValue` is valid for the given signal `type`. The program will crash
     /// if this is not the case.
     @inlinable
-    public init(type: SignalType, name: VariableName, defaultValue: Expression?, comment: Comment?) {
+    public init(
+        type: SignalType, name: VariableName, defaultValue: Expression? = nil, comment: Comment? = nil
+    ) {
         if let defaultValue = defaultValue, case .literal(let literal) = defaultValue {
             guard literal.isValid(for: type) else {
                 fatalError("Invalid literal \(defaultValue) for signal type \(type).")
