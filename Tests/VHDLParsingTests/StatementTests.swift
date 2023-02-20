@@ -77,7 +77,10 @@ final class StatementTests: XCTestCase {
         let localSignal = LocalSignal(type: .stdLogic, name: varX, defaultValue: nil, comment: nil)
         XCTAssertEqual(Statement.definition(signal: localSignal).rawValue, localSignal.rawValue)
         XCTAssertEqual(
-            Statement.assignment(name: varX, value: .literal(value: .bit(value: .high))).rawValue, "x <= '1';"
+            Statement.assignment(
+                name: .variable(name: varX), value: .literal(value: .bit(value: .high))
+            ).rawValue,
+            "x <= '1';"
         )
         let comment = Comment(text: "signal x.")
         XCTAssertEqual(Statement.comment(value: comment).rawValue, comment.rawValue)
@@ -204,13 +207,27 @@ final class StatementTests: XCTestCase {
     /// Test `init(rawValue:)` parses `VHDL` code correctly for assignments.
     func testAssignmentRawValueInit() {
         let value = Expression.literal(value: .bit(value: .high))
-        XCTAssertEqual(Statement(rawValue: "x <= '1';"), .assignment(name: varX, value: value))
-        XCTAssertEqual(Statement(rawValue: "x <= '1'; "), .assignment(name: varX, value: value))
-        XCTAssertEqual(Statement(rawValue: " x <= '1';"), .assignment(name: varX, value: value))
-        XCTAssertEqual(Statement(rawValue: " x <= '1'; "), .assignment(name: varX, value: value))
-        XCTAssertEqual(Statement(rawValue: "x <= '1';\n"), .assignment(name: varX, value: value))
-        XCTAssertEqual(Statement(rawValue: "x <= '1';\n "), .assignment(name: varX, value: value))
-        XCTAssertEqual(Statement(rawValue: "x   <=    '1' ; "), .assignment(name: varX, value: value))
+        XCTAssertEqual(
+            Statement(rawValue: "x <= '1';"), .assignment(name: .variable(name: varX), value: value)
+        )
+        XCTAssertEqual(
+            Statement(rawValue: "x <= '1'; "), .assignment(name: .variable(name: varX), value: value)
+        )
+        XCTAssertEqual(
+            Statement(rawValue: " x <= '1';"), .assignment(name: .variable(name: varX), value: value)
+        )
+        XCTAssertEqual(
+            Statement(rawValue: " x <= '1'; "), .assignment(name: .variable(name: varX), value: value)
+        )
+        XCTAssertEqual(
+            Statement(rawValue: "x <= '1';\n"), .assignment(name: .variable(name: varX), value: value)
+        )
+        XCTAssertEqual(
+            Statement(rawValue: "x <= '1';\n "), .assignment(name: .variable(name: varX), value: value)
+        )
+        XCTAssertEqual(
+            Statement(rawValue: "x   <=    '1' ; "), .assignment(name: .variable(name: varX), value: value)
+        )
         XCTAssertNil(Statement(rawValue: "x <= '1' <= '0';"))
         XCTAssertNil(Statement(rawValue: "x <= '2';"))
         XCTAssertNil(Statement(rawValue: "x <= '1'"))

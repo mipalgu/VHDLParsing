@@ -73,7 +73,7 @@ final class ProcessBlockTests: XCTestCase {
     var code: SynchronousBlock {
         .ifStatement(block: .ifStatement(
             condition: .conditional(condition: .edge(value: .rising(expression: .variable(name: clk)))),
-            ifBlock: .statement(statement: .assignment(name: x, value: .variable(name: y)))
+            ifBlock: .statement(statement: .assignment(name: .variable(name: x), value: .variable(name: y)))
         ))
     }
 

@@ -74,7 +74,7 @@ final class ArchitectureTests: XCTestCase {
                 value: .rising(expression: .variable(name: VariableName(text: "clk")))
             )),
             ifBlock: .statement(statement: .assignment(
-                name: VariableName(text: "x"),
+                name: .variable(name: VariableName(text: "x")),
                 value: .literal(value: .bit(value: .high))
             ))
         ))

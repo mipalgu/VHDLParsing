@@ -90,7 +90,7 @@ final class VHDLFileTests: XCTestCase {
                         value: .rising(expression: .variable(name: VariableName(text: "clk")))
                     )),
                     ifBlock: .statement(statement: .assignment(
-                        name: VariableName(text: "y"),
+                        name: .variable(name: VariableName(text: "y")),
                         value: .variable(name: VariableName(text: "x"))
                     ))
                 ))

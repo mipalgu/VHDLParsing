@@ -88,7 +88,7 @@ final class AsynchronousBlockTests: XCTestCase {
 
     /// Test `rawValue` is correct.
     func testRawValue() {
-        let statement = Statement.assignment(name: x, value: varY)
+        let statement = Statement.assignment(name: .variable(name: x), value: varY)
         let block = AsynchronousBlock.statement(statement: statement)
         let blockRaw = "x <= y;"
         XCTAssertEqual(block.rawValue, blockRaw)
@@ -119,7 +119,7 @@ final class AsynchronousBlockTests: XCTestCase {
 
     /// Test raw value init for process.
     func testProcessRawValueInit() {
-        let statement = Statement.assignment(name: x, value: varY)
+        let statement = Statement.assignment(name: .variable(name: x), value: varY)
         let raw = """
         process (clk)
         begin
@@ -144,7 +144,7 @@ final class AsynchronousBlockTests: XCTestCase {
 
     /// Test raw value init for statement.
     func testStatementRawValueInit() {
-        let statement = Statement.assignment(name: x, value: varY)
+        let statement = Statement.assignment(name: .variable(name: x), value: varY)
         let block = AsynchronousBlock.statement(statement: statement)
         let raw = "x <= y;"
         XCTAssertEqual(AsynchronousBlock(rawValue: raw), block)
@@ -152,7 +152,7 @@ final class AsynchronousBlockTests: XCTestCase {
 
     /// test raw value init for multiple statements.
     func testMultipleStatementsRawValueInit() {
-        let statement = Statement.assignment(name: x, value: varY)
+        let statement = Statement.assignment(name: .variable(name: x), value: varY)
         let block = AsynchronousBlock.statement(statement: statement)
         let raw = """
         x <= y;
@@ -164,7 +164,7 @@ final class AsynchronousBlockTests: XCTestCase {
 
     /// Test init works for multiple statements.
     func testMultipleRawValueInit() {
-        let statement = Statement.assignment(name: x, value: varY)
+        let statement = Statement.assignment(name: .variable(name: x), value: varY)
         let block = AsynchronousBlock.statement(statement: statement)
         let process = AsynchronousBlock.process(
             block: ProcessBlock(

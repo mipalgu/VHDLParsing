@@ -65,7 +65,7 @@ public enum Statement: RawRepresentable, Equatable, Hashable, Codable, Sendable 
     case definition(signal: LocalSignal)
 
     /// Assigning a value to a variable that has been pre-defined, e.g. `a <= b + 1;`.
-    case assignment(name: VariableName, value: Expression)
+    case assignment(name: VariableReference, value: Expression)
 
     /// A comment, e.g. `-- This is a comment.`.
     case comment(value: Comment)
@@ -84,7 +84,7 @@ public enum Statement: RawRepresentable, Equatable, Hashable, Codable, Sendable 
         case .definition(let signal):
             return signal.rawValue
         case .assignment(let name, let value):
-            return "\(name) <= \(value.rawValue);"
+            return "\(name.rawValue) <= \(value.rawValue);"
         case .comment(let value):
             return value.rawValue
         case .null:
@@ -143,7 +143,7 @@ public enum Statement: RawRepresentable, Equatable, Hashable, Codable, Sendable 
             let expression = components[1].trimmingCharacters(in: .whitespacesAndNewlines)
             guard
                 expression.hasSuffix(";"),
-                let name = VariableName(rawValue: components[0]),
+                let name = VariableReference(rawValue: components[0]),
                 let exp = Expression(rawValue: String(expression.dropLast()))
             else {
                 return nil

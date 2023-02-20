@@ -68,7 +68,7 @@ final class CaseStatementTests: XCTestCase {
         WhenCase(
             condition: .expression(expression: .literal(value: .bit(value: .high))),
             code: .statement(statement: .assignment(
-                name: VariableName(text: "y"), value: .literal(value: .bit(value: .low))
+                name: .variable(name: VariableName(text: "y")), value: .literal(value: .bit(value: .low))
             ))
         ),
         WhenCase.othersNull

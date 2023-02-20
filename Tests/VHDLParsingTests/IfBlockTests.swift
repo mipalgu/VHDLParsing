@@ -72,10 +72,10 @@ final class IfBlockTests: XCTestCase {
     func testRawValue() {
         let condition = Expression.conditional(condition: .comparison(value: .equality(lhs: x, rhs: y)))
         let assignment = SynchronousBlock.statement(
-            statement: Statement.assignment(name: VariableName(text: "x"), value: y)
+            statement: Statement.assignment(name: .variable(name: VariableName(text: "x")), value: y)
         )
         let reset = SynchronousBlock.statement(statement: Statement.assignment(
-            name: VariableName(text: "x"), value: .literal(value: .bit(value: .low))
+            name: .variable(name: VariableName(text: "x")), value: .literal(value: .bit(value: .low))
         ))
         let block = IfBlock.ifStatement(condition: condition, ifBlock: assignment)
         let expected = """
@@ -99,11 +99,15 @@ final class IfBlockTests: XCTestCase {
     func testNoElseRawValue() {
         let block = IfBlock.ifElse(
             condition: .conditional(condition: .comparison(value: .equality(lhs: x, rhs: y))),
-            ifBlock: .statement(statement: .assignment(name: VariableName(text: "x"), value: y)),
+            ifBlock: .statement(
+                statement: .assignment(name: .variable(name: VariableName(text: "x")), value: y)
+            ),
             elseBlock: .ifStatement(
                 block: .ifStatement(
                     condition: .conditional(condition: .comparison(value: .notEquals(lhs: x, rhs: y))),
-                    ifBlock: .statement(statement: .assignment(name: VariableName(text: "y"), value: x))
+                    ifBlock: .statement(
+                        statement: .assignment(name: .variable(name: VariableName(text: "y")), value: x)
+                    )
                 )
             )
         )
@@ -121,14 +125,19 @@ final class IfBlockTests: XCTestCase {
     func testRecursiveRawValue() {
         let block = IfBlock.ifElse(
             condition: .conditional(condition: .comparison(value: .equality(lhs: x, rhs: y))),
-            ifBlock: .statement(statement: .assignment(name: VariableName(text: "x"), value: y)),
+            ifBlock: .statement(
+                statement: .assignment(name: .variable(name: VariableName(text: "x")), value: y)
+            ),
             elseBlock: .ifStatement(
                 block: .ifElse(
                     condition: .conditional(condition: .comparison(value: .notEquals(lhs: x, rhs: y))),
-                    ifBlock: .statement(statement: .assignment(name: VariableName(text: "y"), value: x)),
+                    ifBlock: .statement(
+                        statement: .assignment(name: .variable(name: VariableName(text: "y")), value: x)
+                    ),
                     elseBlock: .statement(
                         statement: .assignment(
-                            name: VariableName(text: "x"), value: .literal(value: .bit(value: .low))
+                            name: .variable(name: VariableName(text: "x")),
+                            value: .literal(value: .bit(value: .low))
                         )
                     )
                 )
@@ -152,11 +161,15 @@ final class IfBlockTests: XCTestCase {
     func testComplexRecursiveRawValue() {
         let block = IfBlock.ifElse(
             condition: .conditional(condition: .comparison(value: .equality(lhs: x, rhs: y))),
-            ifBlock: .statement(statement: .assignment(name: VariableName(text: "x"), value: y)),
+            ifBlock: .statement(
+                statement: .assignment(name: .variable(name: VariableName(text: "x")), value: y)
+            ),
             elseBlock: .ifStatement(
                 block: .ifElse(
                     condition: .conditional(condition: .comparison(value: .notEquals(lhs: x, rhs: y))),
-                    ifBlock: .statement(statement: .assignment(name: VariableName(text: "y"), value: x)),
+                    ifBlock: .statement(
+                        statement: .assignment(name: .variable(name: VariableName(text: "y")), value: x)
+                    ),
                     elseBlock: .ifStatement(
                         block: .ifElse(
                             condition: .conditional(
@@ -164,7 +177,7 @@ final class IfBlockTests: XCTestCase {
                             ),
                             ifBlock: .statement(
                                 statement: .assignment(
-                                    name: VariableName(text: "x"),
+                                    name: .variable(name: VariableName(text: "x")),
                                     value: .binary(
                                         operation: .addition(lhs: x, rhs: .literal(value: .integer(value: 1)))
                                     )
@@ -177,7 +190,7 @@ final class IfBlockTests: XCTestCase {
                                     ),
                                     ifBlock: .statement(
                                         statement: .assignment(
-                                            name: VariableName(text: "x"),
+                                            name: .variable(name: VariableName(text: "x")),
                                             value: .binary(
                                                 operation: .subtraction(
                                                     lhs: x, rhs: .literal(value: .integer(value: 1))
@@ -187,7 +200,7 @@ final class IfBlockTests: XCTestCase {
                                     ),
                                     elseBlock: .statement(
                                         statement: .assignment(
-                                            name: VariableName(text: "x"),
+                                            name: .variable(name: VariableName(text: "x")),
                                             value: .literal(value: .bit(value: .low))
                                         )
                                     )
@@ -214,15 +227,15 @@ final class IfBlockTests: XCTestCase {
         XCTAssertEqual(block.rawValue, expected)
     }
 
-    // swiftlint:enable function_body_length
-
     /// Test `rawValue` with a nested if-statement.
     func testNestedRawValue() {
         let block = IfBlock.ifElse(
             condition: .conditional(condition: .comparison(value: .equality(lhs: x, rhs: y))),
             ifBlock: .blocks(
                 blocks: [
-                    .statement(statement: .assignment(name: VariableName(text: "x"), value: y)),
+                    .statement(
+                        statement: .assignment(name: .variable(name: VariableName(text: "x")), value: y)
+                    ),
                     .ifStatement(
                         block: IfBlock.ifStatement(
                             condition: .conditional(
@@ -232,7 +245,8 @@ final class IfBlockTests: XCTestCase {
                             ),
                             ifBlock: .statement(
                                 statement: .assignment(
-                                    name: VariableName(text: "x"), value: .literal(value: .bit(value: .low))
+                                    name: .variable(name: VariableName(text: "x")),
+                                    value: .literal(value: .bit(value: .low))
                                 )
                             )
                         )
@@ -242,10 +256,13 @@ final class IfBlockTests: XCTestCase {
             elseBlock: .ifStatement(
                 block: .ifElse(
                     condition: .conditional(condition: .comparison(value: .notEquals(lhs: x, rhs: y))),
-                    ifBlock: .statement(statement: .assignment(name: VariableName(text: "y"), value: x)),
+                    ifBlock: .statement(
+                        statement: .assignment(name: .variable(name: VariableName(text: "y")), value: x)
+                    ),
                     elseBlock: .statement(
                         statement: .assignment(
-                            name: VariableName(text: "x"), value: .literal(value: .bit(value: .low))
+                            name: .variable(name: VariableName(text: "x")),
+                            value: .literal(value: .bit(value: .low))
                         )
                     )
                 )
@@ -266,6 +283,8 @@ final class IfBlockTests: XCTestCase {
         XCTAssertEqual(block.rawValue, expected)
     }
 
+    // swiftlint:enable function_body_length
+
     /// Test standard `ifStatement` and `ifElse` case in `init(rawValue:)`.
     func testIfRawValueInit() {
         let raw = """
@@ -280,7 +299,7 @@ final class IfBlockTests: XCTestCase {
                     condition: .comparison(value: .equality(lhs: x, rhs: y))
                 ),
                 ifBlock: SynchronousBlock.statement(
-                    statement: Statement.assignment(name: VariableName(text: "x"), value: y)
+                    statement: Statement.assignment(name: .variable(name: VariableName(text: "x")), value: y)
                 )
             )
         )
@@ -293,10 +312,12 @@ final class IfBlockTests: XCTestCase {
         """
         let expected = IfBlock.ifElse(
             condition: .conditional(condition: .comparison(value: .equality(lhs: x, rhs: y))),
-            ifBlock: .statement(statement: .assignment(name: VariableName(text: "x"), value: y)),
+            ifBlock: .statement(
+                statement: .assignment(name: .variable(name: VariableName(text: "x")), value: y)
+            ),
             elseBlock: .statement(
                 statement: .assignment(
-                    name: VariableName(text: "x"),
+                    name: .variable(name: VariableName(text: "x")),
                     value: .literal(value: .bit(value: .low))
                 )
             )
@@ -317,14 +338,19 @@ final class IfBlockTests: XCTestCase {
         """
         let expected = IfBlock.ifElse(
             condition: .conditional(condition: .comparison(value: .equality(lhs: x, rhs: y))),
-            ifBlock: .statement(statement: .assignment(name: VariableName(text: "x"), value: y)),
+            ifBlock: .statement(
+                statement: .assignment(name: .variable(name: VariableName(text: "x")), value: y)
+            ),
             elseBlock: .ifStatement(
                 block: .ifElse(
                     condition: .conditional(condition: .comparison(value: .notEquals(lhs: x, rhs: y))),
-                    ifBlock: .statement(statement: .assignment(name: VariableName(text: "y"), value: x)),
+                    ifBlock: .statement(
+                        statement: .assignment(name: .variable(name: VariableName(text: "y")), value: x)
+                    ),
                     elseBlock: .statement(
                         statement: .assignment(
-                            name: VariableName(text: "x"), value: .literal(value: .bit(value: .low))
+                            name: .variable(name: VariableName(text: "x")),
+                            value: .literal(value: .bit(value: .low))
                         )
                     )
                 )
@@ -332,6 +358,8 @@ final class IfBlockTests: XCTestCase {
         )
         XCTAssertEqual(IfBlock(rawValue: raw), expected)
     }
+
+    // swiftlint:disable function_body_length
 
     /// Test nested if-statement.
     func testNestedRawValueInit() {
@@ -351,7 +379,9 @@ final class IfBlockTests: XCTestCase {
             condition: .conditional(condition: .comparison(value: .equality(lhs: x, rhs: y))),
             ifBlock: .blocks(
                 blocks: [
-                    .statement(statement: .assignment(name: VariableName(text: "x"), value: y)),
+                    .statement(
+                        statement: .assignment(name: .variable(name: VariableName(text: "x")), value: y)
+                    ),
                     .ifStatement(
                         block: IfBlock.ifStatement(
                             condition: .conditional(
@@ -361,7 +391,8 @@ final class IfBlockTests: XCTestCase {
                             ),
                             ifBlock: .statement(
                                 statement: .assignment(
-                                    name: VariableName(text: "x"), value: .literal(value: .bit(value: .low))
+                                    name: .variable(name: VariableName(text: "x")),
+                                    value: .literal(value: .bit(value: .low))
                                 )
                             )
                         )
@@ -371,10 +402,13 @@ final class IfBlockTests: XCTestCase {
             elseBlock: .ifStatement(
                 block: .ifElse(
                     condition: .conditional(condition: .comparison(value: .notEquals(lhs: x, rhs: y))),
-                    ifBlock: .statement(statement: .assignment(name: VariableName(text: "y"), value: x)),
+                    ifBlock: .statement(
+                        statement: .assignment(name: .variable(name: VariableName(text: "y")), value: x)
+                    ),
                     elseBlock: .statement(
                         statement: .assignment(
-                            name: VariableName(text: "x"), value: .literal(value: .bit(value: .low))
+                            name: .variable(name: VariableName(text: "x")),
+                            value: .literal(value: .bit(value: .low))
                         )
                     )
                 )
@@ -383,20 +417,26 @@ final class IfBlockTests: XCTestCase {
         XCTAssertEqual(IfBlock(rawValue: raw), expected)
     }
 
+    // swiftlint:enable function_body_length
+
     /// Test `init(rawValue:)` returns nil for invalid values.
     func testInvalidRawValueInit() {
         XCTAssertEqual(
             IfBlock(rawValue: "if (x = y) then x <= y; end if;"),
             IfBlock.ifStatement(
                 condition: .conditional(condition: .comparison(value: .equality(lhs: x, rhs: y))),
-                ifBlock: .statement(statement: .assignment(name: VariableName(text: "x"), value: y))
+                ifBlock: .statement(
+                    statement: .assignment(name: .variable(name: VariableName(text: "x")), value: y)
+                )
             )
         )
         XCTAssertEqual(
             IfBlock(rawValue: "if (x = y) then x <= y; end if ;"),
             IfBlock.ifStatement(
                 condition: .conditional(condition: .comparison(value: .equality(lhs: x, rhs: y))),
-                ifBlock: .statement(statement: .assignment(name: VariableName(text: "x"), value: y))
+                ifBlock: .statement(
+                    statement: .assignment(name: .variable(name: VariableName(text: "x")), value: y)
+                )
             )
         )
         XCTAssertNil(IfBlock(rawValue: "ifs (x = y) then x <= y; end if;"))

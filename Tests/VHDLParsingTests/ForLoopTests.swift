@@ -72,14 +72,18 @@ final class ForLoopTests: XCTestCase {
     )
 
     /// The block of the for-loop.
-    lazy var code = SynchronousBlock.statement(statement: .assignment(name: y, value: .variable(name: x)))
+    lazy var code = SynchronousBlock.statement(
+        statement: .assignment(name: .variable(name: y), value: .variable(name: x))
+    )
 
     /// The loop under test.
     lazy var loop = ForLoop(iterator: x, range: range, body: code)
 
     /// Initialise the test data.
     override func setUp() {
-        code = SynchronousBlock.statement(statement: .assignment(name: y, value: .variable(name: x)))
+        code = SynchronousBlock.statement(
+            statement: .assignment(name: .variable(name: y), value: .variable(name: x))
+        )
         loop = ForLoop(iterator: x, range: range, body: code)
     }
 
