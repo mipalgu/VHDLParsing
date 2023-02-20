@@ -25,7 +25,7 @@ public struct LocalSignal: RawRepresentable, Codable, Equatable, Hashable, Varia
 
     /// The VHDL code that represents this signals definition.
     @inlinable public var rawValue: String {
-        let declaration = "signal \(name): \(type.rawValue)"
+        let declaration = "signal \(name.rawValue): \(type.rawValue)"
         let comment = self.comment.map { " " + $0.rawValue } ?? ""
         guard let defaultValue = defaultValue else {
             return declaration + ";\(comment)"

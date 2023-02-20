@@ -76,7 +76,7 @@ public struct ConstantSignal: RawRepresentable, Equatable, Hashable, Codable, Se
 
     /// The `VHDL` code defining this constant.
     @inlinable public var rawValue: String {
-        let declaration = "constant \(name): \(type.rawValue) := \(value.rawValue);"
+        let declaration = "constant \(name.rawValue): \(type.rawValue) := \(value.rawValue);"
         guard let comment = comment else {
             return declaration
         }

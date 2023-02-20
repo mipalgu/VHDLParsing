@@ -28,7 +28,7 @@ public struct PortSignal: ExternalType, RawRepresentable, Codable, Hashable, Var
 
     /// The `VHDL` code that represents this signal definition.
     @inlinable public var rawValue: String {
-        let declaration = "\(name): \(mode.rawValue) \(type.rawValue)"
+        let declaration = "\(name.rawValue): \(mode.rawValue) \(type.rawValue)"
         let comment = self.comment.map { " " + $0.rawValue } ?? ""
         guard let defaultValue = defaultValue else {
             return declaration + ";\(comment)"
