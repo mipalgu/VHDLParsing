@@ -97,10 +97,10 @@ final class VHDLFileTests: XCTestCase {
             )),
             entity: VariableName(text: "TestEntity"),
             head: ArchitectureHead(statements: [
-                .definition(signal: LocalSignal(
+                .signal(value: LocalSignal(
                     type: .stdLogic, name: VariableName(text: "x"), defaultValue: nil, comment: nil
                 )),
-                .definition(signal: LocalSignal(
+                .signal(value: LocalSignal(
                     type: .stdLogic, name: VariableName(text: "y"), defaultValue: nil, comment: nil
                 ))
             ]),

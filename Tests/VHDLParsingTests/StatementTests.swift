@@ -65,17 +65,6 @@ final class StatementTests: XCTestCase {
 
     /// Test `rawValue` generates `VHDL` code correctly.
     func testRawValue() {
-        guard
-            let constant = ConstantSignal(
-                name: varX, type: .stdLogic, value: .literal(value: .bit(value: .high))
-            )
-        else {
-            XCTFail("Failed to create initial variables.")
-            return
-        }
-        XCTAssertEqual(Statement.constant(value: constant).rawValue, constant.rawValue)
-        let localSignal = LocalSignal(type: .stdLogic, name: varX, defaultValue: nil, comment: nil)
-        XCTAssertEqual(Statement.definition(signal: localSignal).rawValue, localSignal.rawValue)
         XCTAssertEqual(
             Statement.assignment(
                 name: .variable(name: varX), value: .literal(value: .bit(value: .high))
@@ -85,98 +74,6 @@ final class StatementTests: XCTestCase {
         let comment = Comment(text: "signal x.")
         XCTAssertEqual(Statement.comment(value: comment).rawValue, comment.rawValue)
         XCTAssertEqual(Statement.null.rawValue, "null;")
-    }
-
-    /// Test `init(rawValue:)` parses `VHDL` code correctly for constant signals.
-    func testConstantRawValueInit() {
-        guard
-            let constant = ConstantSignal(
-                name: varX, type: .stdLogic, value: .literal(value: .bit(value: .high))
-            )
-        else {
-            XCTFail("Failed to create initial variables.")
-            return
-        }
-        XCTAssertEqual(
-            Statement(rawValue: "constant x: std_logic := '1';"), Statement.constant(value: constant)
-        )
-        XCTAssertEqual(
-            Statement(rawValue: "constant x:    std_logic := '1';"), Statement.constant(value: constant)
-        )
-        XCTAssertEqual(
-            Statement(rawValue: " constant x: std_logic := '1';"), Statement.constant(value: constant)
-        )
-        XCTAssertEqual(
-            Statement(rawValue: "constant x: std_logic := '1' ;"), Statement.constant(value: constant)
-        )
-        XCTAssertEqual(
-            Statement(rawValue: "constant x: std_logic := '1'; "), Statement.constant(value: constant)
-        )
-        XCTAssertEqual(
-            Statement(rawValue: " constant x: std_logic := '1'; "), Statement.constant(value: constant)
-        )
-        XCTAssertNil(Statement(rawValue: "constant x := '1';"))
-        XCTAssertNil(Statement(rawValue: "constant x: std_logic := 1';"))
-        XCTAssertNil(Statement(rawValue: "constant x: std_logic := '1'"))
-        XCTAssertNil(Statement(rawValue: "constant x: std_logic"))
-        XCTAssertNil(Statement(rawValue: ""))
-        XCTAssertNil(Statement(rawValue: " "))
-        XCTAssertNil(Statement(rawValue: "constant "))
-        XCTAssertNil(Statement(rawValue: "constant \(String(repeating: "x", count: 256)): std_logic := '1';"))
-    }
-
-    /// Test `init(rawValue:)` parses `VHDL` code correctly for definitions.
-    func testDefinitionRawValueInit() {
-        let signal = LocalSignal(
-            type: .stdLogic,
-            name: varX,
-            defaultValue: .literal(value: .bit(value: .high)),
-            comment: Comment(text: "signal x.")
-        )
-        XCTAssertEqual(
-            Statement(rawValue: "signal x: std_logic := '1'; -- signal x."),
-            Statement.definition(signal: signal)
-        )
-        XCTAssertEqual(
-            Statement(rawValue: " signal x: std_logic := '1'; -- signal x."),
-            Statement.definition(signal: signal)
-        )
-        XCTAssertEqual(
-            Statement(rawValue: "signal x: std_logic := '1' ; -- signal x."),
-            Statement.definition(signal: signal)
-        )
-        XCTAssertEqual(
-            Statement(rawValue: " signal x: std_logic := '1' ; -- signal x."),
-            Statement.definition(signal: signal)
-        )
-        XCTAssertEqual(
-            Statement(rawValue: "signal x: std_logic; -- signal x."),
-            Statement.definition(
-                signal: LocalSignal(
-                    type: .stdLogic, name: varX, defaultValue: nil, comment: Comment(text: "signal x.")
-                )
-            )
-        )
-        XCTAssertEqual(
-            Statement(rawValue: "signal x: std_logic := '1';"),
-            Statement.definition(
-                signal: LocalSignal(
-                    type: .stdLogic,
-                    name: varX,
-                    defaultValue: .literal(value: .bit(value: .high)),
-                    comment: nil
-                )
-            )
-        )
-        XCTAssertEqual(
-            Statement(rawValue: "signal x: std_logic;"),
-            Statement.definition(
-                signal: LocalSignal(type: .stdLogic, name: varX, defaultValue: nil, comment: nil)
-            )
-        )
-        XCTAssertNil(Statement(rawValue: "signal x: std_logic := '1' -- signal x."))
-        XCTAssertNil(Statement(rawValue: "signal x: std_logic := '1'; -- signal x.\n --"))
-        XCTAssertNil(Statement(rawValue: "-- signal x: std_logic\n := '1';"))
     }
 
     /// Test `init(rawValue:)` parses `VHDL` code correctly for comments.

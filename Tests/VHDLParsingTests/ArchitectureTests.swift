@@ -82,7 +82,7 @@ final class ArchitectureTests: XCTestCase {
 
     /// The head of the architecture.
     let head = ArchitectureHead(statements: [
-        .definition(signal: LocalSignal(
+        .signal(value: LocalSignal(
             type: .stdLogic, name: VariableName(text: "x"), defaultValue: nil, comment: nil
         ))
     ])

@@ -58,12 +58,6 @@
 /// performed. A statement may be definitions, assignments to variables or comments.
 public enum Statement: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
-    /// A constant definition, e.g. `constant x: std_logic := '1';`.
-    case constant(value: ConstantSignal)
-
-    /// A definition of a signal, e.g. `signal x: std_logic;`.
-    case definition(signal: LocalSignal)
-
     /// Assigning a value to a variable that has been pre-defined, e.g. `a <= b + 1;`.
     case assignment(name: VariableReference, value: Expression)
 
@@ -79,10 +73,6 @@ public enum Statement: RawRepresentable, Equatable, Hashable, Codable, Sendable 
     /// The `VHDL` code that performs this statement.
     @inlinable public var rawValue: String {
         switch self {
-        case .constant(let value):
-            return value.rawValue
-        case .definition(let signal):
-            return signal.rawValue
         case .assignment(let name, let value):
             return "\(name.rawValue) <= \(value.rawValue);"
         case .comment(let value):
@@ -118,21 +108,6 @@ public enum Statement: RawRepresentable, Equatable, Hashable, Codable, Sendable 
         }
         if let exp = Comment(rawValue: trimmedString) {
             self = .comment(value: exp)
-            return
-        }
-        let firstWord = trimmedString.firstWord?.lowercased()
-        if firstWord == "constant" {
-            guard let constant = ConstantSignal(rawValue: trimmedString) else {
-                return nil
-            }
-            self = .constant(value: constant)
-            return
-        }
-        if firstWord == "signal" {
-            guard let signal = LocalSignal(rawValue: trimmedString) else {
-                return nil
-            }
-            self = .definition(signal: signal)
             return
         }
         if trimmedString.contains("<=") {

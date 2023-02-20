@@ -58,7 +58,7 @@
 public struct ArchitectureHead: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
     /// The statements in the architecture that define the signals and variables.
-    public let statements: [Statement]
+    public let statements: [Definition]
 
     /// The `VHDL` of the architecture head.
     @inlinable public var rawValue: String {
@@ -68,7 +68,7 @@ public struct ArchitectureHead: RawRepresentable, Equatable, Hashable, Codable, 
     /// Creates a new `ArchitectureHead` with the given statements.
     /// - Parameter statements: The statements in the architecture that define the signals and variables.
     @inlinable
-    public init(statements: [Statement]) {
+    public init(statements: [Definition]) {
         self.statements = statements
     }
 
@@ -83,7 +83,7 @@ public struct ArchitectureHead: RawRepresentable, Equatable, Hashable, Codable, 
             $0.trimmingCharacters(in: .whitespacesAndNewlines)
         }
         .filter { !$0.isEmpty }
-        let statements = components.compactMap { Statement(rawValue: $0 + ";") }
+        let statements = components.compactMap { Definition(rawValue: $0 + ";") }
         guard components.count == statements.count, !statements.isEmpty else {
             return nil
         }

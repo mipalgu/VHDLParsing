@@ -62,10 +62,10 @@ final class ArchitectureHeadTests: XCTestCase {
 
     /// The architecture statements.
     let statements = [
-        Statement.definition(signal: LocalSignal(
+        Definition.signal(value: LocalSignal(
             type: .stdLogic, name: VariableName(text: "x"), defaultValue: nil, comment: nil
         )),
-        Statement.definition(signal: LocalSignal(
+        Definition.signal(value: LocalSignal(
             type: .stdLogic, name: VariableName(text: "y"), defaultValue: nil, comment: nil
         ))
     ]
