@@ -54,13 +54,17 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
+/// A type for defining types of references to a variable.
 public enum VariableReference: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
+    /// Referencing a variable directly.
     case variable(name: VariableName)
 
+    /// Indexing a variable.
     case indexed(name: VariableName, index: VectorIndex)
 
-    public var rawValue: String {
+    /// The equivalent `VHDL` code.
+    @inlinable public var rawValue: String {
         switch self {
         case .variable(let name):
             return name.rawValue
@@ -69,6 +73,9 @@ public enum VariableReference: RawRepresentable, Equatable, Hashable, Codable, S
         }
     }
 
+    /// Creates a new instance by parsing the given `VHDL` code.
+    /// - Parameter rawValue: The `VHDL` code to parse.
+    @inlinable
     public init?(rawValue: String) {
         let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
         guard trimmedString.count < 256 else {
