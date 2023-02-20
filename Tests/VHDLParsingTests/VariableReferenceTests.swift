@@ -93,6 +93,8 @@ final class VariableReferenceTests: XCTestCase {
         XCTAssertNil(VariableReference(rawValue: "x5)"))
         XCTAssertNil(VariableReference(rawValue: "x(5"))
         XCTAssertNil(VariableReference(rawValue: ""))
+        XCTAssertNil(VariableReference(rawValue: "x())"))
+        XCTAssertNil(VariableReference(rawValue: "x(()"))
     }
 
 }
