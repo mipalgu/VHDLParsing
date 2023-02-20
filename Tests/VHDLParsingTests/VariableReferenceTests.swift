@@ -89,6 +89,10 @@ final class VariableReferenceTests: XCTestCase {
     func testRawValueInit() {
         XCTAssertEqual(VariableReference(rawValue: "x"), variable)
         XCTAssertEqual(VariableReference(rawValue: "x(5)"), indexed)
+        XCTAssertEqual(
+            VariableReference(rawValue: "x((5))"),
+            .indexed(name: x, index: .index(value: .precedence(value: .literal(value: .integer(value: 5)))))
+        )
         XCTAssertNil(VariableReference(rawValue: String(repeating: "x", count: 256)))
         XCTAssertNil(VariableReference(rawValue: "x5)"))
         XCTAssertNil(VariableReference(rawValue: "x(5"))
