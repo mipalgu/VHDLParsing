@@ -64,7 +64,7 @@ final class VariableReferenceTests: XCTestCase {
     let x = VariableName(text: "x")
 
     /// An index of `x`.
-    let index = VectorIndex.index(value: 5)
+    let index = VectorIndex.index(value: .literal(value: .integer(value: 5)))
 
     /// A reference of `x`.
     lazy var variable = VariableReference.variable(name: x)

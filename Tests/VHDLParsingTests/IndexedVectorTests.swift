@@ -62,7 +62,7 @@ final class IndexedVectorTests: XCTestCase {
 
     /// The values of the indexes.
     let values = [
-        IndexedValue(index: .index(value: 3), value: .bit(value: .high)),
+        IndexedValue(index: .index(value: .literal(value: .integer(value: 3))), value: .bit(value: .high)),
         IndexedValue(index: .others, value: .bit(value: .low))
     ]
 

@@ -62,7 +62,7 @@ final class VectorIndexTests: XCTestCase {
 
     /// Test raw values are correct.
     func testRawValues() {
-        XCTAssertEqual(VectorIndex.index(value: 4).rawValue, "4")
+        XCTAssertEqual(VectorIndex.index(value: .literal(value: .integer(value: 4))).rawValue, "4")
         XCTAssertEqual(VectorIndex.others.rawValue, "others")
         let range = VectorSize.downto(
             upper: .literal(value: .integer(value: 4)), lower: .literal(value: .integer(value: 1))
@@ -72,14 +72,16 @@ final class VectorIndexTests: XCTestCase {
 
     /// Test `init(rawValue:)` works correctly for index values.
     func testIndexRawValueInit() {
-        XCTAssertEqual(VectorIndex(rawValue: "4"), .index(value: 4))
-        XCTAssertEqual(VectorIndex(rawValue: "0"), .index(value: 0))
-        XCTAssertEqual(VectorIndex(rawValue: " 1"), .index(value: 1))
-        XCTAssertEqual(VectorIndex(rawValue: " 2 "), .index(value: 2))
-        XCTAssertEqual(VectorIndex(rawValue: " 3  "), .index(value: 3))
-        XCTAssertEqual(VectorIndex(rawValue: "4 "), .index(value: 4))
-        XCTAssertEqual(VectorIndex(rawValue: "11"), .index(value: 11))
-        XCTAssertNil(VectorIndex(rawValue: "A"))
+        XCTAssertEqual(VectorIndex(rawValue: "4"), .index(value: .literal(value: .integer(value: 4))))
+        XCTAssertEqual(VectorIndex(rawValue: "0"), .index(value: .literal(value: .integer(value: 0))))
+        XCTAssertEqual(VectorIndex(rawValue: " 1"), .index(value: .literal(value: .integer(value: 1))))
+        XCTAssertEqual(VectorIndex(rawValue: " 2 "), .index(value: .literal(value: .integer(value: 2))))
+        XCTAssertEqual(VectorIndex(rawValue: " 3  "), .index(value: .literal(value: .integer(value: 3))))
+        XCTAssertEqual(VectorIndex(rawValue: "4 "), .index(value: .literal(value: .integer(value: 4))))
+        XCTAssertEqual(VectorIndex(rawValue: "11"), .index(value: .literal(value: .integer(value: 11))))
+        XCTAssertEqual(
+            VectorIndex(rawValue: "A"), .index(value: .variable(name: VariableName(text: "A")))
+        )
         XCTAssertNil(VectorIndex(rawValue: "1 2"))
         XCTAssertNil(VectorIndex(rawValue: "-1"))
         XCTAssertNil(VectorIndex(rawValue: "1.0"))
@@ -98,8 +100,12 @@ final class VectorIndexTests: XCTestCase {
         XCTAssertEqual(VectorIndex(rawValue: " others "), .others)
         XCTAssertEqual(VectorIndex(rawValue: "OTHERS"), .others)
         XCTAssertEqual(VectorIndex(rawValue: "OtHErS"), .others)
-        XCTAssertNil(VectorIndex(rawValue: "otherss"))
-        XCTAssertNil(VectorIndex(rawValue: "other"))
+        XCTAssertEqual(
+            VectorIndex(rawValue: "otherss"), .index(value: .variable(name: VariableName(text: "otherss")))
+        )
+        XCTAssertEqual(
+            VectorIndex(rawValue: "other"), .index(value: .variable(name: VariableName(text: "other")))
+        )
     }
 
     /// Test `init(rawValue:)` works correctly for range values.

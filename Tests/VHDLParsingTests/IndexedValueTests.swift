@@ -72,7 +72,12 @@ final class IndexedValueTests: XCTestCase {
     /// Test `rawValue` creates `VHDL` code correctly.
     func testRawValue() {
         XCTAssertEqual(value.rawValue, "others => '1'")
-        XCTAssertEqual(IndexedValue(index: .index(value: 1), value: .bit(value: .low)).rawValue, "1 => '0'")
+        XCTAssertEqual(
+            IndexedValue(
+                index: .index(value: .literal(value: .integer(value: 1))), value: .bit(value: .low)
+            ).rawValue,
+            "1 => '0'"
+        )
         XCTAssertEqual(
             IndexedValue(
                 index: .range(value: .downto(
@@ -105,7 +110,7 @@ final class IndexedValueTests: XCTestCase {
         )
         XCTAssertEqual(
             IndexedValue(rawValue: "1 => '1'"),
-            IndexedValue(index: .index(value: 1), value: .bit(value: .high))
+            IndexedValue(index: .index(value: .literal(value: .integer(value: 1))), value: .bit(value: .high))
         )
         XCTAssertEqual(
             IndexedValue(rawValue: "others => 'U'"),
@@ -117,7 +122,12 @@ final class IndexedValueTests: XCTestCase {
         XCTAssertNil(IndexedValue(rawValue: " "))
         XCTAssertNil(IndexedValue(rawValue: "\n"))
         XCTAssertNil(IndexedValue(rawValue: "\(String(repeating: "1", count: 256)) => '1'"))
-        XCTAssertNil(IndexedValue(rawValue: "abx => '1'"))
+        XCTAssertEqual(
+            IndexedValue(rawValue: "abx => '1'"),
+            IndexedValue(
+                index: .index(value: .variable(name: VariableName(text: "abx"))), value: .bit(value: .high)
+            )
+        )
         XCTAssertNil(IndexedValue(rawValue: "signal x: std_logic_vector(3 downto 0) := (others => '1');"))
         XCTAssertNil(IndexedValue(rawValue: "others => \"1\""))
         XCTAssertNil(IndexedValue(rawValue: "others => 1"))

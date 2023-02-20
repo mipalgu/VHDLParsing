@@ -64,7 +64,7 @@
 public enum VectorIndex: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
     /// An index in a vector.
-    case index(value: Int)
+    case index(value: Expression)
 
     /// The `others` statement in `VHDL`. Refers to all remaining indexes in a vector.
     case others
@@ -101,9 +101,11 @@ public enum VectorIndex: RawRepresentable, Equatable, Hashable, Codable, Sendabl
             self = .range(value: range)
             return
         }
-        if let index = Int(value) {
-            guard index >= 0 else {
-                return nil
+        if let index = Expression(rawValue: value) {
+            if case .literal(let literal) = index {
+                guard case .integer(let integer) = literal, integer >= 0 else {
+                    return nil
+                }
             }
             self = .index(value: index)
             return
