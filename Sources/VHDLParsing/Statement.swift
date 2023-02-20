@@ -120,7 +120,22 @@ public enum Statement: RawRepresentable, Equatable, Hashable, Codable, Sendable 
             self = .comment(value: exp)
             return
         }
-       if trimmedString.contains("<=") {
+        let firstWord = trimmedString.firstWord?.lowercased()
+        if firstWord == "constant" {
+            guard let constant = ConstantSignal(rawValue: trimmedString) else {
+                return nil
+            }
+            self = .constant(value: constant)
+            return
+        }
+        if firstWord == "signal" {
+            guard let signal = LocalSignal(rawValue: trimmedString) else {
+                return nil
+            }
+            self = .definition(signal: signal)
+            return
+        }
+        if trimmedString.contains("<=") {
             let components = trimmedString.components(separatedBy: "<=")
             guard components.count == 2 else {
                 return nil
@@ -134,21 +149,6 @@ public enum Statement: RawRepresentable, Equatable, Hashable, Codable, Sendable 
                 return nil
             }
             self = .assignment(name: name, value: exp)
-            return
-        }
-        let value = trimmedString.lowercased()
-        if value.contains("constant ") {
-            guard let constant = ConstantSignal(rawValue: trimmedString) else {
-                return nil
-            }
-            self = .constant(value: constant)
-            return
-        }
-        if value.contains("signal ") {
-            guard let signal = LocalSignal(rawValue: trimmedString) else {
-                return nil
-            }
-            self = .definition(signal: signal)
             return
         }
         return nil
