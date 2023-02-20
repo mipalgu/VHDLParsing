@@ -170,4 +170,36 @@ final class DefinitionTests: XCTestCase {
         XCTAssertNil(Definition(rawValue: "-- signal x: std_logic\n := '1';"))
     }
 
+    /// Test component raw value init.
+    func testComponentRawValueInit() {
+        let raw = """
+        component C is
+            port(
+                x: in std_logic;
+                y: out std_logic
+            );
+        end component;
+        """
+        guard let port = PortBlock(signals: [
+            PortSignal(type: .stdLogic, name: x, mode: .input),
+            PortSignal(type: .stdLogic, name: VariableName(text: "y"), mode: .output)
+        ]) else {
+            XCTFail("Failed to create port!")
+            return
+        }
+        XCTAssertEqual(
+            Definition(rawValue: raw),
+            .component(value: ComponentDefinition(name: VariableName(text: "C"), port: port))
+        )
+        let raw2 = """
+        component component C is
+            port(
+                x: in std_logic;
+                y: out std_logic
+            );
+        end component;
+        """
+        XCTAssertNil(Definition(rawValue: raw2))
+    }
+
 }

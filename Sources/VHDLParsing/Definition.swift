@@ -63,12 +63,17 @@ public enum Definition: RawRepresentable, Equatable, Hashable, Codable, Sendable
     /// The variable is a constant.
     case constant(value: ConstantSignal)
 
+    /// A component definition.
+    case component(value: ComponentDefinition)
+
     /// The equivalent `VHDL` code for this definition.
     @inlinable public var rawValue: String {
         switch self {
         case .signal(let value):
             return value.rawValue
         case .constant(let value):
+            return value.rawValue
+        case .component(let value):
             return value.rawValue
         }
     }
@@ -94,6 +99,13 @@ public enum Definition: RawRepresentable, Equatable, Hashable, Codable, Sendable
                 return nil
             }
             self = .signal(value: signal)
+            return
+        }
+        if firstWord == "component" {
+            guard let component = ComponentDefinition(rawValue: trimmedString) else {
+                return nil
+            }
+            self = .component(value: component)
             return
         }
         return nil
