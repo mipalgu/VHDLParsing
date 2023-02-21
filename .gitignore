@@ -9,3 +9,4 @@ DerivedData/
 .netrc
 default.profraw
 Package.resolved
+.vscode
