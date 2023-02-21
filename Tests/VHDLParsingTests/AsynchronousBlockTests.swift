@@ -149,6 +149,8 @@ final class AsynchronousBlockTests: XCTestCase {
         end processs;
         """
         XCTAssertNil(AsynchronousBlock(rawValue: raw2))
+        XCTAssertNil(AsynchronousBlock(rawValue: ""))
+        XCTAssertNil(AsynchronousBlock(rawValue: String(repeating: "x", count: 4096)))
     }
 
     /// Test raw value init for statement.
@@ -157,6 +159,8 @@ final class AsynchronousBlockTests: XCTestCase {
         let block = AsynchronousBlock.statement(statement: statement)
         let raw = "x <= y;"
         XCTAssertEqual(AsynchronousBlock(rawValue: raw), block)
+        XCTAssertNil(AsynchronousBlock(rawValue: "x <== y;"))
+        XCTAssertNil(AsynchronousBlock(rawValue: "x <= y;\nx <== y;"))
     }
 
     /// test raw value init for multiple statements.

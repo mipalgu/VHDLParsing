@@ -66,6 +66,7 @@ indirect public enum AsynchronousBlock: RawRepresentable, Equatable, Hashable, C
     /// A single statement.
     case statement(statement: Statement)
 
+    /// A component instantiation.
     case component(block: ComponentInstantiation)
 
     /// The `VHDL` code representing this block.
@@ -101,58 +102,69 @@ indirect public enum AsynchronousBlock: RawRepresentable, Equatable, Hashable, C
             return nil
         }
         if let colonIndex = trimmedString.firstIndex(of: ":"), colonIndex < semicolonIndex {
-            if let component = ComponentInstantiation(rawValue: trimmedString) {
-                self.init(carry: carry + [.component(block: component)])
-                return
-            }
-            let subExpression = trimmedString[...trimmedString.uptoSemicolon.endIndex]
-            guard
-                let component = ComponentInstantiation(rawValue: String(subExpression)),
-                subExpression.endIndex < trimmedString.endIndex
-            else {
-                return nil
-            }
-            self.init(
-                rawValue: String(trimmedString[subExpression.endIndex...]),
-                carry: carry + [.component(block: component)]
-            )
+            self.init(component: trimmedString, carry: carry)
             return
         }
         if trimmedString.firstWord?.lowercased() == "process" {
-            if let process = ProcessBlock(rawValue: trimmedString) {
-                self.init(carry: carry + [.process(block: process)])
-                return
-            }
-            guard
-                let processString = trimmedString.subExpression(
-                    beginningWith: ["process"], endingWith: ["end", "process;"]
-                ),
-                let process = ProcessBlock(rawValue: String(processString)),
-                processString.endIndex < trimmedString.endIndex
-            else {
-                return nil
-            }
-            self.init(
-                rawValue: String(trimmedString[processString.endIndex...]),
-                carry: carry + [.process(block: process)]
-            )
+            self.init(process: trimmedString, carry: carry)
             return
         }
         // Check for single semicolon.
-        if
-            trimmedString.firstIndex(of: ";") == trimmedString.lastIndex(of: ";"),
-            trimmedString.hasSuffix(";")
-        {
-            guard
-                let statement = Statement(rawValue: trimmedString),
-                let newBlock = AsynchronousBlock(carry: carry + [.statement(statement: statement)])
-            else {
+        if semicolonIndex == trimmedString.lastIndex(of: ";"), trimmedString.hasSuffix(";") {
+            guard let statement = Statement(rawValue: trimmedString) else {
                 return nil
             }
-            self = newBlock
+            self.init(carry: carry + [.statement(statement: statement)])
             return
         }
         self.init(multiple: trimmedString, carry: carry)
+    }
+
+    /// Initialise an `AsynchronousBlock` assuming it contains a `ComponentInstantiation`.
+    /// - Parameters:
+    ///   - trimmedString: The `VHDL` code that contains the component.
+    ///   - carry: The previous strings that have parsed correctly.
+    private init?(component trimmedString: String, carry: [AsynchronousBlock]) {
+        if let component = ComponentInstantiation(rawValue: trimmedString) {
+            self.init(carry: carry + [.component(block: component)])
+            return
+        }
+        let subExpression = trimmedString[...trimmedString.uptoSemicolon.endIndex]
+        guard
+            let component = ComponentInstantiation(rawValue: String(subExpression)),
+            subExpression.endIndex < trimmedString.endIndex
+        else {
+            return nil
+        }
+        self.init(
+            rawValue: String(trimmedString[subExpression.endIndex...]),
+            carry: carry + [.component(block: component)]
+        )
+        return
+    }
+
+    /// Initialise an `AsynchronousBlock` assuming it contains a process block.
+    /// - Parameters:
+    ///   - trimmedString: The `VHDL` code that contains the process.
+    ///   - carry: The previous strings that have parsed correctly.
+    private init?(process trimmedString: String, carry: [AsynchronousBlock]) {
+        if let process = ProcessBlock(rawValue: trimmedString) {
+            self.init(carry: carry + [.process(block: process)])
+            return
+        }
+        guard
+            let processString = trimmedString.subExpression(
+                beginningWith: ["process"], endingWith: ["end", "process;"]
+            ),
+            let process = ProcessBlock(rawValue: String(processString)),
+            processString.endIndex < trimmedString.endIndex
+        else {
+            return nil
+        }
+        self.init(
+            rawValue: String(trimmedString[processString.endIndex...]),
+            carry: carry + [.process(block: process)]
+        )
     }
 
     /// Initialise a `rawValue` with multiple statements.
