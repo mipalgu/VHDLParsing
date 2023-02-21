@@ -61,7 +61,7 @@ import XCTest
 final class VariableMapTests: XCTestCase {
 
     /// A variable `x`.
-    let x = VariableName(text: "x")
+    let x = VariableReference.variable(name: VariableName(text: "x"))
 
     /// A variable `y`.
     let y = VariableName(text: "y")

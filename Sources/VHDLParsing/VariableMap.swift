@@ -59,7 +59,7 @@
 public struct VariableMap: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
     /// The left-hand side signal to map.
-    public let lhs: VariableName
+    public let lhs: VariableReference
 
     /// The right-hand side signal to map.
     public let rhs: VariableName
@@ -74,7 +74,7 @@ public struct VariableMap: RawRepresentable, Equatable, Hashable, Codable, Senda
     ///   - lhs: The left-hand side signal to map.
     ///   - rhs: The right-hand side signal to map.
     @inlinable
-    public init(lhs: VariableName, rhs: VariableName) {
+    public init(lhs: VariableReference, rhs: VariableName) {
         self.lhs = lhs
         self.rhs = rhs
     }
@@ -87,12 +87,13 @@ public struct VariableMap: RawRepresentable, Equatable, Hashable, Codable, Senda
         guard trimmed.count < 1024 else {
             return nil
         }
-        let words = trimmed.words
+        let lhsEnd = trimmed.indexes(for: ["=>"])
         guard
-            words.count == 3,
-            words[1] == "=>",
-            let lhs = VariableName(rawValue: words[0]),
-            let rhs = VariableName(rawValue: words[2])
+            lhsEnd.count == 1,
+            let operatorIndex = lhsEnd.first,
+            operatorIndex.1 < trimmed.endIndex,
+            let lhs = VariableReference(rawValue: String(trimmed[trimmed.startIndex..<operatorIndex.0])),
+            let rhs = VariableName(rawValue: String(trimmed[trimmed.index(after: operatorIndex.1)...]))
         else {
             return nil
         }
