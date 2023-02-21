@@ -97,7 +97,7 @@ final class GenericMapTests: XCTestCase {
             generic map (
                 x => z,
                 y => z
-            );
+            )
             """
         )
     }
@@ -108,7 +108,7 @@ final class GenericMapTests: XCTestCase {
         generic map (
             x => z,
             y => z
-        );
+        )
         """
         XCTAssertEqual(GenericMap(rawValue: raw), map)
         XCTAssertNil(GenericMap(rawValue: String(raw.dropFirst())))
@@ -116,28 +116,27 @@ final class GenericMapTests: XCTestCase {
         generic (
             x => z,
             y => z
-        );
+        )
         """
         XCTAssertNil(GenericMap(rawValue: raw2))
         let raw3 = """
         generic map (
             x => z,
             y => z
-        )
+        );
         """
         XCTAssertNil(GenericMap(rawValue: raw3))
         let raw4 = """
         generic map (
             x => z,
             y => z
-        ;
         """
         XCTAssertNil(GenericMap(rawValue: raw4))
         let raw5 = """
         generic map (
             x => z,
             y => 2z
-        );
+        )
         """
         XCTAssertNil(GenericMap(rawValue: raw5))
         XCTAssertNil(GenericMap(rawValue: ""))

@@ -65,7 +65,7 @@ public struct GenericMap: RawRepresentable, Equatable, Hashable, Codable, Sendab
         """
         generic map (
         \(self.variables.map { $0.rawValue }.joined(separator: ",\n").indent(amount: 1))
-        );
+        )
         """
     }
 
@@ -89,14 +89,11 @@ public struct GenericMap: RawRepresentable, Equatable, Hashable, Codable, Sendab
             return nil
         }
         let noMap = noGeneric.dropFirst(3).trimmingCharacters(in: .whitespacesAndNewlines)
-        guard noMap.first == "(", noMap.last == ";" else {
+        guard noMap.first == "(", noMap.last == ")" else {
             return nil
         }
-        let noBracket = noMap.dropFirst().dropLast().trimmingCharacters(in: .whitespacesAndNewlines)
-        guard noBracket.last == ")" else {
-            return nil
-        }
-        let maps = noBracket.dropLast()
+        let maps = noMap.dropFirst()
+            .dropLast()
             .trimmingCharacters(in: .whitespacesAndNewlines)
             .components(separatedBy: ",")
         let variables = maps.compactMap { GenericVariableMap(rawValue: $0) }
