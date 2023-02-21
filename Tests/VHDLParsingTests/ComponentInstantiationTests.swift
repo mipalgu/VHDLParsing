@@ -127,4 +127,23 @@ final class ComponentInstantiationTests: XCTestCase {
         XCTAssertEqual(component2.rawValue, expected2)
     }
 
+    /// Tests that `init(rawValue:)` parses the `VHDL` correctly when that code doesn't contain generics.
+    func testRawValueInitWithoutGeneric() {
+        let raw = """
+        comp1: component C1 port map (
+            x => z,
+            y => open
+        );
+        """
+        let component = ComponentInstantiation(label: label, name: entityName, port: port)
+        XCTAssertEqual(ComponentInstantiation(rawValue: raw), component)
+        let raw2 = """
+        comp1: C1 port map (
+            x => z,
+            y => open
+        );
+        """
+        XCTAssertEqual(ComponentInstantiation(rawValue: raw2), component)
+    }
+
 }

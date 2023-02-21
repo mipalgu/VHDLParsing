@@ -104,22 +104,12 @@ public struct ComponentInstantiation: RawRepresentable, Equatable, Hashable, Cod
         }
         guard
             nameAndMaps.hasSuffix(";"),
-            let component = remaining.firstWord,
+            let component = nameAndMaps.firstWord,
             let name = VariableName(rawValue: component)
         else {
             return nil
         }
-        let noSemicolon = nameAndMaps.dropLast().trimmingCharacters(in: .whitespacesAndNewlines)
-        guard noSemicolon.hasSuffix(component) else {
-            return nil
-        }
-        let noEndName = noSemicolon.dropLast(component.count).trimmingCharacters(in: .whitespacesAndNewlines)
-        guard noEndName.lastWord?.lowercased() == "end" else {
-            return nil
-        }
-        let maps = noEndName.dropFirst(component.count)
-            .dropLast(3)
-            .trimmingCharacters(in: .whitespacesAndNewlines)
+        let maps = nameAndMaps.dropFirst(component.count).trimmingCharacters(in: .whitespacesAndNewlines)
         let generic: GenericMap?
         let portRaw: String
         if maps.firstWord?.lowercased() == "generic" {
