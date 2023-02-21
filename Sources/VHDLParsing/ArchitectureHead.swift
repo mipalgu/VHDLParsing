@@ -77,17 +77,45 @@ public struct ArchitectureHead: RawRepresentable, Equatable, Hashable, Codable, 
     /// of signal definitions. The architecture keyword should not be present.
     @inlinable
     public init?(rawValue: String) {
-        let trimmedString = rawValue.withoutComments.trimmingCharacters(in: .whitespacesAndNewlines)
-        let components = trimmedString.components(separatedBy: ";")
-        .map {
-            $0.trimmingCharacters(in: .whitespacesAndNewlines)
+        self.init(remaining: rawValue)
+    }
+
+    /// Creates a new `ArchitectureHead` from a partially parsed `VHDL` definition.
+    /// - Parameters:
+    ///   - carry: The parsed code in the architecture head.
+    ///   - remaining: The remaining code to be parsed.
+    @usableFromInline
+    init?(carry: [Definition] = [], remaining: String) {
+        let trimmed = remaining.trimmingCharacters(in: .whitespacesAndNewlines)
+        if trimmed.firstWord?.lowercased() == "component" {
+            guard
+                let componentString = trimmed.subExpression(
+                    beginningWith: ["component"], endingWith: ["end", "component;"]
+                ),
+                let component = ComponentDefinition(rawValue: String(componentString))
+            else {
+                return nil
+            }
+            guard componentString.endIndex == trimmed.endIndex else {
+                self.init(
+                    carry: carry + [.component(value: component)],
+                    remaining: String(trimmed[componentString.endIndex...])
+                )
+                return
+            }
+            self.init(statements: carry + [.component(value: component)])
+            return
         }
-        .filter { !$0.isEmpty }
-        let statements = components.compactMap { Definition(rawValue: $0 + ";") }
-        guard components.count == statements.count, !statements.isEmpty else {
+        let line = trimmed.uptoSemicolon
+        guard let definition = Definition(rawValue: line + ";") else {
             return nil
         }
-        self.statements = statements
+        let remaining = trimmed.dropFirst(line.count + 1).trimmingCharacters(in: .whitespacesAndNewlines)
+        guard remaining.isEmpty else {
+            self.init(carry: carry + [definition], remaining: remaining)
+            return
+        }
+        self.init(statements: carry + [definition])
     }
 
 }
