@@ -140,6 +140,15 @@ final class AsynchronousBlockTests: XCTestCase {
             )
         )
         XCTAssertEqual(AsynchronousBlock(rawValue: raw), process)
+        let raw2 = """
+        process (clk)
+        begin
+            if (rising_edge(clk)) then
+                x <= y;
+            end if;
+        end processs;
+        """
+        XCTAssertNil(AsynchronousBlock(rawValue: raw2))
     }
 
     /// Test raw value init for statement.
@@ -177,8 +186,20 @@ final class AsynchronousBlockTests: XCTestCase {
                 )
             )
         )
+        let component = AsynchronousBlock.component(block: ComponentInstantiation(
+            label: VariableName(text: "comp1"),
+            name: VariableName(text: "C1"),
+            port: PortMap(variables: [
+                VariableMap(lhs: .variable(name: x), rhs: .reference(variable: .variable(name: y))),
+                VariableMap(lhs: .variable(name: VariableName(text: "z")), rhs: .open)
+            ])
+        ))
         let raw = """
         x <= y;
+        comp1: C1 port map (
+            x => y,
+            z => open
+        );
         process (clk)
         begin
             if (rising_edge(clk)) then
@@ -188,9 +209,42 @@ final class AsynchronousBlockTests: XCTestCase {
         x <= y;
         x <= y;
         """
-        let expected = AsynchronousBlock.blocks(blocks: [block, process, block, block])
+        let expected = AsynchronousBlock.blocks(blocks: [block, component, process, block, block])
         let result = AsynchronousBlock(rawValue: raw)
         XCTAssertEqual(result, expected)
+    }
+
+    /// Test `init(rawValue:)` when raw value is a component.
+    func testRawValueInitComponent() {
+        let component = AsynchronousBlock.component(block: ComponentInstantiation(
+            label: VariableName(text: "comp1"),
+            name: VariableName(text: "C1"),
+            port: PortMap(variables: [
+                VariableMap(lhs: .variable(name: x), rhs: .reference(variable: .variable(name: y))),
+                VariableMap(lhs: .variable(name: VariableName(text: "z")), rhs: .open)
+            ])
+        ))
+        let raw = """
+        comp1: C1 port map (
+            x => y,
+            z => open
+        );
+        """
+        XCTAssertEqual(AsynchronousBlock(rawValue: raw), component)
+        let raw2 = """
+        comp1: C1 port map (
+            x => y,
+            z => open
+        )
+        """
+        XCTAssertNil(AsynchronousBlock(rawValue: raw2))
+        let raw3 = """
+        comp1: C1 port map (
+            x => y,
+            z => open
+        ));
+        """
+        XCTAssertNil(AsynchronousBlock(rawValue: raw3))
     }
 
 }

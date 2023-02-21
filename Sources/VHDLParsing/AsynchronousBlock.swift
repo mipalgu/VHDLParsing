@@ -66,6 +66,8 @@ indirect public enum AsynchronousBlock: RawRepresentable, Equatable, Hashable, C
     /// A single statement.
     case statement(statement: Statement)
 
+    case component(block: ComponentInstantiation)
+
     /// The `VHDL` code representing this block.
     @inlinable public var rawValue: String {
         switch self {
@@ -75,6 +77,8 @@ indirect public enum AsynchronousBlock: RawRepresentable, Equatable, Hashable, C
             return block.rawValue
         case .statement(let statement):
             return statement.rawValue
+        case .component(let block):
+            return block.rawValue
         }
     }
 
@@ -93,15 +97,30 @@ indirect public enum AsynchronousBlock: RawRepresentable, Equatable, Hashable, C
     ///   - carry: The previous strings that have parsed correctly.
     private init?(rawValue: String, carry: [AsynchronousBlock]) {
         let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard trimmedString.contains(";") else {
+        guard let semicolonIndex = trimmedString.firstIndex(of: ";") else {
             return nil
         }
+        if let colonIndex = trimmedString.firstIndex(of: ":"), colonIndex < semicolonIndex {
+            if let component = ComponentInstantiation(rawValue: trimmedString) {
+                self.init(carry: carry + [.component(block: component)])
+                return
+            }
+            let subExpression = trimmedString[...trimmedString.uptoSemicolon.endIndex]
+            guard
+                let component = ComponentInstantiation(rawValue: String(subExpression)),
+                subExpression.endIndex < trimmedString.endIndex
+            else {
+                return nil
+            }
+            self.init(
+                rawValue: String(trimmedString[subExpression.endIndex...]),
+                carry: carry + [.component(block: component)]
+            )
+            return
+        }
         if trimmedString.firstWord?.lowercased() == "process" {
-            if
-                let process = ProcessBlock(rawValue: trimmedString),
-                let newBlock = AsynchronousBlock(carry: carry + [.process(block: process)])
-            {
-                self = newBlock
+            if let process = ProcessBlock(rawValue: trimmedString) {
+                self.init(carry: carry + [.process(block: process)])
                 return
             }
             guard
@@ -109,15 +128,14 @@ indirect public enum AsynchronousBlock: RawRepresentable, Equatable, Hashable, C
                     beginningWith: ["process"], endingWith: ["end", "process;"]
                 ),
                 let process = ProcessBlock(rawValue: String(processString)),
-                processString.endIndex < trimmedString.endIndex,
-                let remainingBlock = AsynchronousBlock(
-                    rawValue: String(trimmedString[processString.endIndex...]),
-                    carry: carry + [.process(block: process)]
-                )
+                processString.endIndex < trimmedString.endIndex
             else {
                 return nil
             }
-            self = remainingBlock
+            self.init(
+                rawValue: String(trimmedString[processString.endIndex...]),
+                carry: carry + [.process(block: process)]
+            )
             return
         }
         // Check for single semicolon.
