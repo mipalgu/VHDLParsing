@@ -1,5 +1,5 @@
-// PortMap.swift 
-// VHDLParsing 
+// PortMapTests.swift
+// VHDLParsing
 // 
 // Created by Morgan McColl.
 // Copyright © 2023 Morgan McColl. All rights reserved.
@@ -54,57 +54,93 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
-/// A `port map` declaration in `VHDL`. This block represents the connections to the port signals in a
-/// component instantiation.
-public struct PortMap: RawRepresentable, Equatable, Hashable, Codable, Sendable {
+@testable import VHDLParsing
+import XCTest
 
-    /// The mapping between the variables.
-    public let variables: [VariableMap]
+/// Test class for ``PortMap``.
+final class PortMapTests: XCTestCase {
 
-    /// The equivalent `VHDL` code.
-    @inlinable public var rawValue: String {
-        """
+    /// A variable `x`.
+    let x = VariableReference.variable(name: VariableName(text: "x"))
+
+    /// A variable `y`.
+    let y = VariableReference.variable(name: VariableName(text: "y"))
+
+    /// A variable `z`.
+    let z = VariableReference.variable(name: VariableName(text: "z"))
+
+    /// The `PortMap` under test.
+    lazy var map = PortMap(
+        variables: [VariableMap(lhs: x, rhs: .reference(variable: z)), VariableMap(lhs: y, rhs: .open)]
+    )
+
+    /// Initialise the uut before every test case.
+    override func setUp() {
+        map = PortMap(
+            variables: [VariableMap(lhs: x, rhs: .reference(variable: z)), VariableMap(lhs: y, rhs: .open)]
+        )
+    }
+
+    /// Test that the initialiser sets the stored properties correctly.
+    func testInit() {
+        XCTAssertEqual(
+            map.variables,
+            [VariableMap(lhs: x, rhs: .reference(variable: z)), VariableMap(lhs: y, rhs: .open)]
+        )
+    }
+
+    /// Test that the `rawValue` generates the `VHDL` code correctly.
+    func testRawValue() {
+        XCTAssertEqual(
+            map.rawValue,
+            """
+            port map (
+                x => z,
+                y => open
+            );
+            """
+        )
+    }
+
+    /// Test that `init(rawValue:)` parses the `VHDL` code correctly.
+    func testRawValueInit() {
+        let raw = """
         port map (
-        \(self.variables.map { $0.rawValue }.joined(separator: ",\n").indent(amount: 1))
+            x => z,
+            y => open
         );
         """
-    }
-
-    /// Creates a new `PortMap` with the given variables.
-    /// - Parameter variables: The mapping between the variables.
-    @inlinable
-    public init(variables: [VariableMap]) {
-        self.variables = variables
-    }
-
-    /// Creates a new `PortMap` from the given `VHDL` code.
-    /// - Parameter rawValue: The `VHDL` code.
-    @inlinable
-    public init?(rawValue: String) {
-        let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard trimmedString.firstWord?.lowercased() == "port" else {
-            return nil
-        }
-        let noPort = trimmedString.dropFirst(4).trimmingCharacters(in: .whitespacesAndNewlines)
-        guard noPort.firstWord?.lowercased() == "map" else {
-            return nil
-        }
-        let noMap = noPort.dropFirst(3).trimmingCharacters(in: .whitespacesAndNewlines)
-        guard noMap.first == "(", noMap.last == ";" else {
-            return nil
-        }
-        let noBracket = noMap.dropFirst().dropLast().trimmingCharacters(in: .whitespacesAndNewlines)
-        guard noBracket.last == ")" else {
-            return nil
-        }
-        let maps = noBracket.dropLast()
-            .trimmingCharacters(in: .whitespacesAndNewlines)
-            .components(separatedBy: ",")
-        let variables = maps.compactMap { VariableMap(rawValue: $0) }
-        guard maps.count == variables.count else {
-            return nil
-        }
-        self.init(variables: variables)
+        XCTAssertEqual(PortMap(rawValue: raw), map)
+        XCTAssertNil(PortMap(rawValue: String(raw.dropFirst())))
+        let raw2 = """
+        port (
+            x => z,
+            y => open
+        );
+        """
+        XCTAssertNil(PortMap(rawValue: raw2))
+        let raw3 = """
+        port map (
+            x => z,
+            y => open
+        )
+        """
+        XCTAssertNil(PortMap(rawValue: raw3))
+        let raw4 = """
+        port map (
+            x => z,
+            y => open
+        ;
+        """
+        XCTAssertNil(PortMap(rawValue: raw4))
+        let raw5 = """
+        port map (
+            x => z,
+            y => 2open
+        );
+        """
+        XCTAssertNil(PortMap(rawValue: raw5))
+        XCTAssertNil(PortMap(rawValue: ""))
     }
 
 }
