@@ -62,7 +62,7 @@ public struct VariableMap: RawRepresentable, Equatable, Hashable, Codable, Senda
     public let lhs: VariableReference
 
     /// The right-hand side signal to map.
-    public let rhs: VariableName
+    public let rhs: VariableAssignment
 
     /// The equivalent `VHDL` code.
     @inlinable public var rawValue: String {
@@ -74,7 +74,7 @@ public struct VariableMap: RawRepresentable, Equatable, Hashable, Codable, Senda
     ///   - lhs: The left-hand side signal to map.
     ///   - rhs: The right-hand side signal to map.
     @inlinable
-    public init(lhs: VariableReference, rhs: VariableName) {
+    public init(lhs: VariableReference, rhs: VariableAssignment) {
         self.lhs = lhs
         self.rhs = rhs
     }
@@ -93,7 +93,7 @@ public struct VariableMap: RawRepresentable, Equatable, Hashable, Codable, Senda
             let operatorIndex = lhsEnd.first,
             operatorIndex.1 < trimmed.endIndex,
             let lhs = VariableReference(rawValue: String(trimmed[trimmed.startIndex..<operatorIndex.0])),
-            let rhs = VariableName(rawValue: String(trimmed[trimmed.index(after: operatorIndex.1)...]))
+            let rhs = VariableAssignment(rawValue: String(trimmed[trimmed.index(after: operatorIndex.1)...]))
         else {
             return nil
         }

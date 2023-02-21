@@ -64,7 +64,7 @@ final class VariableMapTests: XCTestCase {
     let x = VariableReference.variable(name: VariableName(text: "x"))
 
     /// A variable `y`.
-    let y = VariableName(text: "y")
+    let y = VariableAssignment.reference(variable: .variable(name: VariableName(text: "y")))
 
     /// The map under test.
     lazy var map = VariableMap(lhs: x, rhs: y)
