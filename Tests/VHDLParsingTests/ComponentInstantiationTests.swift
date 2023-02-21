@@ -144,6 +144,95 @@ final class ComponentInstantiationTests: XCTestCase {
         );
         """
         XCTAssertEqual(ComponentInstantiation(rawValue: raw2), component)
+        let raw3 = """
+        comp1 : C1 port map (
+            x => z,
+            y => open
+        );
+        """
+        XCTAssertEqual(ComponentInstantiation(rawValue: raw3), component)
+        let raw4 = """
+        comp1 :C1 port map (
+            x => z,
+            y => open
+        );
+        """
+        XCTAssertEqual(ComponentInstantiation(rawValue: raw4), component)
+        let raw5 = "comp1: component C1 port map (x => z, y => open);"
+        XCTAssertEqual(ComponentInstantiation(rawValue: raw5), component)
+        let raw6 = "comp1: C1 port map (x => z, y => open);"
+        XCTAssertEqual(ComponentInstantiation(rawValue: raw6), component)
+    }
+
+    /// Tests that `init(rawValue:)` parses the `VHDL` correctly when that code contains generics.
+    func testRawValueInitWithGeneric() {
+        let raw = """
+        comp1: component C1
+            generic map (
+                N => A
+            )
+            port map (
+                x => z,
+                y => open
+            );
+        """
+        XCTAssertEqual(ComponentInstantiation(rawValue: raw), component)
+        let raw2 = """
+        comp1: component C1
+            generic map (
+                N => A
+            );
+            port map (
+                x => z,
+                y => open
+            );
+        """
+        XCTAssertNil(ComponentInstantiation(rawValue: raw2))
+        let raw3 = """
+        comp1: component C1
+            generic map (
+                N => A
+            );
+        """
+        XCTAssertNil(ComponentInstantiation(rawValue: raw3))
+        let raw4 = """
+        comp1: component C1
+            generic map (
+                N => A
+            )
+        """
+        XCTAssertNil(ComponentInstantiation(rawValue: raw4))
+        let raw5 = "comp1: component C1 generic map (N => A) port map (x => z, y => open);"
+        XCTAssertEqual(ComponentInstantiation(rawValue: raw5), component)
+        let raw6 = "comp1: C1 generic map (N => A) port map (x => z, y => open);"
+        XCTAssertEqual(ComponentInstantiation(rawValue: raw6), component)
+    }
+
+    /// Test that invalid code fails to create the component.
+    func testInvalidRawValueInit() {
+        XCTAssertNil(ComponentInstantiation(rawValue: "comp1:"))
+        let raw = """
+        comp1 component C1 port map (
+            x => z,
+            y => open
+        );
+        """
+        XCTAssertNil(ComponentInstantiation(rawValue: raw))
+        let raw2 = """
+        comp1: component C1 port map (
+            x => z,
+            y => open
+        )
+        """
+        XCTAssertNil(ComponentInstantiation(rawValue: raw2))
+        let raw3 = """
+        comp1: component C1 port map (
+            x => z,
+            y => 2open
+        );
+        """
+        XCTAssertNil(ComponentInstantiation(rawValue: raw3))
+        XCTAssertNil(ComponentInstantiation(rawValue: ""))
     }
 
 }

@@ -54,17 +54,24 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
+/// A component instantiation in `VHDL`. This struct represents a component that is instantiated using a
+/// `port map` and optionally a `generic map`.
 public struct ComponentInstantiation: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
+    /// The label for the instantiation.
     public let label: VariableName
 
+    /// The name of the component.
     public let name: VariableName
 
+    /// The port map for the instantiation.
     public let port: PortMap
 
+    /// The generic map for the instantiation.
     public let generic: GenericMap?
 
-    public var rawValue: String {
+    /// The `VHDL` representation of this instantiation.
+    @inlinable public var rawValue: String {
         guard let generic else {
             return "\(self.label.rawValue): component \(name.rawValue) \(port.rawValue)"
         }
@@ -75,6 +82,13 @@ public struct ComponentInstantiation: RawRepresentable, Equatable, Hashable, Cod
         """
     }
 
+    /// Creates a new `ComponentInstantiation` with the given label, name, port map and generic map.
+    /// - Parameters:
+    ///   - label: The label for the instantiation.
+    ///   - name: The name of the component.
+    ///   - port: The port map for the instantiation.
+    ///   - generic: The generic map for the instantiation.
+    @inlinable
     public init(label: VariableName, name: VariableName, port: PortMap, generic: GenericMap? = nil) {
         self.label = label
         self.name = name
@@ -82,6 +96,9 @@ public struct ComponentInstantiation: RawRepresentable, Equatable, Hashable, Cod
         self.generic = generic
     }
 
+    /// Creates a new `ComponentInstantiation` from the given `VHDL` representation.
+    /// - Parameter rawValue: The `VHDL` representation of the instantiation.
+    @inlinable
     public init?(rawValue: String) {
         let trimmed = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
         guard
