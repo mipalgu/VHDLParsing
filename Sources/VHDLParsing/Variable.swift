@@ -11,15 +11,15 @@ import Foundation
 public protocol Variable {
 
     /// The type of the variable.
-    var type: SignalType {get set}
+    var type: SignalType { get set }
 
     /// The name of the variable.
-    var name: VariableName {get set}
+    var name: VariableName { get set }
 
     /// The default value of the variable.
-    var defaultValue: Expression? {get set}
+    var defaultValue: Expression? { get set }
 
     /// The range of the variable.
-    var comment: Comment? {get set}
+    var comment: Comment? { get set }
 
 }
