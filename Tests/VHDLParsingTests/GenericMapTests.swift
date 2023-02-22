@@ -67,7 +67,7 @@ final class GenericMapTests: XCTestCase {
     let y = VariableReference.variable(name: VariableName(text: "y"))
 
     /// A variable `z`.
-    let z = VariableReference.variable(name: VariableName(text: "z"))
+    let z = Expression.reference(variable: .variable(name: VariableName(text: "z")))
 
     /// The `GenericMap` under test.
     lazy var map = GenericMap(

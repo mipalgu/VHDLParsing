@@ -78,7 +78,8 @@ final class ComponentInstantiationTests: XCTestCase {
     /// The generic map.
     let generic = GenericMap(variables: [
         GenericVariableMap(
-            lhs: .variable(name: VariableName(text: "N")), rhs: .variable(name: VariableName(text: "A"))
+            lhs: .variable(name: VariableName(text: "N")),
+            rhs: .reference(variable: .variable(name: VariableName(text: "A")))
         )
     ])
 

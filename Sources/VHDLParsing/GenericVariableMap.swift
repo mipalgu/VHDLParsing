@@ -61,7 +61,7 @@ public struct GenericVariableMap: RawRepresentable, Equatable, Hashable, Codable
     public let lhs: VariableReference
 
     /// The right-hand side generic to map.
-    public let rhs: VariableReference
+    public let rhs: Expression
 
     /// The equivalent `VHDL` code.
     @inlinable public var rawValue: String {
@@ -73,7 +73,7 @@ public struct GenericVariableMap: RawRepresentable, Equatable, Hashable, Codable
     ///   - lhs: The left-hand side generic to map.
     ///   - rhs: The right-hand side generic to map.
     @inlinable
-    public init(lhs: VariableReference, rhs: VariableReference) {
+    public init(lhs: VariableReference, rhs: Expression) {
         self.lhs = lhs
         self.rhs = rhs
     }
@@ -92,7 +92,7 @@ public struct GenericVariableMap: RawRepresentable, Equatable, Hashable, Codable
             let operatorIndex = lhsEnd.first,
             operatorIndex.1 < trimmed.endIndex,
             let lhs = VariableReference(rawValue: String(trimmed[trimmed.startIndex..<operatorIndex.0])),
-            let rhs = VariableReference(rawValue: String(trimmed[trimmed.index(after: operatorIndex.1)...]))
+            let rhs = Expression(rawValue: String(trimmed[trimmed.index(after: operatorIndex.1)...]))
         else {
             return nil
         }
