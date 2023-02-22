@@ -123,6 +123,25 @@ final class ExpressionTests: XCTestCase {
             Expression(rawValue: "a * b"), .binary(operation: .multiplication(lhs: a, rhs: b))
         )
         XCTAssertEqual(
+            Expression(rawValue: "a(3 downto 0) * 5"),
+            .binary(operation: .multiplication(
+                lhs: .reference(variable: .indexed(name: aname, index: .range(value: .downto(
+                    upper: .literal(value: .integer(value: 3)), lower: .literal(value: .integer(value: 0))
+                )))),
+                rhs: .literal(value: .integer(value: 5))
+            ))
+        )
+        XCTAssertEqual(
+            Expression(rawValue: "5 * a(3 downto 0)"),
+            .binary(operation: .multiplication(
+                lhs: .literal(value: .integer(value: 5)),
+                rhs: .reference(variable: .indexed(name: aname, index: .range(value: .downto(
+                        upper: .literal(value: .integer(value: 3)),
+                        lower: .literal(value: .integer(value: 0))
+                ))))
+            ))
+        )
+        XCTAssertEqual(
             Expression(rawValue: "a / b"), .binary(operation: .division(lhs: a, rhs: b))
         )
         XCTAssertEqual(
