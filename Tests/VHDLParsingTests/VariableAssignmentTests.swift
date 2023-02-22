@@ -76,6 +76,7 @@ final class VariableAssignmentTests: XCTestCase {
     func testRawValue() {
         XCTAssertEqual(assignment.rawValue, "x")
         XCTAssertEqual(VariableAssignment.open.rawValue, "open")
+        XCTAssertEqual(VariableAssignment.literal(value: .integer(value: 5)).rawValue, "5")
     }
 
     /// Test that `init(rawValue:)` parses the `VHDL` code correctly.
@@ -86,6 +87,7 @@ final class VariableAssignmentTests: XCTestCase {
         XCTAssertEqual(VariableAssignment(rawValue: "open "), VariableAssignment.open)
         XCTAssertEqual(VariableAssignment(rawValue: " open "), VariableAssignment.open)
         XCTAssertEqual(VariableAssignment(rawValue: "OPEN"), VariableAssignment.open)
+        XCTAssertEqual(VariableAssignment(rawValue: "5"), .literal(value: .integer(value: 5)))
         XCTAssertNil(VariableAssignment(rawValue: ""))
         XCTAssertNil(VariableAssignment(rawValue: "2x"))
         XCTAssertNil(VariableAssignment(rawValue: "ope n"))

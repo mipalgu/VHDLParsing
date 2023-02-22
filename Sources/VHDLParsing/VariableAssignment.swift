@@ -58,6 +58,9 @@
 /// also contains the `open` case in `VHDL` that is valid for port signals.
 public enum VariableAssignment: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
+    /// A constant literal.
+    case literal(value: SignalLiteral)
+
     /// A reference to a variable.
     case reference(variable: VariableReference)
 
@@ -67,6 +70,8 @@ public enum VariableAssignment: RawRepresentable, Equatable, Hashable, Codable, 
     /// The equivalent `VHDL` code.
     @inlinable public var rawValue: String {
         switch self {
+        case .literal(let value):
+            return value.rawValue
         case .reference(let variable):
             return variable.rawValue
         case .open:
@@ -81,6 +86,10 @@ public enum VariableAssignment: RawRepresentable, Equatable, Hashable, Codable, 
         let trimmed = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
         guard trimmed.lowercased() != "open" else {
             self = .open
+            return
+        }
+        if let literal = SignalLiteral(rawValue: trimmed) {
+            self = .literal(value: literal)
             return
         }
         guard let reference = VariableReference(rawValue: trimmed) else {
