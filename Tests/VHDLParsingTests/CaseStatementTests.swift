@@ -61,7 +61,7 @@ import XCTest
 final class CaseStatementTests: XCTestCase {
 
     /// The condition of the case statement.
-    let condition = Expression.variable(name: VariableName(text: "x"))
+    let condition = Expression.reference(variable: .variable(name: VariableName(text: "x")))
 
     /// The cases of the statement.
     let cases = [

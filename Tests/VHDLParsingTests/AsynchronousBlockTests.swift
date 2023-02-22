@@ -70,20 +70,20 @@ final class AsynchronousBlockTests: XCTestCase {
     let clk = VariableName(text: "clk")
 
     /// An expression for `x`.
-    lazy var varX = Expression.variable(name: x)
+    lazy var varX = Expression.reference(variable: .variable(name: x))
 
     /// An expression for `y`.
-    lazy var varY = Expression.variable(name: y)
+    lazy var varY = Expression.reference(variable: .variable(name: y))
 
     /// An expression for `clk`.
-    lazy var varClk = Expression.variable(name: clk)
+    lazy var varClk = Expression.reference(variable: .variable(name: clk))
 
     /// Reset test data.
     override func setUp() {
         super.setUp()
-        varX = Expression.variable(name: x)
-        varY = Expression.variable(name: y)
-        varClk = Expression.variable(name: clk)
+        varX = Expression.reference(variable: .variable(name: x))
+        varY = Expression.reference(variable: .variable(name: y))
+        varClk = Expression.reference(variable: .variable(name: clk))
     }
 
     /// Test `rawValue` is correct.

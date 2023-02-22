@@ -87,11 +87,13 @@ final class VHDLFileTests: XCTestCase {
                 sensitivityList: [VariableName(text: "clk")],
                 code: .ifStatement(block: .ifStatement(
                     condition: .conditional(condition: .edge(
-                        value: .rising(expression: .variable(name: VariableName(text: "clk")))
+                        value: .rising(expression: .reference(
+                            variable: .variable(name: VariableName(text: "clk"))
+                        ))
                     )),
                     ifBlock: .statement(statement: .assignment(
                         name: .variable(name: VariableName(text: "y")),
-                        value: .variable(name: VariableName(text: "x"))
+                        value: .reference(variable: .variable(name: VariableName(text: "x")))
                     ))
                 ))
             )),

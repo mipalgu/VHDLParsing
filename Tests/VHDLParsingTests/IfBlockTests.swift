@@ -63,10 +63,10 @@ import XCTest
 final class IfBlockTests: XCTestCase {
 
     /// A variable `x`.
-    let x = Expression.variable(name: VariableName(text: "x"))
+    let x = Expression.reference(variable: .variable(name: VariableName(text: "x")))
 
     /// A variable `y`.
-    let y = Expression.variable(name: VariableName(text: "y"))
+    let y = Expression.reference(variable: .variable(name: VariableName(text: "y")))
 
     /// Test `rawValue` generates `VHDL` code correctly.
     func testRawValue() {

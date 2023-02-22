@@ -125,7 +125,8 @@ final class IndexedValueTests: XCTestCase {
         XCTAssertEqual(
             IndexedValue(rawValue: "abx => '1'"),
             IndexedValue(
-                index: .index(value: .variable(name: VariableName(text: "abx"))), value: .bit(value: .high)
+                index: .index(value: .reference(variable: .variable(name: VariableName(text: "abx")))),
+                value: .bit(value: .high)
             )
         )
         XCTAssertNil(IndexedValue(rawValue: "signal x: std_logic_vector(3 downto 0) := (others => '1');"))

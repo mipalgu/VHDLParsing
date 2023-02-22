@@ -112,7 +112,8 @@ final class VectorSizeTests: XCTestCase {
         XCTAssertEqual(
             VectorSize(rawValue: raw),
             .downto(
-                upper: .variable(name: VariableName(text: "a")), lower: .literal(value: .integer(value: 4))
+                upper: .reference(variable: .variable(name: VariableName(text: "a"))),
+                lower: .literal(value: .integer(value: 4))
             )
         )
     }
@@ -122,7 +123,10 @@ final class VectorSizeTests: XCTestCase {
         let raw = "2 to b"
         XCTAssertEqual(
             VectorSize(rawValue: raw),
-            .to(lower: .literal(value: .integer(value: 2)), upper: .variable(name: VariableName(text: "b")))
+            .to(
+                lower: .literal(value: .integer(value: 2)),
+                upper: .reference(variable: .variable(name: VariableName(text: "b")))
+            )
         )
     }
 

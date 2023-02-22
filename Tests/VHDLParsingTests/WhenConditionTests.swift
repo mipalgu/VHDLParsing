@@ -111,7 +111,9 @@ final class WhenConditionTests: XCTestCase {
 
     /// Test init for expression case.
     func testExpressionInit() {
-        let expected = WhenCondition.expression(expression: .variable(name: VariableName(text: "x")))
+        let expected = WhenCondition.expression(
+            expression: .reference(variable: .variable(name: VariableName(text: "x")))
+        )
         XCTAssertEqual(WhenCondition(rawValue: "x"), expected)
         XCTAssertEqual(WhenCondition(rawValue: "x "), expected)
         XCTAssertEqual(WhenCondition(rawValue: " x"), expected)
