@@ -63,6 +63,9 @@ public enum TypeDefinition: RawRepresentable, Equatable, Hashable, Codable, Send
     /// Define a type alias to a primitive type.
     case alias(name: VariableName, type: SignalType)
 
+    /// An array type definition.
+    case array(value: ArrayDefinition)
+
     /// The equivalent `VHDL` code.
     @inlinable public var rawValue: String {
         switch self {
@@ -70,6 +73,8 @@ public enum TypeDefinition: RawRepresentable, Equatable, Hashable, Codable, Send
             return value.rawValue
         case .alias(let name, let type):
             return "type \(name.rawValue) is \(type.rawValue);"
+        case .array(let array):
+            return array.rawValue
         }
     }
 
@@ -80,6 +85,10 @@ public enum TypeDefinition: RawRepresentable, Equatable, Hashable, Codable, Send
         let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
         if let record = Record(rawValue: trimmedString) {
             self = .record(value: record)
+            return
+        }
+        if let array = ArrayDefinition(rawValue: trimmedString) {
+            self = .array(value: array)
             return
         }
         guard trimmedString.hasSuffix(";") else {

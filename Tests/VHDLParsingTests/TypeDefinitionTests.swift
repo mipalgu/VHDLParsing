@@ -76,6 +76,18 @@ final class TypeDefinitionTests: XCTestCase {
             TypeDefinition.alias(name: VariableName(text: "x"), type: .stdLogic).rawValue,
             "type x is std_logic;"
         )
+        XCTAssertEqual(
+            TypeDefinition.array(value: ArrayDefinition(
+                name: VariableName(text: "xs"),
+                size: [
+                    .downto(
+                        upper: .literal(value: .integer(value: 3)), lower: .literal(value: .integer(value: 0))
+                    )
+                ],
+                elementType: .signal(type: .stdLogic)
+            )).rawValue,
+            "type xs is array (3 downto 0) of std_logic;"
+        )
     }
 
     /// Test `init(rawValue:)` parses the `VHDL` code correctly.
@@ -84,6 +96,18 @@ final class TypeDefinitionTests: XCTestCase {
         XCTAssertEqual(
             TypeDefinition(rawValue: "type x is std_logic;"),
             .alias(name: VariableName(text: "x"), type: .stdLogic)
+        )
+        XCTAssertEqual(
+            TypeDefinition(rawValue: "type xs is array (3 downto 0) of std_logic;"),
+            .array(value: ArrayDefinition(
+                name: VariableName(text: "xs"),
+                size: [
+                    .downto(
+                        upper: .literal(value: .integer(value: 3)), lower: .literal(value: .integer(value: 0))
+                    )
+                ],
+                elementType: .signal(type: .stdLogic)
+            ))
         )
         XCTAssertNil(TypeDefinition(rawValue: "type x is std_logic"))
         XCTAssertNil(TypeDefinition(rawValue: ""))
