@@ -74,6 +74,8 @@ final class DefinitionTests: XCTestCase {
         XCTAssertEqual(Definition.constant(value: constant).rawValue, "constant x: std_logic := '1';")
         let signal = LocalSignal(type: .stdLogic, name: x, defaultValue: .literal(value: .bit(value: .high)))
         XCTAssertEqual(Definition.signal(value: signal).rawValue, "signal x: std_logic := '1';")
+        let type = TypeDefinition.alias(name: x, type: .stdLogic)
+        XCTAssertEqual(Definition.type(value: type).rawValue, "type x is std_logic;")
     }
 
     /// Test `init(rawValue:)` parses `VHDL` code correctly for constant signals.
@@ -199,6 +201,17 @@ final class DefinitionTests: XCTestCase {
             );
         end component;
         """
+        XCTAssertNil(Definition(rawValue: raw2))
+    }
+
+    /// Test type raw value init.
+    func testTypeRawValueInit() {
+        let raw = "type x is std_logic;"
+        XCTAssertEqual(
+            Definition(rawValue: raw),
+            .type(value: TypeDefinition.alias(name: x, type: .stdLogic))
+        )
+        let raw2 = "type x is std_logic"
         XCTAssertNil(Definition(rawValue: raw2))
     }
 

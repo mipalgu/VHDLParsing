@@ -66,6 +66,9 @@ public enum Definition: RawRepresentable, Equatable, Hashable, Codable, Sendable
     /// A component definition.
     case component(value: ComponentDefinition)
 
+    /// A new type definition.
+    case type(value: TypeDefinition)
+
     /// The equivalent `VHDL` code for this definition.
     @inlinable public var rawValue: String {
         switch self {
@@ -75,6 +78,8 @@ public enum Definition: RawRepresentable, Equatable, Hashable, Codable, Sendable
             return value.rawValue
         case .component(let value):
             return value.rawValue
+        case .type(let type):
+            return type.rawValue
         }
     }
 
@@ -106,6 +111,13 @@ public enum Definition: RawRepresentable, Equatable, Hashable, Codable, Sendable
                 return nil
             }
             self = .component(value: component)
+            return
+        }
+        if firstWord == "type" {
+            guard let type = TypeDefinition(rawValue: trimmedString) else {
+                return nil
+            }
+            self = .type(value: type)
             return
         }
         return nil
