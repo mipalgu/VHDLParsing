@@ -1,4 +1,4 @@
-// RecordTypeDeclaration.swift
+// RecordTypeDeclarationTests.swift
 // VHDLParsing
 // 
 // Created by Morgan McColl.
@@ -54,57 +54,49 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
-/// A struct for representing variables defined within a record.
-public struct RecordTypeDeclaration: RawRepresentable, Equatable, Hashable, Codable, Sendable {
+@testable import VHDLParsing
+import XCTest
 
-    /// The name of the variable.
-    public let name: VariableName
+/// Test class for ``RecordTypeDeclaration``.
+final class RecordTypeDeclarationTests: XCTestCase {
 
-    /// The type of the variable.
-    public let type: Type
+    /// A variable `x`.
+    let x = VariableName(text: "x")
 
-    /// The equivalent `VHDL` code of this record type declaration.
-    @inlinable public var rawValue: String {
-        "\(name.rawValue): \(type.rawValue);"
+    /// The type of `x`.
+    let type = Type.signal(type: .stdLogic)
+
+    /// The record type under test.
+    lazy var recordType = RecordTypeDeclaration(name: x, type: type)
+
+    /// Initialise the uut before every test.
+    override func setUp() {
+        recordType = RecordTypeDeclaration(name: x, type: type)
     }
 
-    /// Initialise this declaration from it's stored properties.
-    /// - Parameters:
-    ///   - name: The name of the type.
-    ///   - type: The type of the record variable.
-    @inlinable
-    public init(name: VariableName, type: Type) {
-        self.name = name
-        self.type = type
+    /// Test that the stored properties are set correctly in the initialiser.
+    func testInit() {
+        XCTAssertEqual(recordType.name, x)
+        XCTAssertEqual(recordType.type, type)
     }
 
-    /// Initialise this declaration from it's `VHDL` code.
-    /// - Parameter rawValue: The `VHDL` code defining the new record type.
-    @inlinable
-    public init?(rawValue: String) {
-        let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard
-            trimmedString.count < 256,
-            !trimmedString.isEmpty,
-            let semicolonIndex = trimmedString.firstIndex(of: ";"),
-            semicolonIndex == trimmedString.lastIndex(of: ";"),
-            trimmedString.index(after: semicolonIndex) == trimmedString.endIndex
-        else {
-            return nil
-        }
-        let data = trimmedString.uptoSemicolon
-        guard let colonIndex = data.firstIndex(of: ":") else {
-            return nil
-        }
-        let variableName = data[..<colonIndex]
-        let signalType = data[data.index(after: colonIndex)...]
-        guard
-            let name = VariableName(rawValue: String(variableName)),
-            let type = Type(rawValue: String(signalType))
-        else {
-            return nil
-        }
-        self.init(name: name, type: type)
+    /// Test that the `rawValue` generates the correct `VHDL` code.
+    func testRawValue() {
+        XCTAssertEqual(recordType.rawValue, "x: std_logic;")
+    }
+
+    /// Test `init(rawValue:)` parses the `VHDL` code correctly.
+    func testRawValueInit() {
+        XCTAssertEqual(RecordTypeDeclaration(rawValue: "x: std_logic;"), recordType)
+        XCTAssertEqual(RecordTypeDeclaration(rawValue: "   x   :\n    std_logic   ;"), recordType)
+        XCTAssertNil(RecordTypeDeclaration(rawValue: "\(String(repeating: "x", count: 256)): std_logic;"))
+        XCTAssertNil(RecordTypeDeclaration(rawValue: "x: std_logic"))
+        XCTAssertNil(RecordTypeDeclaration(rawValue: ""))
+        XCTAssertNil(RecordTypeDeclaration(rawValue: "x: std_logic;;"))
+        XCTAssertNil(RecordTypeDeclaration(rawValue: "x; std_logic;"))
+        XCTAssertNil(RecordTypeDeclaration(rawValue: "x std_logic;"))
+        XCTAssertNil(RecordTypeDeclaration(rawValue: "2x: std_logic;"))
+        XCTAssertNil(RecordTypeDeclaration(rawValue: "x: std_logic(;"))
     }
 
 }
