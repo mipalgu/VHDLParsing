@@ -3,6 +3,7 @@
 ## Topics
 
 ### Definitions and Primitive Values
+- ``ArrayDefinition``
 - ``BitLiteral``
 - ``BitVector``
 - ``Comment``
