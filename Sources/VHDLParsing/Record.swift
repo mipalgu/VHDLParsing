@@ -54,13 +54,17 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
+/// A record type definition.
 public struct Record: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
+    /// The name of the record.
     public let name: VariableName
 
+    /// The variables within the record.
     public let types: [RecordTypeDeclaration]
 
-    public var rawValue: String {
+    /// The equivalent `VHDL` for this record.
+    @inlinable public var rawValue: String {
         """
         type \(self.name.rawValue) is record
         \(self.types.map { $0.rawValue }.joined(separator: "\n").indent(amount: 1))
@@ -68,11 +72,19 @@ public struct Record: RawRepresentable, Equatable, Hashable, Codable, Sendable {
         """
     }
 
+    /// Creates a new record with the given name and types.
+    /// - Parameters:
+    ///   - name: The name of the record.
+    ///   - types: The types within the record.
+    @inlinable
     public init(name: VariableName, types: [RecordTypeDeclaration]) {
         self.name = name
         self.types = types
     }
 
+    /// Creates a new record type from the given `VHDL` if possible.
+    /// - Parameter rawValue: The `VHDL` to create the record from.
+    @inlinable
     public init?(rawValue: String) {
         let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
         let words = trimmedString.words
@@ -108,8 +120,11 @@ public struct Record: RawRepresentable, Equatable, Hashable, Codable, Sendable {
         }
         let typesRaw = withoutEnd[recordEndIndex...].trimmingCharacters(in: .whitespacesAndNewlines)
             .components(separatedBy: ";")
-        let types = typesRaw.compactMap { RecordTypeDeclaration(rawValue: $0 + ";") }
-        guard typesRaw.count == types.count else {
+        guard let last = typesRaw.last?.trimmingCharacters(in: .whitespacesAndNewlines), last.isEmpty else {
+            return nil
+        }
+        let types = typesRaw.dropLast().compactMap { RecordTypeDeclaration(rawValue: $0 + ";") }
+        guard typesRaw.count - 1 == types.count else {
             return nil
         }
         self.init(name: name, types: types)
