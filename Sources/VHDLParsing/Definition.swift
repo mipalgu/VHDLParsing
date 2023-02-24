@@ -92,35 +92,34 @@ public enum Definition: RawRepresentable, Equatable, Hashable, Codable, Sendable
             return nil
         }
         let firstWord = trimmedString.firstWord?.lowercased()
-        if firstWord == "constant" {
-            guard let constant = ConstantSignal(rawValue: trimmedString) else {
-                return nil
-            }
-            self = .constant(value: constant)
-            return
+        switch firstWord {
+        case "constant":
+            self.init(trimmedString: trimmedString) { .constant(value: $0) }
+        case "signal":
+            self.init(trimmedString: trimmedString) { .signal(value: $0) }
+        case "component":
+            self.init(trimmedString: trimmedString) { .component(value: $0) }
+        case "type":
+            self.init(trimmedString: trimmedString) { .type(value: $0) }
+        default:
+            return nil
         }
-        if firstWord == "signal" {
-            guard let signal = LocalSignal(rawValue: trimmedString) else {
-                return nil
-            }
-            self = .signal(value: signal)
-            return
+    }
+
+    /// Creates a new `Definition` from the given `VHDL` code by trying to cast to a specific case of
+    /// `Definition`.
+    /// - Parameters:
+    ///   - trimmedString: The `VHDL` code to parse.
+    ///   - fn: A function that creates a specific case of `Definition` from an expected parsed version of 
+    /// the `VHDL` code.
+    @usableFromInline
+    init?<T>(
+        trimmedString: String, trying fn: (T) -> Definition
+    ) where T: RawRepresentable, T.RawValue == String {
+        guard let value = T(rawValue: trimmedString) else {
+            return nil
         }
-        if firstWord == "component" {
-            guard let component = ComponentDefinition(rawValue: trimmedString) else {
-                return nil
-            }
-            self = .component(value: component)
-            return
-        }
-        if firstWord == "type" {
-            guard let type = TypeDefinition(rawValue: trimmedString) else {
-                return nil
-            }
-            self = .type(value: type)
-            return
-        }
-        return nil
+        self = fn(value)
     }
 
 }
