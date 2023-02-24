@@ -27,6 +27,7 @@
 - ``RecordTypeDeclaration``
 - ``SignalLiteral``
 - ``Type``
+- ``TypeDefinition``
 - ``Variable``
 - ``VariableName``
 - ``VectorLiteral``
