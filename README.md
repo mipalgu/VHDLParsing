@@ -58,7 +58,7 @@ let package = Package(
             targets: ["MyPackage"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/mipalgu/VHDLParsing", from: "0.3.1")
+        .package(url: "https://github.com/mipalgu/VHDLParsing", from: "1.0.0")
     ],
     targets: [
         .target(
