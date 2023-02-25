@@ -78,3 +78,4 @@
 - ``Entity``
 - ``Include``
 - ``VHDLFile``
+- ``VHDLPackage``
