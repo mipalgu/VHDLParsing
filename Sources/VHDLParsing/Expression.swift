@@ -135,16 +135,16 @@ indirect public enum Expression: RawRepresentable,
             self = .literal(value: literal)
             return
         }
-        if let variable = VariableReference(rawValue: value) {
-            self = .reference(variable: variable)
-            return
-        }
         if let cast = CastOperation(rawValue: value) {
             self = .cast(operation: cast)
             return
         }
         if let call = FunctionCall(rawValue: value) {
             self = .functionCall(call: call)
+            return
+        }
+        if let variable = VariableReference(rawValue: value) {
+            self = .reference(variable: variable)
             return
         }
         if
