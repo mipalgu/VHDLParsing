@@ -90,41 +90,16 @@ public struct ArchitectureHead: RawRepresentable, Equatable, Hashable, Codable, 
     init?(carry: [HeadStatement] = [], remaining: String) {
         let trimmed = remaining.trimmingCharacters(in: .whitespacesAndNewlines)
         if trimmed.hasPrefix("--") {
-            guard let newLineIndex = trimmed.firstIndex(where: {
-                guard let unicode = $0.unicodeScalars.first else {
-                    return false
-                }
-                return CharacterSet.newlines.contains(unicode)
-            }) else {
-                guard let comment = Comment(rawValue: trimmed) else {
-                    return nil
-                }
-                self.init(statements: carry + [.comment(value: comment)])
-                return
-            }
-            guard let comment = Comment(rawValue: String(trimmed[..<newLineIndex])) else {
-                return nil
-            }
-            self.init(carry: carry + [.comment(value: comment)], remaining: String(trimmed[newLineIndex...]))
+            self.init(carry: carry, comment: trimmed)
             return
         }
-        if trimmed.firstWord?.lowercased() == "component" {
-            guard
-                let componentString = trimmed.subExpression(
-                    beginningWith: ["component"], endingWith: ["end", "component;"]
-                ),
-                let component = ComponentDefinition(rawValue: String(componentString))
-            else {
-                return nil
-            }
-            guard componentString.endIndex == trimmed.endIndex else {
-                self.init(
-                    carry: carry + [.definition(value: .component(value: component))],
-                    remaining: String(trimmed[componentString.endIndex...])
-                )
-                return
-            }
-            self.init(statements: carry + [.definition(value: .component(value: component))])
+        let firstWord = trimmed.firstWord?.lowercased()
+        if firstWord == "component" {
+            self.init(carry: carry, component: trimmed)
+            return
+        }
+        if firstWord == "type" {
+            self.init(carry: carry, type: trimmed)
             return
         }
         let line = trimmed.uptoSemicolon
@@ -137,6 +112,129 @@ public struct ArchitectureHead: RawRepresentable, Equatable, Hashable, Codable, 
             return
         }
         self.init(statements: carry + [.definition(value: definition)])
+    }
+
+    /// Creates a new `ArchitectureHead` from a partially parsed `VHDL` definition expecting the remaining
+    /// string to start with a comment.
+    /// - Parameters:
+    ///   - carry: The parsed code in the architecture head.
+    ///   - trimmed: The remaining code to be parsed. This code is assumed to contain a comment at the start.
+    @usableFromInline
+    init?(carry: [HeadStatement] = [], comment trimmed: String) {
+        guard trimmed.hasPrefix("--") else {
+            return nil
+        }
+        guard let newLineIndex = trimmed.firstIndex(where: {
+            guard let unicode = $0.unicodeScalars.first else {
+                return false
+            }
+            return CharacterSet.newlines.contains(unicode)
+        }) else {
+            guard let comment = Comment(rawValue: trimmed) else {
+                return nil
+            }
+            self.init(statements: carry + [.comment(value: comment)])
+            return
+        }
+        guard let comment = Comment(rawValue: String(trimmed[..<newLineIndex])) else {
+            return nil
+        }
+        self.init(carry: carry + [.comment(value: comment)], remaining: String(trimmed[newLineIndex...]))
+        return
+    }
+
+    /// Creates a new `ArchitectureHead` from a partially parsed `VHDL` definition expecting the remaining
+    /// string to start with a component definition.
+    /// - Parameters:
+    ///   - carry: The parsed code in the architecture head.
+    ///   - trimmed: The remaining code to be parsed. This code is assumed to contain a component definition
+    /// at the start.
+    @usableFromInline
+    init?(carry: [HeadStatement] = [], component trimmed: String) {
+        guard
+            trimmed.firstWord?.lowercased() == "component",
+            let componentString = trimmed.subExpression(
+                beginningWith: ["component"], endingWith: ["end", "component;"]
+            ),
+            let component = ComponentDefinition(rawValue: String(componentString))
+        else {
+            return nil
+        }
+        guard componentString.endIndex == trimmed.endIndex else {
+            self.init(
+                carry: carry + [.definition(value: .component(value: component))],
+                remaining: String(trimmed[componentString.endIndex...])
+            )
+            return
+        }
+        self.init(statements: carry + [.definition(value: .component(value: component))])
+        return
+    }
+
+    /// Creates a new `ArchitectureHead` from a partially parsed `VHDL` definition expecting the remaining
+    /// string to start with a type definition.
+    /// - Parameters:
+    ///   - carry: The parsed code in the architecture head.
+    ///   - trimmed: The remaining code to be parsed. This code is assumed to contain a type definition.
+    @usableFromInline
+    init?(carry: [HeadStatement] = [], type trimmed: String) {
+        guard trimmed.firstWord?.lowercased() == "type" else {
+            return nil
+        }
+        let words = trimmed.words
+        guard words.count >= 4 else {
+            return nil
+        }
+        if words[3].lowercased() == "record" {
+            self.init(carry: carry, record: trimmed)
+            return
+        }
+        guard
+            let semicolonIndex = trimmed.firstIndex(of: ";"),
+            let type = TypeDefinition(rawValue: String(trimmed[...semicolonIndex]))
+        else {
+            return nil
+        }
+        let nextIndex = trimmed.index(after: semicolonIndex)
+        guard nextIndex != trimmed.endIndex else {
+            self.init(statements: carry + [.definition(value: .type(value: type))])
+            return
+        }
+        self.init(
+            carry: carry + [.definition(value: .type(value: type))], remaining: String(trimmed[nextIndex...])
+        )
+    }
+
+    /// Creates a new `ArchitectureHead` from a partially parsed `VHDL` definition expecting the remaining
+    /// string to start with a record type definition.
+    /// - Parameters:
+    ///   - carry: The parsed code in the architecture head.
+    ///   - trimmed: The remaining code to be parsed. This code is assumed to contain a record type
+    /// definition.
+    @usableFromInline
+    init?(carry: [HeadStatement] = [], record trimmed: String) {
+        let words = trimmed.words
+        guard
+            words.count >= 4,
+            words[0].lowercased() == "type",
+            words[2].lowercased() == "is",
+            words[3].lowercased() == "record",
+            let endEndIndex = trimmed.indexes(for: ["end", "record"]).first?.1,
+            endEndIndex < trimmed.endIndex,
+            let semicolonIndex = trimmed[endEndIndex...].firstIndex(of: ";"),
+            let record = Record(rawValue: String(trimmed[...semicolonIndex]))
+        else {
+            return nil
+        }
+        let nextIndex = trimmed.index(after: semicolonIndex)
+        guard nextIndex != trimmed.endIndex else {
+            self.init(statements: carry + [.definition(value: .type(value: .record(value: record)))])
+            return
+        }
+        self.init(
+            carry: carry + [.definition(value: .type(value: .record(value: record)))],
+            remaining: String(trimmed[nextIndex...])
+        )
     }
 
 }

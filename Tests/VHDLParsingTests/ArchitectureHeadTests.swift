@@ -163,6 +163,58 @@ final class ArchitectureHeadTests: XCTestCase {
         )
         XCTAssertNil(ArchitectureHead(rawValue: "--\(String(repeating: "x", count: 256))"))
         XCTAssertNil(ArchitectureHead(rawValue: "--\(String(repeating: "x", count: 256))\n-- comment\n"))
+        XCTAssertNil(ArchitectureHead(carry: [], comment: "abc"))
+    }
+
+    /// Test `init(rawValue:)` that contains a type definition.
+    func testRawValueWithType() {
+        XCTAssertEqual(
+            ArchitectureHead(rawValue: "type x is std_logic;"),
+            ArchitectureHead(
+                statements: [
+                    .definition(value: .type(value: .alias(name: VariableName(text: "x"), type: .stdLogic)))
+                ]
+            )
+        )
+        XCTAssertEqual(
+            ArchitectureHead(rawValue: "type x is std_logic;\n-- comment"),
+            ArchitectureHead(
+                statements: [
+                    .definition(value: .type(value: .alias(name: VariableName(text: "x"), type: .stdLogic))),
+                    .comment(value: Comment(text: "comment"))
+                ]
+            )
+        )
+        XCTAssertNil(ArchitectureHead(carry: [], type: ""))
+        XCTAssertNil(ArchitectureHead(carry: [], type: "type a"))
+        XCTAssertNil(ArchitectureHead(carry: [], type: "type a b c;"))
+    }
+
+    /// Test `init(rawValue:)` that contains a record.
+    func testRawValueInitWithRecord() {
+        let raw = """
+        type x is record
+            a: std_logic;
+            b: std_logic;
+        end record x;
+        """
+        let expected = Record(name: VariableName(text: "x"), types: [
+            RecordTypeDeclaration(name: VariableName(text: "a"), type: .signal(type: .stdLogic)),
+            RecordTypeDeclaration(name: VariableName(text: "b"), type: .signal(type: .stdLogic))
+        ])
+        XCTAssertEqual(
+            ArchitectureHead(rawValue: raw),
+            ArchitectureHead(statements: [.definition(value: .type(value: .record(value: expected)))])
+        )
+        let raw2 = raw + "\n-- comment"
+        XCTAssertEqual(
+            ArchitectureHead(rawValue: raw2),
+            ArchitectureHead(statements: [
+                .definition(value: .type(value: .record(value: expected))),
+                .comment(value: Comment(text: "comment"))
+            ])
+        )
+        XCTAssertNil(ArchitectureHead(carry: [], record: ""))
     }
 
 }
