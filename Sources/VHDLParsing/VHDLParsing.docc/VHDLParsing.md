@@ -13,6 +13,7 @@
 - ``ExternalType``
 - ``GenericBlock``
 - ``GenericTypeDeclaration``
+- ``HeadStatement``
 - ``HexLiteral``
 - ``HexVector``
 - ``LocalSignal``
