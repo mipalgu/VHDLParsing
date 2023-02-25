@@ -30,6 +30,7 @@ else {
 let includes: [Include] = file.includes // includes.
 let entities: [Entity] = file.entities // entity blocks.
 let architectures: [Architecture] = file.architectures // architecture blocks.
+let packages: [VHDLPackage] = file.packages // package definitions.
 ```
 
 Please see the `About` section of this repository on `GitHub` for the latest documentation.
@@ -58,7 +59,7 @@ let package = Package(
             targets: ["MyPackage"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/mipalgu/VHDLParsing", from: "1.0.0")
+        .package(url: "https://github.com/mipalgu/VHDLParsing", from: "1.1.0")
     ],
     targets: [
         .target(
