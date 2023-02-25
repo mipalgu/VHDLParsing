@@ -62,20 +62,21 @@ final class ArchitectureHeadTests: XCTestCase {
 
     /// The architecture statements.
     let statements = [
-        Definition.signal(value: LocalSignal(
+        HeadStatement.definition(value: .signal(value: LocalSignal(
             type: .stdLogic, name: VariableName(text: "x"), defaultValue: nil, comment: nil
-        )),
-        .component(value: ComponentDefinition(
+        ))),
+        .comment(value: Comment(text: "comment")),
+        .definition(value: .component(value: ComponentDefinition(
             name: VariableName(text: "C"),
             port: PortBlock(signals: [
                 PortSignal(type: .stdLogic, name: VariableName(text: "a"), mode: .input),
                 PortSignal(type: .stdLogic, name: VariableName(text: "b"), mode: .output)
             // swiftlint:disable:next force_unwrapping
             ])!
-        )),
-        Definition.signal(value: LocalSignal(
+        ))),
+        .definition(value: .signal(value: LocalSignal(
             type: .stdLogic, name: VariableName(text: "y"), defaultValue: nil, comment: nil
-        ))
+        )))
     ]
 
     /// The head under test.
@@ -96,6 +97,7 @@ final class ArchitectureHeadTests: XCTestCase {
     func testRawValue() {
         let expected = """
         signal x: std_logic;
+        -- comment
         component C is
             port(
                 a: in std_logic;
@@ -111,6 +113,7 @@ final class ArchitectureHeadTests: XCTestCase {
     func testRawValueInit() {
         let raw = """
         signal x: std_logic;
+        -- comment
         component C is
             port(
                 a: in std_logic;
@@ -120,7 +123,7 @@ final class ArchitectureHeadTests: XCTestCase {
         signal y: std_logic;
         """
         XCTAssertEqual(ArchitectureHead(rawValue: raw), head)
-        let inlineHead = ArchitectureHead(statements: [statements[0], statements[2]])
+        let inlineHead = ArchitectureHead(statements: [statements[0], statements[3]])
         XCTAssertEqual(ArchitectureHead(rawValue: "signal x: std_logic;signal y: std_logic;"), inlineHead)
         let raw2 = """
         signal x: std_logic;
@@ -132,7 +135,7 @@ final class ArchitectureHeadTests: XCTestCase {
             );
         end component;
         """
-        let expected = ArchitectureHead(statements: [statements[0], statements[2], statements[1]])
+        let expected = ArchitectureHead(statements: [statements[0], statements[3], statements[2]])
         XCTAssertEqual(ArchitectureHead(rawValue: raw2), expected)
         XCTAssertNil(ArchitectureHead(rawValue: String(raw2.dropLast())))
         XCTAssertNil(ArchitectureHead(rawValue: ";;"))
@@ -140,6 +143,26 @@ final class ArchitectureHeadTests: XCTestCase {
         XCTAssertNil(ArchitectureHead(rawValue: ""))
         XCTAssertNil(ArchitectureHead(rawValue: " "))
         XCTAssertNil(ArchitectureHead(rawValue: "\n"))
+    }
+
+    /// Test `init(rawValue:)` that contains comments.
+    func testRawValueInitWithComment() {
+        XCTAssertEqual(
+            ArchitectureHead(rawValue: "-- comment"),
+            ArchitectureHead(statements: [.comment(value: Comment(text: "comment"))])
+        )
+        XCTAssertEqual(
+            ArchitectureHead(rawValue: "-- comment\n"),
+            ArchitectureHead(statements: [.comment(value: Comment(text: "comment"))])
+        )
+        XCTAssertEqual(
+            ArchitectureHead(rawValue: "-- comment\n--comment2"),
+            ArchitectureHead(statements: [
+                .comment(value: Comment(text: "comment")), .comment(value: Comment(text: "comment2"))
+            ])
+        )
+        XCTAssertNil(ArchitectureHead(rawValue: "--\(String(repeating: "x", count: 256))"))
+        XCTAssertNil(ArchitectureHead(rawValue: "--\(String(repeating: "x", count: 256))\n-- comment\n"))
     }
 
 }

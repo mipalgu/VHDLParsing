@@ -54,11 +54,13 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
+import Foundation
+
 /// A type representing the statements in the architectures head.
 public struct ArchitectureHead: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
     /// The statements in the architecture that define the signals and variables.
-    public let statements: [Definition]
+    public let statements: [HeadStatement]
 
     /// The `VHDL` of the architecture head.
     @inlinable public var rawValue: String {
@@ -68,7 +70,7 @@ public struct ArchitectureHead: RawRepresentable, Equatable, Hashable, Codable, 
     /// Creates a new `ArchitectureHead` with the given statements.
     /// - Parameter statements: The statements in the architecture that define the signals and variables.
     @inlinable
-    public init(statements: [Definition]) {
+    public init(statements: [HeadStatement]) {
         self.statements = statements
     }
 
@@ -85,8 +87,27 @@ public struct ArchitectureHead: RawRepresentable, Equatable, Hashable, Codable, 
     ///   - carry: The parsed code in the architecture head.
     ///   - remaining: The remaining code to be parsed.
     @usableFromInline
-    init?(carry: [Definition] = [], remaining: String) {
+    init?(carry: [HeadStatement] = [], remaining: String) {
         let trimmed = remaining.trimmingCharacters(in: .whitespacesAndNewlines)
+        if trimmed.hasPrefix("--") {
+            guard let newLineIndex = trimmed.firstIndex(where: {
+                guard let unicode = $0.unicodeScalars.first else {
+                    return false
+                }
+                return CharacterSet.newlines.contains(unicode)
+            }) else {
+                guard let comment = Comment(rawValue: trimmed) else {
+                    return nil
+                }
+                self.init(statements: carry + [.comment(value: comment)])
+                return
+            }
+            guard let comment = Comment(rawValue: String(trimmed[..<newLineIndex])) else {
+                return nil
+            }
+            self.init(carry: carry + [.comment(value: comment)], remaining: String(trimmed[newLineIndex...]))
+            return
+        }
         if trimmed.firstWord?.lowercased() == "component" {
             guard
                 let componentString = trimmed.subExpression(
@@ -98,12 +119,12 @@ public struct ArchitectureHead: RawRepresentable, Equatable, Hashable, Codable, 
             }
             guard componentString.endIndex == trimmed.endIndex else {
                 self.init(
-                    carry: carry + [.component(value: component)],
+                    carry: carry + [.definition(value: .component(value: component))],
                     remaining: String(trimmed[componentString.endIndex...])
                 )
                 return
             }
-            self.init(statements: carry + [.component(value: component)])
+            self.init(statements: carry + [.definition(value: .component(value: component))])
             return
         }
         let line = trimmed.uptoSemicolon
@@ -112,10 +133,10 @@ public struct ArchitectureHead: RawRepresentable, Equatable, Hashable, Codable, 
         }
         let remaining = trimmed.dropFirst(line.count + 1).trimmingCharacters(in: .whitespacesAndNewlines)
         guard remaining.isEmpty else {
-            self.init(carry: carry + [definition], remaining: remaining)
+            self.init(carry: carry + [.definition(value: definition)], remaining: remaining)
             return
         }
-        self.init(statements: carry + [definition])
+        self.init(statements: carry + [.definition(value: definition)])
     }
 
 }
