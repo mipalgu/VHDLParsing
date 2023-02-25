@@ -9,10 +9,10 @@ import Foundation
 
 /// A local signal is a signal that exists within the scope of a VHDL entity. It is a signal that is defined
 /// within a machine/arrangement and can be though of as a type of machine variable in VHDL.
-public struct LocalSignal: RawRepresentable, Codable, Equatable, Hashable, Variable, Sendable {
+public struct LocalSignal: RawRepresentable, Codable, Equatable, Hashable, Sendable {
 
     /// The type of the signal.
-    public var type: SignalType
+    public var type: Type
 
     /// The name of the signal.
     public var name: VariableName
@@ -43,17 +43,34 @@ public struct LocalSignal: RawRepresentable, Codable, Equatable, Hashable, Varia
     /// if this is not the case.
     @inlinable
     public init(
-        type: SignalType, name: VariableName, defaultValue: Expression? = nil, comment: Comment? = nil
+        type: Type, name: VariableName, defaultValue: Expression? = nil, comment: Comment? = nil
     ) {
         if let defaultValue = defaultValue, case .literal(let literal) = defaultValue {
-            guard literal.isValid(for: type) else {
-                fatalError("Invalid literal \(defaultValue) for signal type \(type).")
+            if case .signal(let type) = type {
+                guard literal.isValid(for: type) else {
+                    fatalError("Invalid literal \(defaultValue) for signal type \(type).")
+                }
             }
         }
         self.type = type
         self.name = name
         self.defaultValue = defaultValue
         self.comment = comment
+    }
+
+    /// Initialises a new machine signal with the given type, name, default value and comment.
+    /// - Parameters:
+    ///   - type: The type of the signal.
+    ///   - name: The name of the signal.
+    ///   - defaultValue: The default value of the signal.
+    ///   - comment: The comment of the signal.
+    /// - Warning: Make sure the `defaultValue` is valid for the given signal `type`. The program will crash
+    /// if this is not the case.
+    @inlinable
+    public init(
+        type: SignalType, name: VariableName, defaultValue: Expression? = nil, comment: Comment? = nil
+    ) {
+        self.init(type: .signal(type: type), name: name, defaultValue: defaultValue, comment: comment)
     }
 
     /// Initialises a new local signal from the VHDL code that defines it.
@@ -123,7 +140,7 @@ public struct LocalSignal: RawRepresentable, Codable, Equatable, Hashable, Varia
         guard
             signalComponents.first == "signal",
             signalComponents.count >= typeIndex,
-            let type = SignalType(rawValue: signalComponents[typeIndex...].joined(separator: " "))
+            let type = Type(rawValue: signalComponents[typeIndex...].joined(separator: " "))
         else {
             return nil
         }
@@ -131,7 +148,7 @@ public struct LocalSignal: RawRepresentable, Codable, Equatable, Hashable, Varia
         guard let varName = VariableName(rawValue: name) else {
             return nil
         }
-        if let val = value, case .literal(let literal) = val {
+        if let val = value, case .literal(let literal) = val, case .signal(let type) = type {
             guard literal.isValid(for: type) else {
                 return nil
             }
