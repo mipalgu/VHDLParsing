@@ -286,6 +286,7 @@ final class VHDLPackageTests: XCTestCase {
 
         """
         XCTAssertEqual(VHDLPackage(name: packageName, block: raw4), expected)
+        XCTAssertNil(VHDLPackage(name: packageName, block: ""))
     }
 
     /// Test line init.
@@ -295,6 +296,7 @@ final class VHDLPackageTests: XCTestCase {
             VHDLPackage(name: packageName, line: "type xs is std_logic_vector(3 downto 0);    "),
             VHDLPackage(name: packageName, statements: [statements[3]])
         )
+        XCTAssertNil(VHDLPackage(name: packageName, line: ""))
     }
 
 }
