@@ -453,6 +453,7 @@ final class VHDLFileTests: XCTestCase {
             VHDLFile(rawValue: raw2),
             VHDLFile(architectures: [], entities: [], includes: [], packages: packages + [newPackage])
         )
+        XCTAssertEqual(VHDLFile(rawValue: raw2)?.rawValue, raw2 + "\n")
     }
 
     /// Test invalid package init.
