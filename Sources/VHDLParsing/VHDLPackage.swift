@@ -54,13 +54,18 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
+/// A struct representing a package definition in `VHDL`. This struct does not represent the body definition,
+/// i.e. using `package body <name> is` in `VHDL`.
 public struct VHDLPackage: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
+    /// The name of the package.
     public let name: VariableName
 
+    /// The statements in the package.
     public let statements: [HeadStatement]
 
-    public var rawValue: String {
+    /// The equivalent `VHDL` code.
+    @inlinable public var rawValue: String {
         """
         package \(name.rawValue) is
         \(statements.map { $0.rawValue }.joined(separator: "\n").indent(amount: 1))
@@ -68,11 +73,19 @@ public struct VHDLPackage: RawRepresentable, Equatable, Hashable, Codable, Senda
         """
     }
 
+    /// Creates a new `VHDLPackage` with the given name and statements.
+    /// - Parameters:
+    ///   - name: The name of the package.
+    ///   - statements: The statements in the package.
+    @inlinable
     public init(name: VariableName, statements: [HeadStatement]) {
         self.name = name
         self.statements = statements
     }
 
+    /// Creates a new `VHDLPackage` from the raw `VHDL` code.
+    /// - Parameter rawValue: The raw `VHDL` code.
+    @inlinable
     public init?(rawValue: String) {
         let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
         guard trimmedString.hasSuffix(";") else {
@@ -106,6 +119,13 @@ public struct VHDLPackage: RawRepresentable, Equatable, Hashable, Codable, Senda
         self.init(name: name, data: withoutEnd)
     }
 
+    /// Creates a new `VHDLPackage` with the given name, data yet to be parsed, and an accumulator of data
+    /// that has already been parsed.
+    /// - Parameters:
+    ///   - name: The name of the package.
+    ///   - data: The data yet to be parsed.
+    ///   - carry: The accumulator of data that has already been parsed.
+    @usableFromInline
     init?(name: VariableName, data: String, carry: [HeadStatement] = []) {
         let firstWord = data.firstWord?.lowercased()
         switch firstWord {
@@ -121,6 +141,14 @@ public struct VHDLPackage: RawRepresentable, Equatable, Hashable, Codable, Senda
         }
     }
 
+    /// Creates a new `VHDLPackage` with the given name, data yet to be parsed, and an accumulator of data
+    /// that has already been parsed. This initialiser assumes that the data is in the form of a block, i.e.
+    /// the data contains subexpressions that also contain semicolons at the end.
+    /// - Parameters:
+    ///   - name: The name of the package.
+    ///   - data: The data yet to be parsed.
+    ///   - carry: The accumulator of data that has already been parsed.
+    @usableFromInline
     init?(name: VariableName, block data: String, carry: [HeadStatement] = []) {
         let words = data.words
         guard words.count >= 2 else {
@@ -149,6 +177,15 @@ public struct VHDLPackage: RawRepresentable, Equatable, Hashable, Codable, Senda
         self.init(name: name, data: remaining, carry: carry + [statement])
     }
 
+    /// Creates a new `VHDLPackage` with the given name, data yet to be parsed, and an accumulator of data
+    /// that has already been parsed. This initialiser assumes that the data is in the form of a line, i.e.
+    /// the data does not contain subexpressions. this initialiser assumes the a single semicolon terminates
+    /// the first statement.
+    /// - Parameters:
+    ///   - name: The name of the package.
+    ///   - data: The data yet to be parsed.
+    ///   - carry: The accumulator of data that has already been parsed.
+    @usableFromInline
     init?(name: VariableName, line data: String, carry: [HeadStatement] = []) {
         if data.hasPrefix("--") {
             guard let newLineIndex = data.firstIndex(of: "\n") else {
