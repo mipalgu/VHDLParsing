@@ -87,7 +87,7 @@ final class ConstantSignalTests: XCTestCase {
             return
         }
         XCTAssertEqual(signal?.name, VariableName(text: "x"))
-        XCTAssertEqual(signal?.type, .stdLogic)
+        XCTAssertEqual(signal?.type, .signal(type: .stdLogic))
         XCTAssertEqual(signal?.value, .literal(value: .logic(value: .high)))
         XCTAssertEqual(signal?.comment, xComment)
         let newSignal = ConstantSignal(

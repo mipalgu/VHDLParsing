@@ -66,7 +66,7 @@ public struct ConstantSignal: RawRepresentable, Equatable, Hashable, Codable, Se
     public let name: VariableName
 
     /// The type of the constant.
-    public let type: SignalType
+    public let type: Type
 
     /// The value of this constant.
     public let value: Expression
@@ -92,7 +92,19 @@ public struct ConstantSignal: RawRepresentable, Equatable, Hashable, Codable, Se
     /// - Note: This initialiser will verify that the value is valid for the type of this constant.
     @inlinable
     public init?(name: VariableName, type: SignalType, value: Expression, comment: Comment? = nil) {
-        if case Expression.literal(let literal) = value {
+        self.init(name: name, type: .signal(type: type), value: value, comment: comment)
+    }
+
+    /// Initialise this constant with the given name, type, value and comment.
+    /// - Parameters:
+    ///   - name: The name of the constant.
+    ///   - type: The type of the constant.
+    ///   - value: The value of the constant.
+    ///   - comment: The comment associated with this constant.
+    /// - Note: This initialiser will verify that the value is valid for the type of this constant.
+    @inlinable
+    public init?(name: VariableName, type: Type, value: Expression, comment: Comment? = nil) {
+        if case .signal(let type) = type, case Expression.literal(let literal) = value {
             guard literal.isValid(for: type) else {
                 return nil
             }
@@ -149,7 +161,7 @@ public struct ConstantSignal: RawRepresentable, Equatable, Hashable, Codable, Se
         guard
             signalComponents.first == "constant",
             signalComponents.count >= typeIndex,
-            let type = SignalType(rawValue: signalComponents[typeIndex...].joined(separator: " "))
+            let type = Type(rawValue: signalComponents[typeIndex...].joined(separator: " "))
         else {
             return nil
         }
@@ -161,7 +173,7 @@ public struct ConstantSignal: RawRepresentable, Equatable, Hashable, Codable, Se
         else {
             return nil
         }
-        if case Expression.literal(let literal) = value {
+        if case .signal(let type) = type, case Expression.literal(let literal) = value {
             guard literal.isValid(for: type) else {
                 return nil
             }
