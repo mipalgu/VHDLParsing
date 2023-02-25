@@ -27,9 +27,9 @@
 - ``Record``
 - ``RecordTypeDeclaration``
 - ``SignalLiteral``
+- ``SignalType``
 - ``Type``
 - ``TypeDefinition``
-- ``Variable``
 - ``VariableName``
 - ``VectorLiteral``
 
@@ -59,6 +59,7 @@
 - ``AsynchronousBlock``
 - ``ComponentInstantiation``
 - ``GenericMap``
+- ``GenericVariableMap``
 - ``PortMap``
 - ``ProcessBlock``
 
