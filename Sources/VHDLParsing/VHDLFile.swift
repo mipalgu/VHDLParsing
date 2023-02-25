@@ -66,6 +66,9 @@ public struct VHDLFile: RawRepresentable, Equatable, Hashable, Codable, Sendable
     /// The includes in the file.
     public let includes: [Include]
 
+    /// The packages in the file.
+    public let packages: [VHDLPackage]
+
     /// The equivalent `VHDL` code for this file.
     @inlinable public var rawValue: String {
         let includesString = includes.map { $0.rawValue }.joined(separator: "\n")
@@ -73,15 +76,12 @@ public struct VHDLFile: RawRepresentable, Equatable, Hashable, Codable, Sendable
         let architecturesString = architectures.sorted { $0.entity < $1.entity }
             .map(\.rawValue)
             .joined(separator: "\n\n")
-        return """
-        \(includesString)
-
-        \(entitiesString)
-
-        \(architecturesString)
-
-        """
-        .trimmingCharacters(in: .whitespacesAndNewlines) + "\n"
+        let packagesString = packages.sorted { $0.name < $1.name }
+            .map { $0.rawValue }
+            .joined(separator: "\n\n")
+        return [includesString, entitiesString, architecturesString, packagesString].filter { !$0.isEmpty }
+            .joined(separator: "\n\n")
+            .trimmingCharacters(in: .whitespacesAndNewlines) + "\n"
     }
 
     /// Creates a new `VHDLFile` from the given parameters.
@@ -90,10 +90,13 @@ public struct VHDLFile: RawRepresentable, Equatable, Hashable, Codable, Sendable
     ///   - entities: The entities in the file.
     ///   - includes: The includes in the file.
     @inlinable
-    public init(architectures: [Architecture], entities: [Entity], includes: [Include]) {
+    public init(
+        architectures: [Architecture], entities: [Entity], includes: [Include], packages: [VHDLPackage] = []
+    ) {
         self.architectures = architectures
         self.entities = entities
         self.includes = includes
+        self.packages = packages
     }
 
     /// Creates a new `VHDLFile` from the `VHDL` code within it.
@@ -112,36 +115,99 @@ public struct VHDLFile: RawRepresentable, Equatable, Hashable, Codable, Sendable
     ///   - architectures: The architectures that have been previously parsed.
     ///   - entities: The entities that have been previously parsed.
     ///   - includes: The includes that have been previously parsed.
+    ///   - packages: The packages already parsed.
     private init?(
         remaining: String,
         architectures: [Architecture] = [],
         entities: [Entity] = [],
-        includes: [Include] = []
+        includes: [Include] = [],
+        packages: [VHDLPackage] = []
     ) {
         let trimmedString = remaining.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedString.isEmpty else {
-            self.init(architectures: architectures, entities: entities, includes: includes)
+            self.init(
+                architectures: architectures, entities: entities, includes: includes, packages: packages
+            )
             return
         }
         let firstWord = trimmedString.firstWord?.lowercased()
-        if firstWord == "use" || firstWord == "library" {
+        switch firstWord {
+        case "use", "library":
             self.init(
-                include: trimmedString, architectures: architectures, entities: entities, includes: includes
+                include: trimmedString,
+                architectures: architectures,
+                entities: entities,
+                includes: includes,
+                packages: packages
             )
-        } else if firstWord == "entity" {
+        case "entity":
             self.init(
-                entity: trimmedString, architectures: architectures, entities: entities, includes: includes
+                entity: trimmedString,
+                architectures: architectures,
+                entities: entities,
+                includes: includes,
+                packages: packages
             )
-        } else if firstWord == "architecture" {
+        case "architecture":
             self.init(
                 architecture: trimmedString,
                 architectures: architectures,
                 entities: entities,
-                includes: includes
+                includes: includes,
+                packages: packages
             )
-        } else {
+        case "package":
+            self.init(
+                package: trimmedString,
+                architectures: architectures,
+                entities: entities,
+                includes: includes,
+                packages: packages
+            )
+        default:
             return nil
         }
+    }
+
+    /// Parse a package in the given string.
+    /// - Parameters:
+    ///   - trimmedString: The package to parse.
+    ///   - architectures: The architectures already parsed. 
+    ///   - entities: The entities already parsed.
+    ///   - includes: The includes already parsed.
+    ///   - packages: The packages already parsed.
+    private init?(
+        package trimmedString: String,
+        architectures: [Architecture],
+        entities: [Entity],
+        includes: [Include],
+        packages: [VHDLPackage]
+    ) {
+        guard let isIndex = trimmedString.startIndex(word: "is") else {
+            return nil
+        }
+        let words = String(trimmedString[..<isIndex]).words
+        guard words.count == 2, words[0].lowercased() == "package" else {
+            return nil
+        }
+        let name = words[1]
+        guard
+            let expression = trimmedString.subExpression(
+                beginningWith: ["package", name, "is"], endingWith: ["end", "package", name + ";"]
+            ),
+            let package = VHDLPackage(rawValue: String(expression))
+        else {
+            return nil
+        }
+        let newRemaining = trimmedString.dropFirst(expression.count)
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        self.init(
+            remaining: newRemaining,
+            architectures: architectures,
+            entities: entities,
+            includes: includes,
+            packages: packages + [package]
+        )
     }
 
     /// Parse an include in the given string.
@@ -150,8 +216,13 @@ public struct VHDLFile: RawRepresentable, Equatable, Hashable, Codable, Sendable
     ///   - architectures: The architectures already parsed. 
     ///   - entities: The entities already parsed.
     ///   - includes: The includes already parsed.
+    ///   - packages: The packages already parsed.
     private init?(
-        include trimmedString: String, architectures: [Architecture], entities: [Entity], includes: [Include]
+        include trimmedString: String,
+        architectures: [Architecture],
+        entities: [Entity],
+        includes: [Include],
+        packages: [VHDLPackage]
     ) {
         let include = trimmedString.uptoSemicolon + ";"
         guard trimmedString.contains(";"), let newInclude = Include(rawValue: include) else {
@@ -162,7 +233,8 @@ public struct VHDLFile: RawRepresentable, Equatable, Hashable, Codable, Sendable
             remaining: newRemaining,
             architectures: architectures,
             entities: entities,
-            includes: includes + [newInclude]
+            includes: includes + [newInclude],
+            packages: packages
         )
     }
 
@@ -172,8 +244,13 @@ public struct VHDLFile: RawRepresentable, Equatable, Hashable, Codable, Sendable
     ///   - architectures: The architectures already parsed.
     ///   - entities: The entities already parsed.
     ///   - includes: The includes already parsed.
+    ///   - packages: The packages already parsed.
     private init?(
-        entity trimmedString: String, architectures: [Architecture], entities: [Entity], includes: [Include]
+        entity trimmedString: String,
+        architectures: [Architecture],
+        entities: [Entity],
+        includes: [Include],
+        packages: [VHDLPackage]
     ) {
         guard let isIndex = trimmedString.startIndex(word: "is") else {
             return nil
@@ -197,7 +274,8 @@ public struct VHDLFile: RawRepresentable, Equatable, Hashable, Codable, Sendable
             remaining: newRemaining,
             architectures: architectures,
             entities: entities + [entity],
-            includes: includes
+            includes: includes,
+            packages: packages
         )
     }
 
@@ -207,11 +285,13 @@ public struct VHDLFile: RawRepresentable, Equatable, Hashable, Codable, Sendable
     ///   - architectures: The architectures already parsed.
     ///   - entities: The entities already parsed.
     ///   - includes: The includes already parsed.
+    ///   - packages: The packages already parsed.
     private init?(
         architecture trimmedString: String,
         architectures: [Architecture],
         entities: [Entity],
-        includes: [Include]
+        includes: [Include],
+        packages: [VHDLPackage]
     ) {
         guard let isIndex = trimmedString.startIndex(word: "is") else {
             return nil
@@ -236,7 +316,8 @@ public struct VHDLFile: RawRepresentable, Equatable, Hashable, Codable, Sendable
             remaining: newRemaining,
             architectures: architectures + [architecture],
             entities: entities,
-            includes: includes
+            includes: includes,
+            packages: packages
         )
     }
 
