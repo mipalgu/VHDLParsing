@@ -131,6 +131,170 @@ final class VHDLPackageTests: XCTestCase {
         end package Package1;
         """
         XCTAssertEqual(VHDLPackage(rawValue: raw), package)
+        let raw2 = """
+        package Package1 is
+            -- Statements
+            constant high: std_logic := '1';
+            type Record1_t is record
+                a: std_logic;
+                b: std_logic;
+            end record Record1_t; type xs is std_logic_vector(3 downto 0);
+        end package Package1;
+        """
+        XCTAssertEqual(VHDLPackage(rawValue: raw2), package)
+        let raw3 = """
+        package Package1 is
+            -- Statements
+            constant high: std_logic := '1'; type Record1_t is record
+                a: std_logic;
+                b: std_logic;
+            end record Record1_t;
+            type xs is std_logic_vector(3 downto 0);
+        end package Package1;
+        """
+        XCTAssertEqual(VHDLPackage(rawValue: raw3), package)
+        let raw4 = """
+        package Package1 is
+            -- Statements
+            constant high: std_logic := '1';
+            type Record1_t is record
+                a: std_logic;
+                b: std_logic;
+            end record Record1_t;
+            type xs is std_logic_vector(3 downto 0);
+            -- Statements
+        end package Package1;
+        """
+        let newPackage = VHDLPackage(name: packageName, statements: statements + [statements[0]])
+        XCTAssertEqual(VHDLPackage(rawValue: raw4), newPackage)
+    }
+
+    /// Test `init(rawValue:)` for invalid package definition.
+    func testInvalidRawValueInit() {
+        let raw = """
+        package Package1 is
+            -- Statements
+            constant high: std_logic := '1';
+            type Record1_t is record
+                a: std_logic;
+                b: std_logic;
+            end record Record1_t;
+            type xs is std_logic_vector(3 downto 0);
+        end package Package1
+        """
+        XCTAssertNil(VHDLPackage(rawValue: raw))
+        let raw2 = """
+        packages Package1 is
+            -- Statements
+            constant high: std_logic := '1';
+            type Record1_t is record
+                a: std_logic;
+                b: std_logic;
+            end record Record1_t;
+            type xs is std_logic_vector(3 downto 0);
+        end package Package1;
+        """
+        XCTAssertNil(VHDLPackage(rawValue: raw2))
+        let raw3 = """
+        package Package12 is
+            -- Statements
+            constant high: std_logic := '1';
+            type Record1_t is record
+                a: std_logic;
+                b: std_logic;
+            end record Record1_t;
+            type xs is std_logic_vector(3 downto 0);
+        end package Package1;
+        """
+        XCTAssertNil(VHDLPackage(rawValue: raw3))
+        let raw4 = """
+        package 2Package1 is
+            -- Statements
+            constant high: std_logic := '1';
+            type Record1_t is record
+                a: std_logic;
+                b: std_logic;
+            end record Record1_t;
+            type xs is std_logic_vector(3 downto 0);
+        end package 2Package1;
+        """
+        XCTAssertNil(VHDLPackage(rawValue: raw4))
+        XCTAssertNil(VHDLPackage(rawValue: ""))
+    }
+
+    /// Test `init(rawValue:)` for invalid package definition.
+    func testInvalidRawValueInit2() {
+        let raw5 = """
+        package Package1 is
+            -- Statements
+            constant high: std_logic := '1';
+            type Record1_t is record
+                a: std_logic;
+                b: std_logic;
+            end record Record1_t;
+            type xs is std_logic_vector(3 downto 0);
+        end packages Package1;
+        """
+        XCTAssertNil(VHDLPackage(rawValue: raw5))
+        let raw6 = """
+        package Package1 is
+            -- Statements
+            constant high: std_logic := '1';
+            type Record1_t is record
+                a: std_logic;
+                b: std_logic;
+            end record Record1_t;
+            type xs is std_logic_vector(3 downto 0);
+        ends package Package1;
+        """
+        XCTAssertNil(VHDLPackage(rawValue: raw6))
+    }
+
+    /// Test block init.
+    func testBlockInit() {
+        XCTAssertNil(VHDLPackage(name: packageName, block: "type"))
+        XCTAssertNil(VHDLPackage(name: packageName, block: "type Record1_t is record"))
+        let raw = """
+        type Record1_t is record
+            a: std_logic;
+            b: std_logic
+        end record Record1_t;
+        """
+        XCTAssertNil(VHDLPackage(name: packageName, block: raw))
+        let raw2 = """
+        package Package1 is
+            type Record1_t is record
+                a: std_logic;
+                b: std_logic;
+            end record Record1_t;
+        end package Package1;
+        """
+        let expected = VHDLPackage(name: packageName, statements: [statements[2]])
+        XCTAssertEqual(VHDLPackage(rawValue: raw2), expected)
+        let raw3 = """
+        type Record1_t is record
+            a: std_logic;
+            b: std_logic;
+        end record Record1_t;
+        """
+        XCTAssertEqual(VHDLPackage(name: packageName, block: raw3), expected)
+        let raw4 = """
+        type Record1_t is record
+            a: std_logic;
+            b: std_logic;
+        end record Record1_t;
+
+        """
+        XCTAssertEqual(VHDLPackage(name: packageName, block: raw4), expected)
+    }
+
+    /// Test line init.
+    func testLineInit() {
+        XCTAssertNil(VHDLPackage(name: packageName, line: "2x: std_logic;"))
+        XCTAssertEqual(
+            VHDLPackage(name: packageName, line: "type xs is std_logic_vector(3 downto 0);    "),
+            VHDLPackage(name: packageName, statements: [statements[3]])
+        )
     }
 
 }
