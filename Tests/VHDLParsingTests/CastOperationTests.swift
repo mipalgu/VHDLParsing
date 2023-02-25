@@ -61,7 +61,7 @@ import XCTest
 final class CastOperationTests: XCTestCase {
 
     /// A variable `x`.
-    let x = Expression.variable(name: VariableName(text: "x"))
+    let x = Expression.reference(variable: .variable(name: VariableName(text: "x")))
 
     /// Test the raw values generate the correct `VHDL` code.
     func testRawValue() {

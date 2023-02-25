@@ -61,10 +61,10 @@ import XCTest
 final class ConditionalExpressionTests: XCTestCase {
 
     /// A variable called `x`.
-    let x = Expression.variable(name: VariableName(text: "x"))
+    let x = Expression.reference(variable: .variable(name: VariableName(text: "x")))
 
     /// The variable y.
-    let y = Expression.variable(name: VariableName(text: "y"))
+    let y = Expression.reference(variable: .variable(name: VariableName(text: "y")))
 
     /// Test `rawValue` delegates to operations `rawValue`.
     func testRawValue() {

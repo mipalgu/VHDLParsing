@@ -71,15 +71,22 @@ final class SynchronousBlockTests: XCTestCase {
     /// Test raw values are correct.
     func testRawValues() {
         let statement = SynchronousBlock.statement(
-            statement: Statement.assignment(name: x, value: .literal(value: .bit(value: .high)))
+            statement: Statement.assignment(
+                name: .variable(name: x), value: .literal(value: .bit(value: .high))
+            )
         )
         XCTAssertEqual(statement.rawValue, "x <= '1';")
         let ifStatement = SynchronousBlock.ifStatement(block: .ifStatement(
             condition: .conditional(
-                condition: .comparison(value: .equality(lhs: .variable(name: x), rhs: .variable(name: y)))
+                condition: .comparison(value: .equality(
+                    lhs: .reference(variable: .variable(name: x)),
+                    rhs: .reference(variable: .variable(name: y))
+                ))
             ),
             ifBlock: SynchronousBlock.statement(
-                statement: Statement.assignment(name: VariableName(text: "x"), value: .variable(name: y))
+                statement: Statement.assignment(
+                    name: .variable(name: x), value: .reference(variable: .variable(name: y))
+                )
             )
         ))
         let expected = """
@@ -112,18 +119,18 @@ final class SynchronousBlockTests: XCTestCase {
         end case;
         """
         let caseStatement = SynchronousBlock.caseStatement(block: CaseStatement(
-            condition: .variable(name: x),
+            condition: .reference(variable: .variable(name: x)),
             cases: [
                 WhenCase(
                     condition: .expression(expression: .literal(value: .bit(value: .high))),
                     code: .statement(statement: .assignment(
-                        name: y, value: .literal(value: .bit(value: .high))
+                        name: .variable(name: y), value: .literal(value: .bit(value: .high))
                     ))
                 ),
                 WhenCase(
                     condition: .expression(expression: .literal(value: .bit(value: .low))),
                     code: .statement(statement: .assignment(
-                        name: y, value: .literal(value: .bit(value: .low))
+                        name: .variable(name: y), value: .literal(value: .bit(value: .low))
                     ))
                 )
             ]
@@ -134,7 +141,9 @@ final class SynchronousBlockTests: XCTestCase {
     /// Test statement raw value initialiser.
     func testStatementRawValueInit() {
         let expected = SynchronousBlock.statement(
-            statement: Statement.assignment(name: x, value: .literal(value: .bit(value: .high)))
+            statement: Statement.assignment(
+                name: .variable(name: x), value: .literal(value: .bit(value: .high))
+            )
         )
         XCTAssertEqual(SynchronousBlock(rawValue: "x <= '1';"), expected)
         XCTAssertEqual(SynchronousBlock(rawValue: "x <= '1'; "), expected)
@@ -149,15 +158,19 @@ final class SynchronousBlockTests: XCTestCase {
         XCTAssertNil(SynchronousBlock(rawValue: "signal \(String(repeating: "x", count: 256)): std_logic;"))
     }
 
+    // swiftlint:disable function_body_length
+
     /// Test if statement raw value initialiser.
     func testIfRawValueInit() {
-        let x = Expression.variable(name: x)
-        let y = Expression.variable(name: y)
+        let x = Expression.reference(variable: .variable(name: x))
+        let y = Expression.reference(variable: .variable(name: y))
         let expected = SynchronousBlock.ifStatement(block: IfBlock.ifElse(
             condition: .conditional(condition: .comparison(value: .equality(lhs: x, rhs: y))),
             ifBlock: .blocks(
                 blocks: [
-                    .statement(statement: .assignment(name: VariableName(text: "x"), value: y)),
+                    .statement(
+                        statement: .assignment(name: .variable(name: VariableName(text: "x")), value: y)
+                    ),
                     .ifStatement(
                         block: IfBlock.ifStatement(
                             condition: .conditional(
@@ -167,7 +180,8 @@ final class SynchronousBlockTests: XCTestCase {
                             ),
                             ifBlock: .statement(
                                 statement: .assignment(
-                                    name: VariableName(text: "x"), value: .literal(value: .bit(value: .low))
+                                    name: .variable(name: VariableName(text: "x")),
+                                    value: .literal(value: .bit(value: .low))
                                 )
                             )
                         )
@@ -177,10 +191,13 @@ final class SynchronousBlockTests: XCTestCase {
             elseBlock: .ifStatement(
                 block: .ifElse(
                     condition: .conditional(condition: .comparison(value: .notEquals(lhs: x, rhs: y))),
-                    ifBlock: .statement(statement: .assignment(name: VariableName(text: "y"), value: x)),
+                    ifBlock: .statement(statement: .assignment(
+                        name: .variable(name: VariableName(text: "y")), value: x
+                    )),
                     elseBlock: .statement(
                         statement: .assignment(
-                            name: VariableName(text: "x"), value: .literal(value: .bit(value: .low))
+                            name: .variable(name: VariableName(text: "x")),
+                            value: .literal(value: .bit(value: .low))
                         )
                     )
                 )
@@ -201,10 +218,14 @@ final class SynchronousBlockTests: XCTestCase {
         XCTAssertEqual(SynchronousBlock(rawValue: raw), expected)
     }
 
+    // swiftlint:enable function_body_length
+
     /// Test multiple statements raw value init.
     func testMultipleStatementsRawValueInit() {
         let statement = SynchronousBlock.statement(
-            statement: Statement.assignment(name: x, value: .literal(value: .bit(value: .high)))
+            statement: Statement.assignment(
+                name: .variable(name: x), value: .literal(value: .bit(value: .high))
+            )
         )
         let expected = SynchronousBlock.blocks(blocks: [statement, statement])
         XCTAssertEqual(SynchronousBlock(rawValue: "x <= '1';\nx <= '1';"), expected)
@@ -226,13 +247,15 @@ final class SynchronousBlockTests: XCTestCase {
 
     /// Test statement and if blocks together.
     func testMixedRawValueInit() {
-        let x = Expression.variable(name: x)
-        let y = Expression.variable(name: y)
+        let x = Expression.reference(variable: .variable(name: x))
+        let y = Expression.reference(variable: .variable(name: y))
         let ifStatement = SynchronousBlock.ifStatement(block: IfBlock.ifElse(
             condition: .conditional(condition: .comparison(value: .equality(lhs: x, rhs: y))),
             ifBlock: .blocks(
                 blocks: [
-                    .statement(statement: .assignment(name: VariableName(text: "x"), value: y)),
+                    .statement(
+                        statement: .assignment(name: .variable(name: VariableName(text: "x")), value: y)
+                    ),
                     .ifStatement(
                         block: IfBlock.ifStatement(
                             condition: .conditional(
@@ -242,7 +265,8 @@ final class SynchronousBlockTests: XCTestCase {
                             ),
                             ifBlock: .statement(
                                 statement: .assignment(
-                                    name: VariableName(text: "x"), value: .literal(value: .bit(value: .low))
+                                    name: .variable(name: VariableName(text: "x")),
+                                    value: .literal(value: .bit(value: .low))
                                 )
                             )
                         )
@@ -252,17 +276,20 @@ final class SynchronousBlockTests: XCTestCase {
             elseBlock: .ifStatement(
                 block: .ifElse(
                     condition: .conditional(condition: .comparison(value: .notEquals(lhs: x, rhs: y))),
-                    ifBlock: .statement(statement: .assignment(name: VariableName(text: "y"), value: x)),
+                    ifBlock: .statement(statement: .assignment(
+                        name: .variable(name: VariableName(text: "y")), value: x
+                    )),
                     elseBlock: .statement(
                         statement: .assignment(
-                            name: VariableName(text: "x"), value: .literal(value: .bit(value: .low))
+                            name: .variable(name: VariableName(text: "x")),
+                            value: .literal(value: .bit(value: .low))
                         )
                     )
                 )
             )
         ))
         let assignment = SynchronousBlock.statement(
-            statement: .assignment(name: self.x, value: .literal(value: .bit(value: .high)))
+            statement: .assignment(name: .variable(name: self.x), value: .literal(value: .bit(value: .high)))
         )
         let raw = """
         x <= '1';
@@ -282,13 +309,13 @@ final class SynchronousBlockTests: XCTestCase {
 
     /// Test statement and if blocks together.
     func testMixedRawValueInit2() {
-        let x = Expression.variable(name: x)
-        let y = Expression.variable(name: y)
+        let x = Expression.reference(variable: .variable(name: x))
+        let y = Expression.reference(variable: .variable(name: y))
         let ifStatement = SynchronousBlock.ifStatement(block: IfBlock.ifElse(
             condition: .conditional(condition: .comparison(value: .equality(lhs: x, rhs: y))),
             ifBlock: .blocks(
                 blocks: [
-                    .statement(statement: .assignment(name: VariableName(text: "x"), value: y)),
+                    .statement(statement: .assignment(name: .variable(name: self.x), value: y)),
                     .ifStatement(
                         block: IfBlock.ifStatement(
                             condition: .conditional(
@@ -298,7 +325,7 @@ final class SynchronousBlockTests: XCTestCase {
                             ),
                             ifBlock: .statement(
                                 statement: .assignment(
-                                    name: VariableName(text: "x"), value: .literal(value: .bit(value: .low))
+                                    name: .variable(name: self.x), value: .literal(value: .bit(value: .low))
                                 )
                             )
                         )
@@ -308,17 +335,17 @@ final class SynchronousBlockTests: XCTestCase {
             elseBlock: .ifStatement(
                 block: .ifElse(
                     condition: .conditional(condition: .comparison(value: .notEquals(lhs: x, rhs: y))),
-                    ifBlock: .statement(statement: .assignment(name: VariableName(text: "y"), value: x)),
+                    ifBlock: .statement(statement: .assignment(name: .variable(name: self.y), value: x)),
                     elseBlock: .statement(
                         statement: .assignment(
-                            name: VariableName(text: "x"), value: .literal(value: .bit(value: .low))
+                            name: .variable(name: self.x), value: .literal(value: .bit(value: .low))
                         )
                     )
                 )
             )
         ))
         let assignment = SynchronousBlock.statement(
-            statement: .assignment(name: self.x, value: .literal(value: .bit(value: .high)))
+            statement: .assignment(name: .variable(name: self.x), value: .literal(value: .bit(value: .high)))
         )
         let raw = """
         x <= '1';
@@ -349,13 +376,14 @@ final class SynchronousBlockTests: XCTestCase {
         """
         let expected = SynchronousBlock.blocks(blocks: [
             .statement(statement: .assignment(
-                name: VariableName(text: "x"), value: .literal(value: .bit(value: .low))
+                name: .variable(name: self.x), value: .literal(value: .bit(value: .low))
             )),
             .statement(statement: .assignment(
-                name: VariableName(text: "x"), value: .literal(value: .bit(value: .high))
+                name: .variable(name: self.x), value: .literal(value: .bit(value: .high))
             )),
             .statement(statement: .assignment(
-                name: VariableName(text: "y"), value: .variable(name: VariableName(text: "x"))
+                name: .variable(name: self.y),
+                value: .reference(variable: .variable(name: VariableName(text: "x")))
             ))
         ])
         XCTAssertEqual(SynchronousBlock(rawValue: raw), expected)
@@ -372,18 +400,18 @@ final class SynchronousBlockTests: XCTestCase {
         end case;
         """
         let caseStatement = SynchronousBlock.caseStatement(block: CaseStatement(
-            condition: .variable(name: x),
+            condition: .reference(variable: .variable(name: x)),
             cases: [
                 WhenCase(
                     condition: .expression(expression: .literal(value: .bit(value: .high))),
                     code: .statement(statement: .assignment(
-                        name: y, value: .literal(value: .bit(value: .high))
+                        name: .variable(name: y), value: .literal(value: .bit(value: .high))
                     ))
                 ),
                 WhenCase(
                     condition: .expression(expression: .literal(value: .bit(value: .low))),
                     code: .statement(statement: .assignment(
-                        name: y, value: .literal(value: .bit(value: .low))
+                        name: .variable(name: y), value: .literal(value: .bit(value: .low))
                     ))
                 )
             ]
@@ -402,7 +430,7 @@ final class SynchronousBlockTests: XCTestCase {
         x <= '0';
         """
         let assignment = SynchronousBlock.statement(
-            statement: .assignment(name: self.x, value: .literal(value: .bit(value: .low)))
+            statement: .assignment(name: .variable(name: self.x), value: .literal(value: .bit(value: .low)))
         )
         let blocks = [assignment, assignment, caseStatement, assignment, assignment]
         let expected = SynchronousBlock.blocks(blocks: blocks)
@@ -423,6 +451,39 @@ final class SynchronousBlockTests: XCTestCase {
         x <= '0';
         """
         XCTAssertNil(SynchronousBlock(rawValue: raw))
+    }
+
+    /// Test for loop creation.
+    func testForLoop() {
+        let raw = """
+        for x in 0 to 7 loop
+            y <= x;
+        end loop;
+        """
+        let expected = SynchronousBlock.forLoop(loop: ForLoop(
+            iterator: x,
+            range: .to(
+                lower: .literal(value: .integer(value: 0)), upper: .literal(value: .integer(value: 7))
+            ),
+            body: .statement(statement: .assignment(
+                name: .variable(name: y), value: .reference(variable: .variable(name: x))
+            ))
+        ))
+        XCTAssertEqual(SynchronousBlock(rawValue: raw), expected)
+        let raw2 = """
+        y <= x;
+        \(raw)
+        x <= y;
+        """
+        let yAssignment = SynchronousBlock.statement(
+            statement: .assignment(name: .variable(name: y), value: .reference(variable: .variable(name: x)))
+        )
+        let xAssignment = SynchronousBlock.statement(
+            statement: .assignment(name: .variable(name: x), value: .reference(variable: .variable(name: y)))
+        )
+        XCTAssertEqual(
+            SynchronousBlock(rawValue: raw2), .blocks(blocks: [yAssignment, expected, xAssignment])
+        )
     }
 
 }

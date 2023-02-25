@@ -62,7 +62,7 @@ final class IndexedVectorTests: XCTestCase {
 
     /// The values of the indexes.
     let values = [
-        IndexedValue(index: .index(value: 3), value: .bit(value: .high)),
+        IndexedValue(index: .index(value: .literal(value: .integer(value: 3))), value: .bit(value: .high)),
         IndexedValue(index: .others, value: .bit(value: .low))
     ]
 
@@ -96,7 +96,11 @@ final class IndexedVectorTests: XCTestCase {
             IndexedVector(
                 values: [
                     IndexedValue(
-                        index: .range(value: .downto(upper: 3, lower: 2)), value: .bit(value: .high)
+                        index: .range(value: .downto(
+                            upper: .literal(value: .integer(value: 3)),
+                            lower: .literal(value: .integer(value: 2))
+                        )),
+                        value: .bit(value: .high)
                     ),
                     IndexedValue(index: .others, value: .bit(value: .low))
                 ]
@@ -107,7 +111,11 @@ final class IndexedVectorTests: XCTestCase {
             IndexedVector(
                 values: [
                     IndexedValue(
-                        index: .range(value: .downto(upper: 3, lower: 2)), value: .logic(value: .high)
+                        index: .range(value: .downto(
+                            upper: .literal(value: .integer(value: 3)),
+                            lower: .literal(value: .integer(value: 2))
+                        )),
+                        value: .logic(value: .high)
                     ),
                     IndexedValue(index: .others, value: .logic(value: .uninitialized))
                 ]

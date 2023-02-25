@@ -61,7 +61,7 @@ import XCTest
 final class FunctionCallTests: XCTestCase {
 
     /// A variable `x`.
-    let x = Expression.variable(name: VariableName(text: "x"))
+    let x = Expression.reference(variable: .variable(name: VariableName(text: "x")))
 
     /// Test that `rawValue` generates the correct `VHDL` code.
     func testRawValue() {

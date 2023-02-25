@@ -61,13 +61,13 @@ import Foundation
 /// examples include arithmetic operations (+, -, /, *), comparison operations (>, <, <=, >=, =, /=), bitwise
 /// operations (sll, srl, sla, sra, rol, ror), and may include references to pre-defined variables or literal
 /// values. This type should not be used to describe branch statements such as `if` or `case` statements, or
-/// loops such as `for` and `while` loops. For those types of expressions, use ``Statement``.
-/// - SeeAlso: ``Statement``.
+/// loops such as `for` and `while` loops. For those types of expressions, use ``SynchronousBlock``.
+/// - SeeAlso: ``SynchronousBlock``.
 indirect public enum Expression: RawRepresentable,
     Equatable, Hashable, Codable, Sendable, CustomStringConvertible {
 
     /// A reference to a variable.
-    case variable(name: VariableName)
+    case reference(variable: VariableReference)
 
     /// A literal value.
     case literal(value: SignalLiteral)
@@ -96,8 +96,8 @@ indirect public enum Expression: RawRepresentable,
     /// The equivalent VHDL code of this expression.
     @inlinable public var rawValue: String {
         switch self {
-        case .variable(let name):
-            return name.rawValue
+        case .reference(let variable):
+            return variable.rawValue
         case .literal(let value):
             return value.rawValue
         case .binary(let operation):
@@ -133,6 +133,10 @@ indirect public enum Expression: RawRepresentable,
         }
         if let literal = SignalLiteral(rawValue: value) {
             self = .literal(value: literal)
+            return
+        }
+        if let variable = VariableReference(rawValue: value) {
+            self = .reference(variable: variable)
             return
         }
         if let cast = CastOperation(rawValue: value) {
@@ -198,10 +202,6 @@ indirect public enum Expression: RawRepresentable,
         }
         if let logical = BooleanExpression(rawValue: value) {
             self = .logical(operation: logical)
-            return
-        }
-        if let variable = VariableName(rawValue: value) {
-            self = .variable(name: variable)
             return
         }
         return nil

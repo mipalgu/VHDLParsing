@@ -99,14 +99,18 @@ final class PortSignalTests: XCTestCase {
             XCTFail("Failed to create comment.")
             return
         }
-        self.signal.type = .ranged(type: .stdLogicVector(size: .downto(upper: 7, lower: 0)))
+        self.signal.type = .ranged(type: .stdLogicVector(size: .downto(
+            upper: .literal(value: .integer(value: 7)), lower: .literal(value: .integer(value: 0))
+        )))
         self.signal.name = VariableName(text: "y")
         self.signal.mode = .input
         self.signal.defaultValue = .literal(
             value: .vector(value: .hexademical(value: HexVector(values: [.ten, .ten])))
         )
         self.signal.comment = comment
-        XCTAssertEqual(self.signal.type, .ranged(type: .stdLogicVector(size: .downto(upper: 7, lower: 0))))
+        XCTAssertEqual(self.signal.type, .ranged(type: .stdLogicVector(size: .downto(
+            upper: .literal(value: .integer(value: 7)), lower: .literal(value: .integer(value: 0))
+        ))))
         XCTAssertEqual(self.signal.name, VariableName(text: "y"))
         XCTAssertEqual(self.signal.mode, .input)
         XCTAssertEqual(
@@ -160,7 +164,9 @@ final class PortSignalTests: XCTestCase {
 
     /// Test rawValue init works for vector types.
     func testRawValueInitVectorType() {
-        signal.type = .ranged(type: .stdLogicVector(size: .downto(upper: 3, lower: 0)))
+        signal.type = .ranged(type: .stdLogicVector(size: .downto(
+            upper: .literal(value: .integer(value: 3)), lower: .literal(value: .integer(value: 0))
+        )))
         XCTAssertEqual(
             PortSignal(rawValue: "x: out std_logic_vector(3 downto 0) := '1'; -- signal x"), signal
         )

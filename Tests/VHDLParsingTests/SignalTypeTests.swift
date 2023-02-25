@@ -78,7 +78,9 @@ final class SignalTypeTests: XCTestCase {
         XCTAssertEqual(std.rawValue, "std_logic")
         let stdU = SignalType.stdULogic
         XCTAssertEqual(stdU.rawValue, "std_ulogic")
-        let vector = SignalType.ranged(type: .stdLogicVector(size: .downto(upper: 5, lower: 3)))
+        let vector = SignalType.ranged(type: .stdLogicVector(size: .downto(
+            upper: .literal(value: .integer(value: 5)), lower: .literal(value: .integer(value: 3))
+        )))
         XCTAssertEqual(vector.rawValue, "std_logic_vector(5 downto 3)")
     }
 
@@ -103,7 +105,9 @@ final class SignalTypeTests: XCTestCase {
     func testStdLogicVector() {
         XCTAssertEqual(
             SignalType(rawValue: "std_logic_vector(5 downto 3)"),
-            .ranged(type: .stdLogicVector(size: .downto(upper: 5, lower: 3)))
+            .ranged(type: .stdLogicVector(size: .downto(
+                upper: .literal(value: .integer(value: 5)), lower: .literal(value: .integer(value: 3))
+            )))
         )
     }
 
@@ -111,7 +115,9 @@ final class SignalTypeTests: XCTestCase {
     func testStdLogicVectorUppercased() {
         XCTAssertEqual(
             SignalType(rawValue: "STD_LOGIC_VECTOR(5 DOWNTO 3)"),
-            .ranged(type: .stdLogicVector(size: .downto(upper: 5, lower: 3)))
+            .ranged(type: .stdLogicVector(size: .downto(
+                upper: .literal(value: .integer(value: 5)), lower: .literal(value: .integer(value: 3))
+            )))
         )
     }
 

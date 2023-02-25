@@ -62,17 +62,29 @@ final class RangedTypeTests: XCTestCase {
 
     /// Test raw values are correct.
     func testRawValues() {
-        let bitVector = RangedType.bitVector(size: .to(lower: 12, upper: 15))
+        let bitVector = RangedType.bitVector(size: .to(
+            lower: .literal(value: .integer(value: 12)), upper: .literal(value: .integer(value: 15))
+        ))
         XCTAssertEqual(bitVector.rawValue, "bit_vector(12 to 15)")
-        let integer = RangedType.integer(size: .to(lower: 12, upper: 15))
+        let integer = RangedType.integer(size: .to(
+            lower: .literal(value: .integer(value: 12)), upper: .literal(value: .integer(value: 15))
+        ))
         XCTAssertEqual(integer.rawValue, "integer range 12 to 15")
-        let signed = RangedType.signed(size: .downto(upper: 5, lower: 3))
+        let signed = RangedType.signed(size: .downto(
+            upper: .literal(value: .integer(value: 5)), lower: .literal(value: .integer(value: 3))
+        ))
         XCTAssertEqual(signed.rawValue, "signed(5 downto 3)")
-        let vector = RangedType.stdLogicVector(size: .downto(upper: 5, lower: 3))
+        let vector = RangedType.stdLogicVector(size: .downto(
+            upper: .literal(value: .integer(value: 5)), lower: .literal(value: .integer(value: 3))
+        ))
         XCTAssertEqual(vector.rawValue, "std_logic_vector(5 downto 3)")
-        let stdULogicVector = RangedType.stdULogicVector(size: .downto(upper: 5, lower: 3))
+        let stdULogicVector = RangedType.stdULogicVector(size: .downto(
+            upper: .literal(value: .integer(value: 5)), lower: .literal(value: .integer(value: 3))
+        ))
         XCTAssertEqual(stdULogicVector.rawValue, "std_ulogic_vector(5 downto 3)")
-        let unsigned = RangedType.unsigned(size: .to(lower: 12, upper: 15))
+        let unsigned = RangedType.unsigned(size: .to(
+            lower: .literal(value: .integer(value: 12)), upper: .literal(value: .integer(value: 15))
+        ))
         XCTAssertEqual(unsigned.rawValue, "unsigned(12 to 15)")
     }
 
@@ -91,21 +103,30 @@ final class RangedTypeTests: XCTestCase {
     /// Test that a valid `bitVector` raw value creates the correct case.
     func testBitVector() {
         XCTAssertEqual(
-            RangedType(rawValue: "bit_vector(12 to 15)"), .bitVector(size: .to(lower: 12, upper: 15))
+            RangedType(rawValue: "bit_vector(12 to 15)"),
+            .bitVector(size: .to(
+                lower: .literal(value: .integer(value: 12)), upper: .literal(value: .integer(value: 15))
+            ))
         )
     }
 
     /// Test that a valid `integer` raw value creates the correct case.
     func testInteger() {
         XCTAssertEqual(
-            RangedType(rawValue: "integer range 12 to 15"), .integer(size: .to(lower: 12, upper: 15))
+            RangedType(rawValue: "integer range 12 to 15"),
+            .integer(size: .to(
+                lower: .literal(value: .integer(value: 12)), upper: .literal(value: .integer(value: 15))
+            ))
         )
     }
 
     /// Test upercased integer raw value creates the correct case.
     func testIntegerUppercased() {
         XCTAssertEqual(
-            RangedType(rawValue: "INTEGER RANGE 12 TO 15"), .integer(size: .to(lower: 12, upper: 15))
+            RangedType(rawValue: "INTEGER RANGE 12 TO 15"),
+            .integer(size: .to(
+                lower: .literal(value: .integer(value: 12)), upper: .literal(value: .integer(value: 15))
+            ))
         )
     }
 
@@ -123,7 +144,9 @@ final class RangedTypeTests: XCTestCase {
     func testSigned() {
         XCTAssertEqual(
             RangedType(rawValue: "signed(5 downto 3)"),
-            .signed(size: .downto(upper: 5, lower: 3))
+            .signed(size: .downto(
+                upper: .literal(value: .integer(value: 5)), lower: .literal(value: .integer(value: 3))
+            ))
         )
     }
 
@@ -131,7 +154,9 @@ final class RangedTypeTests: XCTestCase {
     func testStdULogicVector() {
         XCTAssertEqual(
             RangedType(rawValue: "std_ulogic_vector(5 downto 3)"),
-            .stdULogicVector(size: .downto(upper: 5, lower: 3))
+            .stdULogicVector(size: .downto(
+                upper: .literal(value: .integer(value: 5)), lower: .literal(value: .integer(value: 3))
+            ))
         )
     }
 
@@ -139,7 +164,9 @@ final class RangedTypeTests: XCTestCase {
     func testUnsigned() {
         XCTAssertEqual(
             RangedType(rawValue: "unsigned(5 downto 3)"),
-            .unsigned(size: .downto(upper: 5, lower: 3))
+            .unsigned(size: .downto(
+                upper: .literal(value: .integer(value: 5)), lower: .literal(value: .integer(value: 3))
+            ))
         )
     }
 
@@ -147,7 +174,9 @@ final class RangedTypeTests: XCTestCase {
     func testStdLogicVector() {
         XCTAssertEqual(
             RangedType(rawValue: "std_logic_vector(5 downto 3)"),
-            .stdLogicVector(size: .downto(upper: 5, lower: 3))
+            .stdLogicVector(size: .downto(
+                upper: .literal(value: .integer(value: 5)), lower: .literal(value: .integer(value: 3))
+            ))
         )
     }
 
@@ -155,7 +184,9 @@ final class RangedTypeTests: XCTestCase {
     func testStdLogicVectorUppercased() {
         XCTAssertEqual(
             RangedType(rawValue: "STD_LOGIC_VECTOR(5 DOWNTO 3)"),
-            .stdLogicVector(size: .downto(upper: 5, lower: 3))
+            .stdLogicVector(size: .downto(
+                upper: .literal(value: .integer(value: 5)), lower: .literal(value: .integer(value: 3))
+            ))
         )
     }
 
@@ -177,44 +208,68 @@ final class RangedTypeTests: XCTestCase {
     /// Test size property.
     func testSize() {
         XCTAssertEqual(
-            RangedType.bitVector(size: .to(lower: 12, upper: 15)).size,
-            .to(lower: 12, upper: 15)
+            RangedType.bitVector(size: .to(
+                lower: .literal(value: .integer(value: 12)), upper: .literal(value: .integer(value: 15))
+            )).size,
+            .to(lower: .literal(value: .integer(value: 12)), upper: .literal(value: .integer(value: 15)))
         )
         XCTAssertEqual(
-            RangedType.integer(size: .to(lower: 12, upper: 15)).size,
-            .to(lower: 12, upper: 15)
+            RangedType.integer(size: .to(
+                lower: .literal(value: .integer(value: 12)), upper: .literal(value: .integer(value: 15))
+            )).size,
+            .to(lower: .literal(value: .integer(value: 12)), upper: .literal(value: .integer(value: 15)))
         )
         XCTAssertEqual(
-            RangedType.signed(size: .downto(upper: 5, lower: 3)).size,
-            .downto(upper: 5, lower: 3)
+            RangedType.signed(size: .downto(
+                upper: .literal(value: .integer(value: 5)), lower: .literal(value: .integer(value: 3))
+            )).size,
+            .downto(upper: .literal(value: .integer(value: 5)), lower: .literal(value: .integer(value: 3)))
         )
         XCTAssertEqual(
-            RangedType.stdLogicVector(size: .downto(upper: 5, lower: 3)).size,
-            .downto(upper: 5, lower: 3)
+            RangedType.stdLogicVector(size: .downto(
+                upper: .literal(value: .integer(value: 5)), lower: .literal(value: .integer(value: 3))
+            )).size,
+            .downto(upper: .literal(value: .integer(value: 5)), lower: .literal(value: .integer(value: 3)))
         )
         XCTAssertEqual(
-            RangedType.stdULogicVector(size: .downto(upper: 5, lower: 3)).size,
-            .downto(upper: 5, lower: 3)
+            RangedType.stdULogicVector(size: .downto(
+                upper: .literal(value: .integer(value: 5)), lower: .literal(value: .integer(value: 3))
+            )).size,
+            .downto(upper: .literal(value: .integer(value: 5)), lower: .literal(value: .integer(value: 3)))
         )
         XCTAssertEqual(
-            RangedType.unsigned(size: .to(lower: 12, upper: 15)).size,
-            .to(lower: 12, upper: 15)
+            RangedType.unsigned(size: .to(
+                lower: .literal(value: .integer(value: 12)), upper: .literal(value: .integer(value: 15))
+            )).size,
+            .to(lower: .literal(value: .integer(value: 12)), upper: .literal(value: .integer(value: 15)))
         )
     }
 
     /// Test description matches rawValue.
     func testDesciption() {
-        let bitVector = RangedType.bitVector(size: .downto(upper: 5, lower: 3))
+        let bitVector = RangedType.bitVector(size: .downto(
+            upper: .literal(value: .integer(value: 5)), lower: .literal(value: .integer(value: 3))
+        ))
         XCTAssertEqual(bitVector.description, bitVector.rawValue)
-        let integer = RangedType.integer(size: .to(lower: 0, upper: 512))
+        let integer = RangedType.integer(size: .to(
+            lower: .literal(value: .integer(value: 0)), upper: .literal(value: .integer(value: 512))
+        ))
         XCTAssertEqual(integer.description, integer.rawValue)
-        let signed = RangedType.signed(size: .downto(upper: 5, lower: 3))
+        let signed = RangedType.signed(size: .downto(
+            upper: .literal(value: .integer(value: 5)), lower: .literal(value: .integer(value: 3))
+        ))
         XCTAssertEqual(signed.description, signed.rawValue)
-        let stdLogicVector = RangedType.stdLogicVector(size: .downto(upper: 5, lower: 3))
+        let stdLogicVector = RangedType.stdLogicVector(size: .downto(
+            upper: .literal(value: .integer(value: 5)), lower: .literal(value: .integer(value: 3))
+        ))
         XCTAssertEqual(stdLogicVector.description, stdLogicVector.rawValue)
-        let stdULogicVector = RangedType.stdULogicVector(size: .downto(upper: 5, lower: 3))
+        let stdULogicVector = RangedType.stdULogicVector(size: .downto(
+            upper: .literal(value: .integer(value: 5)), lower: .literal(value: .integer(value: 3))
+        ))
         XCTAssertEqual(stdULogicVector.description, stdULogicVector.rawValue)
-        let unsigned = RangedType.unsigned(size: .to(lower: 0, upper: 512))
+        let unsigned = RangedType.unsigned(size: .to(
+            lower: .literal(value: .integer(value: 0)), upper: .literal(value: .integer(value: 512))
+        ))
         XCTAssertEqual(unsigned.description, unsigned.rawValue)
     }
 

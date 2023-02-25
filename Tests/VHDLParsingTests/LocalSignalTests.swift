@@ -80,7 +80,7 @@ final class LocalSignalTests: XCTestCase {
 
     /// Test the init sets the stored properties correctly.
     func testInit() {
-        XCTAssertEqual(self.signal.type, .stdLogic)
+        XCTAssertEqual(self.signal.type, .signal(type: .stdLogic))
         XCTAssertEqual(self.signal.name, VariableName(text: "x"))
         XCTAssertEqual(self.signal.defaultValue, .literal(value: .logic(value: .high)))
         XCTAssertEqual(self.signal.comment, Comment(text: "The signal x."))
@@ -88,13 +88,17 @@ final class LocalSignalTests: XCTestCase {
 
     /// Test the getters and setters work correctly.
     func testGettersAndSetters() {
-        self.signal.type = .ranged(type: .stdLogicVector(size: .downto(upper: 3, lower: 0)))
+        self.signal.type = .signal(type: .ranged(type: .stdLogicVector(size: .downto(
+            upper: .literal(value: .integer(value: 3)), lower: .literal(value: .integer(value: 0))
+        ))))
         self.signal.name = VariableName(text: "y")
         self.signal.defaultValue = .literal(
             value: .vector(value: .bits(value: BitVector(values: [.low, .low, .low, .low])))
         )
         self.signal.comment = Comment(text: "The signal y.")
-        XCTAssertEqual(self.signal.type, .ranged(type: .stdLogicVector(size: .downto(upper: 3, lower: 0))))
+        XCTAssertEqual(self.signal.type, .signal(type: .ranged(type: .stdLogicVector(size: .downto(
+            upper: .literal(value: .integer(value: 3)), lower: .literal(value: .integer(value: 0))
+        )))))
         XCTAssertEqual(self.signal.name, VariableName(text: "y"))
         XCTAssertEqual(
             self.signal.defaultValue,
@@ -139,7 +143,9 @@ final class LocalSignalTests: XCTestCase {
         XCTAssertEqual(
             LocalSignal(rawValue: "signal x : std_logic_vector(3 downto 0); -- The signal x."),
             LocalSignal(
-                type: .ranged(type: .stdLogicVector(size: .downto(upper: 3, lower: 0))),
+                type: .ranged(type: .stdLogicVector(size: .downto(
+                    upper: .literal(value: .integer(value: 3)), lower: .literal(value: .integer(value: 0))
+                ))),
                 name: name,
                 defaultValue: nil,
                 comment: comment
@@ -148,7 +154,9 @@ final class LocalSignalTests: XCTestCase {
         XCTAssertEqual(
             LocalSignal(rawValue: "signal x : std_logic_vector(3 downto 0) := x\"4\"; -- The signal x."),
             LocalSignal(
-                type: .ranged(type: .stdLogicVector(size: .downto(upper: 3, lower: 0))),
+                type: .ranged(type: .stdLogicVector(size: .downto(
+                    upper: .literal(value: .integer(value: 3)), lower: .literal(value: .integer(value: 0))
+                ))),
                 name: name,
                 defaultValue: .literal(
                     value: .vector(value: .hexademical(value: HexVector(values: [.four])))
@@ -156,13 +164,19 @@ final class LocalSignalTests: XCTestCase {
                 comment: comment
             )
         )
-        XCTAssertNil(
-            LocalSignal(rawValue: "signal x : std_logic_vector(3 downto 0) := o\"4\"; -- The signal x.")
-        )
     }
 
     /// Test failing values for rawValue init.
     func testInvalidRawValueInit() {
+        XCTAssertEqual(
+            LocalSignal(rawValue: "signal x: NewType := '1';"),
+            LocalSignal(
+                type: .alias(name: VariableName(text: "NewType")),
+                name: VariableName(text: "x"),
+                defaultValue: .literal(value: .bit(value: .high)),
+                comment: nil
+            )
+        )
         XCTAssertNil(LocalSignal(rawValue: "signal x: std_logic := '1'; -- signal x.\n --"))
         XCTAssertNil(LocalSignal(rawValue: "signal ;"))
         XCTAssertNil(LocalSignal(rawValue: "signal x: std_logic := '1' := '0';"))
@@ -172,7 +186,9 @@ final class LocalSignalTests: XCTestCase {
         XCTAssertNil(LocalSignal(rawValue: " "))
         XCTAssertNil(LocalSignal(rawValue: "\n"))
         XCTAssertNil(LocalSignal(rawValue: "signal x: std_logic ::= '1';"))
-        XCTAssertNil(LocalSignal(rawValue: "signal x: std_logics := '1';"))
+        XCTAssertNil(
+            LocalSignal(rawValue: "signal x : std_logic_vector(3 downto 0) := o\"4\"; -- The signal x.")
+        )
     }
 
 }

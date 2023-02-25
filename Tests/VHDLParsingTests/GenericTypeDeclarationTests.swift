@@ -107,7 +107,9 @@ final class GenericTypeDeclarationTests: XCTestCase {
         XCTAssertEqual(GenericTypeDeclaration(rawValue: "x    :    std_logic     ;     "), generic)
         let complexGeneric = GenericTypeDeclaration(
             name: x,
-            type: .ranged(type: .stdLogicVector(size: .downto(upper: 7, lower: 0))),
+            type: .ranged(type: .stdLogicVector(size: .downto(
+                upper: .literal(value: .integer(value: 7)), lower: .literal(value: .integer(value: 0))
+            ))),
             defaultValue: .literal(value: .vector(value: .indexed(values: IndexedVector(
                 values: [IndexedValue(index: .others, value: .logic(value: .low))]
             ))))

@@ -62,10 +62,18 @@ final class ArchitectureHeadTests: XCTestCase {
 
     /// The architecture statements.
     let statements = [
-        Statement.definition(signal: LocalSignal(
+        Definition.signal(value: LocalSignal(
             type: .stdLogic, name: VariableName(text: "x"), defaultValue: nil, comment: nil
         )),
-        Statement.definition(signal: LocalSignal(
+        .component(value: ComponentDefinition(
+            name: VariableName(text: "C"),
+            port: PortBlock(signals: [
+                PortSignal(type: .stdLogic, name: VariableName(text: "a"), mode: .input),
+                PortSignal(type: .stdLogic, name: VariableName(text: "b"), mode: .output)
+            // swiftlint:disable:next force_unwrapping
+            ])!
+        )),
+        Definition.signal(value: LocalSignal(
             type: .stdLogic, name: VariableName(text: "y"), defaultValue: nil, comment: nil
         ))
     ]
@@ -88,6 +96,12 @@ final class ArchitectureHeadTests: XCTestCase {
     func testRawValue() {
         let expected = """
         signal x: std_logic;
+        component C is
+            port(
+                a: in std_logic;
+                b: out std_logic
+            );
+        end component;
         signal y: std_logic;
         """
         XCTAssertEqual(head.rawValue, expected)
@@ -97,10 +111,30 @@ final class ArchitectureHeadTests: XCTestCase {
     func testRawValueInit() {
         let raw = """
         signal x: std_logic;
+        component C is
+            port(
+                a: in std_logic;
+                b: out std_logic
+            );
+        end component;
         signal y: std_logic;
         """
         XCTAssertEqual(ArchitectureHead(rawValue: raw), head)
-        XCTAssertEqual(ArchitectureHead(rawValue: "signal x: std_logic;signal y: std_logic;"), head)
+        let inlineHead = ArchitectureHead(statements: [statements[0], statements[2]])
+        XCTAssertEqual(ArchitectureHead(rawValue: "signal x: std_logic;signal y: std_logic;"), inlineHead)
+        let raw2 = """
+        signal x: std_logic;
+        signal y: std_logic;
+        component C is
+            port(
+                a: in std_logic;
+                b: out std_logic
+            );
+        end component;
+        """
+        let expected = ArchitectureHead(statements: [statements[0], statements[2], statements[1]])
+        XCTAssertEqual(ArchitectureHead(rawValue: raw2), expected)
+        XCTAssertNil(ArchitectureHead(rawValue: String(raw2.dropLast())))
         XCTAssertNil(ArchitectureHead(rawValue: ";;"))
         XCTAssertNil(ArchitectureHead(rawValue: "signal x: std_logic; signal y;"))
         XCTAssertNil(ArchitectureHead(rawValue: ""))

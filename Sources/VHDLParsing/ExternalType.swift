@@ -11,6 +11,6 @@ import Foundation
 public protocol ExternalType {
 
     /// The mode of the external type.
-    var mode: Mode {get set}
+    var mode: Mode { get set }
 
 }

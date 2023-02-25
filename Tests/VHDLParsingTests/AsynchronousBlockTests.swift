@@ -70,25 +70,25 @@ final class AsynchronousBlockTests: XCTestCase {
     let clk = VariableName(text: "clk")
 
     /// An expression for `x`.
-    lazy var varX = Expression.variable(name: x)
+    lazy var varX = Expression.reference(variable: .variable(name: x))
 
     /// An expression for `y`.
-    lazy var varY = Expression.variable(name: y)
+    lazy var varY = Expression.reference(variable: .variable(name: y))
 
     /// An expression for `clk`.
-    lazy var varClk = Expression.variable(name: clk)
+    lazy var varClk = Expression.reference(variable: .variable(name: clk))
 
     /// Reset test data.
     override func setUp() {
         super.setUp()
-        varX = Expression.variable(name: x)
-        varY = Expression.variable(name: y)
-        varClk = Expression.variable(name: clk)
+        varX = Expression.reference(variable: .variable(name: x))
+        varY = Expression.reference(variable: .variable(name: y))
+        varClk = Expression.reference(variable: .variable(name: clk))
     }
 
     /// Test `rawValue` is correct.
     func testRawValue() {
-        let statement = Statement.assignment(name: x, value: varY)
+        let statement = Statement.assignment(name: .variable(name: x), value: varY)
         let block = AsynchronousBlock.statement(statement: statement)
         let blockRaw = "x <= y;"
         XCTAssertEqual(block.rawValue, blockRaw)
@@ -119,7 +119,7 @@ final class AsynchronousBlockTests: XCTestCase {
 
     /// Test raw value init for process.
     func testProcessRawValueInit() {
-        let statement = Statement.assignment(name: x, value: varY)
+        let statement = Statement.assignment(name: .variable(name: x), value: varY)
         let raw = """
         process (clk)
         begin
@@ -140,19 +140,32 @@ final class AsynchronousBlockTests: XCTestCase {
             )
         )
         XCTAssertEqual(AsynchronousBlock(rawValue: raw), process)
+        let raw2 = """
+        process (clk)
+        begin
+            if (rising_edge(clk)) then
+                x <= y;
+            end if;
+        end processs;
+        """
+        XCTAssertNil(AsynchronousBlock(rawValue: raw2))
+        XCTAssertNil(AsynchronousBlock(rawValue: ""))
+        XCTAssertNil(AsynchronousBlock(rawValue: String(repeating: "x", count: 4096)))
     }
 
     /// Test raw value init for statement.
     func testStatementRawValueInit() {
-        let statement = Statement.assignment(name: x, value: varY)
+        let statement = Statement.assignment(name: .variable(name: x), value: varY)
         let block = AsynchronousBlock.statement(statement: statement)
         let raw = "x <= y;"
         XCTAssertEqual(AsynchronousBlock(rawValue: raw), block)
+        XCTAssertNil(AsynchronousBlock(rawValue: "x <== y;"))
+        XCTAssertNil(AsynchronousBlock(rawValue: "x <= y;\nx <== y;"))
     }
 
     /// test raw value init for multiple statements.
     func testMultipleStatementsRawValueInit() {
-        let statement = Statement.assignment(name: x, value: varY)
+        let statement = Statement.assignment(name: .variable(name: x), value: varY)
         let block = AsynchronousBlock.statement(statement: statement)
         let raw = """
         x <= y;
@@ -164,7 +177,7 @@ final class AsynchronousBlockTests: XCTestCase {
 
     /// Test init works for multiple statements.
     func testMultipleRawValueInit() {
-        let statement = Statement.assignment(name: x, value: varY)
+        let statement = Statement.assignment(name: .variable(name: x), value: varY)
         let block = AsynchronousBlock.statement(statement: statement)
         let process = AsynchronousBlock.process(
             block: ProcessBlock(
@@ -177,8 +190,20 @@ final class AsynchronousBlockTests: XCTestCase {
                 )
             )
         )
+        let component = AsynchronousBlock.component(block: ComponentInstantiation(
+            label: VariableName(text: "comp1"),
+            name: VariableName(text: "C1"),
+            port: PortMap(variables: [
+                VariableMap(lhs: .variable(name: x), rhs: .reference(variable: .variable(name: y))),
+                VariableMap(lhs: .variable(name: VariableName(text: "z")), rhs: .open)
+            ])
+        ))
         let raw = """
         x <= y;
+        comp1: C1 port map (
+            x => y,
+            z => open
+        );
         process (clk)
         begin
             if (rising_edge(clk)) then
@@ -188,9 +213,42 @@ final class AsynchronousBlockTests: XCTestCase {
         x <= y;
         x <= y;
         """
-        let expected = AsynchronousBlock.blocks(blocks: [block, process, block, block])
+        let expected = AsynchronousBlock.blocks(blocks: [block, component, process, block, block])
         let result = AsynchronousBlock(rawValue: raw)
         XCTAssertEqual(result, expected)
+    }
+
+    /// Test `init(rawValue:)` when raw value is a component.
+    func testRawValueInitComponent() {
+        let component = AsynchronousBlock.component(block: ComponentInstantiation(
+            label: VariableName(text: "comp1"),
+            name: VariableName(text: "C1"),
+            port: PortMap(variables: [
+                VariableMap(lhs: .variable(name: x), rhs: .reference(variable: .variable(name: y))),
+                VariableMap(lhs: .variable(name: VariableName(text: "z")), rhs: .open)
+            ])
+        ))
+        let raw = """
+        comp1: C1 port map (
+            x => y,
+            z => open
+        );
+        """
+        XCTAssertEqual(AsynchronousBlock(rawValue: raw), component)
+        let raw2 = """
+        comp1: C1 port map (
+            x => y,
+            z => open
+        )
+        """
+        XCTAssertNil(AsynchronousBlock(rawValue: raw2))
+        let raw3 = """
+        comp1: C1 port map (
+            x => y,
+            z => open
+        ));
+        """
+        XCTAssertNil(AsynchronousBlock(rawValue: raw3))
     }
 
 }

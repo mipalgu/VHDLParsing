@@ -66,7 +66,7 @@ public struct CustomFunctionCall: FunctionCallable, Equatable, Hashable, Codable
 
     /// The `VHDL` code calling function `name` with `arguments`.
     @inlinable public var rawValue: String {
-        "\(self.name)(\(self.arguments.map(\.rawValue).joined(separator: ", ")))"
+        "\(self.name.rawValue)(\(self.arguments.map(\.rawValue).joined(separator: ", ")))"
     }
 
     /// Creates a new `CustomFunctionCall` with the given `name` and `arguments`.

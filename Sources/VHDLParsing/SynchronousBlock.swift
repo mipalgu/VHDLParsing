@@ -69,6 +69,9 @@ indirect public enum SynchronousBlock: RawRepresentable, Equatable, Hashable, Co
     /// A case statement.
     case caseStatement(block: CaseStatement)
 
+    /// A For loop.
+    case forLoop(loop: ForLoop)
+
     /// The `VHDL` code that performs this block.
     @inlinable public var rawValue: String {
         switch self {
@@ -80,6 +83,8 @@ indirect public enum SynchronousBlock: RawRepresentable, Equatable, Hashable, Co
             return statement.rawValue
         case .caseStatement(let block):
             return block.rawValue
+        case .forLoop(let loop):
+            return loop.rawValue
         }
     }
 
@@ -103,70 +108,93 @@ indirect public enum SynchronousBlock: RawRepresentable, Equatable, Hashable, Co
         guard trimmedString.contains(";") else {
             return nil
         }
-        if trimmedString.firstWord?.lowercased() == "case" {
+        let firstWord = trimmedString.firstWord?.lowercased()
+        switch firstWord {
+        case "case":
+            self.init(
+                trimmedString: trimmedString,
+                blockCreator: { .caseStatement(block: $0) },
+                beginningWith: ["case"],
+                endingWith: ["end", "case;"],
+                carry: carry
+            )
+        case "if":
+            self.init(
+                trimmedString: trimmedString,
+                blockCreator: { .ifStatement(block: $0) },
+                beginningWith: ["if"],
+                endingWith: ["end", "if;"],
+                carry: carry
+            )
+        case "for":
+            self.init(
+                trimmedString: trimmedString,
+                blockCreator: { .forLoop(loop: $0) },
+                beginningWith: ["for"],
+                endingWith: ["end", "loop;"],
+                carry: carry
+            )
+        default:
+            // Check for single semicolon.
             if
-                let caseStatement = CaseStatement(rawValue: trimmedString),
-                let newBlock = SynchronousBlock(carry: carry + [.caseStatement(block: caseStatement)])
+                trimmedString.firstIndex(of: ";") == trimmedString.lastIndex(of: ";"),
+                trimmedString.hasSuffix(";")
             {
+                guard
+                    let statement = Statement(rawValue: trimmedString),
+                    let newBlock = SynchronousBlock(carry: carry + [.statement(statement: statement)])
+                else {
+                    return nil
+                }
                 self = newBlock
                 return
             }
-            guard
-                let caseString = trimmedString.subExpression(
-                    beginningWith: ["case"], endingWith: ["end", "case;"]
-                ),
-                let caseStatement = CaseStatement(rawValue: String(caseString)),
-                caseString.endIndex < trimmedString.endIndex,
-                let remainingBlock = SynchronousBlock(
-                    rawValue: String(trimmedString[caseString.endIndex...]),
-                    carry: carry + [.caseStatement(block: caseStatement)]
-                )
-            else {
-                return nil
-            }
-            self = remainingBlock
-            return
+            self.init(multiple: trimmedString, carry: carry)
         }
-        if trimmedString.firstWord?.lowercased() == "if" {
-            if
-                let ifStatement = IfBlock(rawValue: trimmedString),
-                let newBlock = SynchronousBlock(carry: carry + [.ifStatement(block: ifStatement)])
-            {
-                self = newBlock
-                return
-            }
-            guard
-                let ifString = trimmedString.subExpression(beginningWith: ["if"], endingWith: ["end", "if;"]),
-                let ifStatement = IfBlock(rawValue: String(ifString)),
-                ifString.endIndex < trimmedString.endIndex,
-                let remainingBlock = SynchronousBlock(
-                    rawValue: String(trimmedString[ifString.endIndex...]),
-                    carry: carry + [.ifStatement(block: ifStatement)]
-                )
-            else {
-                return nil
-            }
-            self = remainingBlock
-            return
-        }
-        // Check for single semicolon.
-        if
-            trimmedString.firstIndex(of: ";") == trimmedString.lastIndex(of: ";"),
-            trimmedString.hasSuffix(";")
-        {
-            guard
-                let statement = Statement(rawValue: trimmedString),
-                let newBlock = SynchronousBlock(carry: carry + [.statement(statement: statement)])
-            else {
-                return nil
-            }
-            self = newBlock
-            return
-        }
-        self.init(multiple: trimmedString, carry: carry)
     }
 
     // swiftlint:enable function_body_length
+
+    /// Initialise a `SynchronousBlock` from it's `VHDL` representation that also contains sub-blocks. This
+    /// initialiser tries to create a specific sub-block specified by the input parameters. If that sub-block
+    /// cannot be created, it will return `nil`. This initialiser only work for multi-statement sub-blocks
+    /// such as `if`, `case` and `for` blocks.
+    /// - Parameters:
+    ///   - trimmedString: The remaining trimmed raw data yet to be parsed.
+    ///   - blockCreator: A function that creates the sub-block in the raw data.
+    ///   - beginningWith: The words beginning the sub-block.
+    ///   - endingWith: The words ending the sub-block.
+    ///   - carry: The sub-blocks already parsed in the raw value.
+    private init?<T>(
+        trimmedString: String,
+        blockCreator: (T) -> SynchronousBlock,
+        beginningWith: [String],
+        endingWith: [String],
+        carry: [SynchronousBlock]
+    ) where T: RawRepresentable, T.RawValue == String {
+        if
+            let type = T(rawValue: trimmedString),
+            let newBlock = SynchronousBlock(carry: carry + [blockCreator(type)])
+        {
+            self = newBlock
+            return
+        }
+        guard
+            let str = trimmedString.subExpression(
+                beginningWith: beginningWith, endingWith: endingWith
+            ),
+            let statement = T(rawValue: String(str)),
+            str.endIndex < trimmedString.endIndex,
+            let remainingBlock = SynchronousBlock(
+                rawValue: String(trimmedString[str.endIndex...]),
+                carry: carry + [blockCreator(statement)]
+            )
+        else {
+            return nil
+        }
+        self = remainingBlock
+        return
+    }
 
     /// Initialise a `rawValue` with multiple statements.
     /// - Parameters:

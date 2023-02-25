@@ -61,13 +61,13 @@ import XCTest
 final class BooleanExpressionTests: XCTestCase {
 
     /// A variable `x`.
-    let x = Expression.variable(name: VariableName(text: "x"))
+    let x = Expression.reference(variable: .variable(name: VariableName(text: "x")))
 
     /// A variable `y`.
-    let y = Expression.variable(name: VariableName(text: "y"))
+    let y = Expression.reference(variable: .variable(name: VariableName(text: "y")))
 
     /// A variable `z`.
-    let z = Expression.variable(name: VariableName(text: "z"))
+    let z = Expression.reference(variable: .variable(name: VariableName(text: "z")))
 
     /// Test the raw values generate the correct `VHDL` code.
     func testRawValue() {
@@ -327,11 +327,11 @@ final class BooleanExpressionTests: XCTestCase {
                     lhs: .precedence(value: .logical(operation: .not(
                         value: .precedence(value: .logical(operation: .and(
                             lhs: .conditional(condition: .comparison(value: .equality(
-                                lhs: .variable(name: VariableName(text: "statusIn")),
+                                lhs: .reference(variable: .variable(name: VariableName(text: "statusIn"))),
                                 rhs: .literal(value: .bit(value: .high))
                             ))),
                             rhs: .conditional(condition: .comparison(value: .equality(
-                                lhs: .variable(name: VariableName(text: "count")),
+                                lhs: .reference(variable: .variable(name: VariableName(text: "count"))),
                                 rhs: .literal(
                                     value: .vector(value: .bits(
                                         value: BitVector(values: [.low, .low, .high, .low])
@@ -342,7 +342,7 @@ final class BooleanExpressionTests: XCTestCase {
                     ))),
                     rhs: .precedence(value: .logical(operation: .not(
                         value: .precedence(value: .conditional(condition: .comparison(value: .equality(
-                            lhs: .variable(name: VariableName(text: "count")),
+                            lhs: .reference(variable: .variable(name: VariableName(text: "count"))),
                             rhs: .literal(value: .vector(
                                 value: .bits(value: BitVector(values: [.low, .low, .high, .high]))
                             ))

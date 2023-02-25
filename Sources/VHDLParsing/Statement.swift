@@ -58,14 +58,8 @@
 /// performed. A statement may be definitions, assignments to variables or comments.
 public enum Statement: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
-    /// A constant definition, e.g. `constant x: std_logic := '1';`.
-    case constant(value: ConstantSignal)
-
-    /// A definition of a signal, e.g. `signal x: std_logic;`.
-    case definition(signal: LocalSignal)
-
     /// Assigning a value to a variable that has been pre-defined, e.g. `a <= b + 1;`.
-    case assignment(name: VariableName, value: Expression)
+    case assignment(name: VariableReference, value: Expression)
 
     /// A comment, e.g. `-- This is a comment.`.
     case comment(value: Comment)
@@ -79,12 +73,8 @@ public enum Statement: RawRepresentable, Equatable, Hashable, Codable, Sendable 
     /// The `VHDL` code that performs this statement.
     @inlinable public var rawValue: String {
         switch self {
-        case .constant(let value):
-            return value.rawValue
-        case .definition(let signal):
-            return signal.rawValue
         case .assignment(let name, let value):
-            return "\(name) <= \(value.rawValue);"
+            return "\(name.rawValue) <= \(value.rawValue);"
         case .comment(let value):
             return value.rawValue
         case .null:
@@ -120,7 +110,7 @@ public enum Statement: RawRepresentable, Equatable, Hashable, Codable, Sendable 
             self = .comment(value: exp)
             return
         }
-       if trimmedString.contains("<=") {
+        if trimmedString.contains("<=") {
             let components = trimmedString.components(separatedBy: "<=")
             guard components.count == 2 else {
                 return nil
@@ -128,27 +118,12 @@ public enum Statement: RawRepresentable, Equatable, Hashable, Codable, Sendable 
             let expression = components[1].trimmingCharacters(in: .whitespacesAndNewlines)
             guard
                 expression.hasSuffix(";"),
-                let name = VariableName(rawValue: components[0]),
+                let name = VariableReference(rawValue: components[0]),
                 let exp = Expression(rawValue: String(expression.dropLast()))
             else {
                 return nil
             }
             self = .assignment(name: name, value: exp)
-            return
-        }
-        let value = trimmedString.lowercased()
-        if value.contains("constant ") {
-            guard let constant = ConstantSignal(rawValue: trimmedString) else {
-                return nil
-            }
-            self = .constant(value: constant)
-            return
-        }
-        if value.contains("signal ") {
-            guard let signal = LocalSignal(rawValue: trimmedString) else {
-                return nil
-            }
-            self = .definition(signal: signal)
             return
         }
         return nil

@@ -102,7 +102,9 @@ final class WhenCaseTests: XCTestCase {
             null;
         """
         let expected = WhenCase(
-            condition: .range(range: VectorSize.downto(upper: 3, lower: 0)),
+            condition: .range(range: VectorSize.downto(
+                upper: .literal(value: .integer(value: 3)), lower: .literal(value: .integer(value: 0))
+            )),
             code: .statement(statement: .null)
         )
         XCTAssertEqual(WhenCase(rawValue: raw2), expected)

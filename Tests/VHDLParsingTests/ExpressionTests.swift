@@ -78,19 +78,19 @@ final class ExpressionTests: XCTestCase {
     let ename = VariableName(text: "e")
 
     /// Expression `a`.
-    var a: Expression { .variable(name: aname) }
+    var a: Expression { .reference(variable: .variable(name: aname)) }
 
     /// Expression `b`.
-    var b: Expression { .variable(name: bname) }
+    var b: Expression { .reference(variable: .variable(name: bname)) }
 
     /// Expression `c`.
-    var c: Expression { .variable(name: cname) }
+    var c: Expression { .reference(variable: .variable(name: cname)) }
 
     /// Expression `d`.
-    var d: Expression { .variable(name: dname) }
+    var d: Expression { .reference(variable: .variable(name: dname)) }
 
     /// Expression `e`.
-    var e: Expression { .variable(name: ename) }
+    var e: Expression { .reference(variable: .variable(name: ename)) }
 
     /// Test raw values are correct.
     func testRawValues() {
@@ -121,6 +121,25 @@ final class ExpressionTests: XCTestCase {
         XCTAssertEqual(Expression(rawValue: "(a)"), .precedence(value: a))
         XCTAssertEqual(
             Expression(rawValue: "a * b"), .binary(operation: .multiplication(lhs: a, rhs: b))
+        )
+        XCTAssertEqual(
+            Expression(rawValue: "a(3 downto 0) * 5"),
+            .binary(operation: .multiplication(
+                lhs: .reference(variable: .indexed(name: aname, index: .range(value: .downto(
+                    upper: .literal(value: .integer(value: 3)), lower: .literal(value: .integer(value: 0))
+                )))),
+                rhs: .literal(value: .integer(value: 5))
+            ))
+        )
+        XCTAssertEqual(
+            Expression(rawValue: "5 * a(3 downto 0)"),
+            .binary(operation: .multiplication(
+                lhs: .literal(value: .integer(value: 5)),
+                rhs: .reference(variable: .indexed(name: aname, index: .range(value: .downto(
+                        upper: .literal(value: .integer(value: 3)),
+                        lower: .literal(value: .integer(value: 0))
+                ))))
+            ))
         )
         XCTAssertEqual(
             Expression(rawValue: "a / b"), .binary(operation: .division(lhs: a, rhs: b))
