@@ -115,6 +115,10 @@ final class VariableNameTests: XCTestCase {
         XCTAssertNil(VariableName(rawValue: "xor"))
         XCTAssertNil(VariableName(rawValue: "clk 12"))
         XCTAssertEqual(VariableName(rawValue: "x "), VariableName(text: "x"))
+        XCTAssertNil(VariableName(rawValue: "false"))
+        XCTAssertNil(VariableName(rawValue: "true"))
+        XCTAssertNil(VariableName(rawValue: "FALSE"))
+        XCTAssertNil(VariableName(rawValue: "TRUE"))
     }
 
 }

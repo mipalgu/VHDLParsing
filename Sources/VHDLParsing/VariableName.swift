@@ -91,7 +91,7 @@ public struct VariableName: RawRepresentable,
             let firstChar = trimmedName.unicodeScalars.first,
             CharacterSet.letters.contains(firstChar),
             trimmedName.unicodeScalars.allSatisfy({ allowedChars.contains($0) }),
-            !Set<String>.vhdlAllReservedWords.contains(trimmedName)
+            !Set<String>.vhdlAllReservedWords.contains(trimmedName.lowercased())
         else {
             return nil
         }
