@@ -8,6 +8,8 @@
 [![MacOS Monterey Swift Debug CI](https://github.com/mipalgu/VHDLParsing/actions/workflows/ci-macOS-debug.yml/badge.svg)](https://github.com/mipalgu/VHDLParsing/actions/workflows/ci-macOS-debug.yml)
 [![MacOS Monterey Swift Release CI](https://github.com/mipalgu/VHDLParsing/actions/workflows/ci-macOS-release.yml/badge.svg)](https://github.com/mipalgu/VHDLParsing/actions/workflows/ci-macOS-release.yml)
 [![Swift Lint](https://github.com/mipalgu/VHDLParsing/actions/workflows/swiftlint.yml/badge.svg)](https://github.com/mipalgu/VHDLParsing/actions/workflows/swiftlint.yml)
+[![MacOS Ventura Swift Debug CI](https://github.com/mipalgu/VHDLParsing/actions/workflows/ci-macOS13-debug.yml/badge.svg)](https://github.com/mipalgu/VHDLParsing/actions/workflows/ci-macOS13-debug.yml)
+[![MacOS Ventura Swift Release CI](https://github.com/mipalgu/VHDLParsing/actions/workflows/ci-macOS13-release.yml/badge.svg)](https://github.com/mipalgu/VHDLParsing/actions/workflows/ci-macOS13-release.yml)
 
 
 A `VHDL` parser written in `Swift`. This package parses `VHDL` files into a model that can be
