@@ -71,6 +71,15 @@ public enum BinaryOperation: RawRepresentable, Equatable, Hashable, Codable, Sen
     /// A division operation.
     case division(lhs: Expression, rhs: Expression)
 
+    /// The left-hand side operand in this binary operation.
+    @inlinable public var lhs: Expression {
+        switch self {
+        case .addition(let lhs, _), .subtraction(let lhs, _), .division(let lhs, _),
+            .multiplication(let lhs, _):
+            return lhs
+        }
+    }
+
     /// The `VHDL` code representing this operation.
     @inlinable public var rawValue: String {
         switch self {
@@ -82,6 +91,15 @@ public enum BinaryOperation: RawRepresentable, Equatable, Hashable, Codable, Sen
             return "\(lhs.rawValue) * \(rhs.rawValue)"
         case .division(let lhs, let rhs):
             return "\(lhs.rawValue) / \(rhs.rawValue)"
+        }
+    }
+
+    /// The right-hand side operand in this binary operation.
+    @inlinable public var rhs: Expression {
+        switch self {
+        case .addition(_, let rhs), .subtraction(_, let rhs), .division(_, let rhs),
+            .multiplication(_, let rhs):
+            return rhs
         }
     }
 

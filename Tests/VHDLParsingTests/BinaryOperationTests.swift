@@ -173,4 +173,20 @@ final class BinaryOperationTests: XCTestCase {
         XCTAssertNil(BinaryOperation(lhs: x, rhs: y, str: "^"))
     }
 
+    /// Test `lhs` computed property.
+    func testLHS() {
+        XCTAssertEqual(BinaryOperation.addition(lhs: x, rhs: y).lhs, x)
+        XCTAssertEqual(BinaryOperation.subtraction(lhs: x, rhs: y).lhs, x)
+        XCTAssertEqual(BinaryOperation.multiplication(lhs: x, rhs: y).lhs, x)
+        XCTAssertEqual(BinaryOperation.division(lhs: x, rhs: y).lhs, x)
+    }
+
+    /// Test `rhs` computed property.
+    func testRHS() {
+        XCTAssertEqual(BinaryOperation.addition(lhs: x, rhs: y).rhs, y)
+        XCTAssertEqual(BinaryOperation.subtraction(lhs: x, rhs: y).rhs, y)
+        XCTAssertEqual(BinaryOperation.multiplication(lhs: x, rhs: y).rhs, y)
+        XCTAssertEqual(BinaryOperation.division(lhs: x, rhs: y).rhs, y)
+    }
+
 }
