@@ -54,6 +54,9 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
+import Foundation
+import StringHelpers
+
 /// A struct for representing variables defined within a record.
 public struct RecordTypeDeclaration: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 

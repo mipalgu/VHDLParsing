@@ -54,6 +54,8 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
+import Foundation
+
 /// This type represents a value for a specific index in a vector type within `VHDL`. For example, consider a
 /// signal `x` with type `std_logic_vector(3 downto 0)`. We can assign specific bits within `x` by using the
 /// `VHDL` statement `x <= (3 => '1', others => '0');`. This statement says bit 3 of `x` should be set to 1

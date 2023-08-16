@@ -54,6 +54,9 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
+import Foundation
+import StringHelpers
+
 /// A structure for definine *synchronous* for loops. These are for loops that exist within a process block.
 public struct ForLoop: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 

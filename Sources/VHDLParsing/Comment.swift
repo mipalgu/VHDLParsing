@@ -55,6 +55,7 @@
 // 
 
 import Foundation
+import StringHelpers
 
 /// A single-lined VHDL comment.
 public struct Comment: RawRepresentable, CustomStringConvertible, Equatable, Hashable, Codable, Sendable {

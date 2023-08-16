@@ -54,6 +54,8 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
+import Foundation
+
 /// An index of a vector in `VHDL`. This type is designed to represent indexes in an assignment statement for
 /// a vector type. For example, you may have a signal `x` of type `std_logic_vector(7 downto 0)` that you
 /// want to assign a value to. In `VHDL`, you can do this with the statement `x <= (others => '0');`.

@@ -54,6 +54,8 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
+import Foundation
+
 /// A function call where the function being called exists within the `math_real` package.
 public enum MathRealFunctionCalls: FunctionCallable, Equatable, Hashable, Codable, Sendable {
 

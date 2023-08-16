@@ -54,6 +54,8 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
+import Foundation
+
 /// A type for representing VHDL vector sizes. This type is equivalent to the `range` of a VHDL vector type,
 /// e.g. *5 downto 3* or *3 to 5*.
 public enum VectorSize: RawRepresentable, Equatable, Hashable, Codable, Sendable {

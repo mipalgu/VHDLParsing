@@ -54,6 +54,9 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
+import Foundation
+import StringHelpers
+
 /// A `generic map` in `VHDL`. This is used to map generic variables to their values in a component.
 public struct GenericMap: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 

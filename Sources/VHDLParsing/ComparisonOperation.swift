@@ -54,6 +54,9 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
+import Foundation
+import StringHelpers
+
 /// A type for representing VHDL comparison operations. These operations exist within a
 /// ``ConditionalExpression``. The supported operations are:
 /// - Less than (operation <).

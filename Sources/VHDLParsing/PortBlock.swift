@@ -55,6 +55,7 @@
 // 
 
 import Foundation
+import StringHelpers
 
 /// A port statement in `VHDL`.
 public struct PortBlock: RawRepresentable, Equatable, Hashable, Codable, Sendable {

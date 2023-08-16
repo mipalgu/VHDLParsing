@@ -55,6 +55,7 @@
 // 
 
 import Foundation
+import StringHelpers
 
 /// Valid VHDL variable names. This struct represents a valid VHDL variable name. It is impossible to create
 /// an invalid name using the public interface of this struct.

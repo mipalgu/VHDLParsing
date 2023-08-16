@@ -54,6 +54,9 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
+import Foundation
+import StringHelpers
+
 /// A type for defining types of references to a variable.
 public enum VariableReference: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 

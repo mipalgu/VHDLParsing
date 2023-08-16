@@ -54,6 +54,8 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
+import Foundation
+
 /// A literal string that represents hexadecimal values for assignment into a vector in `VHDL`.
 public struct HexVector: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 

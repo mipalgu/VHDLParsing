@@ -54,6 +54,9 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
+import Foundation
+import StringHelpers
+
 /// An operation that maps 2 generics together. This operation is used in generic maps for components.
 public struct GenericVariableMap: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 

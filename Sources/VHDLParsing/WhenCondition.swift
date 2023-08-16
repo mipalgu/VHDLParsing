@@ -54,6 +54,9 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
+import Foundation
+import StringHelpers
+
 /// A condition that can be used in a `when` statement.
 public enum WhenCondition: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 

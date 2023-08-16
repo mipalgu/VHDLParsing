@@ -54,6 +54,9 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
+import Foundation
+import StringHelpers
+
 /// A definition of a custom type.
 public enum TypeDefinition: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 

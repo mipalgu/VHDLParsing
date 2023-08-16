@@ -54,6 +54,8 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
+import Foundation
+
 /// Valid VHDL Signal types.
 public enum SignalType: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 

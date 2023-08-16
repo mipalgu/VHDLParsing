@@ -54,6 +54,8 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
+import Foundation
+
 /// A type for representing a ``VectorLiteral`` of octal values.
 public struct OctalVector: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 

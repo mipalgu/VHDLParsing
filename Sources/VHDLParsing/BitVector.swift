@@ -54,6 +54,8 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
+import Foundation
+
 /// A ``VectorLiteral`` of ``BitLiteral`` values.
 public struct BitVector: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 

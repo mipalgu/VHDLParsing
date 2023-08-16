@@ -54,6 +54,9 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
+import Foundation
+import StringHelpers
+
 /// A `port map` declaration in `VHDL`. This block represents the connections to the port signals in a
 /// component instantiation.
 public struct PortMap: RawRepresentable, Equatable, Hashable, Codable, Sendable {

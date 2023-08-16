@@ -54,6 +54,9 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
+import Foundation
+import StringHelpers
+
 /// A definition of a `VHDL` component that can be instantiated in the architecture body.
 public struct ComponentDefinition: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 

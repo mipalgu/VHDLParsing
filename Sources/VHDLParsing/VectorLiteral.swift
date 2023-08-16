@@ -54,6 +54,8 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
+import Foundation
+
 /// A vector literal is a string of bits, hexademical digits, or octal digits. This enum allows VHDL signal
 /// literal values to be represented.
 public enum VectorLiteral: RawRepresentable, Equatable, Hashable, Codable, Sendable {

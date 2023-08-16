@@ -54,6 +54,9 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
+import Foundation
+import StringHelpers
+
 /// A type representing a generic type declaration inside a generic block in `VHDL`. This struct parses and
 /// represents individual generic types within an entity.
 public struct GenericTypeDeclaration: RawRepresentable, Equatable, Hashable, Codable, Sendable {
