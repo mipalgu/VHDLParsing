@@ -123,6 +123,9 @@ public struct LocalSignal: RawRepresentable, Codable, Equatable, Hashable, Senda
     private init?(declaration: String, defaultValue: String? = nil, comment: Comment? = nil) {
         let signalComponents = declaration.components(separatedBy: .whitespacesAndNewlines)
         let value = Expression(rawValue: defaultValue ?? "")
+        if defaultValue != nil, value == nil {
+            return nil
+        }
         guard signalComponents.count >= 2 else {
             return nil
         }
