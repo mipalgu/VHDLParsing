@@ -189,6 +189,7 @@ final class LocalSignalTests: XCTestCase {
         XCTAssertNil(
             LocalSignal(rawValue: "signal x : std_logic_vector(3 downto 0) := o\"4\"; -- The signal x.")
         )
+        XCTAssertNil(LocalSignal(rawValue: "signal \(String(repeating: "x", count: 2048)): std_logic;"))
     }
 
 }

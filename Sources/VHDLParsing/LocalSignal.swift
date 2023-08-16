@@ -78,7 +78,7 @@ public struct LocalSignal: RawRepresentable, Codable, Equatable, Hashable, Senda
     public init?(rawValue: String) {
         let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
         guard
-            trimmedString.count < 256, trimmedString.hasPrefix("signal "), trimmedString.contains(";")
+            trimmedString.count < 2048, trimmedString.hasPrefix("signal "), trimmedString.contains(";")
         else {
             return nil
         }
