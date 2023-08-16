@@ -114,7 +114,7 @@ final class DefinitionTests: XCTestCase {
         XCTAssertNil(Definition(rawValue: " "))
         XCTAssertNil(Definition(rawValue: "constant "))
         XCTAssertNil(
-            Definition(rawValue: "constant \(String(repeating: "x", count: 256)): std_logic := '1';")
+            Definition(rawValue: "constant \(String(repeating: "x", count: 2048)): std_logic := '1';")
         )
     }
 

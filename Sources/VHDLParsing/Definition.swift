@@ -91,7 +91,7 @@ public enum Definition: RawRepresentable, Equatable, Hashable, Codable, Sendable
     @inlinable
     public init?(rawValue: String) {
         let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard trimmedString.count < 256 else {
+        guard trimmedString.count < 2048 else {
             return nil
         }
         let firstWord = trimmedString.firstWord?.lowercased()
