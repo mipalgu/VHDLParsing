@@ -130,4 +130,24 @@ final class IndexedVectorTests: XCTestCase {
         XCTAssertNil(IndexedVector(rawValue: "\n"))
     }
 
+    /// Test `init(rawValue:)` works for mixed types indexes.
+    func testRawValueForMixedIndexes() {
+        let raw = "(0 => a, 1 to 2 => \"UZ\", others => '0')"
+        let expected = IndexedVector(values: [
+            IndexedValue(
+                index: .index(value: .literal(value: .integer(value: 0))),
+                value: .reference(variable: .variable(name: VariableName(text: "a")))
+            ),
+            IndexedValue(
+                index: .range(value: .to(
+                    lower: .literal(value: .integer(value: 1)), upper: .literal(value: .integer(value: 2))
+                )),
+                value: .vector(value: .logics(value: LogicVector(values: [.uninitialized, .highImpedance])))
+            ),
+            IndexedValue(index: .others, value: .bit(value: .low))
+        ])
+        let result = IndexedVector(rawValue: raw)
+        XCTAssertEqual(result, expected)
+    }
+
 }
