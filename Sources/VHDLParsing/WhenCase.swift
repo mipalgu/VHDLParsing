@@ -54,6 +54,9 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
+import Foundation
+import StringHelpers
+
 /// A single when case including the code within it. The when statement exists within a case statement and
 /// represents code that is executed under a specific condition.
 public struct WhenCase: RawRepresentable, Equatable, Hashable, Codable, Sendable {
