@@ -415,6 +415,35 @@ final class ExpressionTests: XCTestCase {
         )))
     }
 
+    /// Tests that `isValidOtherValue` correctly identifies valid other values.
+    func testIsValidOtherValue() {
+        XCTAssertTrue(Expression.binary(operation: .addition(lhs: a, rhs: b)).isValidOtherValue)
+        XCTAssertTrue(Expression.cast(operation: .bit(expression: a)).isValidOtherValue)
+        XCTAssertFalse(Expression.cast(operation: .boolean(expression: a)).isValidOtherValue)
+        XCTAssertFalse(
+            Expression.conditional(condition: .edge(value: .falling(expression: a))).isValidOtherValue
+        )
+        XCTAssertTrue(
+            Expression.functionCall(
+                call: .custom(function: CustomFunctionCall(name: VariableName(text: "a"), arguments: []))
+            ).isValidOtherValue
+        )
+        XCTAssertFalse(Expression.logical(operation: .and(lhs: a, rhs: b)).isValidOtherValue)
+        XCTAssertTrue(Expression.literal(value: .bit(value: .low)).isValidOtherValue)
+        XCTAssertTrue(Expression.literal(value: .logic(value: .high)).isValidOtherValue)
+        XCTAssertFalse(Expression.literal(value: .boolean(value: false)).isValidOtherValue)
+        XCTAssertTrue(Expression.precedence(value: a).isValidOtherValue)
+        XCTAssertTrue(
+            Expression.reference(variable: .variable(name: VariableName(text: "a"))).isValidOtherValue
+        )
+        XCTAssertFalse(Expression.reference(variable: .indexed(
+            name: VariableName(text: "a"), index: .range(value: .downto(upper: a, lower: b))
+        )).isValidOtherValue)
+        XCTAssertTrue(Expression.reference(variable: .indexed(
+            name: VariableName(text: "a"), index: .index(value: a)
+        )).isValidOtherValue)
+    }
+
 }
 
 // swiftlint:enable type_body_length
