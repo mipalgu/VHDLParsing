@@ -54,6 +54,8 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
+import Foundation
+
 /// This type represents `VHDL` code that is enacting a function call.
 public enum FunctionCall: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 

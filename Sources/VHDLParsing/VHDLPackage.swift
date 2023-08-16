@@ -54,6 +54,9 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
+import Foundation
+import StringHelpers
+
 /// A struct representing a package definition in `VHDL`. This struct does not represent the body definition,
 /// i.e. using `package body <name> is` in `VHDL`.
 public struct VHDLPackage: RawRepresentable, Equatable, Hashable, Codable, Sendable {

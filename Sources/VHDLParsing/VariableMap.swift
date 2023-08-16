@@ -54,6 +54,9 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
+import Foundation
+import StringHelpers
+
 /// An operation that maps 2 signals together. This operation is used in generic maps or port maps for
 /// components.
 public struct VariableMap: RawRepresentable, Equatable, Hashable, Codable, Sendable {

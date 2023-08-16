@@ -54,6 +54,8 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
+import Foundation
+
 /// The possible values for a single bit logic value in `VHDL`.
 public enum LogicLiteral: String, Equatable, Hashable, Codable, Sendable {
 

@@ -54,6 +54,9 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
+import Foundation
+import StringHelpers
+
 /// A record type definition.
 public struct Record: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 

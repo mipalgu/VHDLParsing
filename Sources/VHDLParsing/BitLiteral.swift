@@ -54,6 +54,8 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
+import Foundation
+
 /// Type for expressing single-bit bit values in *VHDL*.
 public enum BitLiteral: String, Equatable, Hashable, Codable, Sendable {
 

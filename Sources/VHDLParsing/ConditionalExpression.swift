@@ -54,6 +54,8 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
+import Foundation
+
 /// A type for representing expression that can be used in a conditional statement.
 public enum ConditionalExpression: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 

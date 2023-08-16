@@ -54,6 +54,8 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
+import StringHelpers
+
 /// A cast operation converting an expression to a specific ``SignalType``.
 public enum CastOperation: FunctionCallable, Equatable, Hashable, Codable, Sendable {
 

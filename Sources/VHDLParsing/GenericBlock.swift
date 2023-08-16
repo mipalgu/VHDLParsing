@@ -54,6 +54,9 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
+import Foundation
+import StringHelpers
+
 /// A struct for representing generic declarations in an entity/component block.
 public struct GenericBlock: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 

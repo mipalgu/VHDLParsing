@@ -54,6 +54,9 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
+import Foundation
+import StringHelpers
+
 /// A type for representing VHDL include statements.
 public enum Include: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 

@@ -60,34 +60,22 @@ import Foundation
 extension CharacterSet {
 
     /// The allowed characters for `VHDL` variable names.
-    @inlinable public static var variableNames: CharacterSet {
-        CharacterSet.alphanumerics.union(CharacterSet(charactersIn: "_"))
-    }
+    public static let variableNames = CharacterSet.alphanumerics.union(CharacterSet(charactersIn: "_"))
 
     /// The VHDL operators with additive precedence.
-    @inlinable public static var vhdlAdditiveOperations: CharacterSet {
-        CharacterSet(charactersIn: "+-")
-    }
+    public static let vhdlAdditiveOperations = CharacterSet(charactersIn: "+-")
 
     /// The `VHDL` comparison operators (<, >, =).
-    @inlinable public static var vhdlComparisonOperations: CharacterSet {
-        CharacterSet(charactersIn: "=<>")
-    }
+    public static let vhdlComparisonOperations = CharacterSet(charactersIn: "=<>")
 
     /// The VHDL operators with multiplicative precedence.
-    @inlinable public static var vhdlMultiplicativeOperations: CharacterSet {
-        CharacterSet(charactersIn: "*/")
-    }
+    public static let vhdlMultiplicativeOperations = CharacterSet(charactersIn: "*/")
 
     /// All VHDL operators.
-    @inlinable public static var vhdlOperators: CharacterSet {
-        CharacterSet(charactersIn: "+-/*()")
-    }
+    public static let vhdlOperators = CharacterSet(charactersIn: "+-/*()")
 
     /// The VHDL binary operators.
-    @inlinable public static var vhdlOperations: CharacterSet {
-        CharacterSet(charactersIn: "+-/*")
-    }
+    public static let vhdlOperations = CharacterSet(charactersIn: "+-/*")
 
     /// Whether a string contains characters in this character set.
     /// - Parameter string: The string to check.

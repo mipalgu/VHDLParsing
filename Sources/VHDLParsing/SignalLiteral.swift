@@ -54,6 +54,8 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
+import Foundation
+
 /// A type for representing all signal literals.
 public enum SignalLiteral: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 

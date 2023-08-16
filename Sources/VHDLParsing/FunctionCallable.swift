@@ -54,6 +54,9 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
+import Foundation
+import StringHelpers
+
 /// Helper protocol for defining types that can be executed as a function call.
 public protocol FunctionCallable: RawRepresentable {
 

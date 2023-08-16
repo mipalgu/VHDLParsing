@@ -55,6 +55,7 @@
 // 
 
 import Foundation
+import StringHelpers
 
 /// An `Expression` represents a stand-alone statement that resolves to some value in `VHDL`. Typical
 /// expressions would include all operations after the `<=` symbol in a `VHDL` assignment operation. Some

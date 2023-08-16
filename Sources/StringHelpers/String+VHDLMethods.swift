@@ -63,12 +63,12 @@ extension String {
     public static let tab = "    "
 
     /// A `VHDL` null block in a case statement.
-    @inlinable public static var nullBlock: String {
+    public static let nullBlock = {
         """
         when others =>
         \(String.tab)null;
         """
-    }
+    }()
 
     /// Get the first word in the string.
     @inlinable public var firstWord: String? {

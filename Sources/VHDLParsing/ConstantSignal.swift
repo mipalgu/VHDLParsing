@@ -55,6 +55,7 @@
 // 
 
 import Foundation
+import StringHelpers
 
 /// A type representing a valid constant declaration in `VHDL`.
 public struct ConstantSignal: RawRepresentable, Equatable, Hashable, Codable, Sendable {

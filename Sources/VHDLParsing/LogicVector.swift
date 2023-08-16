@@ -54,6 +54,8 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
+import Foundation
+
 /// A type for representing a ``VectorLiteral`` of `std_logic` values (``LogicLiteral``).
 public struct LogicVector: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 

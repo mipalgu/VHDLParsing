@@ -54,6 +54,8 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
+import Foundation
+
 /// A variable assignment exists within a port map and is used to assign a port to a variable. This enum
 /// also contains the `open` case in `VHDL` that is valid for port signals.
 public enum VariableAssignment: RawRepresentable, Equatable, Hashable, Codable, Sendable {

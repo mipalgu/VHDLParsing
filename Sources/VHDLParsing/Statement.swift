@@ -54,6 +54,8 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
+import Foundation
+
 /// A statement is a a full operation that contains expressions that resolve to some value or logic that is
 /// performed. A statement may be definitions, assignments to variables or comments.
 public enum Statement: RawRepresentable, Equatable, Hashable, Codable, Sendable {

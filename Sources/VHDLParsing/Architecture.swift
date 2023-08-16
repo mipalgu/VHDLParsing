@@ -54,6 +54,9 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
+import Foundation
+import StringHelpers
+
 /// An architecture block in `VHDL`.
 public struct Architecture: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
