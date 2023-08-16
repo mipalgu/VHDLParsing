@@ -129,7 +129,7 @@ indirect public enum Expression: RawRepresentable,
     @inlinable
     public init?(rawValue: String) {
         let value = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard value.count < 256 else {
+        guard value.count < 2048 else {
             return nil
         }
         if let literal = SignalLiteral(rawValue: value) {

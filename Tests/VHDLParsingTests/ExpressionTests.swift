@@ -176,7 +176,7 @@ final class ExpressionTests: XCTestCase {
         XCTAssertNil(Expression(rawValue: "\n"))
         XCTAssertNil(Expression(rawValue: "a + ()"))
         XCTAssertNil(Expression(rawValue: "(a + b"))
-        XCTAssertNil(Expression(rawValue: String(repeating: "a", count: 256)))
+        XCTAssertNil(Expression(rawValue: String(repeating: "a", count: 2048)))
         XCTAssertNil(Expression(rawValue: "-- a\n-- b"))
         XCTAssertNil(Expression(rawValue: "a + b--;"))
         XCTAssertNil(Expression(rawValue: "a + b;-- a\n--b"))
