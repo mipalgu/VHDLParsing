@@ -55,6 +55,7 @@
 // 
 
 import Foundation
+import StringHelpers
 
 /// This type represents a value for a specific index in a vector type within `VHDL`. For example, consider a
 /// signal `x` with type `std_logic_vector(3 downto 0)`. We can assign specific bits within `x` by using the
@@ -83,11 +84,20 @@ public struct IndexedValue: RawRepresentable, Equatable, Hashable, Codable, Send
         guard value.count < 256 else {
             return nil
         }
-        let subComponents = value.components(separatedBy: "=>")
-        guard subComponents.count == 2, let index = VectorIndex(rawValue: subComponents[0]) else {
+        guard
+            let operatorIndex = value.indexes(for: ["=>"]).first,
+            value.endIndex > value.startIndex,
+            operatorIndex.1 < value.index(before: value.endIndex),
+            operatorIndex.0 > value.startIndex
+        else {
             return nil
         }
-        var bitString = subComponents[1].trimmingCharacters(in: .whitespacesAndNewlines)
+        let lhs = String(value[..<operatorIndex.0])
+        let rhs = String(value[operatorIndex.1...])
+        guard let index = VectorIndex(rawValue: lhs) else {
+            return nil
+        }
+        var bitString = rhs.trimmingCharacters(in: .whitespacesAndNewlines)
         if bitString.hasSuffix(",") {
             bitString = String(bitString.dropLast())
         }

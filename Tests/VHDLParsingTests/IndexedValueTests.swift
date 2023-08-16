@@ -123,6 +123,15 @@ final class IndexedValueTests: XCTestCase {
             IndexedValue(rawValue: "others => 'U'"),
             IndexedValue(index: .others, value: .logic(value: .uninitialized))
         )
+        XCTAssertEqual(
+            IndexedValue(rawValue: "x => (others => '0')"),
+            IndexedValue(
+                index: .index(value: .reference(variable: .variable(name: VariableName(text: "x")))),
+                value: .literal(value: .vector(value: .indexed(values: IndexedVector(
+                    values: [IndexedValue(index: .others, value: .bit(value: .low))]
+                ))))
+            )
+        )
         XCTAssertNil(IndexedValue(rawValue: "others => '1' => '0'"))
         XCTAssertNil(IndexedValue(rawValue: "2 => '1', others => '0'"))
         XCTAssertNil(IndexedValue(rawValue: ""))
