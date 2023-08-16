@@ -101,7 +101,7 @@ final class VectorLiteralTests: XCTestCase {
 
     /// Test that a long rawValue returns nil in the init.
     func testLongRawValueReturnsNilInInit() {
-        XCTAssertNil(VectorLiteral(rawValue: "\"" + String(repeating: "1", count: 257) + "\""))
+        XCTAssertNil(VectorLiteral(rawValue: "\"" + String(repeating: "1", count: 2048) + "\""))
     }
 
     /// Test that rawValue with incorrect prefix and suffic returns nil in init.

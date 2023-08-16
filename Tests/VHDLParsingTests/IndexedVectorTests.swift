@@ -87,6 +87,9 @@ final class IndexedVectorTests: XCTestCase {
         XCTAssertEqual(IndexedVector(rawValue: " (3 => '1', others => '0')"), literal)
         XCTAssertEqual(IndexedVector(rawValue: "(3 => '1', others => '0') "), literal)
         XCTAssertEqual(IndexedVector(rawValue: " (3 => '1', others => '0') "), literal)
+        XCTAssertNil(IndexedVector(
+            rawValue: "(0 to 2047 => \"\(String(repeating: "1", count: 2048))\", others => '0')"
+        ))
         XCTAssertEqual(
             IndexedVector(rawValue: "(others => '0')"),
             IndexedVector(values: [IndexedValue(index: .others, value: .bit(value: .low))])

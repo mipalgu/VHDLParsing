@@ -115,7 +115,7 @@ public enum VectorLiteral: RawRepresentable, Equatable, Hashable, Codable, Senda
     @inlinable
     public init?(rawValue: String) {
         let value = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard value.count < 256 else {
+        guard value.count < 2048 else {
             return nil
         }
         if let vector = IndexedVector(rawValue: value) {

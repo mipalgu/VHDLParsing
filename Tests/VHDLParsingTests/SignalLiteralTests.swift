@@ -122,7 +122,7 @@ final class SignalLiteralTests: XCTestCase {
 
     /// Test a long string returns nil.
     func testLongStringReturnsNil() {
-        let raw = "\"" + String(repeating: "1", count: 256) + "\""
+        let raw = "\"" + String(repeating: "1", count: 2048) + "\""
         XCTAssertNil(SignalLiteral(rawValue: raw))
     }
 

@@ -85,7 +85,7 @@ public struct IndexedVector: RawRepresentable, Equatable, Hashable, Codable, Sen
     @inlinable
     public init?(rawValue: String) {
         let value = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard value.count < 256, value.hasPrefix("("), value.hasSuffix(")") else {
+        guard value.count < 2048, value.hasPrefix("("), value.hasSuffix(")") else {
             return nil
         }
         let values = String(value.dropLast().dropFirst()).withoutComments

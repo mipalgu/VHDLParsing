@@ -103,7 +103,7 @@ public enum SignalLiteral: RawRepresentable, Equatable, Hashable, Codable, Senda
     @inlinable
     public init?(rawValue: String) {
         let trimmedCharacters = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard trimmedCharacters.count < 256 else {
+        guard trimmedCharacters.count < 2048 else {
             return nil
         }
         let value = trimmedCharacters.lowercased()
