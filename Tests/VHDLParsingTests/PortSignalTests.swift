@@ -86,7 +86,7 @@ final class PortSignalTests: XCTestCase {
             XCTFail("Failed to create comment.")
             return
         }
-        XCTAssertEqual(self.signal.type, .stdLogic)
+        XCTAssertEqual(self.signal.type, .signal(type: .stdLogic))
         XCTAssertEqual(self.signal.name, VariableName(text: "x"))
         XCTAssertEqual(self.signal.mode, .output)
         XCTAssertEqual(self.signal.defaultValue, .literal(value: .logic(value: .high)))
@@ -99,18 +99,18 @@ final class PortSignalTests: XCTestCase {
             XCTFail("Failed to create comment.")
             return
         }
-        self.signal.type = .ranged(type: .stdLogicVector(size: .downto(
+        self.signal.type = .signal(type: .ranged(type: .stdLogicVector(size: .downto(
             upper: .literal(value: .integer(value: 7)), lower: .literal(value: .integer(value: 0))
-        )))
+        ))))
         self.signal.name = VariableName(text: "y")
         self.signal.mode = .input
         self.signal.defaultValue = .literal(
             value: .vector(value: .hexademical(value: HexVector(values: [.ten, .ten])))
         )
         self.signal.comment = comment
-        XCTAssertEqual(self.signal.type, .ranged(type: .stdLogicVector(size: .downto(
+        XCTAssertEqual(self.signal.type, .signal(type: .ranged(type: .stdLogicVector(size: .downto(
             upper: .literal(value: .integer(value: 7)), lower: .literal(value: .integer(value: 0))
-        ))))
+        )))))
         XCTAssertEqual(self.signal.name, VariableName(text: "y"))
         XCTAssertEqual(self.signal.mode, .input)
         XCTAssertEqual(
@@ -164,9 +164,9 @@ final class PortSignalTests: XCTestCase {
 
     /// Test rawValue init works for vector types.
     func testRawValueInitVectorType() {
-        signal.type = .ranged(type: .stdLogicVector(size: .downto(
+        signal.type = .signal(type: .ranged(type: .stdLogicVector(size: .downto(
             upper: .literal(value: .integer(value: 3)), lower: .literal(value: .integer(value: 0))
-        )))
+        ))))
         XCTAssertEqual(
             PortSignal(rawValue: "x: out std_logic_vector(3 downto 0) := '1'; -- signal x"), signal
         )

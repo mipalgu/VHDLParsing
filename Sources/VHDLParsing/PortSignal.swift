@@ -12,7 +12,7 @@ import Foundation
 public struct PortSignal: ExternalType, RawRepresentable, Codable, Hashable, Sendable {
 
     /// The type of the signal.
-    public var type: SignalType
+    public var type: Type
 
     /// The name of the signal.
     public var name: VariableName
@@ -36,9 +36,9 @@ public struct PortSignal: ExternalType, RawRepresentable, Codable, Hashable, Sen
         return declaration + " := \(defaultValue.rawValue);\(comment)"
     }
 
-    /// Initialises a new external signal with the given type, name, mode, default value and comment.
+    /// Initialises a new external signal with the given signal type, name, mode, default value and comment.
     /// - Parameters:
-    ///   - type: The type of the signal.
+    ///   - type: The ``SignalType`` of the signal.
     ///   - name: The name of the signal.
     ///   - mode: The mode of the signal.
     ///   - defaultValue: The default value of the signal.
@@ -50,6 +50,22 @@ public struct PortSignal: ExternalType, RawRepresentable, Codable, Hashable, Sen
         mode: Mode,
         defaultValue: Expression? = nil,
         comment: Comment? = nil
+    ) {
+        self.init(
+            type: .signal(type: type), name: name, mode: mode, defaultValue: defaultValue, comment: comment
+        )
+    }
+
+    /// Initialises a new external signal with the given type, name, mode, default value and comment.
+    /// - Parameters:
+    ///   - type: The type of the signal.
+    ///   - name: The name of the signal.
+    ///   - mode: The mode of the signal.
+    ///   - defaultValue: The default value of the signal.
+    ///   - comment: The comment of the signal.
+    @inlinable
+    public init(
+        type: Type, name: VariableName, mode: Mode, defaultValue: Expression? = nil, comment: Comment? = nil
     ) {
         self.type = type
         self.name = name
@@ -96,7 +112,7 @@ public struct PortSignal: ExternalType, RawRepresentable, Codable, Hashable, Sen
         }
         let nameString = hasColonComponents ? nameComponents : String(nameComponents.dropLast())
         guard
-            let name = VariableName(rawValue: nameString), let type = SignalType(rawValue: typeString)
+            let name = VariableName(rawValue: nameString), let type = Type(rawValue: typeString)
         else {
             return nil
         }
