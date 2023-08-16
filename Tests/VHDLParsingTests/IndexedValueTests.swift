@@ -66,7 +66,14 @@ final class IndexedValueTests: XCTestCase {
     /// Test initialiser sets stored properties correctly.
     func testInit() {
         XCTAssertEqual(value.index, .others)
-        XCTAssertEqual(value.value, .bit(value: .high))
+        XCTAssertEqual(value.value, .literal(value: .bit(value: .high)))
+    }
+
+    /// Test the expression initialiser.
+    func testExpressionInit() {
+        let value = IndexedValue(index: .others, value: .literal(value: .bit(value: .high)))
+        XCTAssertEqual(value.index, .others)
+        XCTAssertEqual(value.value, .literal(value: .bit(value: .high)))
     }
 
     /// Test `rawValue` creates `VHDL` code correctly.

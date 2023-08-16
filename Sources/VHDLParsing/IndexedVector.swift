@@ -100,7 +100,10 @@ public struct IndexedVector: RawRepresentable, Equatable, Hashable, Codable, Sen
             return nil
         }
         let hasLogic = bits.contains {
-            switch $0.value {
+            guard case .literal(let literal) = $0.value else {
+                return false
+            }
+            switch literal {
             case .logic:
                 return true
             default:
@@ -108,8 +111,11 @@ public struct IndexedVector: RawRepresentable, Equatable, Hashable, Codable, Sen
             }
         }
         if hasLogic {
-            let logics = bits.compactMap {
-                switch $0.value {
+            let logics: [IndexedValue] = bits.compactMap {
+                guard case .literal(let literal) = $0.value else {
+                    return nil
+                }
+                switch literal {
                 case .logic:
                     return $0
                 case .bit(let bit):
@@ -118,9 +124,9 @@ public struct IndexedVector: RawRepresentable, Equatable, Hashable, Codable, Sen
                     return nil
                 }
             }
-            self.values = logics
+            self.init(values: logics)
         } else {
-            self.values = bits
+            self.init(values: bits)
         }
     }
 

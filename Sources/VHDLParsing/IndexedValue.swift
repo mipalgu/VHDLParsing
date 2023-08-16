@@ -67,7 +67,7 @@ public struct IndexedValue: RawRepresentable, Equatable, Hashable, Codable, Send
     public let index: VectorIndex
 
     /// The value to assign to the bit located at `index`.
-    public let value: SignalLiteral
+    public let value: Expression
 
     /// The `VHDL` representation of this type.
     @inlinable public var rawValue: String {
@@ -91,27 +91,79 @@ public struct IndexedValue: RawRepresentable, Equatable, Hashable, Codable, Send
         if bitString.hasSuffix(",") {
             bitString = String(bitString.dropLast())
         }
-        if let bit = BitLiteral(rawValue: bitString) {
-            self.index = index
-            self.value = SignalLiteral.bit(value: bit)
-            return
-        }
-        if let logic = LogicLiteral(rawValue: bitString) {
-            self.index = index
-            self.value = SignalLiteral.logic(value: logic)
+        if let expression = Expression(rawValue: bitString) {
+            if index == .others {
+                guard expression.isValidOtherValue else {
+                    return nil
+                }
+            }
+            self.init(index: index, value: expression)
             return
         }
         return nil
     }
 
-    /// Intialise an indexed value with an index and value.
+    /// Intialise an indexed value with an index and signal literal.
     /// - Parameters:
     ///   - index: The index within a vector type to assign the `value` to.
-    ///   - value: The value to assign to the bit located at `index`.
+    ///   - value: The signal literal to assign to the bit located at `index`.
     @inlinable
     public init(index: VectorIndex, value: SignalLiteral) {
         self.index = index
+        self.value = .literal(value: value)
+    }
+
+    /// Initialise an indexed value with an index and value.
+    /// - Parameters:
+    ///   - index: The index within a vector type to assign the `value` to.
+    ///   - value: The value to assign to the location with the resource.
+    @inlinable
+    public init(index: VectorIndex, value: Expression) {
+        self.index = index
         self.value = value
+    }
+
+}
+
+/// Add property for determining valid other values.
+extension Expression {
+
+    /// Check whether a given expression can be assigned to the `other` index in an ``IndexedValue``.
+    @inlinable var isValidOtherValue: Bool {
+        switch self {
+        case .literal(let value):
+            switch value {
+            case .bit, .logic:
+                return true
+            default:
+                return false
+            }
+        case .binary(let operation):
+            return operation.lhs.isValidOtherValue && operation.rhs.isValidOtherValue
+        case .cast(let operation):
+            switch operation {
+            case .bit, .stdLogic, .stdULogic:
+                return true
+            default:
+                return false
+            }
+        case .functionCall:
+            return true
+        case .reference(let variable):
+            switch variable {
+            case .variable:
+                return true
+            case .indexed(_, let index):
+                guard case .index = index else {
+                    return false
+                }
+                return true
+            }
+        case .conditional, .logical:
+            return false
+        case .precedence(let value):
+            return value.isValidOtherValue
+        }
     }
 
 }
