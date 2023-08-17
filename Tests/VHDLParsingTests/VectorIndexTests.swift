@@ -172,4 +172,33 @@ final class VectorIndexTests: XCTestCase {
         )
     }
 
+    /// Test false equality.
+    func testFalseEquality() {
+        XCTAssertNotEqual(VectorIndex.others, .index(value: .literal(value: .integer(value: 0))))
+        XCTAssertNotEqual(
+            VectorIndex.index(value: .reference(variable: .variable(name: VariableName(text: "x")))),
+            .index(value: .reference(variable: .variable(name: VariableName(text: "y"))))
+        )
+        XCTAssertNotEqual(
+            VectorIndex.range(value: .downto(
+                upper: .literal(value: .integer(value: 3)), lower: .literal(value: .integer(value: 0))
+            )),
+            VectorIndex.range(value: .to(
+                lower: .literal(value: .integer(value: 0)), upper: .literal(value: .integer(value: 3))
+            ))
+        )
+        XCTAssertNotEqual(
+            VectorIndex.others,
+            .range(value: .downto(
+                upper: .literal(value: .integer(value: 3)), lower: .literal(value: .integer(value: 0))
+            ))
+        )
+        XCTAssertNotEqual(
+            VectorIndex.index(value: .reference(variable: .variable(name: VariableName(text: "x")))),
+            .range(value: .downto(
+                upper: .literal(value: .integer(value: 3)), lower: .literal(value: .integer(value: 0))
+            ))
+        )
+    }
+
 }
