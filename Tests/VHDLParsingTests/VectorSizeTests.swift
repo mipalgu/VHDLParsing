@@ -190,4 +190,21 @@ final class VectorSizeTests: XCTestCase {
         XCTAssertEqual(to.max, .literal(value: .integer(value: 7)))
     }
 
+    /// Test Equatable conformance.
+    func testEquality() {
+        let x = Expression.reference(variable: .variable(name: VariableName(text: "x")))
+        let X = Expression.reference(variable: .variable(name: VariableName(text: "X")))
+        let y = Expression.reference(variable: .variable(name: VariableName(text: "y")))
+        let Y = Expression.reference(variable: .variable(name: VariableName(text: "Y")))
+        XCTAssertEqual(VectorSize.downto(upper: x, lower: y), VectorSize.downto(upper: x, lower: y))
+        XCTAssertEqual(VectorSize.downto(upper: x, lower: y), VectorSize.downto(upper: X, lower: Y))
+        XCTAssertEqual(VectorSize.to(lower: x, upper: y), VectorSize.to(lower: x, upper: y))
+        XCTAssertEqual(VectorSize.to(lower: x, upper: y), VectorSize.to(lower: X, upper: Y))
+        XCTAssertNotEqual(VectorSize.downto(upper: x, lower: y), VectorSize.downto(upper: x, lower: X))
+        XCTAssertNotEqual(VectorSize.downto(upper: x, lower: y), VectorSize.downto(upper: Y, lower: y))
+        XCTAssertNotEqual(VectorSize.to(lower: x, upper: y), VectorSize.to(lower: x, upper: X))
+        XCTAssertNotEqual(VectorSize.to(lower: x, upper: y), VectorSize.to(lower: Y, upper: y))
+        XCTAssertNotEqual(VectorSize.downto(upper: x, lower: y), VectorSize.to(lower: x, upper: y))
+    }
+
 }

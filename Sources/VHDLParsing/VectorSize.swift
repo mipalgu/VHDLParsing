@@ -164,4 +164,17 @@ public enum VectorSize: RawRepresentable, Equatable, Hashable, Codable, Sendable
         return
     }
 
+    /// Equality conformance.
+    @inlinable
+    public static func == (lhs: VectorSize, rhs: VectorSize) -> Bool {
+        switch (lhs, rhs) {
+        case (.downto(let lhsUpper, let lhsLower), .downto(let rhsUpper, let rhsLower)):
+            return lhsUpper == rhsUpper && lhsLower == rhsLower
+        case (.to(let lhsLower, let lhsUpper), .to(let rhsLower, let rhsUpper)):
+            return lhsLower == rhsLower && lhsUpper == rhsUpper
+        default:
+            return false
+        }
+    }
+
 }
