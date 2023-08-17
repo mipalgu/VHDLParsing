@@ -216,6 +216,7 @@ indirect public enum Expression: RawRepresentable,
     ///   - lhs: The left-hand side of the `==` sign.
     ///   - rhs: The right-hand side of the `==` sign.
     /// - Returns: Whether `lhs` is equal to `rhs`.
+    @inlinable
     public static func == (lhs: Expression, rhs: Expression) -> Bool {
         switch (lhs, rhs) {
         case (.reference(let lhs), .reference(let rhs)):
