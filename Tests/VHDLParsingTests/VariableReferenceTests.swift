@@ -101,4 +101,24 @@ final class VariableReferenceTests: XCTestCase {
         XCTAssertNil(VariableReference(rawValue: "x(()"))
     }
 
+    /// Test Equality conformance.
+    func testEquality() {
+        XCTAssertEqual(variable, VariableReference.variable(name: x))
+        XCTAssertEqual(variable, VariableReference.variable(name: VariableName(text: "X")))
+        XCTAssertEqual(indexed, VariableReference.indexed(name: x, index: index))
+        XCTAssertEqual(indexed, VariableReference.indexed(name: VariableName(text: "X"), index: index))
+        XCTAssertEqual(
+            VariableReference.indexed(
+                name: VariableName(text: "x"),
+                index: .index(value: .reference(variable: .variable(name: VariableName(text: "y"))))
+            ),
+            VariableReference.indexed(
+                name: VariableName(text: "X"),
+                index: .index(value: .reference(variable: .variable(name: VariableName(text: "Y"))))
+            )
+        )
+        XCTAssertNotEqual(variable, VariableReference.variable(name: VariableName(text: "y")))
+        XCTAssertNotEqual(variable, indexed)
+    }
+
 }

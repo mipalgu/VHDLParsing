@@ -444,6 +444,15 @@ final class ExpressionTests: XCTestCase {
         )).isValidOtherValue)
     }
 
+    /// Test `Equatable` conformance.
+    func testEquality() {
+        XCTAssertEqual(VariableName(text: "a"), VariableName(text: "A"))
+        XCTAssertEqual(
+            Expression.reference(variable: .variable(name: VariableName(text: "a"))),
+            Expression.reference(variable: .variable(name: VariableName(text: "A")))
+        )
+    }
+
 }
 
 // swiftlint:enable type_body_length

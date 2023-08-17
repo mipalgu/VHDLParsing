@@ -131,4 +131,45 @@ final class VectorIndexTests: XCTestCase {
         XCTAssertNil(VectorIndex(rawValue: "\(String(repeating: "1", count: 256)) downto 0"))
     }
 
+    /// Test Equatable conformance.
+    func testEquality() {
+        XCTAssertEqual(VectorIndex.others, .others)
+        XCTAssertEqual(
+            VectorIndex.index(value: .reference(variable: .variable(name: VariableName(text: "x")))),
+            .index(value: .reference(variable: .variable(name: VariableName(text: "x"))))
+        )
+        XCTAssertEqual(
+            VectorIndex.index(value: .reference(variable: .variable(name: VariableName(text: "x")))),
+            .index(value: .reference(variable: .variable(name: VariableName(text: "X"))))
+        )
+        XCTAssertEqual(
+            VectorIndex.range(value: .downto(
+                upper: .literal(value: .integer(value: 3)), lower: .literal(value: .integer(value: 0))
+            )),
+            VectorIndex.range(value: .downto(
+                upper: .literal(value: .integer(value: 3)), lower: .literal(value: .integer(value: 0))
+            ))
+        )
+        XCTAssertEqual(
+            VectorIndex.range(value: .downto(
+                upper: .reference(variable: .variable(name: VariableName(text: "x"))),
+                lower: .reference(variable: .variable(name: VariableName(text: "y")))
+            )),
+            VectorIndex.range(value: .downto(
+                upper: .reference(variable: .variable(name: VariableName(text: "x"))),
+                lower: .reference(variable: .variable(name: VariableName(text: "y")))
+            ))
+        )
+        XCTAssertEqual(
+            VectorIndex.range(value: .downto(
+                upper: .reference(variable: .variable(name: VariableName(text: "x"))),
+                lower: .reference(variable: .variable(name: VariableName(text: "y")))
+            )),
+            VectorIndex.range(value: .downto(
+                upper: .reference(variable: .variable(name: VariableName(text: "X"))),
+                lower: .reference(variable: .variable(name: VariableName(text: "Y")))
+            ))
+        )
+    }
+
 }
