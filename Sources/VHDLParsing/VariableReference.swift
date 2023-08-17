@@ -104,6 +104,8 @@ public enum VariableReference: RawRepresentable, Equatable, Hashable, Codable, S
         self = .indexed(name: name, index: index)
     }
 
+    /// `Equatable` conformance.
+    @inlinable
     public static func == (lhs: VariableReference, rhs: VariableReference) -> Bool {
         switch (lhs, rhs) {
         case (.variable(let lhsName), .variable(let rhsName)):
