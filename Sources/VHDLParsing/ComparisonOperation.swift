@@ -158,4 +158,25 @@ public enum ComparisonOperation: RawRepresentable, Equatable, Hashable, Codable,
         }
     }
 
+    /// `Equatable` conformance.
+    @inlinable
+    public static func == (lhs: ComparisonOperation, rhs: ComparisonOperation) -> Bool {
+        switch (lhs, rhs) {
+        case (.lessThan(let lhsLhs, let lhsRhs), .lessThan(let rhsLhs, let rhsRhs)):
+            return lhsLhs == rhsLhs && lhsRhs == rhsRhs
+        case (.lessThanOrEqual(let lhsLhs, let lhsRhs), .lessThanOrEqual(let rhsLhs, let rhsRhs)):
+            return lhsLhs == rhsLhs && lhsRhs == rhsRhs
+        case (.greaterThan(let lhsLhs, let lhsRhs), .greaterThan(let rhsLhs, let rhsRhs)):
+            return lhsLhs == rhsLhs && lhsRhs == rhsRhs
+        case (.greaterThanOrEqual(let lhsLhs, let lhsRhs), .greaterThanOrEqual(let rhsLhs, let rhsRhs)):
+            return lhsLhs == rhsLhs && lhsRhs == rhsRhs
+        case (.equality(let lhsLhs, let lhsRhs), .equality(let rhsLhs, let rhsRhs)):
+            return lhsLhs == rhsLhs && lhsRhs == rhsRhs
+        case (.notEquals(let lhsLhs, let lhsRhs), .notEquals(let rhsLhs, let rhsRhs)):
+            return lhsLhs == rhsLhs && lhsRhs == rhsRhs
+        default:
+            return false
+        }
+    }
+
 }

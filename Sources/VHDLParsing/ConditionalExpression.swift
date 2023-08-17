@@ -103,4 +103,19 @@ public enum ConditionalExpression: RawRepresentable, Equatable, Hashable, Codabl
         return nil
     }
 
+    /// `Equatable` conformance.
+    @inlinable
+    public static func == (lhs: ConditionalExpression, rhs: ConditionalExpression) -> Bool {
+        switch (lhs, rhs) {
+        case (.comparison(let lhsValue), .comparison(let rhsValue)):
+            return lhsValue == rhsValue
+        case (.edge(let lhsValue), .edge(let rhsValue)):
+            return lhsValue == rhsValue
+        case (.literal(let lhsValue), .literal(let rhsValue)):
+            return lhsValue == rhsValue
+        default:
+            return false
+        }
+    }
+
 }

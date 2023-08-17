@@ -446,10 +446,39 @@ final class ExpressionTests: XCTestCase {
 
     /// Test `Equatable` conformance.
     func testEquality() {
-        XCTAssertEqual(VariableName(text: "a"), VariableName(text: "A"))
+        // swiftlint:disable:next identifier_name
+        let A = Expression.reference(variable: .variable(name: VariableName(text: "A")))
+        XCTAssertEqual(a, a)
+        XCTAssertEqual(a, A)
+        XCTAssertEqual(Expression.literal(value: .integer(value: 0)), .literal(value: .integer(value: 0)))
         XCTAssertEqual(
-            Expression.reference(variable: .variable(name: VariableName(text: "a"))),
-            Expression.reference(variable: .variable(name: VariableName(text: "A")))
+            Expression.binary(operation: .addition(lhs: a, rhs: a)),
+            .binary(operation: .addition(lhs: a, rhs: a))
+        )
+        XCTAssertEqual(
+            Expression.binary(operation: .addition(lhs: a, rhs: a)),
+            .binary(operation: .addition(lhs: A, rhs: A))
+        )
+        XCTAssertEqual(Expression.precedence(value: a), .precedence(value: A))
+        XCTAssertEqual(
+            Expression.conditional(condition: .comparison(value: .equality(lhs: a, rhs: a))),
+            Expression.conditional(condition: .comparison(value: .equality(lhs: A, rhs: A)))
+        )
+        XCTAssertEqual(
+            Expression.logical(operation: .and(lhs: a, rhs: a)), .logical(operation: .and(lhs: A, rhs: A))
+        )
+        XCTAssertEqual(
+            Expression.cast(operation: .boolean(expression: a)), .cast(operation: .boolean(expression: A))
+        )
+        XCTAssertEqual(
+            Expression.functionCall(
+                call: FunctionCall.custom(function: CustomFunctionCall(name: aname, arguments: [a]))
+            ),
+            Expression.functionCall(
+                call: FunctionCall.custom(
+                    function: CustomFunctionCall(name: VariableName(text: "A"), arguments: [A])
+                )
+            )
         )
     }
 

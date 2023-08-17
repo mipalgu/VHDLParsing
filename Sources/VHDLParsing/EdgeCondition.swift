@@ -123,4 +123,17 @@ public enum EdgeCondition: RawRepresentable, Equatable, Hashable, Codable, Senda
         }
     }
 
+    /// Equatable conformance.
+    @inlinable
+    public static func == (lhs: EdgeCondition, rhs: EdgeCondition) -> Bool {
+        switch (lhs, rhs) {
+        case (.falling(let lhsExpression), .falling(let rhsExpression)):
+            return lhsExpression == rhsExpression
+        case (.rising(let lhsExpression), .rising(let rhsExpression)):
+            return lhsExpression == rhsExpression
+        default:
+            return false
+        }
+    }
+
 }

@@ -162,4 +162,18 @@ public enum BinaryOperation: RawRepresentable, Equatable, Hashable, Codable, Sen
         }
     }
 
+    /// Equatable conformance.
+    @inlinable
+    public static func == (lhs: BinaryOperation, rhs: BinaryOperation) -> Bool {
+        switch (lhs, rhs) {
+        case (.addition(let lhs, let rhs), .addition(let lhs2, let rhs2)),
+             (.subtraction(let lhs, let rhs), .subtraction(let lhs2, let rhs2)),
+             (.multiplication(let lhs, let rhs), .multiplication(let lhs2, let rhs2)),
+             (.division(let lhs, let rhs), .division(let lhs2, let rhs2)):
+            return lhs == lhs2 && rhs == rhs2
+        default:
+            return false
+        }
+    }
+
 }
