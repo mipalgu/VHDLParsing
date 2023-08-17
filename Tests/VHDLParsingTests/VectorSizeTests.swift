@@ -193,8 +193,10 @@ final class VectorSizeTests: XCTestCase {
     /// Test Equatable conformance.
     func testEquality() {
         let x = Expression.reference(variable: .variable(name: VariableName(text: "x")))
+        // swiftlint:disable:next identifier_name
         let X = Expression.reference(variable: .variable(name: VariableName(text: "X")))
         let y = Expression.reference(variable: .variable(name: VariableName(text: "y")))
+        // swiftlint:disable:next identifier_name
         let Y = Expression.reference(variable: .variable(name: VariableName(text: "Y")))
         XCTAssertEqual(VectorSize.downto(upper: x, lower: y), VectorSize.downto(upper: x, lower: y))
         XCTAssertEqual(VectorSize.downto(upper: x, lower: y), VectorSize.downto(upper: X, lower: Y))
