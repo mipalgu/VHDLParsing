@@ -115,4 +115,18 @@ public enum VectorIndex: RawRepresentable, Equatable, Hashable, Codable, Sendabl
         return nil
     }
 
+    /// Equality conformance.
+    public static func == (lhs: VectorIndex, rhs: VectorIndex) -> Bool {
+        switch (lhs, rhs) {
+        case (.index(let lhs), .index(let rhs)):
+            return lhs == rhs
+        case (.others, .others):
+            return true
+        case (.range(let lhs), .range(let rhs)):
+            return lhs == rhs
+        default:
+            return false
+        }
+    }
+
 }

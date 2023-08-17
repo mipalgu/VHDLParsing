@@ -104,4 +104,15 @@ public enum VariableReference: RawRepresentable, Equatable, Hashable, Codable, S
         self = .indexed(name: name, index: index)
     }
 
+    public static func == (lhs: VariableReference, rhs: VariableReference) -> Bool {
+        switch (lhs, rhs) {
+        case (.variable(let lhsName), .variable(let rhsName)):
+            return lhsName == rhsName
+        case (.indexed(let lhsName, let lhsIndex), .indexed(let rhsName, let rhsIndex)):
+            return lhsName == rhsName && lhsIndex == rhsIndex
+        default:
+            return false
+        }
+    }
+
 }

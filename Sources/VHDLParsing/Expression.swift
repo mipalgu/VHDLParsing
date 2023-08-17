@@ -211,4 +211,32 @@ indirect public enum Expression: RawRepresentable,
     // swiftlint:enable function_body_length
     // swiftlint:enable cyclomatic_complexity
 
+    /// Value Equality.
+    /// - Parameters:
+    ///   - lhs: The left-hand side of the `==` sign.
+    ///   - rhs: The right-hand side of the `==` sign.
+    /// - Returns: Whether `lhs` is equal to `rhs`.
+    public static func == (lhs: Expression, rhs: Expression) -> Bool {
+        switch (lhs, rhs) {
+        case (.reference(let lhs), .reference(let rhs)):
+            return lhs == rhs
+        case (.literal(let lhs), .literal(let rhs)):
+            return lhs == rhs
+        case (.binary(let lhs), .binary(let rhs)):
+            return lhs == rhs
+        case (.precedence(let lhs), .precedence(let rhs)):
+            return lhs == rhs
+        case (.conditional(let lhs), .conditional(let rhs)):
+            return lhs == rhs
+        case (.logical(let lhs), .logical(let rhs)):
+            return lhs == rhs
+        case (.cast(let lhs), .cast(let rhs)):
+            return lhs == rhs
+        case (.functionCall(let lhs), .functionCall(let rhs)):
+            return lhs == rhs
+        default:
+            return false
+        }
+    }
+
 }
