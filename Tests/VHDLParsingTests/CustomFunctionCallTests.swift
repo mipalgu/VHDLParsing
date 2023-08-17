@@ -107,4 +107,29 @@ final class CustomFunctionCallTests: XCTestCase {
         XCTAssertNil(CustomFunctionCall(rawValue: "a * (b - c)"))
     }
 
+    /// Test `Equatable` conformance.
+    func testEquality() {
+        let xname = VariableName(text: "x")
+        let yname = VariableName(text: "y")
+        // swiftlint:disable identifier_name
+        let XName = VariableName(text: "X")
+        let Y = Expression.reference(variable: .variable(name: VariableName(text: "Y")))
+        // swiftlint:enable identifier_name
+        XCTAssertEqual(
+            CustomFunctionCall(name: xname, arguments: [y]), CustomFunctionCall(name: xname, arguments: [y])
+        )
+        XCTAssertEqual(
+            CustomFunctionCall(name: xname, arguments: [y]), CustomFunctionCall(name: XName, arguments: [Y])
+        )
+        XCTAssertNotEqual(
+            CustomFunctionCall(name: xname, arguments: [x]), CustomFunctionCall(name: yname, arguments: [y])
+        )
+        XCTAssertNotEqual(
+            CustomFunctionCall(name: xname, arguments: [x]), CustomFunctionCall(name: xname, arguments: [y])
+        )
+        XCTAssertNotEqual(
+            CustomFunctionCall(name: xname, arguments: [x]), CustomFunctionCall(name: xname, arguments: [])
+        )
+    }
+
 }

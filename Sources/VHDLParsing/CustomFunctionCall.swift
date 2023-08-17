@@ -91,4 +91,10 @@ public struct CustomFunctionCall: FunctionCallable, Equatable, Hashable, Codable
         self.arguments = arguments
     }
 
+    /// `Equatable` conformance.
+    @inlinable
+    public static func == (lhs: CustomFunctionCall, rhs: CustomFunctionCall) -> Bool {
+        lhs.name == rhs.name && lhs.arguments == rhs.arguments
+    }
+
 }
