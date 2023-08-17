@@ -94,4 +94,17 @@ public enum FunctionCall: RawRepresentable, Equatable, Hashable, Codable, Sendab
         return nil
     }
 
+    /// `Equatable` conformance.
+    @inlinable
+    public static func == (lhs: FunctionCall, rhs: FunctionCall) -> Bool {
+        switch (lhs, rhs) {
+        case (.mathReal(let lhsFunction), .mathReal(let rhsFunction)):
+            return lhsFunction == rhsFunction
+        case (.custom(let lhsFunction), .custom(let rhsFunction)):
+            return lhsFunction == rhsFunction
+        default:
+            return false
+        }
+    }
+
 }

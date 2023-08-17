@@ -136,4 +136,27 @@ public enum MathRealFunctionCalls: FunctionCallable, Equatable, Hashable, Codabl
         }
     }
 
+    /// `Equatable` conformance.
+    @inlinable
+    public static func == (lhs: MathRealFunctionCalls, rhs: MathRealFunctionCalls) -> Bool {
+        switch (lhs, rhs) {
+        case (.ceil(let lhsExpression), .ceil(let rhsExpression)):
+            return lhsExpression == rhsExpression
+        case (.floor(let lhsExpression), .floor(let rhsExpression)):
+            return lhsExpression == rhsExpression
+        case (.round(let lhsExpression), .round(let rhsExpression)):
+            return lhsExpression == rhsExpression
+        case (.sign(let lhsExpression), .sign(let rhsExpression)):
+            return lhsExpression == rhsExpression
+        case (.sqrt(let lhsExpression), .sqrt(let rhsExpression)):
+            return lhsExpression == rhsExpression
+        case (.fmax(let lhsArg0, let lhsArg1), .fmax(let rhsArg0, let rhsArg1)):
+            return lhsArg0 == rhsArg0 && lhsArg1 == rhsArg1
+        case (.fmin(let lhsArg0, let lhsArg1), .fmin(let rhsArg0, let rhsArg1)):
+            return lhsArg0 == rhsArg0 && lhsArg1 == rhsArg1
+        default:
+            return false
+        }
+    }
+
 }

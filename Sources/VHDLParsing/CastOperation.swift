@@ -189,4 +189,27 @@ public enum CastOperation: FunctionCallable, Equatable, Hashable, Codable, Senda
         }
     }
 
+    /// `Equatable` conformance.
+    @inlinable
+    public static func == (lhs: CastOperation, rhs: CastOperation) -> Bool {
+        switch (lhs, rhs) {
+        case (.bit(let lhsExpression), .bit(let rhsExpression)),
+             (.bitVector(let lhsExpression), .bitVector(let rhsExpression)),
+             (.boolean(let lhsExpression), .boolean(let rhsExpression)),
+             (.integer(let lhsExpression), .integer(let rhsExpression)),
+             (.natural(let lhsExpression), .natural(let rhsExpression)),
+             (.positive(let lhsExpression), .positive(let rhsExpression)),
+             (.real(let lhsExpression), .real(let rhsExpression)),
+             (.signed(let lhsExpression), .signed(let rhsExpression)),
+             (.stdLogic(let lhsExpression), .stdLogic(let rhsExpression)),
+             (.stdLogicVector(let lhsExpression), .stdLogicVector(let rhsExpression)),
+             (.stdULogic(let lhsExpression), .stdULogic(let rhsExpression)),
+             (.stdULogicVector(let lhsExpression), .stdULogicVector(let rhsExpression)),
+             (.unsigned(let lhsExpression), .unsigned(let rhsExpression)):
+            return lhsExpression == rhsExpression
+        default:
+            return false
+        }
+    }
+
 }

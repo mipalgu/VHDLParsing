@@ -205,4 +205,27 @@ public enum BooleanExpression: RawRepresentable, Equatable, Hashable, Codable, S
         }
     }
 
+    /// `Equatable` conformance.
+    @inlinable
+    public static func == (lhs: BooleanExpression, rhs: BooleanExpression) -> Bool {
+        switch (lhs, rhs) {
+        case (.and(let lhsLhs, let lhsRhs), .and(let rhsLhs, let rhsRhs)):
+            return lhsLhs == rhsLhs && lhsRhs == rhsRhs
+        case (.or(let lhsLhs, let lhsRhs), .or(let rhsLhs, let rhsRhs)):
+            return lhsLhs == rhsLhs && lhsRhs == rhsRhs
+        case (.nand(let lhsLhs, let lhsRhs), .nand(let rhsLhs, let rhsRhs)):
+            return lhsLhs == rhsLhs && lhsRhs == rhsRhs
+        case (.not(let lhsValue), .not(let rhsValue)):
+            return lhsValue == rhsValue
+        case (.nor(let lhsLhs, let lhsRhs), .nor(let rhsLhs, let rhsRhs)):
+            return lhsLhs == rhsLhs && lhsRhs == rhsRhs
+        case (.xor(let lhsLhs, let lhsRhs), .xor(let rhsLhs, let rhsRhs)):
+            return lhsLhs == rhsLhs && lhsRhs == rhsRhs
+        case (.xnor(let lhsLhs, let lhsRhs), .xnor(let rhsLhs, let rhsRhs)):
+            return lhsLhs == rhsLhs && lhsRhs == rhsRhs
+        default:
+            return false
+        }
+    }
+
 }
