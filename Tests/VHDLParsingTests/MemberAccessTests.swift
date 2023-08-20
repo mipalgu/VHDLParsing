@@ -1,4 +1,4 @@
-// MemberAccess.swift
+// MemberAccessTests.swift
 // VHDLParsing
 // 
 // Created by Morgan McColl.
@@ -54,44 +54,35 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
-public struct MemberAccess: Codable, Equatable, Hashable, RawRepresentable, Sendable {
+@testable import VHDLParsing
+import XCTest
 
-    public let record: Expression
+/// Test class for ``MemberAccess``.
+final class MemberAccessTests: XCTestCase {
 
-    public let member: Expression
+    /// The record to access.
+    let record = Expression.reference(variable: .variable(name: VariableName(text: "record")))
 
-    public var rawValue: String {
-        "\(self.record.rawValue).\(self.member.rawValue)"
+    /// The member in record to access.
+    let member = Expression.reference(variable: .variable(name: VariableName(text: "member")))
+
+    /// The access unit under test.
+    lazy var memberAccess = MemberAccess(record: record, member: member)
+
+    /// Initialise the uut before each test.
+    override func setUp() {
+        memberAccess = MemberAccess(record: record, member: member)
     }
 
-    public init(record: Expression, member: Expression) {
-        self.record = record
-        self.member = member
+    /// Test `init(record:,member:)` functions correctly.
+    func testPropertyInit() {
+        XCTAssertEqual(memberAccess.record, record)
+        XCTAssertEqual(memberAccess.member, member)
     }
 
-    public init?(rawValue: String) {
-        let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard
-            trimmedString.count >= 3,
-            trimmedString.count < 2048,
-            let dotIndex = trimmedString.firstIndex(of: "."),
-            dotIndex > trimmedString.startIndex,
-            dotIndex < trimmedString.index(before: trimmedString.endIndex)
-        else {
-            return nil
-        }
-        let lhs = String(trimmedString[trimmedString.startIndex..<dotIndex])
-        let rhs = String(trimmedString[trimmedString.index(after: dotIndex)..<trimmedString.endIndex])
-        guard
-            let lhsExp = Expression(rawValue: lhs),
-            let rhsExp = Expression(rawValue: rhs)
-        else {
-            return nil
-        }
-        guard case .reference = lhsExp else {
-            return nil
-        }
-        self.init(record: lhsExp, member: rhsExp)
+    /// Test the `rawValue` generates the correct String.
+    func testRawValue() {
+        XCTAssertEqual(memberAccess.rawValue, "record.member")
     }
 
 }
