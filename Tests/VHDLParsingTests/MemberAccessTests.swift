@@ -61,7 +61,7 @@ import XCTest
 final class MemberAccessTests: XCTestCase {
 
     /// The record to access.
-    let record = DirectReference.variable(name: VariableName(text: "recordA"))
+    let record = VariableName(text: "recordA")
 
     /// The member in record to access.
     let member = DirectReference.variable(name: VariableName(text: "member"))
@@ -95,7 +95,7 @@ final class MemberAccessTests: XCTestCase {
             MemberAccess(
                 record: record,
                 member: .member(access: MemberAccess(
-                    record: .variable(name: VariableName(text: "recordB")), member: member
+                    record: VariableName(text: "recordB"), member: member
                 ))
             )
         )
