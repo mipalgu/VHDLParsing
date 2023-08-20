@@ -56,15 +56,15 @@
 
 public struct MemberAccess: Codable, Equatable, Hashable, RawRepresentable, Sendable {
 
-    public let record: Expression
+    public let record: DirectReference
 
-    public let member: Expression
+    public let member: DirectReference
 
     public var rawValue: String {
         "\(self.record.rawValue).\(self.member.rawValue)"
     }
 
-    public init(record: Expression, member: Expression) {
+    public init(record: DirectReference, member: DirectReference) {
         self.record = record
         self.member = member
     }
@@ -85,25 +85,12 @@ public struct MemberAccess: Codable, Equatable, Hashable, RawRepresentable, Send
         guard
             lhs.trimmingCharacters(in: .whitespacesAndNewlines).count == lhs.count,
             rhs.trimmingCharacters(in: .whitespacesAndNewlines).count == rhs.count,
-            let lhsExp = Expression(rawValue: lhs),
-            let rhsExp = Expression(rawValue: rhs)
+            let lhsExp = DirectReference(rawValue: lhs),
+            let rhsExp = DirectReference(rawValue: rhs)
         else {
             return nil
         }
-        self.init(lhsExp: lhsExp, rhsExp: rhsExp)
-    }
-
-    init?(lhsExp: Expression, rhsExp: Expression) {
-        if case .reference = lhsExp {
-            if case .reference = rhsExp {
-                self.init(record: lhsExp, member: rhsExp)
-                return
-            } else {
-                return nil
-            }
-        } else {
-            return nil
-        }
+        self.init(record: lhsExp, member: rhsExp)
     }
 
 }

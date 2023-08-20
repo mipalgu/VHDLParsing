@@ -1,4 +1,4 @@
-// MemberAccessTests.swift
+// DirectReference.swift
 // VHDLParsing
 // 
 // Created by Morgan McColl.
@@ -54,60 +54,34 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
-@testable import VHDLParsing
-import XCTest
+public indirect enum DirectReference: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
-/// Test class for ``MemberAccess``.
-final class MemberAccessTests: XCTestCase {
+    case variable(name: VariableName)
 
-    /// The record to access.
-    let record = DirectReference.variable(name: VariableName(text: "recordA"))
+    case member(access: MemberAccess)
 
-    /// The member in record to access.
-    let member = DirectReference.variable(name: VariableName(text: "member"))
-
-    /// The access unit under test.
-    lazy var memberAccess = MemberAccess(record: record, member: member)
-
-    /// Initialise the uut before each test.
-    override func setUp() {
-        memberAccess = MemberAccess(record: record, member: member)
+    public var rawValue: String {
+        switch self {
+        case .variable(let name):
+            return name.rawValue
+        case .member(let access):
+            return access.rawValue
+        }
     }
 
-    /// Test `init(record:,member:)` functions correctly.
-    func testPropertyInit() {
-        XCTAssertEqual(memberAccess.record, record)
-        XCTAssertEqual(memberAccess.member, member)
-    }
-
-    /// Test the `rawValue` generates the correct String.
-    func testRawValue() {
-        XCTAssertEqual(memberAccess.rawValue, "recordA.member")
-    }
-
-    /// Test `init(rawValue:)` correctly parses the string.
-    func testRawValueInit() {
-        let memberAccess = MemberAccess(rawValue: "recordA.member")
-        XCTAssertEqual(self.memberAccess, memberAccess)
-        let chainedAccess = MemberAccess(rawValue: "recordA.recordB.member")
-        XCTAssertEqual(
-            chainedAccess,
-            MemberAccess(
-                record: record,
-                member: .member(access: MemberAccess(
-                    record: .variable(name: VariableName(text: "recordB")), member: member
-                ))
-            )
-        )
-        XCTAssertNil(MemberAccess(rawValue: "recordA .member"))
-        XCTAssertNil(MemberAccess(rawValue: "recordA . member"))
-        XCTAssertNil(MemberAccess(rawValue: "recordA. member"))
-        XCTAssertNil(MemberAccess(rawValue: "."))
-        XCTAssertNil(MemberAccess(rawValue: "recordA."))
-        XCTAssertNil(MemberAccess(rawValue: ".member"))
-        XCTAssertNil(MemberAccess(rawValue: "recordAmember"))
-        XCTAssertNil(MemberAccess(rawValue: "(A + B).member"))
-        XCTAssertNil(MemberAccess(rawValue: "recordA.(A + B)"))
+    public init?(rawValue: String) {
+        let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard trimmedString.count < 2048 else {
+            return nil
+        }
+        if let name = VariableName(rawValue: trimmedString) {
+            self = .variable(name: name)
+            return
+        }
+        guard let memberAccess = MemberAccess(rawValue: trimmedString) else {
+            return nil
+        }
+        self = .member(access: memberAccess)
     }
 
 }
