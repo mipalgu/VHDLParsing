@@ -83,15 +83,27 @@ public struct MemberAccess: Codable, Equatable, Hashable, RawRepresentable, Send
         let lhs = String(trimmedString[trimmedString.startIndex..<dotIndex])
         let rhs = String(trimmedString[trimmedString.index(after: dotIndex)..<trimmedString.endIndex])
         guard
+            lhs.trimmingCharacters(in: .whitespacesAndNewlines).count == lhs.count,
+            rhs.trimmingCharacters(in: .whitespacesAndNewlines).count == rhs.count,
             let lhsExp = Expression(rawValue: lhs),
             let rhsExp = Expression(rawValue: rhs)
         else {
             return nil
         }
-        guard case .reference = lhsExp else {
+        self.init(lhsExp: lhsExp, rhsExp: rhsExp)
+    }
+
+    init?(lhsExp: Expression, rhsExp: Expression) {
+        if case .reference = lhsExp {
+            if case .reference = rhsExp {
+                self.init(record: lhsExp, member: rhsExp)
+                return
+            } else {
+                return nil
+            }
+        } else {
             return nil
         }
-        self.init(record: lhsExp, member: rhsExp)
     }
 
 }

@@ -61,7 +61,7 @@ import XCTest
 final class MemberAccessTests: XCTestCase {
 
     /// The record to access.
-    let record = Expression.reference(variable: .variable(name: VariableName(text: "record")))
+    let record = Expression.reference(variable: .variable(name: VariableName(text: "recordA")))
 
     /// The member in record to access.
     let member = Expression.reference(variable: .variable(name: VariableName(text: "member")))
@@ -82,7 +82,22 @@ final class MemberAccessTests: XCTestCase {
 
     /// Test the `rawValue` generates the correct String.
     func testRawValue() {
-        XCTAssertEqual(memberAccess.rawValue, "record.member")
+        XCTAssertEqual(memberAccess.rawValue, "recordA.member")
+    }
+
+    /// Test `init(rawValue:)` correctly parses the string.
+    func testRawValueInit() {
+        let memberAccess = MemberAccess(rawValue: "recordA.member")
+        XCTAssertEqual(self.memberAccess, memberAccess)
+        XCTAssertNil(MemberAccess(rawValue: "recordA .member"))
+        XCTAssertNil(MemberAccess(rawValue: "recordA . member"))
+        XCTAssertNil(MemberAccess(rawValue: "recordA. member"))
+        XCTAssertNil(MemberAccess(rawValue: "."))
+        XCTAssertNil(MemberAccess(rawValue: "recordA."))
+        XCTAssertNil(MemberAccess(rawValue: ".member"))
+        XCTAssertNil(MemberAccess(rawValue: "recordAmember"))
+        XCTAssertNil(MemberAccess(rawValue: "(A + B).member"))
+        XCTAssertNil(MemberAccess(rawValue: "recordA.(A + B)"))
     }
 
 }
