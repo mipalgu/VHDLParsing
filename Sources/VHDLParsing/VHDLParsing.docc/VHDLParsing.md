@@ -41,6 +41,7 @@
 - ``ComparisonOperation``
 - ``ConditionalExpression``
 - ``CustomFunctionCall``
+- ``DirectReference``
 - ``EdgeCondition``
 - ``Expression``
 - ``FunctionCall``
