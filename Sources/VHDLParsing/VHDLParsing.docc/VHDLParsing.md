@@ -48,6 +48,7 @@
 - ``IndexedValue``
 - ``IndexedVector``
 - ``MathRealFunctionCalls``
+- ``MemberAccess``
 - ``Statement``
 - ``VariableAssignment``
 - ``VariableMap``
