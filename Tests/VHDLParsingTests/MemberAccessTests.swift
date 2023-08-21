@@ -83,6 +83,11 @@ final class MemberAccessTests: XCTestCase {
     /// Test the `rawValue` generates the correct String.
     func testRawValue() {
         XCTAssertEqual(memberAccess.rawValue, "recordA.member")
+        let member2 = MemberAccess(
+            record: record,
+            member: .member(access: MemberAccess(record: VariableName(text: "record2"), member: member))
+        )
+        XCTAssertEqual(member2.rawValue, "recordA.record2.member")
     }
 
     /// Test `init(rawValue:)` correctly parses the string.
