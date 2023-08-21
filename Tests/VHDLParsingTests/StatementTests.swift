@@ -74,6 +74,7 @@ final class StatementTests: XCTestCase {
         let comment = Comment(text: "signal x.")
         XCTAssertEqual(Statement.comment(value: comment).rawValue, comment.rawValue)
         XCTAssertEqual(Statement.null.rawValue, "null;")
+        XCTAssertEqual(Statement.returns(value: .literal(value: .integer(value: 5))).rawValue, "return 5;")
     }
 
     /// Test `init(rawValue:)` parses `VHDL` code correctly for comments.
@@ -136,6 +137,7 @@ final class StatementTests: XCTestCase {
         XCTAssertNil(Statement(rawValue: "x <= '2';"))
         XCTAssertNil(Statement(rawValue: "x <= '1'"))
         XCTAssertNil(Statement(rawValue: "2x <= '1';"))
+        XCTAssertNil(Statement(rawValue: "\(String(repeating: "A", count: 2048)) <= '1';"))
     }
 
     /// Test null raw value init.
@@ -148,6 +150,14 @@ final class StatementTests: XCTestCase {
         XCTAssertEqual(Statement(rawValue: "null;\n "), .null)
         XCTAssertEqual(Statement(rawValue: "NULL;"), .null)
         XCTAssertNil(Statement(rawValue: "null"))
+    }
+
+    /// Test return raw value init.
+    func testReturnsRawValueInit() {
+        XCTAssertEqual(Statement(rawValue: "return 5;"), .returns(value: .literal(value: .integer(value: 5))))
+        XCTAssertNil(Statement(rawValue: "return 5"))
+        XCTAssertNil(Statement(rawValue: "returns 5;"))
+        XCTAssertNil(Statement(rawValue: "return 5 +;"))
     }
 
 }
