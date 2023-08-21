@@ -107,6 +107,48 @@ final class FunctionDefinitionTests: XCTestCase {
             ),
             definition
         )
+        XCTAssertNil(FunctionDefinition(rawValue: ""))
+        XCTAssertNil(FunctionDefinition(rawValue: " "))
+        XCTAssertNil(FunctionDefinition(
+            rawValue: "function \(String(repeating: "A", count: 2048))" +
+                "(arg1: integer := 0; arg2: integer := 0) return integer;"
+        ))
+        XCTAssertNil(FunctionDefinition(
+            rawValue: "fun max(arg1: integer := 0; arg2: integer := 0) return integer;"
+        ))
+        XCTAssertNil(FunctionDefinition(
+            rawValue: "function record(arg1: integer := 0; arg2: integer := 0) return integer;"
+        ))
+        XCTAssertNil(FunctionDefinition(
+            rawValue: "function max(arg1: integer := 0; arg2: integer := 0) return integer"
+        ))
+        XCTAssertNil(FunctionDefinition(
+            rawValue: "function max(arg1: integer := 0; arg2: integer := 0) return;"
+        ))
+        XCTAssertNil(FunctionDefinition(
+            rawValue: "function max(arg1: integer := 0; arg2: integer := 0) ret integer;"
+        ))
+        XCTAssertNil(FunctionDefinition(
+            rawValue: "function max(arg1: integer := 0, arg2: integer := 0) return integer;"
+        ))
+        XCTAssertNil(FunctionDefinition(
+            rawValue: "function max(arg1: integer := 0; arg2: integer := 0)) return integer;"
+        ))
+        XCTAssertNil(FunctionDefinition(
+            rawValue: "function max((arg1: integer := 0; arg2: integer := 0) return integer;"
+        ))
+        XCTAssertNil(FunctionDefinition(
+            rawValue: "function (arg1: integer := 0; arg2: integer := 0) return integer;"
+        ))
+        XCTAssertNil(FunctionDefinition(
+            rawValue: "function( max(arg1: integer := 0; arg2: integer := 0) return integer;"
+        ))
+        XCTAssertNil(FunctionDefinition(
+            rawValue: "function max(arg1: integer := 0; arg2: integer := 0 return integer;"
+        ))
+        XCTAssertNil(FunctionDefinition(
+            rawValue: "function max(arg1: integer := 0; arg2: integer := 0) return !integer;"
+        ))
     }
 
 }

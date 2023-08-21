@@ -93,7 +93,7 @@ public struct FunctionDefinition: RawRepresentable, Equatable, Hashable, Codable
             return nil
         }
         let parameterList = String(definition.dropFirst(rawName.count))
-        let returnIndexes = parameterList.indexes(for: ["return"])
+        let returnIndexes = parameterList.indexes(for: ["return"], isCaseSensitive: false)
         guard !returnIndexes.isEmpty, returnIndexes[0].1 < parameterList.endIndex else {
             return nil
         }
