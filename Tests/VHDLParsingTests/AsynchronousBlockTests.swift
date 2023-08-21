@@ -257,4 +257,95 @@ final class AsynchronousBlockTests: XCTestCase {
         XCTAssertNil(AsynchronousBlock(rawValue: raw3))
     }
 
+    // swiftlint:disable function_body_length
+
+    /// Test function raw value initialiser functions correctly.
+    func testFunctionRawValueInit() {
+        let raw = """
+        function max(arg1: integer := 0; arg2: integer := 0) return integer is
+        begin
+            if (arg1 < arg2) then
+                return arg2;
+            else
+                return arg1;
+            end if;
+        end function;
+        """
+        let expected = AsynchronousBlock.function(block: FunctionImplementation(
+            name: VariableName(text: "max"),
+            arguments: [
+                ArgumentDefinition(
+                    name: VariableName(text: "arg1"),
+                    type: .signal(type: .integer),
+                    defaultValue: .literal(value: .integer(value: 0))
+                ),
+                ArgumentDefinition(
+                    name: VariableName(text: "arg2"),
+                    type: .signal(type: .integer),
+                    defaultValue: .literal(value: .integer(value: 0))
+                )
+            ],
+            returnTube: .signal(type: .integer),
+            body: .ifStatement(block: .ifElse(
+                condition: .conditional(condition: .comparison(value: .lessThan(
+                    lhs: .reference(
+                        variable: .variable(reference: .variable(name: VariableName(text: "arg1")))
+                    ),
+                    rhs: .reference(
+                        variable: .variable(reference: .variable(name: VariableName(text: "arg2")))
+                    )
+                ))),
+                ifBlock: .statement(statement: .returns(
+                    value: .reference(
+                        variable: .variable(reference: .variable(name: VariableName(text: "arg2")))
+                    )
+                )),
+                elseBlock: .statement(statement: .returns(
+                    value: .reference(
+                        variable: .variable(reference: .variable(name: VariableName(text: "arg1")))
+                    )
+                ))
+            ))
+        ))
+        XCTAssertEqual(AsynchronousBlock(rawValue: raw), expected)
+        let raw2 = raw + "\n" + "x <= 5;"
+        let expected2 = AsynchronousBlock.blocks(blocks: [
+            expected,
+            .statement(statement: .assignment(
+                name: .variable(reference: .variable(name: VariableName(text: "x"))),
+                value: .literal(value: .integer(value: 5))
+            ))
+        ])
+        XCTAssertEqual(AsynchronousBlock(rawValue: raw2), expected2)
+    }
+
+    // swiftlint:enable function_body_length
+
+    /// Test function `init(rawValue:)` detects invalid code.
+    func testFunctionRawValueInitFails() {
+        let raw = """
+        function max(arg1: integer := 0; arg2: integer := 0) return integer is
+        begin
+            if (arg1 < arg2) then
+                return arg2;
+            else
+                return arg1;
+            end if;
+        end function;
+        """
+        XCTAssertNil(AsynchronousBlock(rawValue: String(raw.dropLast()) + "\nx <= 5;"))
+        let invalid = """
+        function max(arg1:: integer := 0; arg2: integer := 0) return integer is
+        begin
+            if (arg1 < arg2) then
+                return arg2;
+            else
+                return arg1;
+            end if;
+        end function;
+        x <= 5;
+        """
+        XCTAssertNil(AsynchronousBlock(rawValue: invalid))
+    }
+
 }
