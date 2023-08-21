@@ -79,6 +79,7 @@ final class StringIndexesTests: XCTestCase {
         XCTAssertEqual(resultCaseInsensitive[0].0, data.index(data.startIndex, offsetBy: 8))
         XCTAssertEqual(data[resultCaseInsensitive[0].0..<resultCaseInsensitive[0].1], "ABE ABF")
         XCTAssertEqual(resultCaseInsensitive[0].1, data.index(data.startIndex, offsetBy: 15))
+        XCTAssertEqual(resultCaseInsensitive.count, 1)
         let data2 = "ABC DEF ABEABF DEA"
         XCTAssertTrue(data2.indexes(for: sentence).isEmpty)
         let data3 = "ABC DEF ABE ABF"
