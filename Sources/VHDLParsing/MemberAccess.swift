@@ -56,7 +56,9 @@
 
 import Foundation
 
-/// An expression accessing a member within a record instance. This type correctly parses the `VHDL` that
+/// An expression accessing a member within a record instance.
+/// 
+/// This type correctly parses the `VHDL` that
 /// is used to access a member within a record. For example, consider the record `foo` with the member `bar`.
 /// The `VHDL` code to access this member would be `foo.bar`. This type correctly parses this code and stores
 /// the record and member as separate properties of this struct. If this `VHDL` is parsed by this type, i.e.

@@ -57,6 +57,7 @@
 import Foundation
 
 /// A direct reference is a reference to a variable via it's name or member access in a record type.
+/// 
 /// This enum acts us an umbrella for both of these cases and the underlying parsing is delegated to the
 /// `VariableName` and `MemberAccess` types.
 /// - SeeAlso: ``VariableName``, ``MemberAccess``.
