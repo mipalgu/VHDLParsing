@@ -54,13 +54,22 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
+import Foundation
+
+/// A direct reference is a reference to a variable via it's name or member access in a record type.
+/// This enum acts us an umbrella for both of these cases and the underlying parsing is delegated to the
+/// `VariableName` and `MemberAccess` types.
+/// - SeeAlso: ``VariableName``, ``MemberAccess``.
 public indirect enum DirectReference: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
+    /// A reference to a variable.
     case variable(name: VariableName)
 
+    /// A reference to a member of a record instance.
     case member(access: MemberAccess)
 
-    public var rawValue: String {
+    /// The `VHDL` code representation of this direct reference.
+    @inlinable public var rawValue: String {
         switch self {
         case .variable(let name):
             return name.rawValue
@@ -69,6 +78,9 @@ public indirect enum DirectReference: RawRepresentable, Equatable, Hashable, Cod
         }
     }
 
+    /// Creates a new direct reference from the given `VHDL` code representation.
+    /// - Parameter rawValue: The `VHDL` code representation of this direct reference.
+    @inlinable
     public init?(rawValue: String) {
         let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
         guard trimmedString.count < 2048 else {
