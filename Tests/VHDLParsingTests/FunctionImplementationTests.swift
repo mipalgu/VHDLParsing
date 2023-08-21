@@ -80,24 +80,76 @@ final class FunctionImplementationTests: XCTestCase {
     /// The return type of the function.
     let returnType = Type.signal(type: .integer)
 
-    // let body = SynchronousBlock.ifStatement(block: .ifElse(
-    //     condition: .conditional(condition: .comparison(value: .lessThan(
-    //         lhs: .reference(variable: .variable(reference: .variable(name: VariableName(text: "arg1")))),
-    //         rhs: .reference(variable: .variable(reference: .variable(name: VariableName(text: "arg2"))))
-    //     ))),
-    //     ifBlock: SynchronousBlock,
-    //     elseBlock: SynchronousBlock
-    // ))
+    /// The function body.
+    let body = SynchronousBlock.ifStatement(block: .ifElse(
+        condition: .conditional(condition: .comparison(value: .lessThan(
+            lhs: .reference(variable: .variable(reference: .variable(name: VariableName(text: "arg1")))),
+            rhs: .reference(variable: .variable(reference: .variable(name: VariableName(text: "arg2"))))
+        ))),
+        ifBlock: .statement(statement: .returns(
+            value: .reference(variable: .variable(reference: .variable(name: VariableName(text: "arg2"))))
+        )),
+        elseBlock: .statement(statement: .returns(
+            value: .reference(variable: .variable(reference: .variable(name: VariableName(text: "arg1"))))
+        ))
+    ))
 
     /// The function definition.
     var definition: FunctionDefinition {
         FunctionDefinition(name: fnName, arguments: arguments, returnType: returnType)
     }
 
-    // var implementation: FunctionImplementation {
-    //     FunctionImplementation(
-    //         name: fnName, arguments: arguments, returnTube: returnType, body: SynchronousBlock
-    //     )
-    // }
+    /// The implementation of the function.
+    var implementation: FunctionImplementation {
+        FunctionImplementation(name: fnName, arguments: arguments, returnTube: returnType, body: body)
+    }
+
+    /// Test that the stored properties are initialised correctly.
+    func testInit() {
+        XCTAssertEqual(implementation.name, fnName)
+        XCTAssertEqual(implementation.arguments, arguments)
+        XCTAssertEqual(implementation.returnType, returnType)
+        XCTAssertEqual(implementation.body, body)
+    }
+
+    /// Test that the stored properties are initialised correctly when the function definition is passed.
+    func testDefinitionInit() {
+        let definition = definition
+        let implementation = FunctionImplementation(definition: definition, body: body)
+        XCTAssertEqual(implementation.name, definition.name)
+        XCTAssertEqual(implementation.arguments, definition.arguments)
+        XCTAssertEqual(implementation.returnType, definition.returnType)
+        XCTAssertEqual(implementation.body, body)
+    }
+
+    /// Test the `rawValue` generates the correct `VHDL` code.
+    func testRawValue() {
+        let expected = """
+        function max(arg1: integer := 0; arg2: integer := 0) return integer is
+        begin
+            if (arg1 < arg2) then
+                return arg2;
+            else
+                return arg1;
+            end if;
+        end function;
+        """
+        XCTAssertEqual(implementation.rawValue, expected)
+    }
+
+    /// Test that `init(rawValue:)` parses the `VHDL` code correctly.
+    func testRawValueInit() {
+        let raw = """
+        function max(arg1: integer := 0; arg2: integer := 0) return integer is
+        begin
+            if (arg1 < arg2) then
+                return arg2;
+            else
+                return arg1;
+            end if;
+        end function;
+        """
+        XCTAssertEqual(FunctionImplementation(rawValue: raw), implementation)
+    }
 
 }
