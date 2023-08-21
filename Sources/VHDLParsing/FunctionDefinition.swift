@@ -57,25 +57,45 @@
 import Foundation
 import StringHelpers
 
+/// A type representing a function definition.
+/// 
+/// This type represents the type signature and function definition of a user-defined custom function. Such
+/// function can be placed inside of an architecture head or a package definition. The function definition
+/// consists of the name of the function, the set of arguments that the function takes, and the return type
+/// of the function.
+/// - SeeAlso: ``VariableName``, ``ArgumentDefinition``, ``Type``.
 public struct FunctionDefinition: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
+    /// The name of the function.
     public let name: VariableName
 
+    /// The arguments of the function.
     public let arguments: [ArgumentDefinition]
 
+    /// The return type of the function.
     public let returnType: Type
 
-    public var rawValue: String {
+    /// The `VHDL` code that defines this function.
+    @inlinable public var rawValue: String {
         let argumentList = arguments.map(\.rawValue).joined(separator: "; ")
         return "function \(self.name.rawValue)(\(argumentList)) return \(self.returnType.rawValue);"
     }
 
+    /// Creates a new function definition with the specified name, arguments, and return type.
+    /// - Parameters:
+    ///   - name: The name of the function.
+    ///   - arguments: The arguments of the function.
+    ///   - returnType: The return type of the function.
+    @inlinable
     public init(name: VariableName, arguments: [ArgumentDefinition], returnType: Type) {
         self.name = name
         self.arguments = arguments
         self.returnType = returnType
     }
 
+    /// Creates a new function definition from the specified `VHDL` code that defines it.
+    /// - Parameter rawValue: The `VHDL` code defining the function.
+    @inlinable
     public init?(rawValue: String) {
         let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
         guard trimmedString.count < 2048 else {
