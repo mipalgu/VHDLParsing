@@ -54,6 +54,9 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
+import Foundation
+import StringHelpers
+
 /// A block of code that exists within an architecture body. This code executes asynchronously.
 indirect public enum AsynchronousBlock: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
@@ -69,6 +72,9 @@ indirect public enum AsynchronousBlock: RawRepresentable, Equatable, Hashable, C
     /// A component instantiation.
     case component(block: ComponentInstantiation)
 
+    /// A function implementation.
+    case function(block: FunctionImplementation)
+
     /// The `VHDL` code representing this block.
     @inlinable public var rawValue: String {
         switch self {
@@ -79,6 +85,8 @@ indirect public enum AsynchronousBlock: RawRepresentable, Equatable, Hashable, C
         case .statement(let statement):
             return statement.rawValue
         case .component(let block):
+            return block.rawValue
+        case .function(let block):
             return block.rawValue
         }
     }
@@ -98,6 +106,10 @@ indirect public enum AsynchronousBlock: RawRepresentable, Equatable, Hashable, C
     ///   - carry: The previous strings that have parsed correctly.
     private init?(rawValue: String, carry: [AsynchronousBlock]) {
         let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
+        if trimmedString.firstWord?.lowercased() == "function" {
+            self.init(function: trimmedString, carry: carry)
+            return
+        }
         guard let semicolonIndex = trimmedString.firstIndex(of: ";") else {
             return nil
         }
@@ -118,6 +130,31 @@ indirect public enum AsynchronousBlock: RawRepresentable, Equatable, Hashable, C
             return
         }
         self.init(multiple: trimmedString, carry: carry)
+    }
+
+    /// Initialise an `AsynchronousBlock` assuming it contains a ``FunctionImplementation``.
+    /// - Parameters:
+    ///  - function: The `VHDL` code that exists within a `function` block.
+    ///  - carry: The previous strings that have parsed correctly.
+    private init?(function trimmedString: String, carry: [AsynchronousBlock]) {
+        if let function = FunctionImplementation(rawValue: trimmedString) {
+            self.init(carry: carry + [.function(block: function)])
+            return
+        }
+        let indexes = trimmedString.indexes(for: ["end", "function;"], isCaseSensitive: false)
+        guard
+            !indexes.isEmpty,
+            let endIndex = indexes.first?.1,
+            endIndex < trimmedString.endIndex
+        else {
+            return nil
+        }
+        let functionRaw = String(trimmedString[trimmedString.startIndex..<endIndex])
+        guard let implementation = FunctionImplementation(rawValue: functionRaw) else {
+            return nil
+        }
+        let remaining = trimmedString[endIndex...].trimmingCharacters(in: .whitespacesAndNewlines)
+        self.init(rawValue: remaining, carry: carry + [.function(block: implementation)])
     }
 
     /// Initialise an `AsynchronousBlock` assuming it contains a `ComponentInstantiation`.

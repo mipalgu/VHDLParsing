@@ -215,4 +215,18 @@ final class DefinitionTests: XCTestCase {
         XCTAssertNil(Definition(rawValue: raw2))
     }
 
+    /// Test the function raw value init.
+    func testFunctionRawValueInit() {
+        let raw = "function max(arg1: integer; arg2: integer) return integer;"
+        let expected = FunctionDefinition(
+            name: VariableName(text: "max"),
+            arguments: [
+                ArgumentDefinition(name: VariableName(text: "arg1"), type: .signal(type: .integer)),
+                ArgumentDefinition(name: VariableName(text: "arg2"), type: .signal(type: .integer))
+            ],
+            returnType: .signal(type: .integer)
+        )
+        XCTAssertEqual(Definition(rawValue: raw), .function(value: expected))
+    }
+
 }

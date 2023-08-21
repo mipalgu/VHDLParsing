@@ -3,6 +3,7 @@
 ## Topics
 
 ### Definitions and Primitive Values
+- ``ArgumentDefinition``
 - ``ArrayDefinition``
 - ``BitLiteral``
 - ``BitVector``
@@ -11,6 +12,8 @@
 - ``ConstantSignal``
 - ``Definition``
 - ``ExternalType``
+- ``FunctionDefinition``
+- ``FunctionImplementation``
 - ``GenericBlock``
 - ``GenericTypeDeclaration``
 - ``HeadStatement``

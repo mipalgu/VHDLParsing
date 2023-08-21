@@ -1,4 +1,4 @@
-// Definition.swift
+// ArgumentDefinition.swift
 // VHDLParsing
 // 
 // Created by Morgan McColl.
@@ -55,81 +55,82 @@
 // 
 
 import Foundation
-import StringHelpers
 
-/// A definition of a new variable in `VHDL`.
-public enum Definition: RawRepresentable, Equatable, Hashable, Codable, Sendable {
+/// A type for definining argument definitions within a parameter list of a function.
+public struct ArgumentDefinition: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
-    /// The variable is a signal.
-    case signal(value: LocalSignal)
+    /// The name of the argument.
+    public let name: VariableName
 
-    /// The variable is a constant.
-    case constant(value: ConstantSignal)
+    /// The type of the argument.
+    public let type: Type
 
-    /// A component definition.
-    case component(value: ComponentDefinition)
+    /// The default value for the argument.
+    public let defaultValue: Expression?
 
-    /// A new type definition.
-    case type(value: TypeDefinition)
-
-    /// A new function definition.
-    case function(value: FunctionDefinition)
-
-    /// The equivalent `VHDL` code for this definition.
+    /// The `VHDL` code that represents the argument definition.
     @inlinable public var rawValue: String {
-        switch self {
-        case .signal(let value):
-            return value.rawValue
-        case .constant(let value):
-            return value.rawValue
-        case .component(let value):
-            return value.rawValue
-        case .type(let type):
-            return type.rawValue
-        case .function(let function):
-            return function.rawValue
+        guard let defaultValue = defaultValue else {
+            return "\(self.name.rawValue): \(self.type.rawValue)"
         }
+        return "\(self.name.rawValue): \(self.type.rawValue) := \(defaultValue.rawValue)"
     }
 
-    /// Creates a new `Definition` from the given `VHDL` code.
-    /// - Parameter rawValue: The `VHDL` code to create the `Definition` from.
+    /// Creates a new argument definition.
+    /// - Parameters:
+    ///   - name: The name of the argument.
+    ///   - type: The type of the argument.
+    ///   - defaultValue: The default value for the argument.
+    @inlinable
+    public init(name: VariableName, type: Type, defaultValue: Expression? = nil) {
+        self.name = name
+        self.type = type
+        self.defaultValue = defaultValue
+    }
+
+    /// Creates a new argument definition from the `VHDL` code.
+    /// - Parameter rawValue: The `VHDL` code representing the argument definition.
     @inlinable
     public init?(rawValue: String) {
         let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard trimmedString.count < 2048 else {
+        guard
+            trimmedString.count < 2048,
+            let colonIndex = trimmedString.firstIndex(of: ":"),
+            colonIndex > trimmedString.startIndex,
+            colonIndex < trimmedString.index(before: trimmedString.endIndex)
+        else {
             return nil
         }
-        let firstWord = trimmedString.firstWord?.lowercased()
-        switch firstWord {
-        case "constant":
-            self.init(trimmedString: trimmedString) { .constant(value: $0) }
-        case "signal":
-            self.init(trimmedString: trimmedString) { .signal(value: $0) }
-        case "component":
-            self.init(trimmedString: trimmedString) { .component(value: $0) }
-        case "type":
-            self.init(trimmedString: trimmedString) { .type(value: $0) }
-        case "function":
-            self.init(trimmedString: trimmedString) { .function(value: $0) }
-        default:
+        let nameRaw = String(trimmedString[trimmedString.startIndex..<colonIndex])
+        guard let name = VariableName(rawValue: nameRaw) else {
             return nil
         }
-    }
-
-    /// Creates a new `Definition` from the given `VHDL` code by trying to cast to a specific case of
-    /// `Definition`.
-    /// - Parameters:
-    ///   - trimmedString: The `VHDL` code to parse.
-    ///   - fn: A function that creates a specific case of `Definition` from an expected parsed version of 
-    /// the `VHDL` code.
-    @usableFromInline
-    init?<T>(
-        trimmedString: String, trying fn: (T) -> Definition
-    ) where T: RawRepresentable, T.RawValue == String {
-        guard let value = T(rawValue: trimmedString) else {
+        let remaining = String(trimmedString[trimmedString.index(after: colonIndex)..<trimmedString.endIndex])
+        let typeRaw: String
+        let defaultValue: Expression?
+        if remaining.contains(":=") {
+            guard
+                let colonIndex = remaining.firstIndex(of: ":"),
+                let equalsIndex = remaining.firstIndex(of: "="),
+                equalsIndex == remaining.index(after: colonIndex)
+            else {
+                return nil
+            }
+            typeRaw = String(remaining[remaining.startIndex..<colonIndex])
+            let defaultRaw = remaining[remaining.index(after: equalsIndex)..<remaining.endIndex]
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+            guard let value = Expression(rawValue: defaultRaw) else {
+                return nil
+            }
+            defaultValue = value
+        } else {
+            typeRaw = remaining
+            defaultValue = nil
+        }
+        guard let type = Type(rawValue: typeRaw) else {
             return nil
         }
-        self = fn(value)
+        self.init(name: name, type: type, defaultValue: defaultValue)
     }
 
 }

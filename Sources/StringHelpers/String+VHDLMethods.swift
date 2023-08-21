@@ -165,13 +165,19 @@ extension String {
 
     /// Find the indexes of all occurrences of a given sentence within the string.
     /// - Parameter words: The sentence to match against as an array of ordered words.
+    /// - Parameter isCaseSensitive: Whether the search should be case sensitive.
     /// - Returns: The indexes of all occurrences of the sentence within the string. The indexes are
     /// represented as a 2-tuple (startIndex, endIndex) where endIndex is the next index after the last
     /// character of the last word.
     @inlinable
-    public func indexes(for sentence: [String]) -> [(String.Index, String.Index)] {
+    public func indexes(
+        for sentence: [String], isCaseSensitive: Bool = true
+    ) -> [(String.Index, String.Index)] {
         guard !self.isEmpty, !sentence.isEmpty else {
             return []
+        }
+        guard isCaseSensitive else {
+            return self.lowercased().indexes(for: sentence.map { $0.lowercased() }, isCaseSensitive: true)
         }
         let words = sentence.map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
         guard !words.contains("") else {

@@ -55,6 +55,7 @@
 // 
 
 import Foundation
+import StringHelpers
 
 /// A statement is a a full operation that contains expressions that resolve to some value or logic that is
 /// performed. A statement may be definitions, assignments to variables or comments.
@@ -66,8 +67,14 @@ public enum Statement: RawRepresentable, Equatable, Hashable, Codable, Sendable 
     /// A comment, e.g. `-- This is a comment.`.
     case comment(value: Comment)
 
+    /// A `return` statement, e.g. `return a + b;`.
+    case returns(value: Expression)
+
     /// The null statement.
     case null
+
+    /// The exit statement.
+    case exit
 
     /// The raw value is a string.
     public typealias RawValue = String
@@ -81,6 +88,10 @@ public enum Statement: RawRepresentable, Equatable, Hashable, Codable, Sendable 
             return value.rawValue
         case .null:
             return "null;"
+        case .returns(let value):
+            return "return \(value.rawValue);"
+        case .exit:
+            return "exit;"
         }
     }
 
@@ -93,7 +104,7 @@ public enum Statement: RawRepresentable, Equatable, Hashable, Codable, Sendable 
     @inlinable
     public init?(rawValue: String) {
         let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard trimmedString.count < 256 else {
+        guard trimmedString.count < 2048 else {
             return nil
         }
         if
@@ -110,6 +121,26 @@ public enum Statement: RawRepresentable, Equatable, Hashable, Codable, Sendable 
         }
         if let exp = Comment(rawValue: trimmedString) {
             self = .comment(value: exp)
+            return
+        }
+        if trimmedString.firstWord?.lowercased() == "return" {
+            guard trimmedString.hasSuffix(";") else {
+                return nil
+            }
+            let raw = trimmedString.dropFirst("return".count)
+                .dropLast()
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+            guard let expression = Expression(rawValue: raw) else {
+                return nil
+            }
+            self = .returns(value: expression)
+            return
+        }
+        if
+            trimmedString.hasSuffix(";"),
+            trimmedString.dropLast().trimmingCharacters(in: .whitespacesAndNewlines).lowercased() == "exit"
+        {
+            self = .exit
             return
         }
         if trimmedString.contains("<=") {
