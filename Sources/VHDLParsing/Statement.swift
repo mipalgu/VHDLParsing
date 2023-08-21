@@ -73,6 +73,9 @@ public enum Statement: RawRepresentable, Equatable, Hashable, Codable, Sendable 
     /// The null statement.
     case null
 
+    /// The exit statement.
+    case exit
+
     /// The raw value is a string.
     public typealias RawValue = String
 
@@ -87,6 +90,8 @@ public enum Statement: RawRepresentable, Equatable, Hashable, Codable, Sendable 
             return "null;"
         case .returns(let value):
             return "return \(value.rawValue);"
+        case .exit:
+            return "exit;"
         }
     }
 
@@ -129,6 +134,13 @@ public enum Statement: RawRepresentable, Equatable, Hashable, Codable, Sendable 
                 return nil
             }
             self = .returns(value: expression)
+            return
+        }
+        if
+            trimmedString.hasSuffix(";"),
+            trimmedString.dropLast().trimmingCharacters(in: .whitespacesAndNewlines).lowercased() == "exit"
+        {
+            self = .exit
             return
         }
         if trimmedString.contains("<=") {

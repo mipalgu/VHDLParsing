@@ -75,6 +75,7 @@ final class StatementTests: XCTestCase {
         XCTAssertEqual(Statement.comment(value: comment).rawValue, comment.rawValue)
         XCTAssertEqual(Statement.null.rawValue, "null;")
         XCTAssertEqual(Statement.returns(value: .literal(value: .integer(value: 5))).rawValue, "return 5;")
+        XCTAssertEqual(Statement.exit.rawValue, "exit;")
     }
 
     /// Test `init(rawValue:)` parses `VHDL` code correctly for comments.
@@ -158,6 +159,18 @@ final class StatementTests: XCTestCase {
         XCTAssertNil(Statement(rawValue: "return 5"))
         XCTAssertNil(Statement(rawValue: "returns 5;"))
         XCTAssertNil(Statement(rawValue: "return 5 +;"))
+    }
+
+    /// Test exit raw value init.
+    func testExitRawValueInit() {
+        XCTAssertEqual(Statement(rawValue: "exit;"), .exit)
+        XCTAssertEqual(Statement(rawValue: "exit; "), .exit)
+        XCTAssertEqual(Statement(rawValue: " exit;"), .exit)
+        XCTAssertEqual(Statement(rawValue: " exit; "), .exit)
+        XCTAssertEqual(Statement(rawValue: "exit;\n"), .exit)
+        XCTAssertEqual(Statement(rawValue: "exit;\n "), .exit)
+        XCTAssertEqual(Statement(rawValue: "EXIT;"), .exit)
+        XCTAssertNil(Statement(rawValue: "exit"))
     }
 
 }
