@@ -137,6 +137,8 @@ final class FunctionImplementationTests: XCTestCase {
         XCTAssertEqual(implementation.rawValue, expected)
     }
 
+    // swiftlint:disable function_body_length
+
     /// Test that `init(rawValue:)` parses the `VHDL` code correctly.
     func testRawValueInit() {
         let raw = """
@@ -150,6 +152,105 @@ final class FunctionImplementationTests: XCTestCase {
         end function;
         """
         XCTAssertEqual(FunctionImplementation(rawValue: raw), implementation)
+        XCTAssertNil(
+            FunctionImplementation(
+                rawValue: """
+                    is function max(arg1: integer := 0; arg2: integer := 0) return integer is
+                    begin
+                        if (arg1 < arg2) then
+                            return arg2;
+                        else
+                            return arg1;
+                        end if;
+                    end function;
+                    """
+            )
+        )
+        XCTAssertNil(
+            FunctionImplementation(
+                rawValue: """
+                    max(arg1: integer := 0; arg2: integer := 0) return integer is
+                    begin
+                        if (arg1 < arg2) then
+                            return arg2;
+                        else
+                            return arg1;
+                        end if;
+                    end function;
+                    """
+            )
+        )
+        XCTAssertNil(
+            FunctionImplementation(
+                rawValue: """
+                    function max(arg1: integer := 0; arg2: integer := 0) return integer is
+                    begin
+                        if (arg1 < arg2) then
+                            return arg2;
+                        else
+                            return arg1;
+                        end if;
+                    end function
+                    """
+            )
+        )
+        XCTAssertNil(
+            FunctionImplementation(
+                rawValue: """
+                    function max(arg1: integer := 0; arg2: integer := 0) return integer is
+                    begin
+                        if (arg1 < arg2) then
+                            return arg2;
+                        else
+                            return arg1;
+                        end if;
+                    end;
+                    """
+            )
+        )
+        XCTAssertNil(
+            FunctionImplementation(
+                rawValue: """
+                    function max(arg1: integer := 0; arg2: integer := 0) return integer is
+                    begin
+                        if (arg1 < arg2) then
+                            return arg2;
+                        else
+                            return arg1;
+                        end if;
+                    function;
+                    """
+            )
+        )
+        XCTAssertNil(
+            FunctionImplementation(
+                rawValue: """
+                    function max(arg1: integer := 0; arg2: integer := 0) return integer is
+                        if (arg1 < arg2) then
+                            return arg2;
+                        else
+                            return arg1;
+                        end if;
+                    end function;
+                    """
+            )
+        )
+        XCTAssertNil(
+            FunctionImplementation(
+                rawValue: """
+                    function max(arg1: integer := 0; arg2: integer := 0) return integer is
+                    begin
+                        ifs (arg1 < arg2) then
+                            return arg2;
+                        else
+                            return arg1;
+                        end if;
+                    end function;
+                    """
+            )
+        )
     }
+
+    // swiftlint:enable function_body_length
 
 }

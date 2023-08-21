@@ -57,17 +57,24 @@
 import Foundation
 import StringHelpers
 
+/// A type that represents a function definition with a body. This type represents the case where the
+/// implementation of the function is provided.
 public struct FunctionImplementation: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
+    /// The name of the function.
     public let name: VariableName
 
+    /// The arguments of the function.
     public let arguments: [ArgumentDefinition]
 
+    /// The return type of the function.
     public let returnType: Type
 
+    /// The body of the function. This is the code enacted when the function is called.
     public let body: SynchronousBlock
 
-    public var rawValue: String {
+    /// The `VHDL` code defining this function implementation.
+    @inlinable public var rawValue: String {
         let arguments = self.arguments.map { $0.rawValue }.joined(separator: "; ")
         return """
         function \(self.name.rawValue)(\(arguments)) return \(self.returnType.rawValue) is
@@ -77,6 +84,13 @@ public struct FunctionImplementation: RawRepresentable, Equatable, Hashable, Cod
         """
     }
 
+    /// Creates a new `FunctionImplementation` instance from its properties.
+    /// - Parameters:
+    ///   - name: The name of the function.
+    ///   - arguments: The arguments of the function.
+    ///   - returnTube: The return type of the function.
+    ///   - body: The body of the function.
+    @inlinable
     public init(
         name: VariableName,
         arguments: [ArgumentDefinition],
@@ -89,6 +103,11 @@ public struct FunctionImplementation: RawRepresentable, Equatable, Hashable, Cod
         self.body = body
     }
 
+    /// Creates a new `FunctionImplementation` instance from the definition of the function and its body.
+    /// - Parameters:
+    ///   - definition: The definition of the function.
+    ///   - body: The body of this function.
+    @inlinable
     public init(definition: FunctionDefinition, body: SynchronousBlock) {
         self.init(
             name: definition.name,
@@ -98,6 +117,9 @@ public struct FunctionImplementation: RawRepresentable, Equatable, Hashable, Cod
         )
     }
 
+    /// Creates a new `FunctionImplementation` instance from its `VHDL` code.
+    /// - Parameter rawValue: The `VHDL` code defining this function implementation.
+    @inlinable
     public init?(rawValue: String) {
         let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
         let isIndexes = trimmedString.indexes(for: ["is"], isCaseSensitive: false)
