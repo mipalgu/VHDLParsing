@@ -115,6 +115,10 @@ final class ArgumentDefinitionTests: XCTestCase {
         XCTAssertNil(ArgumentDefinition(rawValue: "_value: real"))
         XCTAssertNil(ArgumentDefinition(rawValue: "%value: real"))
         XCTAssertNil(ArgumentDefinition(rawValue: "value: real := 123abc!"))
+        XCTAssertNil(ArgumentDefinition(rawValue: "value:real:1.0"))
+        XCTAssertNil(ArgumentDefinition(rawValue: "value:real::=1.0"))
+        XCTAssertNil(ArgumentDefinition(rawValue: "value:real: =1.0"))
+        XCTAssertNil(ArgumentDefinition(rawValue: "value:real=1.0"))
     }
 
 }
