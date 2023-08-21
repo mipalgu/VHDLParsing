@@ -54,21 +54,46 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
+import Foundation
+
+/// An expression accessing a member within a record instance. This type correctly parses the `VHDL` that
+/// is used to access a member within a record. For example, consider the record `foo` with the member `bar`.
+/// The `VHDL` code to access this member would be `foo.bar`. This type correctly parses this code and stores
+/// the record and member as separate properties of this struct. If this `VHDL` is parsed by this type, i.e.
+/// by using `MemberAccess(rawValue: \"foo.bar\")`, then the `record` property will be `foo` and the `member
+/// property will be `bar`.
+/// 
+/// This type also supports chaining member access as the member property is a
+/// ``DirectReference``. For example, consider the record `foo` with the member `bar` which is a record with
+/// the member `baz`. The `VHDL` code to access this member would be `foo.bar.baz`. This type will store
+/// `foo` in the `record` property and `bar.baz` in the `member` property as a ``DirectReference`` instance.
+/// - SeeAlso: ``DirectReference``, ``VariableName``.
 public struct MemberAccess: Codable, Equatable, Hashable, RawRepresentable, Sendable {
 
+    /// The name of the record the `member` belongs too.
     public let record: VariableName
 
+    /// The member that is accessed within the `record`.
     public let member: DirectReference
 
-    public var rawValue: String {
+    /// The `VHDL` code that represents this member access.
+    @inlinable public var rawValue: String {
         "\(self.record.rawValue).\(self.member.rawValue)"
     }
 
+    /// Creates a new instance of this type with the given record and member.
+    /// - Parameters:
+    ///   - record: The name of the record the `member` belongs too.
+    ///   - member: The member that is accessed within the `record`.
+    @inlinable
     public init(record: VariableName, member: DirectReference) {
         self.record = record
         self.member = member
     }
 
+    /// Creates a new instance of this type by parsing the given `VHDL` code.
+    /// - Parameter rawValue: The `VHDL` code to parse.
+    @inlinable
     public init?(rawValue: String) {
         let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
         guard
