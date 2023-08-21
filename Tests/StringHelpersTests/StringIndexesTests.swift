@@ -65,6 +65,10 @@ final class StringIndexesTests: XCTestCase {
         let data = "ABC DEF ABE ABF DEA"
         let sentence = ["ABE", "ABF"]
         let result = data.indexes(for: sentence)
+        let sentenceLower = sentence.map { $0.lowercased() }
+        let resultLowercased = data.indexes(for: sentenceLower)
+        let resultCaseInsensitive = data.indexes(for: sentenceLower, isCaseSensitive: false)
+        XCTAssertTrue(resultLowercased.isEmpty)
         guard result.count == 1 else {
             XCTFail("Incorrect indexes returned \(result.count).")
             return
@@ -72,6 +76,9 @@ final class StringIndexesTests: XCTestCase {
         XCTAssertEqual(result[0].0, data.index(data.startIndex, offsetBy: 8))
         XCTAssertEqual(data[result[0].0..<result[0].1], "ABE ABF")
         XCTAssertEqual(result[0].1, data.index(data.startIndex, offsetBy: 15))
+        XCTAssertEqual(resultCaseInsensitive[0].0, data.index(data.startIndex, offsetBy: 8))
+        XCTAssertEqual(data[resultCaseInsensitive[0].0..<resultCaseInsensitive[0].1], "ABE ABF")
+        XCTAssertEqual(resultCaseInsensitive[0].1, data.index(data.startIndex, offsetBy: 15))
         let data2 = "ABC DEF ABEABF DEA"
         XCTAssertTrue(data2.indexes(for: sentence).isEmpty)
         let data3 = "ABC DEF ABE ABF"
