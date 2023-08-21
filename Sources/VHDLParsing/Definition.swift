@@ -72,6 +72,9 @@ public enum Definition: RawRepresentable, Equatable, Hashable, Codable, Sendable
     /// A new type definition.
     case type(value: TypeDefinition)
 
+    /// A new function definition.
+    case function(value: FunctionDefinition)
+
     /// The equivalent `VHDL` code for this definition.
     @inlinable public var rawValue: String {
         switch self {
@@ -83,6 +86,8 @@ public enum Definition: RawRepresentable, Equatable, Hashable, Codable, Sendable
             return value.rawValue
         case .type(let type):
             return type.rawValue
+        case .function(let function):
+            return function.rawValue
         }
     }
 
@@ -104,6 +109,8 @@ public enum Definition: RawRepresentable, Equatable, Hashable, Codable, Sendable
             self.init(trimmedString: trimmedString) { .component(value: $0) }
         case "type":
             self.init(trimmedString: trimmedString) { .type(value: $0) }
+        case "function":
+            self.init(trimmedString: trimmedString) { .function(value: $0) }
         default:
             return nil
         }
