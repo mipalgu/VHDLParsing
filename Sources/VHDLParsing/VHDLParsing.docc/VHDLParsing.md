@@ -12,6 +12,8 @@
 - ``ConstantSignal``
 - ``Definition``
 - ``ExternalType``
+- ``FunctionDefinition``
+- ``FunctionImplementation``
 - ``GenericBlock``
 - ``GenericTypeDeclaration``
 - ``HeadStatement``
