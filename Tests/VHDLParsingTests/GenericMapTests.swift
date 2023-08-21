@@ -61,13 +61,13 @@ import XCTest
 final class GenericMapTests: XCTestCase {
 
     /// A variable `x`.
-    let x = VariableReference.variable(name: VariableName(text: "x"))
+    let x = VariableReference.variable(reference: .variable(name: VariableName(text: "x")))
 
     /// A variable `y`.
-    let y = VariableReference.variable(name: VariableName(text: "y"))
+    let y = VariableReference.variable(reference: .variable(name: VariableName(text: "y")))
 
     /// A variable `z`.
-    let z = Expression.reference(variable: .variable(name: VariableName(text: "z")))
+    let z = Expression.reference(variable: .variable(reference: .variable(name: VariableName(text: "z"))))
 
     /// The `GenericMap` under test.
     lazy var map = GenericMap(

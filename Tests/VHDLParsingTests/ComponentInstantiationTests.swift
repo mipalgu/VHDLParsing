@@ -69,17 +69,17 @@ final class ComponentInstantiationTests: XCTestCase {
     /// The port map.
     let port = PortMap(variables: [
         VariableMap(
-            lhs: .variable(name: VariableName(text: "x")),
-            rhs: .reference(variable: .variable(name: VariableName(text: "z")))
+            lhs: .variable(reference: .variable(name: VariableName(text: "x"))),
+            rhs: .reference(variable: .variable(reference: .variable(name: VariableName(text: "z"))))
         ),
-        VariableMap(lhs: .variable(name: VariableName(text: "y")), rhs: .open)
+        VariableMap(lhs: .variable(reference: .variable(name: VariableName(text: "y"))), rhs: .open)
     ])
 
     /// The generic map.
     let generic = GenericMap(variables: [
         GenericVariableMap(
-            lhs: .variable(name: VariableName(text: "N")),
-            rhs: .reference(variable: .variable(name: VariableName(text: "A")))
+            lhs: .variable(reference: .variable(name: VariableName(text: "N"))),
+            rhs: .reference(variable: .variable(reference: .variable(name: VariableName(text: "A"))))
         )
     ])
 

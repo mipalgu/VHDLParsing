@@ -41,6 +41,7 @@
 - ``ComparisonOperation``
 - ``ConditionalExpression``
 - ``CustomFunctionCall``
+- ``DirectReference``
 - ``EdgeCondition``
 - ``Expression``
 - ``FunctionCall``
@@ -48,6 +49,7 @@
 - ``IndexedValue``
 - ``IndexedVector``
 - ``MathRealFunctionCalls``
+- ``MemberAccess``
 - ``Statement``
 - ``VariableAssignment``
 - ``VariableMap``

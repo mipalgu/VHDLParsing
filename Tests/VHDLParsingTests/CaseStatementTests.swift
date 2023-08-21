@@ -61,14 +61,17 @@ import XCTest
 final class CaseStatementTests: XCTestCase {
 
     /// The condition of the case statement.
-    let condition = Expression.reference(variable: .variable(name: VariableName(text: "x")))
+    let condition = Expression.reference(variable: .variable(
+        reference: .variable(name: VariableName(text: "x"))
+    ))
 
     /// The cases of the statement.
     let cases = [
         WhenCase(
             condition: .expression(expression: .literal(value: .bit(value: .high))),
             code: .statement(statement: .assignment(
-                name: .variable(name: VariableName(text: "y")), value: .literal(value: .bit(value: .low))
+                name: .variable(reference: .variable(name: VariableName(text: "y"))),
+                value: .literal(value: .bit(value: .low))
             ))
         ),
         WhenCase.othersNull

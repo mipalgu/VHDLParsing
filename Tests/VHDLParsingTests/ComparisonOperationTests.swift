@@ -61,10 +61,10 @@ import XCTest
 final class ComparisonOperationTests: XCTestCase {
 
     /// The variable x.
-    let x = Expression.reference(variable: .variable(name: VariableName(text: "x")))
+    let x = Expression.reference(variable: .variable(reference: .variable(name: VariableName(text: "x"))))
 
     /// The variable y.
-    let y = Expression.reference(variable: .variable(name: VariableName(text: "y")))
+    let y = Expression.reference(variable: .variable(reference: .variable(name: VariableName(text: "y"))))
 
     /// Test that the `rawValue` property creates the correct `VHDL` code.
     func testRawValue() {

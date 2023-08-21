@@ -90,12 +90,14 @@ final class VHDLFileTests: XCTestCase {
                 code: .ifStatement(block: .ifStatement(
                     condition: .conditional(condition: .edge(
                         value: .rising(expression: .reference(
-                            variable: .variable(name: VariableName(text: "clk"))
+                            variable: .variable(reference: .variable(name: VariableName(text: "clk")))
                         ))
                     )),
                     ifBlock: .statement(statement: .assignment(
-                        name: .variable(name: VariableName(text: "y")),
-                        value: .reference(variable: .variable(name: VariableName(text: "x")))
+                        name: .variable(reference: .variable(name: VariableName(text: "y"))),
+                        value: .reference(
+                            variable: .variable(reference: .variable(name: VariableName(text: "x")))
+                        )
                     ))
                 ))
             )),

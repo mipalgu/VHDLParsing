@@ -61,10 +61,10 @@ import XCTest
 final class BinaryOperationTests: XCTestCase {
 
     /// A variable called `x`.
-    let x = Expression.reference(variable: .variable(name: VariableName(text: "x")))
+    let x = Expression.reference(variable: .variable(reference: .variable(name: VariableName(text: "x"))))
 
     /// The variable y.
-    let y = Expression.reference(variable: .variable(name: VariableName(text: "y")))
+    let y = Expression.reference(variable: .variable(reference: .variable(name: VariableName(text: "y"))))
 
     /// Test raw values are correct.
     func testRawValues() {
@@ -89,7 +89,7 @@ final class BinaryOperationTests: XCTestCase {
             BinaryOperation(rawValue: "x + y + z "),
             BinaryOperation.addition(
                 lhs: .binary(operation: .addition(lhs: x, rhs: y)),
-                rhs: .reference(variable: .variable(name: VariableName(text: "z")))
+                rhs: .reference(variable: .variable(reference: .variable(name: VariableName(text: "z"))))
             )
         )
     }
@@ -109,7 +109,7 @@ final class BinaryOperationTests: XCTestCase {
             BinaryOperation(rawValue: "x - y - z "),
             BinaryOperation.subtraction(
                 lhs: .binary(operation: .subtraction(lhs: x, rhs: y)),
-                rhs: .reference(variable: .variable(name: VariableName(text: "z")))
+                rhs: .reference(variable: .variable(reference: .variable(name: VariableName(text: "z"))))
             )
         )
     }
@@ -129,7 +129,7 @@ final class BinaryOperationTests: XCTestCase {
             BinaryOperation(rawValue: "x * y * z "),
             BinaryOperation.multiplication(
                 lhs: .binary(operation: .multiplication(lhs: x, rhs: y)),
-                rhs: .reference(variable: .variable(name: VariableName(text: "z")))
+                rhs: .reference(variable: .variable(reference: .variable(name: VariableName(text: "z"))))
             )
         )
     }
@@ -149,7 +149,7 @@ final class BinaryOperationTests: XCTestCase {
             BinaryOperation(rawValue: "x / y / z "),
             BinaryOperation.division(
                 lhs: .binary(operation: .division(lhs: x, rhs: y)),
-                rhs: .reference(variable: .variable(name: VariableName(text: "z")))
+                rhs: .reference(variable: .variable(reference: .variable(name: VariableName(text: "z"))))
             )
         )
     }

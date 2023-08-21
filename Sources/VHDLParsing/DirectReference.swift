@@ -1,4 +1,4 @@
-// VariableReference.swift
+// DirectReference.swift
 // VHDLParsing
 // 
 // Created by Morgan McColl.
@@ -55,53 +55,45 @@
 // 
 
 import Foundation
-import StringHelpers
 
-/// A type for defining types of references to a variable.
-public enum VariableReference: RawRepresentable, Equatable, Hashable, Codable, Sendable {
+/// A direct reference is a reference to a variable via it's name or member access in a record type.
+/// This enum acts us an umbrella for both of these cases and the underlying parsing is delegated to the
+/// `VariableName` and `MemberAccess` types.
+/// - SeeAlso: ``VariableName``, ``MemberAccess``.
+public indirect enum DirectReference: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
-    /// Referencing a variable directly.
-    case variable(reference: DirectReference)
+    /// A reference to a variable.
+    case variable(name: VariableName)
 
-    /// Indexing a variable.
-    case indexed(name: VariableName, index: VectorIndex)
+    /// A reference to a member of a record instance.
+    case member(access: MemberAccess)
 
-    /// The equivalent `VHDL` code.
+    /// The `VHDL` code representation of this direct reference.
     @inlinable public var rawValue: String {
         switch self {
         case .variable(let name):
             return name.rawValue
-        case .indexed(let name, let index):
-            return "\(name.rawValue)(\(index.rawValue))"
+        case .member(let access):
+            return access.rawValue
         }
     }
 
-    /// Creates a new instance by parsing the given `VHDL` code.
-    /// - Parameter rawValue: The `VHDL` code to parse.
+    /// Creates a new direct reference from the given `VHDL` code representation.
+    /// - Parameter rawValue: The `VHDL` code representation of this direct reference.
     @inlinable
     public init?(rawValue: String) {
         let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard trimmedString.count < 256 else {
+        guard trimmedString.count < 2048 else {
             return nil
         }
-        if let reference = DirectReference(rawValue: trimmedString) {
-            self = .variable(reference: reference)
+        if let name = VariableName(rawValue: trimmedString) {
+            self = .variable(name: name)
             return
         }
-        guard let bracketIndex = trimmedString.firstIndex(of: "(") else {
+        guard let memberAccess = MemberAccess(rawValue: trimmedString) else {
             return nil
         }
-        guard
-            let name = VariableName(rawValue: String(trimmedString[trimmedString.startIndex..<bracketIndex])),
-            let bracketRemaining = trimmedString[bracketIndex...].uptoBalancedBracket,
-            bracketRemaining.hasPrefix("("),
-            bracketRemaining.hasSuffix(")"),
-            bracketRemaining.endIndex == trimmedString.endIndex,
-            let index = VectorIndex(rawValue: String(bracketRemaining.dropFirst().dropLast()))
-        else {
-            return nil
-        }
-        self = .indexed(name: name, index: index)
+        self = .member(access: memberAccess)
     }
 
 }

@@ -61,7 +61,7 @@ import XCTest
 final class EdgeConditionTests: XCTestCase {
 
     /// A variable called `x`.
-    let x = Expression.reference(variable: .variable(name: VariableName(text: "x")))
+    let x = Expression.reference(variable: .variable(reference: .variable(name: VariableName(text: "x"))))
 
     /// Test expression property gets the correct expression.
     func testExpression() {

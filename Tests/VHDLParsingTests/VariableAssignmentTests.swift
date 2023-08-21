@@ -61,7 +61,7 @@ import XCTest
 final class VariableAssignmentTests: XCTestCase {
 
     /// A variable `x`.
-    let x = VariableReference.variable(name: VariableName(text: "x"))
+    let x = VariableReference.variable(reference: .variable(name: VariableName(text: "x")))
 
     /// The assignment under test.
     lazy var assignment = VariableAssignment.reference(variable: x)

@@ -1,4 +1,4 @@
-// VariableReference.swift
+// MemberAccess.swift
 // VHDLParsing
 // 
 // Created by Morgan McColl.
@@ -55,53 +55,67 @@
 // 
 
 import Foundation
-import StringHelpers
 
-/// A type for defining types of references to a variable.
-public enum VariableReference: RawRepresentable, Equatable, Hashable, Codable, Sendable {
+/// An expression accessing a member within a record instance. This type correctly parses the `VHDL` that
+/// is used to access a member within a record. For example, consider the record `foo` with the member `bar`.
+/// The `VHDL` code to access this member would be `foo.bar`. This type correctly parses this code and stores
+/// the record and member as separate properties of this struct. If this `VHDL` is parsed by this type, i.e.
+/// by using `MemberAccess(rawValue: \"foo.bar\")`, then the `record` property will be `foo` and the `member
+/// property will be `bar`.
+/// 
+/// This type also supports chaining member access as the member property is a
+/// ``DirectReference``. For example, consider the record `foo` with the member `bar` which is a record with
+/// the member `baz`. The `VHDL` code to access this member would be `foo.bar.baz`. This type will store
+/// `foo` in the `record` property and `bar.baz` in the `member` property as a ``DirectReference`` instance.
+/// - SeeAlso: ``DirectReference``, ``VariableName``.
+public struct MemberAccess: Codable, Equatable, Hashable, RawRepresentable, Sendable {
 
-    /// Referencing a variable directly.
-    case variable(reference: DirectReference)
+    /// The name of the record the `member` belongs too.
+    public let record: VariableName
 
-    /// Indexing a variable.
-    case indexed(name: VariableName, index: VectorIndex)
+    /// The member that is accessed within the `record`.
+    public let member: DirectReference
 
-    /// The equivalent `VHDL` code.
+    /// The `VHDL` code that represents this member access.
     @inlinable public var rawValue: String {
-        switch self {
-        case .variable(let name):
-            return name.rawValue
-        case .indexed(let name, let index):
-            return "\(name.rawValue)(\(index.rawValue))"
-        }
+        "\(self.record.rawValue).\(self.member.rawValue)"
     }
 
-    /// Creates a new instance by parsing the given `VHDL` code.
+    /// Creates a new instance of this type with the given record and member.
+    /// - Parameters:
+    ///   - record: The name of the record the `member` belongs too.
+    ///   - member: The member that is accessed within the `record`.
+    @inlinable
+    public init(record: VariableName, member: DirectReference) {
+        self.record = record
+        self.member = member
+    }
+
+    /// Creates a new instance of this type by parsing the given `VHDL` code.
     /// - Parameter rawValue: The `VHDL` code to parse.
     @inlinable
     public init?(rawValue: String) {
         let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard trimmedString.count < 256 else {
-            return nil
-        }
-        if let reference = DirectReference(rawValue: trimmedString) {
-            self = .variable(reference: reference)
-            return
-        }
-        guard let bracketIndex = trimmedString.firstIndex(of: "(") else {
-            return nil
-        }
         guard
-            let name = VariableName(rawValue: String(trimmedString[trimmedString.startIndex..<bracketIndex])),
-            let bracketRemaining = trimmedString[bracketIndex...].uptoBalancedBracket,
-            bracketRemaining.hasPrefix("("),
-            bracketRemaining.hasSuffix(")"),
-            bracketRemaining.endIndex == trimmedString.endIndex,
-            let index = VectorIndex(rawValue: String(bracketRemaining.dropFirst().dropLast()))
+            trimmedString.count >= 3,
+            trimmedString.count < 2048,
+            let dotIndex = trimmedString.firstIndex(of: "."),
+            dotIndex > trimmedString.startIndex,
+            dotIndex < trimmedString.index(before: trimmedString.endIndex)
         else {
             return nil
         }
-        self = .indexed(name: name, index: index)
+        let lhs = String(trimmedString[trimmedString.startIndex..<dotIndex])
+        let rhs = String(trimmedString[trimmedString.index(after: dotIndex)..<trimmedString.endIndex])
+        guard
+            lhs.trimmingCharacters(in: .whitespacesAndNewlines).count == lhs.count,
+            rhs.trimmingCharacters(in: .whitespacesAndNewlines).count == rhs.count,
+            let lhsExp = VariableName(rawValue: lhs),
+            let rhsExp = DirectReference(rawValue: rhs)
+        else {
+            return nil
+        }
+        self.init(record: lhsExp, member: rhsExp)
     }
 
 }

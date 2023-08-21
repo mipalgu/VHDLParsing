@@ -1,4 +1,4 @@
-// VariableReference.swift
+// MemberAccessTests.swift
 // VHDLParsing
 // 
 // Created by Morgan McColl.
@@ -54,54 +54,70 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
-import Foundation
-import StringHelpers
+@testable import VHDLParsing
+import XCTest
 
-/// A type for defining types of references to a variable.
-public enum VariableReference: RawRepresentable, Equatable, Hashable, Codable, Sendable {
+/// Test class for ``MemberAccess``.
+final class MemberAccessTests: XCTestCase {
 
-    /// Referencing a variable directly.
-    case variable(reference: DirectReference)
+    /// The record to access.
+    let record = VariableName(text: "recordA")
 
-    /// Indexing a variable.
-    case indexed(name: VariableName, index: VectorIndex)
+    /// The member in record to access.
+    let member = DirectReference.variable(name: VariableName(text: "member"))
 
-    /// The equivalent `VHDL` code.
-    @inlinable public var rawValue: String {
-        switch self {
-        case .variable(let name):
-            return name.rawValue
-        case .indexed(let name, let index):
-            return "\(name.rawValue)(\(index.rawValue))"
-        }
+    /// The access unit under test.
+    lazy var memberAccess = MemberAccess(record: record, member: member)
+
+    /// Initialise the uut before each test.
+    override func setUp() {
+        memberAccess = MemberAccess(record: record, member: member)
     }
 
-    /// Creates a new instance by parsing the given `VHDL` code.
-    /// - Parameter rawValue: The `VHDL` code to parse.
-    @inlinable
-    public init?(rawValue: String) {
-        let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard trimmedString.count < 256 else {
-            return nil
-        }
-        if let reference = DirectReference(rawValue: trimmedString) {
-            self = .variable(reference: reference)
-            return
-        }
-        guard let bracketIndex = trimmedString.firstIndex(of: "(") else {
-            return nil
-        }
-        guard
-            let name = VariableName(rawValue: String(trimmedString[trimmedString.startIndex..<bracketIndex])),
-            let bracketRemaining = trimmedString[bracketIndex...].uptoBalancedBracket,
-            bracketRemaining.hasPrefix("("),
-            bracketRemaining.hasSuffix(")"),
-            bracketRemaining.endIndex == trimmedString.endIndex,
-            let index = VectorIndex(rawValue: String(bracketRemaining.dropFirst().dropLast()))
-        else {
-            return nil
-        }
-        self = .indexed(name: name, index: index)
+    /// Test `init(record:,member:)` functions correctly.
+    func testPropertyInit() {
+        XCTAssertEqual(memberAccess.record, record)
+        XCTAssertEqual(memberAccess.member, member)
+    }
+
+    /// Test the `rawValue` generates the correct String.
+    func testRawValue() {
+        XCTAssertEqual(memberAccess.rawValue, "recordA.member")
+        let member2 = MemberAccess(
+            record: record,
+            member: .member(access: MemberAccess(record: VariableName(text: "record2"), member: member))
+        )
+        XCTAssertEqual(member2.rawValue, "recordA.record2.member")
+    }
+
+    /// Test `init(rawValue:)` correctly parses the string.
+    func testRawValueInit() {
+        XCTAssertEqual(memberAccess, MemberAccess(rawValue: "recordA.member"))
+        XCTAssertEqual(memberAccess, MemberAccess(rawValue: "recordA.member "))
+        XCTAssertEqual(memberAccess, MemberAccess(rawValue: " recordA.member"))
+        XCTAssertEqual(memberAccess, MemberAccess(rawValue: " recordA.member "))
+        let chainedAccess = MemberAccess(rawValue: "recordA.recordB.member")
+        XCTAssertEqual(
+            chainedAccess,
+            MemberAccess(
+                record: record,
+                member: .member(access: MemberAccess(
+                    record: VariableName(text: "recordB"), member: member
+                ))
+            )
+        )
+        XCTAssertNil(MemberAccess(rawValue: "\(String(repeating: "A", count: 2048)).B"))
+        XCTAssertNil(MemberAccess(rawValue: "recordA .member"))
+        XCTAssertNil(MemberAccess(rawValue: "recordA . member"))
+        XCTAssertNil(MemberAccess(rawValue: "recordA. member"))
+        XCTAssertNil(MemberAccess(rawValue: ""))
+        XCTAssertNil(MemberAccess(rawValue: " "))
+        XCTAssertNil(MemberAccess(rawValue: "."))
+        XCTAssertNil(MemberAccess(rawValue: "recordA."))
+        XCTAssertNil(MemberAccess(rawValue: ".member"))
+        XCTAssertNil(MemberAccess(rawValue: "recordAmember"))
+        XCTAssertNil(MemberAccess(rawValue: "(A + B).member"))
+        XCTAssertNil(MemberAccess(rawValue: "recordA.(A + B)"))
     }
 
 }

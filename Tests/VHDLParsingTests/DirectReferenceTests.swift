@@ -1,4 +1,4 @@
-// VariableReference.swift
+// DirectReferenceTests.swift
 // VHDLParsing
 // 
 // Created by Morgan McColl.
@@ -54,54 +54,56 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
-import Foundation
-import StringHelpers
+@testable import VHDLParsing
+import XCTest
 
-/// A type for defining types of references to a variable.
-public enum VariableReference: RawRepresentable, Equatable, Hashable, Codable, Sendable {
+/// Test class for ``DirectReference``.
+final class DirectReferenceTests: XCTestCase {
 
-    /// Referencing a variable directly.
-    case variable(reference: DirectReference)
+    /// The name of a record.
+    let record = VariableName(text: "recordA")
 
-    /// Indexing a variable.
-    case indexed(name: VariableName, index: VectorIndex)
+    /// The name of a member inside `record`.
+    let member = VariableName(text: "member")
 
-    /// The equivalent `VHDL` code.
-    @inlinable public var rawValue: String {
-        switch self {
-        case .variable(let name):
-            return name.rawValue
-        case .indexed(let name, let index):
-            return "\(name.rawValue)(\(index.rawValue))"
-        }
+    /// A reference to `record`.
+    var varRef: DirectReference {
+        .variable(name: record)
     }
 
-    /// Creates a new instance by parsing the given `VHDL` code.
-    /// - Parameter rawValue: The `VHDL` code to parse.
-    @inlinable
-    public init?(rawValue: String) {
-        let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard trimmedString.count < 256 else {
-            return nil
-        }
-        if let reference = DirectReference(rawValue: trimmedString) {
-            self = .variable(reference: reference)
-            return
-        }
-        guard let bracketIndex = trimmedString.firstIndex(of: "(") else {
-            return nil
-        }
-        guard
-            let name = VariableName(rawValue: String(trimmedString[trimmedString.startIndex..<bracketIndex])),
-            let bracketRemaining = trimmedString[bracketIndex...].uptoBalancedBracket,
-            bracketRemaining.hasPrefix("("),
-            bracketRemaining.hasSuffix(")"),
-            bracketRemaining.endIndex == trimmedString.endIndex,
-            let index = VectorIndex(rawValue: String(bracketRemaining.dropFirst().dropLast()))
-        else {
-            return nil
-        }
-        self = .indexed(name: name, index: index)
+    /// A reference to `member` inside `record`.
+    var memberRef: DirectReference {
+        .member(access: MemberAccess(record: record, member: .variable(name: member)))
+    }
+
+    /// A reference to a chained member inside a record.
+    var chainedAccess: DirectReference {
+        .member(
+            access: MemberAccess(
+                record: record,
+                member: .member(access: MemberAccess(
+                    record: VariableName(text: "recordB"), member: .variable(name: member)
+                ))
+            )
+        )
+    }
+
+    /// Test the `rawValue` produces the correct `VHDL` code.
+    func testRawValue() {
+        XCTAssertEqual(varRef.rawValue, "recordA")
+        XCTAssertEqual(memberRef.rawValue, "recordA.member")
+        XCTAssertEqual(chainedAccess.rawValue, "recordA.recordB.member")
+    }
+
+    /// Test that the `VHDL` code is parsed correctly in `init(rawValue:)`.
+    func testRawValueInit() {
+        XCTAssertEqual(DirectReference(rawValue: "recordA"), varRef)
+        XCTAssertEqual(DirectReference(rawValue: "recordA.member"), memberRef)
+        XCTAssertEqual(DirectReference(rawValue: "recordA.recordB.member"), chainedAccess)
+        XCTAssertNil(DirectReference(rawValue: "\(String(repeating: "A", count: 2048))"))
+        XCTAssertNil(DirectReference(rawValue: ""))
+        XCTAssertNil(DirectReference(rawValue: " "))
+        XCTAssertNil(DirectReference(rawValue: "record"))
     }
 
 }
