@@ -110,6 +110,8 @@ final class MemberAccessTests: XCTestCase {
         XCTAssertNil(MemberAccess(rawValue: "recordA .member"))
         XCTAssertNil(MemberAccess(rawValue: "recordA . member"))
         XCTAssertNil(MemberAccess(rawValue: "recordA. member"))
+        XCTAssertNil(MemberAccess(rawValue: ""))
+        XCTAssertNil(MemberAccess(rawValue: " "))
         XCTAssertNil(MemberAccess(rawValue: "."))
         XCTAssertNil(MemberAccess(rawValue: "recordA."))
         XCTAssertNil(MemberAccess(rawValue: ".member"))
