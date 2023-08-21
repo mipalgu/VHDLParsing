@@ -89,6 +89,15 @@ public struct FunctionImplementation: RawRepresentable, Equatable, Hashable, Cod
         self.body = body
     }
 
+    public init(definition: FunctionDefinition, body: SynchronousBlock) {
+        self.init(
+            name: definition.name,
+            arguments: definition.arguments,
+            returnTube: definition.returnType,
+            body: body
+        )
+    }
+
     public init?(rawValue: String) {
         let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
         let isIndexes = trimmedString.indexes(for: ["is"], isCaseSensitive: false)
@@ -125,12 +134,7 @@ public struct FunctionImplementation: RawRepresentable, Equatable, Hashable, Cod
         guard let block = SynchronousBlock(rawValue: withoutBegin) else {
             return nil
         }
-        self.init(
-            name: functionDefinition.name,
-            arguments: functionDefinition.arguments,
-            returnTube: functionDefinition.returnType,
-            body: block
-        )
+        self.init(definition: functionDefinition, body: block)
     }
 
 }
