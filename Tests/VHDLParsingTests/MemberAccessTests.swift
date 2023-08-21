@@ -87,8 +87,10 @@ final class MemberAccessTests: XCTestCase {
 
     /// Test `init(rawValue:)` correctly parses the string.
     func testRawValueInit() {
-        let memberAccess = MemberAccess(rawValue: "recordA.member")
-        XCTAssertEqual(self.memberAccess, memberAccess)
+        XCTAssertEqual(memberAccess, MemberAccess(rawValue: "recordA.member"))
+        XCTAssertEqual(memberAccess, MemberAccess(rawValue: "recordA.member "))
+        XCTAssertEqual(memberAccess, MemberAccess(rawValue: " recordA.member"))
+        XCTAssertEqual(memberAccess, MemberAccess(rawValue: " recordA.member "))
         let chainedAccess = MemberAccess(rawValue: "recordA.recordB.member")
         XCTAssertEqual(
             chainedAccess,
@@ -99,6 +101,7 @@ final class MemberAccessTests: XCTestCase {
                 ))
             )
         )
+        XCTAssertNil(MemberAccess(rawValue: "\(String(repeating: "A", count: 2048)).B"))
         XCTAssertNil(MemberAccess(rawValue: "recordA .member"))
         XCTAssertNil(MemberAccess(rawValue: "recordA . member"))
         XCTAssertNil(MemberAccess(rawValue: "recordA. member"))
