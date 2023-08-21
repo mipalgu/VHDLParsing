@@ -63,19 +63,22 @@ import XCTest
 final class IfBlockTests: XCTestCase {
 
     /// A variable `x`.
-    let x = Expression.reference(variable: .variable(name: VariableName(text: "x")))
+    let x = Expression.reference(variable: .variable(reference: .variable(name: VariableName(text: "x"))))
 
     /// A variable `y`.
-    let y = Expression.reference(variable: .variable(name: VariableName(text: "y")))
+    let y = Expression.reference(variable: .variable(reference: .variable(name: VariableName(text: "y"))))
 
     /// Test `rawValue` generates `VHDL` code correctly.
     func testRawValue() {
         let condition = Expression.conditional(condition: .comparison(value: .equality(lhs: x, rhs: y)))
         let assignment = SynchronousBlock.statement(
-            statement: Statement.assignment(name: .variable(name: VariableName(text: "x")), value: y)
+            statement: Statement.assignment(
+                name: .variable(reference: .variable(name: VariableName(text: "x"))), value: y
+            )
         )
         let reset = SynchronousBlock.statement(statement: Statement.assignment(
-            name: .variable(name: VariableName(text: "x")), value: .literal(value: .bit(value: .low))
+            name: .variable(reference: .variable(name: VariableName(text: "x"))),
+            value: .literal(value: .bit(value: .low))
         ))
         let block = IfBlock.ifStatement(condition: condition, ifBlock: assignment)
         let expected = """
@@ -100,13 +103,17 @@ final class IfBlockTests: XCTestCase {
         let block = IfBlock.ifElse(
             condition: .conditional(condition: .comparison(value: .equality(lhs: x, rhs: y))),
             ifBlock: .statement(
-                statement: .assignment(name: .variable(name: VariableName(text: "x")), value: y)
+                statement: .assignment(
+                    name: .variable(reference: .variable(name: VariableName(text: "x"))), value: y
+                )
             ),
             elseBlock: .ifStatement(
                 block: .ifStatement(
                     condition: .conditional(condition: .comparison(value: .notEquals(lhs: x, rhs: y))),
                     ifBlock: .statement(
-                        statement: .assignment(name: .variable(name: VariableName(text: "y")), value: x)
+                        statement: .assignment(
+                            name: .variable(reference: .variable(name: VariableName(text: "y"))), value: x
+                        )
                     )
                 )
             )
@@ -126,17 +133,21 @@ final class IfBlockTests: XCTestCase {
         let block = IfBlock.ifElse(
             condition: .conditional(condition: .comparison(value: .equality(lhs: x, rhs: y))),
             ifBlock: .statement(
-                statement: .assignment(name: .variable(name: VariableName(text: "x")), value: y)
+                statement: .assignment(
+                    name: .variable(reference: .variable(name: VariableName(text: "x"))), value: y
+                )
             ),
             elseBlock: .ifStatement(
                 block: .ifElse(
                     condition: .conditional(condition: .comparison(value: .notEquals(lhs: x, rhs: y))),
                     ifBlock: .statement(
-                        statement: .assignment(name: .variable(name: VariableName(text: "y")), value: x)
+                        statement: .assignment(
+                            name: .variable(reference: .variable(name: VariableName(text: "y"))), value: x
+                        )
                     ),
                     elseBlock: .statement(
                         statement: .assignment(
-                            name: .variable(name: VariableName(text: "x")),
+                            name: .variable(reference: .variable(name: VariableName(text: "x"))),
                             value: .literal(value: .bit(value: .low))
                         )
                     )
@@ -162,13 +173,17 @@ final class IfBlockTests: XCTestCase {
         let block = IfBlock.ifElse(
             condition: .conditional(condition: .comparison(value: .equality(lhs: x, rhs: y))),
             ifBlock: .statement(
-                statement: .assignment(name: .variable(name: VariableName(text: "x")), value: y)
+                statement: .assignment(
+                    name: .variable(reference: .variable(name: VariableName(text: "x"))), value: y
+                )
             ),
             elseBlock: .ifStatement(
                 block: .ifElse(
                     condition: .conditional(condition: .comparison(value: .notEquals(lhs: x, rhs: y))),
                     ifBlock: .statement(
-                        statement: .assignment(name: .variable(name: VariableName(text: "y")), value: x)
+                        statement: .assignment(
+                            name: .variable(reference: .variable(name: VariableName(text: "y"))), value: x
+                        )
                     ),
                     elseBlock: .ifStatement(
                         block: .ifElse(
@@ -177,7 +192,7 @@ final class IfBlockTests: XCTestCase {
                             ),
                             ifBlock: .statement(
                                 statement: .assignment(
-                                    name: .variable(name: VariableName(text: "x")),
+                                    name: .variable(reference: .variable(name: VariableName(text: "x"))),
                                     value: .binary(
                                         operation: .addition(lhs: x, rhs: .literal(value: .integer(value: 1)))
                                     )
@@ -190,7 +205,9 @@ final class IfBlockTests: XCTestCase {
                                     ),
                                     ifBlock: .statement(
                                         statement: .assignment(
-                                            name: .variable(name: VariableName(text: "x")),
+                                            name: .variable(reference: .variable(
+                                                name: VariableName(text: "x")
+                                            )),
                                             value: .binary(
                                                 operation: .subtraction(
                                                     lhs: x, rhs: .literal(value: .integer(value: 1))
@@ -200,7 +217,9 @@ final class IfBlockTests: XCTestCase {
                                     ),
                                     elseBlock: .statement(
                                         statement: .assignment(
-                                            name: .variable(name: VariableName(text: "x")),
+                                            name: .variable(reference: .variable(
+                                                name: VariableName(text: "x")
+                                            )),
                                             value: .literal(value: .bit(value: .low))
                                         )
                                     )
@@ -234,7 +253,9 @@ final class IfBlockTests: XCTestCase {
             ifBlock: .blocks(
                 blocks: [
                     .statement(
-                        statement: .assignment(name: .variable(name: VariableName(text: "x")), value: y)
+                        statement: .assignment(
+                            name: .variable(reference: .variable(name: VariableName(text: "x"))), value: y
+                        )
                     ),
                     .ifStatement(
                         block: IfBlock.ifStatement(
@@ -245,7 +266,7 @@ final class IfBlockTests: XCTestCase {
                             ),
                             ifBlock: .statement(
                                 statement: .assignment(
-                                    name: .variable(name: VariableName(text: "x")),
+                                    name: .variable(reference: .variable(name: VariableName(text: "x"))),
                                     value: .literal(value: .bit(value: .low))
                                 )
                             )
@@ -257,11 +278,13 @@ final class IfBlockTests: XCTestCase {
                 block: .ifElse(
                     condition: .conditional(condition: .comparison(value: .notEquals(lhs: x, rhs: y))),
                     ifBlock: .statement(
-                        statement: .assignment(name: .variable(name: VariableName(text: "y")), value: x)
+                        statement: .assignment(
+                            name: .variable(reference: .variable(name: VariableName(text: "y"))), value: x
+                        )
                     ),
                     elseBlock: .statement(
                         statement: .assignment(
-                            name: .variable(name: VariableName(text: "x")),
+                            name: .variable(reference: .variable(name: VariableName(text: "x"))),
                             value: .literal(value: .bit(value: .low))
                         )
                     )
@@ -299,7 +322,9 @@ final class IfBlockTests: XCTestCase {
                     condition: .comparison(value: .equality(lhs: x, rhs: y))
                 ),
                 ifBlock: SynchronousBlock.statement(
-                    statement: Statement.assignment(name: .variable(name: VariableName(text: "x")), value: y)
+                    statement: Statement.assignment(
+                        name: .variable(reference: .variable(name: VariableName(text: "x"))), value: y
+                    )
                 )
             )
         )
@@ -313,11 +338,13 @@ final class IfBlockTests: XCTestCase {
         let expected = IfBlock.ifElse(
             condition: .conditional(condition: .comparison(value: .equality(lhs: x, rhs: y))),
             ifBlock: .statement(
-                statement: .assignment(name: .variable(name: VariableName(text: "x")), value: y)
+                statement: .assignment(
+                    name: .variable(reference: .variable(name: VariableName(text: "x"))), value: y
+                )
             ),
             elseBlock: .statement(
                 statement: .assignment(
-                    name: .variable(name: VariableName(text: "x")),
+                    name: .variable(reference: .variable(name: VariableName(text: "x"))),
                     value: .literal(value: .bit(value: .low))
                 )
             )
@@ -339,17 +366,21 @@ final class IfBlockTests: XCTestCase {
         let expected = IfBlock.ifElse(
             condition: .conditional(condition: .comparison(value: .equality(lhs: x, rhs: y))),
             ifBlock: .statement(
-                statement: .assignment(name: .variable(name: VariableName(text: "x")), value: y)
+                statement: .assignment(
+                    name: .variable(reference: .variable(name: VariableName(text: "x"))), value: y
+                )
             ),
             elseBlock: .ifStatement(
                 block: .ifElse(
                     condition: .conditional(condition: .comparison(value: .notEquals(lhs: x, rhs: y))),
                     ifBlock: .statement(
-                        statement: .assignment(name: .variable(name: VariableName(text: "y")), value: x)
+                        statement: .assignment(
+                            name: .variable(reference: .variable(name: VariableName(text: "y"))), value: x
+                        )
                     ),
                     elseBlock: .statement(
                         statement: .assignment(
-                            name: .variable(name: VariableName(text: "x")),
+                            name: .variable(reference: .variable(name: VariableName(text: "x"))),
                             value: .literal(value: .bit(value: .low))
                         )
                     )
@@ -380,7 +411,9 @@ final class IfBlockTests: XCTestCase {
             ifBlock: .blocks(
                 blocks: [
                     .statement(
-                        statement: .assignment(name: .variable(name: VariableName(text: "x")), value: y)
+                        statement: .assignment(
+                            name: .variable(reference: .variable(name: VariableName(text: "x"))), value: y
+                        )
                     ),
                     .ifStatement(
                         block: IfBlock.ifStatement(
@@ -391,7 +424,7 @@ final class IfBlockTests: XCTestCase {
                             ),
                             ifBlock: .statement(
                                 statement: .assignment(
-                                    name: .variable(name: VariableName(text: "x")),
+                                    name: .variable(reference: .variable(name: VariableName(text: "x"))),
                                     value: .literal(value: .bit(value: .low))
                                 )
                             )
@@ -403,11 +436,13 @@ final class IfBlockTests: XCTestCase {
                 block: .ifElse(
                     condition: .conditional(condition: .comparison(value: .notEquals(lhs: x, rhs: y))),
                     ifBlock: .statement(
-                        statement: .assignment(name: .variable(name: VariableName(text: "y")), value: x)
+                        statement: .assignment(
+                            name: .variable(reference: .variable(name: VariableName(text: "y"))), value: x
+                        )
                     ),
                     elseBlock: .statement(
                         statement: .assignment(
-                            name: .variable(name: VariableName(text: "x")),
+                            name: .variable(reference: .variable(name: VariableName(text: "x"))),
                             value: .literal(value: .bit(value: .low))
                         )
                     )
@@ -426,7 +461,9 @@ final class IfBlockTests: XCTestCase {
             IfBlock.ifStatement(
                 condition: .conditional(condition: .comparison(value: .equality(lhs: x, rhs: y))),
                 ifBlock: .statement(
-                    statement: .assignment(name: .variable(name: VariableName(text: "x")), value: y)
+                    statement: .assignment(
+                        name: .variable(reference: .variable(name: VariableName(text: "x"))), value: y
+                    )
                 )
             )
         )
@@ -435,7 +472,9 @@ final class IfBlockTests: XCTestCase {
             IfBlock.ifStatement(
                 condition: .conditional(condition: .comparison(value: .equality(lhs: x, rhs: y))),
                 ifBlock: .statement(
-                    statement: .assignment(name: .variable(name: VariableName(text: "x")), value: y)
+                    statement: .assignment(
+                        name: .variable(reference: .variable(name: VariableName(text: "x"))), value: y
+                    )
                 )
             )
         )

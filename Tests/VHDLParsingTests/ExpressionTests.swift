@@ -78,19 +78,19 @@ final class ExpressionTests: XCTestCase {
     let ename = VariableName(text: "e")
 
     /// Expression `a`.
-    var a: Expression { .reference(variable: .variable(name: aname)) }
+    var a: Expression { .reference(variable: .variable(reference: .variable(name: aname))) }
 
     /// Expression `b`.
-    var b: Expression { .reference(variable: .variable(name: bname)) }
+    var b: Expression { .reference(variable: .variable(reference: .variable(name: bname))) }
 
     /// Expression `c`.
-    var c: Expression { .reference(variable: .variable(name: cname)) }
+    var c: Expression { .reference(variable: .variable(reference: .variable(name: cname))) }
 
     /// Expression `d`.
-    var d: Expression { .reference(variable: .variable(name: dname)) }
+    var d: Expression { .reference(variable: .variable(reference: .variable(name: dname))) }
 
     /// Expression `e`.
-    var e: Expression { .reference(variable: .variable(name: ename)) }
+    var e: Expression { .reference(variable: .variable(reference: .variable(name: ename))) }
 
     /// Test raw values are correct.
     func testRawValues() {
@@ -434,7 +434,9 @@ final class ExpressionTests: XCTestCase {
         XCTAssertFalse(Expression.literal(value: .boolean(value: false)).isValidOtherValue)
         XCTAssertTrue(Expression.precedence(value: a).isValidOtherValue)
         XCTAssertTrue(
-            Expression.reference(variable: .variable(name: VariableName(text: "a"))).isValidOtherValue
+            Expression.reference(
+                variable: .variable(reference: .variable(name: VariableName(text: "a")))
+            ).isValidOtherValue
         )
         XCTAssertFalse(Expression.reference(variable: .indexed(
             name: VariableName(text: "a"), index: .range(value: .downto(upper: a, lower: b))

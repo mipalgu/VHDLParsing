@@ -81,7 +81,9 @@ final class VectorIndexTests: XCTestCase {
         XCTAssertEqual(VectorIndex(rawValue: "11"), .index(value: .literal(value: .integer(value: 11))))
         XCTAssertEqual(
             VectorIndex(rawValue: "A"),
-            .index(value: .reference(variable: .variable(name: VariableName(text: "A"))))
+            .index(value: .reference(
+                variable: .variable(reference: .variable(name: VariableName(text: "A")))
+            ))
         )
         XCTAssertNil(VectorIndex(rawValue: "1 2"))
         XCTAssertNil(VectorIndex(rawValue: "-1"))
@@ -103,11 +105,15 @@ final class VectorIndexTests: XCTestCase {
         XCTAssertEqual(VectorIndex(rawValue: "OtHErS"), .others)
         XCTAssertEqual(
             VectorIndex(rawValue: "otherss"),
-            .index(value: .reference(variable: .variable(name: VariableName(text: "otherss"))))
+            .index(value: .reference(
+                variable: .variable(reference: .variable(name: VariableName(text: "otherss")))
+            ))
         )
         XCTAssertEqual(
             VectorIndex(rawValue: "other"),
-            .index(value: .reference(variable: .variable(name: VariableName(text: "other"))))
+            .index(value: .reference(
+                variable: .variable(reference: .variable(name: VariableName(text: "other")))
+            ))
         )
     }
 

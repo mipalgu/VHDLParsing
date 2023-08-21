@@ -61,10 +61,10 @@ import XCTest
 final class MathRealFunctionCallsTests: XCTestCase {
 
     /// A variable `x`.
-    let x = Expression.reference(variable: .variable(name: VariableName(text: "x")))
+    let x = Expression.reference(variable: .variable(reference: .variable(name: VariableName(text: "x"))))
 
     /// A variable `y`.
-    let y = Expression.reference(variable: .variable(name: VariableName(text: "y")))
+    let y = Expression.reference(variable: .variable(reference: .variable(name: VariableName(text: "y"))))
 
     /// Test `rawValue` generated `VHDL` code correctly.
     func testRawValue() {

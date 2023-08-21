@@ -64,10 +64,10 @@ final class CustomFunctionCallTests: XCTestCase {
     let f = VariableName(text: "f")
 
     /// A variable `x`.
-    let x = Expression.reference(variable: .variable(name: VariableName(text: "x")))
+    let x = Expression.reference(variable: .variable(reference: .variable(name: VariableName(text: "x"))))
 
     /// A variable `y`.
-    let y = Expression.reference(variable: .variable(name: VariableName(text: "y")))
+    let y = Expression.reference(variable: .variable(reference: .variable(name: VariableName(text: "y"))))
 
     /// The function arguments.
     var arguments: [Expression] {

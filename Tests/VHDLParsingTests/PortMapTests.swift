@@ -61,13 +61,13 @@ import XCTest
 final class PortMapTests: XCTestCase {
 
     /// A variable `x`.
-    let x = VariableReference.variable(name: VariableName(text: "x"))
+    let x = VariableReference.variable(reference: .variable(name: VariableName(text: "x")))
 
     /// A variable `y`.
-    let y = VariableReference.variable(name: VariableName(text: "y"))
+    let y = VariableReference.variable(reference: .variable(name: VariableName(text: "y")))
 
     /// A variable `z`.
-    let z = VariableReference.variable(name: VariableName(text: "z"))
+    let z = VariableReference.variable(reference: .variable(name: VariableName(text: "z")))
 
     /// The `PortMap` under test.
     lazy var map = PortMap(

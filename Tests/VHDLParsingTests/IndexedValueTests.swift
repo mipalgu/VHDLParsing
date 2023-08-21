@@ -126,28 +126,36 @@ final class IndexedValueTests: XCTestCase {
         XCTAssertEqual(
             IndexedValue(rawValue: "x => (others => '0')"),
             IndexedValue(
-                index: .index(value: .reference(variable: .variable(name: VariableName(text: "x")))),
+                index: .index(value: .reference(
+                    variable: .variable(reference: .variable(name: VariableName(text: "x")))
+                )),
                 value: .literal(value: .vector(value: .indexed(values: IndexedVector(
                     values: [IndexedValue(index: .others, value: .bit(value: .low))]
                 ))))
             )
         )
+        XCTAssertEqual(
+            IndexedValue(rawValue: "abx => '1'"),
+            IndexedValue(
+                index: .index(value: .reference(variable: .variable(
+                    reference: .variable(name: VariableName(text: "abx"))
+                ))),
+                value: .bit(value: .high)
+            )
+        )
+    }
+
+    /// Test `init(rawValue:)` correctly detects invalid code.
+    func testRawValueInitFails() {
+        XCTAssertNil(IndexedValue(rawValue: "signal x: std_logic_vector(3 downto 0) := (others => '1');"))
+        XCTAssertNil(IndexedValue(rawValue: "others => \"1\""))
+        XCTAssertNil(IndexedValue(rawValue: "others => 1"))
         XCTAssertNil(IndexedValue(rawValue: "others => '1' => '0'"))
         XCTAssertNil(IndexedValue(rawValue: "2 => '1', others => '0'"))
         XCTAssertNil(IndexedValue(rawValue: ""))
         XCTAssertNil(IndexedValue(rawValue: " "))
         XCTAssertNil(IndexedValue(rawValue: "\n"))
         XCTAssertNil(IndexedValue(rawValue: "\(String(repeating: "1", count: 256)) => '1'"))
-        XCTAssertEqual(
-            IndexedValue(rawValue: "abx => '1'"),
-            IndexedValue(
-                index: .index(value: .reference(variable: .variable(name: VariableName(text: "abx")))),
-                value: .bit(value: .high)
-            )
-        )
-        XCTAssertNil(IndexedValue(rawValue: "signal x: std_logic_vector(3 downto 0) := (others => '1');"))
-        XCTAssertNil(IndexedValue(rawValue: "others => \"1\""))
-        XCTAssertNil(IndexedValue(rawValue: "others => 1"))
     }
 
 }

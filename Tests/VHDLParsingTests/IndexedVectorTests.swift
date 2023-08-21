@@ -139,7 +139,7 @@ final class IndexedVectorTests: XCTestCase {
         let expected = IndexedVector(values: [
             IndexedValue(
                 index: .index(value: .literal(value: .integer(value: 0))),
-                value: .reference(variable: .variable(name: VariableName(text: "a")))
+                value: .reference(variable: .variable(reference: .variable(name: VariableName(text: "a"))))
             ),
             IndexedValue(
                 index: .range(value: .to(

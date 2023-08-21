@@ -67,7 +67,7 @@ final class VariableReferenceTests: XCTestCase {
     let index = VectorIndex.index(value: .literal(value: .integer(value: 5)))
 
     /// A reference of `x`.
-    lazy var variable = VariableReference.variable(name: x)
+    lazy var variable = VariableReference.variable(reference: .variable(name: x))
 
     /// An indexed reference of `x`.
     lazy var indexed = VariableReference.indexed(name: x, index: index)
@@ -75,7 +75,7 @@ final class VariableReferenceTests: XCTestCase {
     /// Initialise the test data before each test case.
     override func setUp() {
         super.setUp()
-        variable = VariableReference.variable(name: x)
+        variable = .variable(reference: .variable(name: x))
         indexed = VariableReference.indexed(name: x, index: index)
     }
 

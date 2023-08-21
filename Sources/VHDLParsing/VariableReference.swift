@@ -61,7 +61,7 @@ import StringHelpers
 public enum VariableReference: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
     /// Referencing a variable directly.
-    case variable(name: VariableName)
+    case variable(reference: DirectReference)
 
     /// Indexing a variable.
     case indexed(name: VariableName, index: VectorIndex)
@@ -84,8 +84,8 @@ public enum VariableReference: RawRepresentable, Equatable, Hashable, Codable, S
         guard trimmedString.count < 256 else {
             return nil
         }
-        if let name = VariableName(rawValue: trimmedString) {
-            self = .variable(name: name)
+        if let reference = DirectReference(rawValue: trimmedString) {
+            self = .variable(reference: reference)
             return
         }
         guard let bracketIndex = trimmedString.firstIndex(of: "(") else {

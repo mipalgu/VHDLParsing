@@ -70,25 +70,25 @@ final class AsynchronousBlockTests: XCTestCase {
     let clk = VariableName(text: "clk")
 
     /// An expression for `x`.
-    lazy var varX = Expression.reference(variable: .variable(name: x))
+    lazy var varX = Expression.reference(variable: .variable(reference: .variable(name: x)))
 
     /// An expression for `y`.
-    lazy var varY = Expression.reference(variable: .variable(name: y))
+    lazy var varY = Expression.reference(variable: .variable(reference: .variable(name: y)))
 
     /// An expression for `clk`.
-    lazy var varClk = Expression.reference(variable: .variable(name: clk))
+    lazy var varClk = Expression.reference(variable: .variable(reference: .variable(name: clk)))
 
     /// Reset test data.
     override func setUp() {
         super.setUp()
-        varX = Expression.reference(variable: .variable(name: x))
-        varY = Expression.reference(variable: .variable(name: y))
-        varClk = Expression.reference(variable: .variable(name: clk))
+        varX = Expression.reference(variable: .variable(reference: .variable(name: x)))
+        varY = Expression.reference(variable: .variable(reference: .variable(name: y)))
+        varClk = Expression.reference(variable: .variable(reference: .variable(name: clk)))
     }
 
     /// Test `rawValue` is correct.
     func testRawValue() {
-        let statement = Statement.assignment(name: .variable(name: x), value: varY)
+        let statement = Statement.assignment(name: .variable(reference: .variable(name: x)), value: varY)
         let block = AsynchronousBlock.statement(statement: statement)
         let blockRaw = "x <= y;"
         XCTAssertEqual(block.rawValue, blockRaw)
@@ -119,7 +119,7 @@ final class AsynchronousBlockTests: XCTestCase {
 
     /// Test raw value init for process.
     func testProcessRawValueInit() {
-        let statement = Statement.assignment(name: .variable(name: x), value: varY)
+        let statement = Statement.assignment(name: .variable(reference: .variable(name: x)), value: varY)
         let raw = """
         process (clk)
         begin
@@ -155,7 +155,7 @@ final class AsynchronousBlockTests: XCTestCase {
 
     /// Test raw value init for statement.
     func testStatementRawValueInit() {
-        let statement = Statement.assignment(name: .variable(name: x), value: varY)
+        let statement = Statement.assignment(name: .variable(reference: .variable(name: x)), value: varY)
         let block = AsynchronousBlock.statement(statement: statement)
         let raw = "x <= y;"
         XCTAssertEqual(AsynchronousBlock(rawValue: raw), block)
@@ -165,7 +165,7 @@ final class AsynchronousBlockTests: XCTestCase {
 
     /// test raw value init for multiple statements.
     func testMultipleStatementsRawValueInit() {
-        let statement = Statement.assignment(name: .variable(name: x), value: varY)
+        let statement = Statement.assignment(name: .variable(reference: .variable(name: x)), value: varY)
         let block = AsynchronousBlock.statement(statement: statement)
         let raw = """
         x <= y;
@@ -177,7 +177,7 @@ final class AsynchronousBlockTests: XCTestCase {
 
     /// Test init works for multiple statements.
     func testMultipleRawValueInit() {
-        let statement = Statement.assignment(name: .variable(name: x), value: varY)
+        let statement = Statement.assignment(name: .variable(reference: .variable(name: x)), value: varY)
         let block = AsynchronousBlock.statement(statement: statement)
         let process = AsynchronousBlock.process(
             block: ProcessBlock(
@@ -194,8 +194,11 @@ final class AsynchronousBlockTests: XCTestCase {
             label: VariableName(text: "comp1"),
             name: VariableName(text: "C1"),
             port: PortMap(variables: [
-                VariableMap(lhs: .variable(name: x), rhs: .reference(variable: .variable(name: y))),
-                VariableMap(lhs: .variable(name: VariableName(text: "z")), rhs: .open)
+                VariableMap(
+                    lhs: .variable(reference: .variable(name: x)),
+                    rhs: .reference(variable: .variable(reference: .variable(name: y)))
+                ),
+                VariableMap(lhs: .variable(reference: .variable(name: VariableName(text: "z"))), rhs: .open)
             ])
         ))
         let raw = """
@@ -224,8 +227,11 @@ final class AsynchronousBlockTests: XCTestCase {
             label: VariableName(text: "comp1"),
             name: VariableName(text: "C1"),
             port: PortMap(variables: [
-                VariableMap(lhs: .variable(name: x), rhs: .reference(variable: .variable(name: y))),
-                VariableMap(lhs: .variable(name: VariableName(text: "z")), rhs: .open)
+                VariableMap(
+                    lhs: .variable(reference: .variable(name: x)),
+                    rhs: .reference(variable: .variable(reference: .variable(name: y)))
+                ),
+                VariableMap(lhs: .variable(reference: .variable(name: VariableName(text: "z"))), rhs: .open)
             ])
         ))
         let raw = """
