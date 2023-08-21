@@ -54,27 +54,43 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
+import Foundation
+
+/// A type for definining argument definitions within a parameter list of a function.
 public struct ArgumentDefinition: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
+    /// The name of the argument.
     public let name: VariableName
 
+    /// The type of the argument.
     public let type: Type
 
+    /// The default value for the argument.
     public let defaultValue: Expression?
 
-    public var rawValue: String {
+    /// The `VHDL` code that represents the argument definition.
+    @inlinable public var rawValue: String {
         guard let defaultValue = defaultValue else {
             return "\(self.name.rawValue): \(self.type.rawValue)"
         }
         return "\(self.name.rawValue): \(self.type.rawValue) := \(defaultValue.rawValue)"
     }
 
+    /// Creates a new argument definition.
+    /// - Parameters:
+    ///   - name: The name of the argument.
+    ///   - type: The type of the argument.
+    ///   - defaultValue: The default value for the argument.
+    @inlinable
     public init(name: VariableName, type: Type, defaultValue: Expression? = nil) {
         self.name = name
         self.type = type
         self.defaultValue = defaultValue
     }
 
+    /// Creates a new argument definition from the `VHDL` code.
+    /// - Parameter rawValue: The `VHDL` code representing the argument definition.
+    @inlinable
     public init?(rawValue: String) {
         let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
         guard
