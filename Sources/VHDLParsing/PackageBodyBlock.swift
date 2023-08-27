@@ -156,15 +156,59 @@ public indirect enum PackageBodyBlock: RawRepresentable, Equatable, Hashable, Co
     }
 
     private init?(constant value: String, carry: [PackageBodyBlock]) {
-        nil
+        guard let semicolonIndex = value.firstIndex(of: ";"), semicolonIndex > value.startIndex else {
+            return nil
+        }
+        let data = String(value[...semicolonIndex])
+        guard let constant = ConstantSignal(rawValue: data) else {
+            return nil
+        }
+        self.init(rawValue: String(value.dropFirst(data.count)), carry: carry + [.constant(value: constant)])
     }
 
     private init?(function value: String, carry: [PackageBodyBlock]) {
-        nil
+        guard
+            value.firstWord?.lowercased() == "function",
+            let returnIndex = value.indexes(for: ["return"], isCaseSensitive: false).first,
+            value.endIndex > returnIndex.1
+        else {
+            return nil
+        }
+        let afterReturn = value[returnIndex.1...]
+        if afterReturn.trimmingCharacters(in: .whitespacesAndNewlines).hasPrefix(";") {
+            self.init(functionDefinition: value, carry: carry, afterReturn: afterReturn)
+            return
+        }
+        guard let endIndex = value.indexes(for: ["end function;"], isCaseSensitive: false).first?.1 else {
+            return nil
+        }
+        let data = String(value[..<endIndex])
+        guard let implementation = FunctionImplementation(rawValue: data) else {
+            return nil
+        }
+        self.init(
+            rawValue: String(value.dropFirst(data.count)),
+            carry: carry + [.fnImplementation(value: implementation)]
+        )
+    }
+
+    private init?(functionDefinition value: String, carry: [PackageBodyBlock], afterReturn: Substring) {
+        guard let semicolonIndex = afterReturn.firstIndex(of: ";") else {
+            return nil
+        }
+        let data = String(value[...semicolonIndex])
+        guard let definition = FunctionDefinition(rawValue: data) else {
+            return nil
+        }
+        self.init(
+            rawValue: String(value.dropFirst(data.count)),
+            carry: carry + [.fnDefinition(value: definition)]
+        )
+        return
     }
 
     private init?(include value: String, carry: [PackageBodyBlock]) {
-        guard let semicolonIndex = value.firstIndex(of: ";") else {
+        guard let semicolonIndex = value.firstIndex(of: ";"), semicolonIndex > value.startIndex else {
             return nil
         }
         let data = String(value[...semicolonIndex])
@@ -177,7 +221,39 @@ public indirect enum PackageBodyBlock: RawRepresentable, Equatable, Hashable, Co
     }
 
     private init?(type value: String, carry: [PackageBodyBlock]) {
-        nil
+        let words = value.words.lazy.map { $0.lowercased() }
+        guard words.count >= 4, words[0] == "type", words[2] == "is" else {
+            return nil
+        }
+        let type = words[3]
+        guard type != "record" else {
+            self.init(record: value, carry: carry)
+            return
+        }
+        guard let semicolonIndex = value.firstIndex(of: ";"), semicolonIndex > value.startIndex else {
+            return nil
+        }
+        let data = String(value[...semicolonIndex])
+        guard let definition = TypeDefinition(rawValue: data) else {
+            return nil
+        }
+        self.init(
+            rawValue: String(value.dropFirst(data.count)), carry: carry + [.type(value: definition)]
+        )
+    }
+
+    private init?(record value: String, carry: [PackageBodyBlock]) {
+        guard
+            let endIndex = value.indexes(for: ["end", "record;"], isCaseSensitive: false).first?.1,
+            endIndex > value.startIndex
+        else {
+            return nil
+        }
+        let data = String(value[..<endIndex])
+        guard let definition = TypeDefinition(rawValue: data) else {
+            return nil
+        }
+        self.init(rawValue: String(value.dropFirst(data.count)), carry: carry + [.type(value: definition)])
     }
 
 }
