@@ -60,8 +60,8 @@ import Foundation
 extension String {
 
     /// Returns all characters preceding the first newline character. In the case of a string with no
-    /// newlines, the result will return the original string. If the string is empty, then an empty string
-    /// is returned in it's place.
+    /// newlines, the result will return the original string. If the string is empty or the first character
+    /// in the string is a newline character, then an empty string is returned in it's place.
     @inlinable public var firstLine: String {
         guard let index = self.firstIndex(where: {
             guard let scalar = $0.unicodeScalars.first else {
