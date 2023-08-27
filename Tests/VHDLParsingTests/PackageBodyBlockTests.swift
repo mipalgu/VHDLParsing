@@ -157,4 +157,34 @@ final class PackageBodyBlockTests: XCTestCase {
         XCTAssertEqual(include.rawValue, includeRaw)
     }
 
+    /// Test that type aliases are parsed correctly.
+    func testAlias() {
+        XCTAssertEqual(PackageBodyBlock(rawValue: aliasRaw), alias)
+    }
+
+    /// Test that comments are parsed correctly.
+    func testComment() {
+        XCTAssertEqual(PackageBodyBlock(rawValue: commentRaw), comment)
+    }
+
+    /// Test that constants are parsed correctly.
+    func testConstant() {
+        XCTAssertEqual(PackageBodyBlock(rawValue: constantRaw), constant)
+    }
+
+    /// Test that function definitions are parsed correctly.
+    func testDefinition() {
+        XCTAssertEqual(PackageBodyBlock(rawValue: definitionRaw), definition)
+    }
+
+    /// Test that function implementations are parsed correctly.
+    func testImplementation() {
+        XCTAssertEqual(PackageBodyBlock(rawValue: implementationRaw), implementation)
+    }
+
+    /// Test that include statements are parsed correctly.
+    func testInclude() {
+        XCTAssertEqual(PackageBodyBlock(rawValue: includeRaw), include)
+    }
+
 }
