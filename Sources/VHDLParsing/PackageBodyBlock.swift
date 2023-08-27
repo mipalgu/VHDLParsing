@@ -179,7 +179,7 @@ public indirect enum PackageBodyBlock: RawRepresentable, Equatable, Hashable, Co
             self.init(functionDefinition: value, carry: carry, afterReturn: afterReturn)
             return
         }
-        guard let endIndex = value.indexes(for: ["end function;"], isCaseSensitive: false).first?.1 else {
+        guard let endIndex = value.indexes(for: ["end", "function;"], isCaseSensitive: false).first?.1 else {
             return nil
         }
         let data = String(value[..<endIndex])
