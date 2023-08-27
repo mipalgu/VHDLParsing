@@ -93,7 +93,43 @@ public indirect enum PackageBodyBlock: RawRepresentable, Equatable, Hashable, Co
     }
 
     public init?(rawValue: String) {
+        self.init(rawValue: rawValue, carry: [])
+    }
+
+    init?(rawValue: String, carry: [PackageBodyBlock]) {
+        let trimmedValue = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard trimmedValue.count < 8192 else {
+            return nil
+        }
+        if trimmedValue.hasPrefix("--") {
+            self.init(comment: trimmedValue, carry: carry)
+            return
+        }
         return nil
+    }
+
+    init?(blocks: [PackageBodyBlock]) {
+        guard !blocks.isEmpty else {
+            return nil
+        }
+        guard blocks.count > 1 else {
+            self = blocks[0]
+            return
+        }
+        self = .blocks(values: blocks)
+    }
+
+    private init?(comment value: String, carry: [PackageBodyBlock]) {
+        guard value.hasPrefix("--") else {
+            return nil
+        }
+        let firstLine = value.firstLine
+        guard let comment = Comment(rawValue: firstLine) else {
+            return nil
+        }
+        self.init(
+            rawValue: String(value.dropFirst(firstLine.count)), carry: carry + [.comment(value: comment)]
+        )
     }
 
 }
