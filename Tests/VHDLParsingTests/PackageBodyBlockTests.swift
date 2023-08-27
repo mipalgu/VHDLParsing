@@ -139,6 +139,23 @@ final class PackageBodyBlockTests: XCTestCase {
     /// The equivalent `VHDL` code for `include`.
     let includeRaw = "use IEEE.std_logic_1164.all;"
 
+    /// A record.
+    let record = PackageBodyBlock.type(value: .record(value: Record(
+        name: VariableName(text: "Record_t"),
+        types: [
+            RecordTypeDeclaration(name: VariableName(text: "x"), type: .signal(type: .stdLogic)),
+            RecordTypeDeclaration(name: VariableName(text: "y"), type: .signal(type: .stdLogic))
+        ]
+    )))
+
+    /// The equivalent `VHDL` code for `record`.
+    let recordRaw = """
+    type Record_t is record
+        x: std_logic;
+        y: std_logic;
+    end record Record_t;
+    """
+
     /// Test `init(blocks:)` correctly handles all possible cases.
     func testBlocksInit() {
         XCTAssertNil(PackageBodyBlock(blocks: []))
@@ -155,6 +172,7 @@ final class PackageBodyBlockTests: XCTestCase {
         XCTAssertEqual(definition.rawValue, definitionRaw)
         XCTAssertEqual(implementation.rawValue, implementationRaw)
         XCTAssertEqual(include.rawValue, includeRaw)
+        XCTAssertEqual(record.rawValue, recordRaw)
     }
 
     /// Test that type aliases are parsed correctly.
@@ -185,6 +203,11 @@ final class PackageBodyBlockTests: XCTestCase {
     /// Test that include statements are parsed correctly.
     func testInclude() {
         XCTAssertEqual(PackageBodyBlock(rawValue: includeRaw), include)
+    }
+
+    /// Test that records are parsed correctly.
+    func testRecord() {
+        XCTAssertEqual(PackageBodyBlock(rawValue: recordRaw), record)
     }
 
 }

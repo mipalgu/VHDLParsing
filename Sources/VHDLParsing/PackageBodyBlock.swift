@@ -249,12 +249,13 @@ public indirect enum PackageBodyBlock: RawRepresentable, Equatable, Hashable, Co
 
     private init?(record value: String, carry: [PackageBodyBlock]) {
         guard
-            let endIndex = value.indexes(for: ["end", "record;"], isCaseSensitive: false).first?.1,
-            endIndex > value.startIndex
+            let endIndex = value.indexes(for: ["end", "record"], isCaseSensitive: false).first?.1,
+            value.endIndex > endIndex,
+            let semicolonIndex = value[endIndex...].firstIndex(of: ";")
         else {
             return nil
         }
-        let data = String(value[..<endIndex])
+        let data = String(value[...semicolonIndex])
         guard let definition = TypeDefinition(rawValue: data) else {
             return nil
         }
