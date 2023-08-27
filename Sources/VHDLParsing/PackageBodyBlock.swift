@@ -193,7 +193,7 @@ public indirect enum PackageBodyBlock: RawRepresentable, Equatable, Hashable, Co
     }
 
     private init?(functionDefinition value: String, carry: [PackageBodyBlock], afterReturn: Substring) {
-        guard let semicolonIndex = afterReturn.firstIndex(of: ";") else {
+        guard let semicolonIndex = afterReturn.firstIndex(of: ";"), semicolonIndex > value.startIndex else {
             return nil
         }
         let data = String(value[...semicolonIndex])
