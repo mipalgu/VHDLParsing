@@ -56,6 +56,7 @@
 
 import Foundation
 
+/// Add utilities to the `String` type.
 extension String {
 
     /// Returns all characters preceding the first newline character. In the case of a string with no
