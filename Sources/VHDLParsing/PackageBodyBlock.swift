@@ -96,7 +96,18 @@ public indirect enum PackageBodyBlock: RawRepresentable, Equatable, Hashable, Co
         self.init(rawValue: rawValue, carry: [])
     }
 
-    init?(rawValue: String, carry: [PackageBodyBlock]) {
+    init?(blocks: [PackageBodyBlock]) {
+        guard !blocks.isEmpty else {
+            return nil
+        }
+        guard blocks.count > 1 else {
+            self = blocks[0]
+            return
+        }
+        self = .blocks(values: blocks)
+    }
+
+    private init?(rawValue: String, carry: [PackageBodyBlock]) {
         let trimmedValue = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedValue.isEmpty else {
             self.init(blocks: carry)
@@ -129,17 +140,6 @@ public indirect enum PackageBodyBlock: RawRepresentable, Equatable, Hashable, Co
             return
         }
         return nil
-    }
-
-    init?(blocks: [PackageBodyBlock]) {
-        guard !blocks.isEmpty else {
-            return nil
-        }
-        guard blocks.count > 1 else {
-            self = blocks[0]
-            return
-        }
-        self = .blocks(values: blocks)
     }
 
     private init?(comment value: String, carry: [PackageBodyBlock]) {
