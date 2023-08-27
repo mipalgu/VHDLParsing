@@ -175,7 +175,12 @@ public indirect enum PackageBodyBlock: RawRepresentable, Equatable, Hashable, Co
             return nil
         }
         let afterReturn = value[returnIndex.1...]
-        if afterReturn.trimmingCharacters(in: .whitespacesAndNewlines).hasPrefix(";") {
+        guard
+            let semicolonIndex = afterReturn.firstIndex(of: ";"), semicolonIndex > afterReturn.startIndex
+        else {
+            return nil
+        }
+        guard String(afterReturn[..<semicolonIndex]).words.contains(where: { $0.lowercased() == "is" }) else {
             self.init(functionDefinition: value, carry: carry, afterReturn: afterReturn)
             return
         }
