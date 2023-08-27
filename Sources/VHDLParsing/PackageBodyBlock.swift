@@ -88,7 +88,7 @@ public indirect enum PackageBodyBlock: RawRepresentable, Equatable, Hashable, Co
         case .type(let value):
             return value.rawValue
         case .include(let value):
-            return value
+            return "use \(value);"
         }
     }
 
@@ -98,11 +98,34 @@ public indirect enum PackageBodyBlock: RawRepresentable, Equatable, Hashable, Co
 
     init?(rawValue: String, carry: [PackageBodyBlock]) {
         let trimmedValue = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedValue.isEmpty else {
+            self.init(blocks: carry)
+            return
+        }
         guard trimmedValue.count < 8192 else {
             return nil
         }
         if trimmedValue.hasPrefix("--") {
             self.init(comment: trimmedValue, carry: carry)
+            return
+        }
+        guard let firstWord = trimmedValue.firstWord?.lowercased() else {
+            return nil
+        }
+        if firstWord == "use" {
+            self.init(include: trimmedValue, carry: carry)
+            return
+        }
+        if firstWord == "type" {
+            self.init(type: trimmedValue, carry: carry)
+            return
+        }
+        if firstWord == "constant" {
+            self.init(constant: trimmedValue, carry: carry)
+            return
+        }
+        if firstWord == "function" {
+            self.init(function: trimmedValue, carry: carry)
             return
         }
         return nil
@@ -130,6 +153,31 @@ public indirect enum PackageBodyBlock: RawRepresentable, Equatable, Hashable, Co
         self.init(
             rawValue: String(value.dropFirst(firstLine.count)), carry: carry + [.comment(value: comment)]
         )
+    }
+
+    private init?(constant value: String, carry: [PackageBodyBlock]) {
+        nil
+    }
+
+    private init?(function value: String, carry: [PackageBodyBlock]) {
+        nil
+    }
+
+    private init?(include value: String, carry: [PackageBodyBlock]) {
+        guard let semicolonIndex = value.firstIndex(of: ";") else {
+            return nil
+        }
+        let data = String(value[...semicolonIndex])
+        guard let include = Include(rawValue: data), case .include(let includeValue) = include else {
+            return nil
+        }
+        self.init(
+            rawValue: String(value.dropFirst(data.count)), carry: carry + [.include(value: includeValue)]
+        )
+    }
+
+    private init?(type value: String, carry: [PackageBodyBlock]) {
+        nil
     }
 
 }
