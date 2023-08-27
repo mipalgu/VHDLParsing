@@ -60,14 +60,84 @@ import XCTest
 /// Test class for ``PackageBodyBlock``.
 final class PackageBodyBlockTests: XCTestCase {
 
+    /// A type alias.
+    let alias = PackageBodyBlock.type(value: .alias(name: VariableName(text: "x"), type: .stdLogic))
+
+    /// A comment.
+    let comment = PackageBodyBlock.comment(value: Comment(text: "This is a comment!"))
+
+    // swiftlint:disable force_unwrapping
+
+    /// A constant.
+    let constant = PackageBodyBlock.constant(value: ConstantSignal(
+        name: VariableName(text: "zero"),
+        type: .signal(type: .stdLogic),
+        value: .literal(value: .bit(value: .low))
+    )!)
+
+    // swiftlint:enable force_unwrapping
+
+    /// A function definition.
+    let definition = PackageBodyBlock.fnDefinition(value: FunctionDefinition(
+        name: VariableName(text: "max"),
+        arguments: [
+            ArgumentDefinition(name: VariableName(text: "x"), type: .signal(type: .real)),
+            ArgumentDefinition(name: VariableName(text: "y"), type: .signal(type: .real))
+        ],
+        returnType: .signal(type: .real)
+    ))
+
+    /// A function implementation.
+    let implementation = PackageBodyBlock.fnImplementation(value: FunctionImplementation(
+        name: VariableName(text: "max"),
+        arguments: [
+            ArgumentDefinition(name: VariableName(text: "x"), type: .signal(type: .real)),
+            ArgumentDefinition(name: VariableName(text: "y"), type: .signal(type: .real))
+        ],
+        returnTube: .signal(type: .real),
+        body: .ifStatement(block: .ifElse(
+            condition: .conditional(condition: .comparison(value: .lessThan(
+                lhs: .reference(variable: .variable(reference: .variable(name: VariableName(text: "x")))),
+                rhs: .reference(variable: .variable(reference: .variable(name: VariableName(text: "y"))))
+            ))),
+            ifBlock: .statement(statement: .returns(value: .reference(
+                variable: .variable(reference: .variable(name: VariableName(text: "y")))
+            ))),
+            elseBlock: .statement(statement: .returns(value: .reference(
+                variable: .variable(reference: .variable(name: VariableName(text: "x")))
+            )))
+        ))
+    ))
+
+    /// An include statement.
+    let include = PackageBodyBlock.include(value: "IEEE.std_logic_1164.all")
+
     /// Test `init(blocks:)` correctly handles all possible cases.
     func testBlocksInit() {
         XCTAssertNil(PackageBodyBlock(blocks: []))
-        let include = PackageBodyBlock.include(value: "IEEE.std_logic_1164.all")
         XCTAssertEqual(PackageBodyBlock(blocks: [include]), include)
-        let alias = PackageBodyBlock.type(value: .alias(name: VariableName(text: "x"), type: .stdLogic))
         let blocks = [include, alias]
         XCTAssertEqual(PackageBodyBlock(blocks: blocks), .blocks(values: blocks))
+    }
+
+    /// Test that `rawValue` returns the correct `VHDL` code.
+    func testRawValue() {
+        XCTAssertEqual(alias.rawValue, "type x is std_logic;")
+        XCTAssertEqual(comment.rawValue, "-- This is a comment!")
+        XCTAssertEqual(constant.rawValue, "constant zero: std_logic := '0';")
+        XCTAssertEqual(definition.rawValue, "function max(x: real; y: real) return real;")
+        let implementationRaw = """
+        function max(x: real; y: real) return real is
+        begin
+            if (x < y) then
+                return y;
+            else
+                return x;
+            end if;
+        end function;
+        """
+        XCTAssertEqual(implementation.rawValue, implementationRaw)
+        XCTAssertEqual(include.rawValue, "use IEEE.std_logic_1164.all;")
     }
 
 }
