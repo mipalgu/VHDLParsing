@@ -63,8 +63,14 @@ final class PackageBodyBlockTests: XCTestCase {
     /// A type alias.
     let alias = PackageBodyBlock.type(value: .alias(name: VariableName(text: "x"), type: .stdLogic))
 
+    /// The equivalent `VHDL` code for `alias`.
+    let aliasRaw = "type x is std_logic;"
+
     /// A comment.
     let comment = PackageBodyBlock.comment(value: Comment(text: "This is a comment!"))
+
+    /// The equivalent `VHDL` code for `comment`.
+    let commentRaw = "-- This is a comment!"
 
     // swiftlint:disable force_unwrapping
 
@@ -77,6 +83,9 @@ final class PackageBodyBlockTests: XCTestCase {
 
     // swiftlint:enable force_unwrapping
 
+    /// The equivalent `VHDL` code for `constant`.
+    let constantRaw = "constant zero: std_logic := '0';"
+
     /// A function definition.
     let definition = PackageBodyBlock.fnDefinition(value: FunctionDefinition(
         name: VariableName(text: "max"),
@@ -86,6 +95,9 @@ final class PackageBodyBlockTests: XCTestCase {
         ],
         returnType: .signal(type: .real)
     ))
+
+    /// The equivalent `VHDL` code for `definition`.
+    let definitionRaw = "function max(x: real; y: real) return real;"
 
     /// A function implementation.
     let implementation = PackageBodyBlock.fnImplementation(value: FunctionImplementation(
@@ -109,8 +121,23 @@ final class PackageBodyBlockTests: XCTestCase {
         ))
     ))
 
+    /// The equivalent `VHDL` code for `implementation`.
+    let implementationRaw = """
+    function max(x: real; y: real) return real is
+    begin
+        if (x < y) then
+            return y;
+        else
+            return x;
+        end if;
+    end function;
+    """
+
     /// An include statement.
     let include = PackageBodyBlock.include(value: "IEEE.std_logic_1164.all")
+
+    /// The equivalent `VHDL` code for `include`.
+    let includeRaw = "use IEEE.std_logic_1164.all;"
 
     /// Test `init(blocks:)` correctly handles all possible cases.
     func testBlocksInit() {
@@ -122,22 +149,12 @@ final class PackageBodyBlockTests: XCTestCase {
 
     /// Test that `rawValue` returns the correct `VHDL` code.
     func testRawValue() {
-        XCTAssertEqual(alias.rawValue, "type x is std_logic;")
-        XCTAssertEqual(comment.rawValue, "-- This is a comment!")
-        XCTAssertEqual(constant.rawValue, "constant zero: std_logic := '0';")
-        XCTAssertEqual(definition.rawValue, "function max(x: real; y: real) return real;")
-        let implementationRaw = """
-        function max(x: real; y: real) return real is
-        begin
-            if (x < y) then
-                return y;
-            else
-                return x;
-            end if;
-        end function;
-        """
+        XCTAssertEqual(alias.rawValue, aliasRaw)
+        XCTAssertEqual(comment.rawValue, commentRaw)
+        XCTAssertEqual(constant.rawValue, constantRaw)
+        XCTAssertEqual(definition.rawValue, definitionRaw)
         XCTAssertEqual(implementation.rawValue, implementationRaw)
-        XCTAssertEqual(include.rawValue, "use IEEE.std_logic_1164.all;")
+        XCTAssertEqual(include.rawValue, includeRaw)
     }
 
 }
