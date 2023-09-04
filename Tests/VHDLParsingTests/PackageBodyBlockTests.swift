@@ -308,4 +308,33 @@ final class PackageBodyBlockTests: XCTestCase {
         XCTAssertNil(PackageBodyBlock(rawValue: "constant x; std_logic := '0';"))
     }
 
+    /// Test invalid functions.
+    func testInvalidFunction() {
+        XCTAssertNil(PackageBodyBlock(rawValue: "function x(x: real; y: real) return real"))
+        XCTAssertNil(PackageBodyBlock(rawValue: "function x(x: real; y: real) real;"))
+        XCTAssertNil(PackageBodyBlock(rawValue: "function x(!x: real; y: real) return real;"))
+        let impRaw = """
+        function max(x: real; y: real) return real is
+        begin
+            if (x < y) then
+                return y;
+            else
+                return x;
+            end if;
+        end s function;
+        """
+        XCTAssertNil(PackageBodyBlock(rawValue: impRaw))
+        let imp2Raw = """
+        function max(x: real; y: real) return real is
+        begin
+            if (x < y) then
+                returns y;
+            else
+                return x;
+            end if;
+        end function;
+        """
+        XCTAssertNil(PackageBodyBlock(rawValue: imp2Raw))
+    }
+
 }
