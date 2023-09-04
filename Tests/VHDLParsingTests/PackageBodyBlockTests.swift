@@ -267,4 +267,29 @@ final class PackageBodyBlockTests: XCTestCase {
         XCTAssertEqual(PackageBodyBlock(rawValue: raw), .blocks(values: blocks))
     }
 
+    /// Test that long strings return nil
+    func testLongString() {
+        let raw = "type \(String(repeating: "x", count: 8192)) is std_logic;"
+        XCTAssertNil(PackageBodyBlock(rawValue: raw))
+    }
+
+    /// Return nil for string without words.
+    func testNoWords() {
+        let raw = "()"
+        XCTAssertNil(PackageBodyBlock(rawValue: raw))
+    }
+
+    /// Test invalid comments return nil.
+    func testInvalidComment() {
+        let raw = "-- \(String(repeating: "x", count: 4096))"
+        XCTAssertNil(PackageBodyBlock(rawValue: raw))
+    }
+
+    /// Test invalid constants return nil.
+    func testInvalidConstant() {
+        XCTAssertNil(PackageBodyBlock(rawValue: "constant x: std_logic := '0'"))
+        XCTAssertNil(PackageBodyBlock(rawValue: "constant x: !std_logic := '0';"))
+        XCTAssertNil(PackageBodyBlock(rawValue: "constant x; std_logic := '0';"))
+    }
+
 }
