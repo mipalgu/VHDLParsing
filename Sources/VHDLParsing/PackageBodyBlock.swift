@@ -116,36 +116,25 @@ public indirect enum PackageBodyBlock: RawRepresentable, Equatable, Hashable, Co
         guard trimmedValue.count < 8192 else {
             return nil
         }
-        if trimmedValue.hasPrefix("--") {
+        guard !trimmedValue.hasPrefix("--") else {
             self.init(comment: trimmedValue, carry: carry)
             return
         }
-        guard let firstWord = trimmedValue.firstWord?.lowercased() else {
+        switch trimmedValue.firstWord?.lowercased() {
+        case "use":
+            self.init(include: trimmedValue, carry: carry)
+        case "type":
+            self.init(type: trimmedValue, carry: carry)
+        case "constant":
+            self.init(constant: trimmedValue, carry: carry)
+        case "function":
+            self.init(function: trimmedValue, carry: carry)
+        default:
             return nil
         }
-        if firstWord == "use" {
-            self.init(include: trimmedValue, carry: carry)
-            return
-        }
-        if firstWord == "type" {
-            self.init(type: trimmedValue, carry: carry)
-            return
-        }
-        if firstWord == "constant" {
-            self.init(constant: trimmedValue, carry: carry)
-            return
-        }
-        if firstWord == "function" {
-            self.init(function: trimmedValue, carry: carry)
-            return
-        }
-        return nil
     }
 
     private init?(comment value: String, carry: [PackageBodyBlock]) {
-        guard value.hasPrefix("--") else {
-            return nil
-        }
         let firstLine = value.firstLine
         guard let comment = Comment(rawValue: firstLine) else {
             return nil
@@ -168,7 +157,6 @@ public indirect enum PackageBodyBlock: RawRepresentable, Equatable, Hashable, Co
 
     private init?(function value: String, carry: [PackageBodyBlock]) {
         guard
-            value.firstWord?.lowercased() == "function",
             let returnIndex = value.indexes(for: ["return"], isCaseSensitive: false).first,
             value.endIndex > returnIndex.1
         else {
@@ -227,7 +215,6 @@ public indirect enum PackageBodyBlock: RawRepresentable, Equatable, Hashable, Co
 
     private init?(type value: String, carry: [PackageBodyBlock]) {
         guard
-            value.firstWord?.lowercased() == "type",
             let semicolonIndex = value.firstIndex(of: ";"),
             semicolonIndex > value.startIndex
         else {
