@@ -226,7 +226,15 @@ public indirect enum PackageBodyBlock: RawRepresentable, Equatable, Hashable, Co
     }
 
     private init?(type value: String, carry: [PackageBodyBlock]) {
-        let words = value.words.lazy.map { $0.lowercased() }
+        guard
+            value.firstWord?.lowercased() == "type",
+            let semicolonIndex = value.firstIndex(of: ";"),
+            semicolonIndex > value.startIndex
+        else {
+            return nil
+        }
+        let data = String(value[...semicolonIndex])
+        let words = data.words.lazy.map { $0.lowercased() }
         guard words.count >= 4, words[0] == "type", words[2] == "is" else {
             return nil
         }
@@ -235,10 +243,6 @@ public indirect enum PackageBodyBlock: RawRepresentable, Equatable, Hashable, Co
             self.init(record: value, carry: carry)
             return
         }
-        guard let semicolonIndex = value.firstIndex(of: ";"), semicolonIndex > value.startIndex else {
-            return nil
-        }
-        let data = String(value[...semicolonIndex])
         guard let definition = TypeDefinition(rawValue: data) else {
             return nil
         }

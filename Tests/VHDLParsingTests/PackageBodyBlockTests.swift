@@ -218,6 +218,15 @@ final class PackageBodyBlockTests: XCTestCase {
         XCTAssertEqual(PackageBodyBlock(rawValue: raw), .blocks(values: blocks))
     }
 
+    /// Test multiple without newlines.
+    func testMultipleWithoutNewlines() {
+        let raw = aliasRaw + constantRaw + " " + definitionRaw + " " + implementationRaw + " " +
+            includeRaw + " " + recordRaw + " " + commentRaw
+        let blocks = [alias, constant, definition, implementation, include, record, comment]
+        let result = PackageBodyBlock(rawValue: raw)
+        XCTAssertEqual(result, .blocks(values: blocks))
+    }
+
     /// Test that multiple aliases are parsed correctly.
     func testMultipleAlias() {
         let raw = aliasRaw + "\n" + aliasRaw + "\n" + aliasRaw
@@ -277,6 +286,13 @@ final class PackageBodyBlockTests: XCTestCase {
     func testNoWords() {
         let raw = "()"
         XCTAssertNil(PackageBodyBlock(rawValue: raw))
+    }
+
+    /// Test invalid alias returns nil.
+    func testInvalidAlias() {
+        XCTAssertNil(PackageBodyBlock(rawValue: "type x iss std_logic;"))
+        XCTAssertNil(PackageBodyBlock(rawValue: "type x is std_logic"))
+        XCTAssertNil(PackageBodyBlock(rawValue: "type x is !std_logic;"))
     }
 
     /// Test invalid comments return nil.
