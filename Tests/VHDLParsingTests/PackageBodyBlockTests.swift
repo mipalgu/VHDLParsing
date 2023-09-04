@@ -210,4 +210,61 @@ final class PackageBodyBlockTests: XCTestCase {
         XCTAssertEqual(PackageBodyBlock(rawValue: recordRaw), record)
     }
 
+    /// Test that multiple blocks are parsed correctly.
+    func testMultiple() {
+        let raw = aliasRaw + "\n" + commentRaw + "\n" + constantRaw + "\n" + definitionRaw + "\n" +
+            implementationRaw + "\n" + includeRaw + "\n" + recordRaw
+        let blocks = [alias, comment, constant, definition, implementation, include, record]
+        XCTAssertEqual(PackageBodyBlock(rawValue: raw), .blocks(values: blocks))
+    }
+
+    /// Test that multiple aliases are parsed correctly.
+    func testMultipleAlias() {
+        let raw = aliasRaw + "\n" + aliasRaw + "\n" + aliasRaw
+        let blocks = [alias, alias, alias]
+        XCTAssertEqual(PackageBodyBlock(rawValue: raw), .blocks(values: blocks))
+    }
+
+    /// Test that multiple comments are parsed correctly.
+    func testMultipleComment() {
+        let raw = commentRaw + "\n" + commentRaw + "\n" + commentRaw
+        let blocks = [comment, comment, comment]
+        XCTAssertEqual(PackageBodyBlock(rawValue: raw), .blocks(values: blocks))
+    }
+
+    /// Test that multiple constants are parsed correctly.
+    func testMultipleConstant() {
+        let raw = constantRaw + "\n" + constantRaw + "\n" + constantRaw
+        let blocks = [constant, constant, constant]
+        XCTAssertEqual(PackageBodyBlock(rawValue: raw), .blocks(values: blocks))
+    }
+
+    /// Test that multiple function definitions are parsed correctly.
+    func testMultipleDefinition() {
+        let raw = definitionRaw + "\n" + definitionRaw + "\n" + definitionRaw
+        let blocks = [definition, definition, definition]
+        XCTAssertEqual(PackageBodyBlock(rawValue: raw), .blocks(values: blocks))
+    }
+
+    /// Test that multiple function implementations are parsed correctly.
+    func testMultipleImplementation() {
+        let raw = implementationRaw + "\n" + implementationRaw + "\n" + implementationRaw
+        let blocks = [implementation, implementation, implementation]
+        XCTAssertEqual(PackageBodyBlock(rawValue: raw), .blocks(values: blocks))
+    }
+
+    /// Test that multiple include statements are parsed correctly.
+    func testMultipleInclude() {
+        let raw = includeRaw + "\n" + includeRaw + "\n" + includeRaw
+        let blocks = [include, include, include]
+        XCTAssertEqual(PackageBodyBlock(rawValue: raw), .blocks(values: blocks))
+    }
+
+    /// Test that multiple records are parsed correctly.
+    func testMultipleRecord() {
+        let raw = recordRaw + "\n" + recordRaw + "\n" + recordRaw
+        let blocks = [record, record, record]
+        XCTAssertEqual(PackageBodyBlock(rawValue: raw), .blocks(values: blocks))
+    }
+
 }
