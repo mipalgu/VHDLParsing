@@ -1,4 +1,4 @@
-// UseStatement.swift
+// UseStatementTests.swift
 // VHDLParsing
 // 
 // Created by Morgan McColl.
@@ -54,70 +54,62 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
-import Foundation
-import StringHelpers
+@testable import VHDLParsing
+import XCTest
 
-/// An include statement that imports module from a library.
-/// 
-/// This statement uses the `use` keyword in `VHDL` to import modules from a library. E.G.:
-/// ```VHDL
-/// use IEEE.std_logic_1164.all;
-/// ```
-public struct UseStatement: RawRepresentable, Equatable, Hashable, Codable, Sendable {
+/// Test class for ``UseStatement``.
+final class UseStatementTests: XCTestCase {
 
-    /// Each component of the statement. This is the modules that are imported.
-    public let components: [IncludeComponent]
+    // swiftlint:disable force_unwrapping
 
-    /// The `VHDL` code representation of the statement.
-    @inlinable public var rawValue: String {
-        "use \(components.map(\.rawValue).joined(separator: "."));"
+    /// Test components.
+    let components: [IncludeComponent] = [
+        .module(name: VariableName(rawValue: "IEEE")!),
+        .module(name: VariableName(rawValue: "std_logic_1164")!),
+        .all
+    ]
+
+    // swiftlint:enable force_unwrapping
+
+    /// The raw value of the test components.
+    let raw = "use IEEE.std_logic_1164.all;"
+
+    /// The statement under test.
+    lazy var statement = UseStatement(components: components)
+
+    /// Setup the statement under test.
+    override func setUp() {
+        statement = UseStatement(components: components)
     }
 
-    /// Creates a new `UseStatement` from the given components. This initialiser first checks to make sure
-    /// that the components are valid for the statement. If they are not, then `nil` is returned.
-    /// - Parameter components: The components of this statement.
-    @inlinable
-    public init?(nonEmptyComponents components: [IncludeComponent]) {
-        guard !components.isEmpty else {
-            return nil
-        }
-        if let allIndex = components.firstIndex(of: .all) {
-            guard allIndex == components.count - 1 else {
-                return nil
-            }
-        }
-        self.init(components: components)
+    /// Test property init.
+    func testInit() {
+        XCTAssertEqual(statement.components, components)
     }
 
-    /// Creates a new `UseStatement` from the given `VHDL` code representing this statement.
-    /// - Parameter rawValue: The `VHDL` code enacting this statement.
-    @inlinable
-    public init?(rawValue: String) {
-        let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard
-            trimmedString.count < 2048,
-            trimmedString.firstWord?.lowercased() == "use",
-            trimmedString.hasSuffix(";")
-        else {
-            return nil
-        }
-        let data = String(trimmedString.dropFirst(3).dropLast()).trimmingCharacters(in: .whitespaces)
-        guard !data.isEmpty else {
-            return nil
-        }
-        let components = data.components(separatedBy: ".")
-        let includes = components.compactMap(IncludeComponent.init(rawValue:))
-        guard includes.count == components.count else {
-            return nil
-        }
-        self.init(nonEmptyComponents: includes)
+    /// Test `rawValue`.
+    func testRawValue() {
+        XCTAssertEqual(statement.rawValue, raw)
     }
 
-    /// Creates a new `UseStatement` from the given components.
-    /// - Parameter components: The components of this statement.
-    @inlinable
-    init(components: [IncludeComponent]) {
-        self.components = components
+    /// Test `init(nonEmptyComponents:)`.
+    func testNonEmptyComponents() {
+        XCTAssertNil(UseStatement(nonEmptyComponents: []))
+        XCTAssertEqual(UseStatement(nonEmptyComponents: components), statement)
+        let noAll = Array(components.dropLast())
+        XCTAssertNil(UseStatement(nonEmptyComponents: [IncludeComponent.all] + noAll))
+        XCTAssertEqual(UseStatement(nonEmptyComponents: noAll), UseStatement(components: noAll))
+    }
+
+    /// Test `init(rawValue:)`.
+    func testRawValueInit() {
+        XCTAssertEqual(UseStatement(rawValue: raw), statement)
+        XCTAssertNil(UseStatement(rawValue: String(raw.dropFirst(3))))
+        XCTAssertNil(UseStatement(rawValue: String(raw.dropLast())))
+        XCTAssertNil(UseStatement(rawValue: "use \(String(repeating: "x", count: 2048));"))
+        XCTAssertNil(UseStatement(rawValue: "use ;"))
+        XCTAssertEqual(UseStatement(rawValue: "use IEEE;"), UseStatement(components: [components[0]]))
+        XCTAssertNil(UseStatement(rawValue: "use IEEE.!.std_logic_1164.all;"))
     }
 
 }
