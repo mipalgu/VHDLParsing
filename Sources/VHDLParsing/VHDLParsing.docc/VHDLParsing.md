@@ -71,6 +71,7 @@
 - ``GenericVariableMap``
 - ``PortMap``
 - ``ProcessBlock``
+- ``WhenBlock``
 - ``WhenElseStatement``
 - ``WhenStatement``
 
