@@ -19,12 +19,14 @@
 - ``HeadStatement``
 - ``HexLiteral``
 - ``HexVector``
+- ``IncludeComponent``
 - ``LocalSignal``
 - ``LogicLiteral``
 - ``LogicVector``
 - ``Mode``
 - ``OctalLiteral``
 - ``OctalVector``
+- ``PackageBodyBlock``
 - ``PortBlock``
 - ``PortSignal``
 - ``RangedType``
@@ -34,6 +36,7 @@
 - ``SignalType``
 - ``Type``
 - ``TypeDefinition``
+- ``UseStatement``
 - ``VariableName``
 - ``VectorLiteral``
 
@@ -82,5 +85,6 @@
 - ``ArchitectureHead``
 - ``Entity``
 - ``Include``
+- ``PackageBody``
 - ``VHDLFile``
 - ``VHDLPackage``
