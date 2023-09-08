@@ -71,6 +71,7 @@
 - ``GenericVariableMap``
 - ``PortMap``
 - ``ProcessBlock``
+- ``WhenElseStatement``
 - ``WhenStatement``
 
 ### Synchronous Blocks
