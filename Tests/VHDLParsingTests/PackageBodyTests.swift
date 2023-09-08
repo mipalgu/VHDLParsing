@@ -141,11 +141,8 @@ final class PackageBodyTests: XCTestCase {
         end package body PackageA;
         """
         XCTAssertNil(PackageBody(rawValue: raw5))
-        // swiftlint:disable line_length
-        let rawFlattened = """
-        package body PackageA is use IEEE.std_logic_1164.all; use IEEE.math_real.all; constant pi: real := 3.14; end package body PackageA;
-        """
-        // swiftlint:enable line_length
+        let rawFlattened = "package body PackageA is use IEEE.std_logic_1164.all; use IEEE.math_real.all; " +
+            "constant pi: real := 3.14; end package body PackageA;"
         XCTAssertEqual(PackageBody(rawValue: rawFlattened), package)
     }
 
