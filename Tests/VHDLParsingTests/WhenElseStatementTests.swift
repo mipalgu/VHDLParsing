@@ -95,15 +95,17 @@ final class WhenElseStatementTests: XCTest {
     /// Test the `VHDL` code is parsed correctly.
     func testRawValueInit() {
         XCTAssertEqual(WhenElseStatement(rawValue: raw), statement)
-        XCTAssertNil(WhenStatement(rawValue: ""))
-        XCTAssertNil(WhenStatement(rawValue: "'1' when \(String(repeating: "x", count: 2048)) = 0 else '0'"))
-        XCTAssertNil(WhenStatement(rawValue: "'1' when when true else '0'"))
-        XCTAssertNil(WhenStatement(rawValue: "'1' else true when '0'"))
-        XCTAssertNil(WhenStatement(rawValue: "'11' when true else '0'"))
-        XCTAssertNil(WhenStatement(rawValue: "'1' when !true else '0'"))
-        XCTAssertNil(WhenStatement(rawValue: "'1' when true else '00'"))
-        XCTAssertNil(WhenStatement(rawValue: "'1' true else '0'"))
-        XCTAssertNil(WhenStatement(rawValue: "'1' when true '0'"))
+        XCTAssertNil(WhenElseStatement(rawValue: ""))
+        XCTAssertNil(WhenElseStatement(
+            rawValue: "'1' when \(String(repeating: "x", count: 2048)) = 0 else '0'"
+        ))
+        XCTAssertNil(WhenElseStatement(rawValue: "'1' when when true else '0'"))
+        XCTAssertNil(WhenElseStatement(rawValue: "'1' else true when '0'"))
+        XCTAssertNil(WhenElseStatement(rawValue: "'11' when true else '0'"))
+        XCTAssertNil(WhenElseStatement(rawValue: "'1' when !true else '0'"))
+        XCTAssertNil(WhenElseStatement(rawValue: "'1' when true else '00'"))
+        XCTAssertNil(WhenElseStatement(rawValue: "'1' true else '0'"))
+        XCTAssertNil(WhenElseStatement(rawValue: "'1' when true '0'"))
     }
 
 }
