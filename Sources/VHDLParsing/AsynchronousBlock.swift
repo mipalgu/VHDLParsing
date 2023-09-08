@@ -67,7 +67,7 @@ indirect public enum AsynchronousBlock: RawRepresentable, Equatable, Hashable, C
     case process(block: ProcessBlock)
 
     /// A single statement.
-    case statement(statement: Statement)
+    case statement(statement: AsynchronousStatement)
 
     /// A component instantiation.
     case component(block: ComponentInstantiation)
@@ -123,7 +123,7 @@ indirect public enum AsynchronousBlock: RawRepresentable, Equatable, Hashable, C
         }
         // Check for single semicolon.
         if semicolonIndex == trimmedString.lastIndex(of: ";"), trimmedString.hasSuffix(";") {
-            guard let statement = Statement(rawValue: trimmedString) else {
+            guard let statement = AsynchronousStatement(rawValue: trimmedString) else {
                 return nil
             }
             self.init(carry: carry + [.statement(statement: statement)])
@@ -210,7 +210,7 @@ indirect public enum AsynchronousBlock: RawRepresentable, Equatable, Hashable, C
     ///   - carry: The previous strings that have parsed correctly.
     private init?(multiple trimmedString: String, carry: [AsynchronousBlock]) {
         let currentBlock = trimmedString.uptoSemicolon + ";"
-        guard let statement = Statement(rawValue: currentBlock) else {
+        guard let statement = AsynchronousStatement(rawValue: currentBlock) else {
             return nil
         }
         let remaining = String(trimmedString.dropFirst(currentBlock.count))

@@ -66,11 +66,16 @@
 
 ### Asynchronous Blocks
 - ``AsynchronousBlock``
+- ``AsynchronousExpression``
+- ``AsynchronousStatement``
 - ``ComponentInstantiation``
 - ``GenericMap``
 - ``GenericVariableMap``
 - ``PortMap``
 - ``ProcessBlock``
+- ``WhenBlock``
+- ``WhenElseStatement``
+- ``WhenStatement``
 
 ### Synchronous Blocks
 - ``CaseStatement``

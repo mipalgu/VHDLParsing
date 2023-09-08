@@ -88,7 +88,10 @@ final class AsynchronousBlockTests: XCTestCase {
 
     /// Test `rawValue` is correct.
     func testRawValue() {
-        let statement = Statement.assignment(name: .variable(reference: .variable(name: x)), value: varY)
+        let statement = AsynchronousStatement.assignment(
+            name: .variable(reference: .variable(name: x)), value: .expression(value: varY)
+        )
+        let syncStatement = Statement.assignment(name: .variable(reference: .variable(name: x)), value: varY)
         let block = AsynchronousBlock.statement(statement: statement)
         let blockRaw = "x <= y;"
         XCTAssertEqual(block.rawValue, blockRaw)
@@ -98,7 +101,7 @@ final class AsynchronousBlockTests: XCTestCase {
                 code: .ifStatement(
                     block: IfBlock.ifStatement(
                         condition: .conditional(condition: .edge(value: .rising(expression: varClk))),
-                        ifBlock: .statement(statement: statement)
+                        ifBlock: .statement(statement: syncStatement)
                     )
                 )
             )
@@ -155,7 +158,9 @@ final class AsynchronousBlockTests: XCTestCase {
 
     /// Test raw value init for statement.
     func testStatementRawValueInit() {
-        let statement = Statement.assignment(name: .variable(reference: .variable(name: x)), value: varY)
+        let statement = AsynchronousStatement.assignment(
+            name: .variable(reference: .variable(name: x)), value: .expression(value: varY)
+        )
         let block = AsynchronousBlock.statement(statement: statement)
         let raw = "x <= y;"
         XCTAssertEqual(AsynchronousBlock(rawValue: raw), block)
@@ -165,7 +170,9 @@ final class AsynchronousBlockTests: XCTestCase {
 
     /// test raw value init for multiple statements.
     func testMultipleStatementsRawValueInit() {
-        let statement = Statement.assignment(name: .variable(reference: .variable(name: x)), value: varY)
+        let statement = AsynchronousStatement.assignment(
+            name: .variable(reference: .variable(name: x)), value: .expression(value: varY)
+        )
         let block = AsynchronousBlock.statement(statement: statement)
         let raw = """
         x <= y;
@@ -178,7 +185,10 @@ final class AsynchronousBlockTests: XCTestCase {
     /// Test init works for multiple statements.
     func testMultipleRawValueInit() {
         let statement = Statement.assignment(name: .variable(reference: .variable(name: x)), value: varY)
-        let block = AsynchronousBlock.statement(statement: statement)
+        let asyncStatement = AsynchronousStatement.assignment(
+            name: .variable(reference: .variable(name: x)), value: .expression(value: varY)
+        )
+        let block = AsynchronousBlock.statement(statement: asyncStatement)
         let process = AsynchronousBlock.process(
             block: ProcessBlock(
                 sensitivityList: [clk],
@@ -313,7 +323,7 @@ final class AsynchronousBlockTests: XCTestCase {
             expected,
             .statement(statement: .assignment(
                 name: .variable(reference: .variable(name: VariableName(text: "x"))),
-                value: .literal(value: .integer(value: 5))
+                value: .expression(value: .literal(value: .integer(value: 5)))
             ))
         ])
         XCTAssertEqual(AsynchronousBlock(rawValue: raw2), expected2)
