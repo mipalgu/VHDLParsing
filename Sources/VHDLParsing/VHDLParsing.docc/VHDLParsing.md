@@ -66,6 +66,7 @@
 
 ### Asynchronous Blocks
 - ``AsynchronousBlock``
+- ``AsynchronousExpression``
 - ``ComponentInstantiation``
 - ``GenericMap``
 - ``GenericVariableMap``
