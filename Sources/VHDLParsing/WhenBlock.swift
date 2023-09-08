@@ -56,13 +56,19 @@
 
 import Foundation
 
+/// A type for representing possible when statements.
+/// 
+/// - SeeAlso: ``WhenStatement``, ``WhenElseStatement``.
 public indirect enum WhenBlock: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
+    /// A simple when-statement with no else.
     case when(statement: WhenStatement)
 
+    /// A when-statement with an else.
     case whenElse(statement: WhenElseStatement)
 
-    public var rawValue: String {
+    /// The equivalent `VHDL` code for this statement.
+    @inlinable public var rawValue: String {
         switch self {
         case .when(let statement):
             return statement.rawValue
@@ -71,6 +77,9 @@ public indirect enum WhenBlock: RawRepresentable, Equatable, Hashable, Codable, 
         }
     }
 
+    /// Creates a new `WhenBlock` from the specified `VHDL` code.
+    /// - Parameter rawValue: The `VHDL` code to parse.
+    @inlinable
     public init?(rawValue: String) {
         let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
         guard trimmedString.count < 2048 else {
