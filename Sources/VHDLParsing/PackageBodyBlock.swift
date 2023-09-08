@@ -57,23 +57,32 @@
 import Foundation
 import StringHelpers
 
+/// A type for representing statements inside a package body.
 public indirect enum PackageBodyBlock: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
+    /// Multiple statements.
     case blocks(values: [PackageBodyBlock])
 
+    /// A comment.
     case comment(value: Comment)
 
+    /// A function definition.
     case fnDefinition(value: FunctionDefinition)
 
+    /// A function implementation.
     case fnImplementation(value: FunctionImplementation)
 
+    /// A constant definition.
     case constant(value: ConstantSignal)
 
+    /// A type definition.
     case type(value: TypeDefinition)
 
+    /// An include statement.
     case include(statement: UseStatement)
 
-    public var rawValue: String {
+    /// The equivalent `VHDL` code for this statement.
+    @inlinable public var rawValue: String {
         switch self {
         case .blocks(let values):
             return values.map { $0.rawValue }.joined(separator: "\n")
@@ -92,10 +101,17 @@ public indirect enum PackageBodyBlock: RawRepresentable, Equatable, Hashable, Co
         }
     }
 
+    /// Creates a new `PackageBodyBlock` from the specified `VHDL` code.
+    /// - Parameter rawValue: The `VHDL` code to parse in this package body.
     public init?(rawValue: String) {
         self.init(rawValue: rawValue, carry: [])
     }
 
+    /// Creates a new `PackageBodyBlock` from the a block of statements. This initialiser will check to see
+    /// if the blocks are valid first. You must have at least one block to be valid. A block with exactly one
+    /// statement will be returned as that statement.
+    /// - Parameter blocks: The blocks in this package body.
+    @inlinable
     init?(blocks: [PackageBodyBlock]) {
         guard !blocks.isEmpty else {
             return nil
@@ -107,6 +123,10 @@ public indirect enum PackageBodyBlock: RawRepresentable, Equatable, Hashable, Co
         self = .blocks(values: blocks)
     }
 
+    /// Creates a new `PackageBodyBlock` from the specified `VHDL` code with a carry accumulator.
+    /// - Parameters:
+    ///   - rawValue: The `VHDL` code that has not been parsed yet.
+    ///   - carry: The accumulator of parsed statements.
     private init?(rawValue: String, carry: [PackageBodyBlock]) {
         let trimmedValue = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedValue.isEmpty else {
@@ -134,6 +154,11 @@ public indirect enum PackageBodyBlock: RawRepresentable, Equatable, Hashable, Co
         }
     }
 
+    /// Creates a new `PackageBodyBlock` from the specified `VHDL` code with a carry accumulator. This
+    /// initialiser expectes the value to be a comment.
+    /// - Parameters:
+    ///   - value: The `VHDL` code that has not been parsed yet.
+    ///   - carry: The accumulator of parsed statements.
     private init?(comment value: String, carry: [PackageBodyBlock]) {
         let firstLine = value.firstLine
         guard let comment = Comment(rawValue: firstLine) else {
@@ -144,6 +169,11 @@ public indirect enum PackageBodyBlock: RawRepresentable, Equatable, Hashable, Co
         )
     }
 
+    /// Creates a new `PackageBodyBlock` from the specified `VHDL` code with a carry accumulator. This
+    /// initialiser expectes the value to be a constant.
+    /// - Parameters:
+    ///   - value: The `VHDL` code that has not been parsed yet.
+    ///   - carry: The accumulator of parsed statements.
     private init?(constant value: String, carry: [PackageBodyBlock]) {
         guard let semicolonIndex = value.firstIndex(of: ";"), semicolonIndex > value.startIndex else {
             return nil
@@ -155,6 +185,11 @@ public indirect enum PackageBodyBlock: RawRepresentable, Equatable, Hashable, Co
         self.init(rawValue: String(value.dropFirst(data.count)), carry: carry + [.constant(value: constant)])
     }
 
+    /// Creates a new `PackageBodyBlock` from the specified `VHDL` code with a carry accumulator. This
+    /// initialiser expectes the value to be a function.
+    /// - Parameters:
+    ///   - value: The `VHDL` code that has not been parsed yet.
+    ///   - carry: The accumulator of parsed statements.
     private init?(function value: String, carry: [PackageBodyBlock]) {
         guard
             let returnIndex = value.indexes(for: ["return"], isCaseSensitive: false).first,
@@ -185,6 +220,11 @@ public indirect enum PackageBodyBlock: RawRepresentable, Equatable, Hashable, Co
         )
     }
 
+    /// Creates a new `PackageBodyBlock` from the specified `VHDL` code with a carry accumulator. This
+    /// initialiser expectes the value to be a function definition.
+    /// - Parameters:
+    ///   - value: The `VHDL` code that has not been parsed yet.
+    ///   - carry: The accumulator of parsed statements.
     private init?(functionDefinition value: String, carry: [PackageBodyBlock], afterReturn: Substring) {
         guard let semicolonIndex = afterReturn.firstIndex(of: ";"), semicolonIndex > value.startIndex else {
             return nil
@@ -200,6 +240,11 @@ public indirect enum PackageBodyBlock: RawRepresentable, Equatable, Hashable, Co
         return
     }
 
+    /// Creates a new `PackageBodyBlock` from the specified `VHDL` code with a carry accumulator. This
+    /// initialiser expectes the value to be an include.
+    /// - Parameters:
+    ///   - value: The `VHDL` code that has not been parsed yet.
+    ///   - carry: The accumulator of parsed statements.
     private init?(include value: String, carry: [PackageBodyBlock]) {
         guard let semicolonIndex = value.firstIndex(of: ";"), semicolonIndex > value.startIndex else {
             return nil
@@ -213,6 +258,11 @@ public indirect enum PackageBodyBlock: RawRepresentable, Equatable, Hashable, Co
         )
     }
 
+    /// Creates a new `PackageBodyBlock` from the specified `VHDL` code with a carry accumulator. This
+    /// initialiser expectes the value to be a type definition.
+    /// - Parameters:
+    ///   - value: The `VHDL` code that has not been parsed yet.
+    ///   - carry: The accumulator of parsed statements.
     private init?(type value: String, carry: [PackageBodyBlock]) {
         guard
             let semicolonIndex = value.firstIndex(of: ";"),
@@ -238,6 +288,11 @@ public indirect enum PackageBodyBlock: RawRepresentable, Equatable, Hashable, Co
         )
     }
 
+    /// Creates a new `PackageBodyBlock` from the specified `VHDL` code with a carry accumulator. This
+    /// initialiser expectes the value to be a record.
+    /// - Parameters:
+    ///   - value: The `VHDL` code that has not been parsed yet.
+    ///   - carry: The accumulator of parsed statements.
     private init?(record value: String, carry: [PackageBodyBlock]) {
         guard
             let endIndex = value.indexes(for: ["end", "record"], isCaseSensitive: false).first?.1,
