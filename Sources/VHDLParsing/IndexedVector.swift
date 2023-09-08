@@ -58,6 +58,7 @@ import Foundation
 import StringHelpers
 
 /// A type for representing vector literals that assign specific bit/logic values to specific indices.
+/// 
 /// This struct is used to represent `VHDL` expressions of the form `(0 => '0', 1 => '1', 2 => '0')`, etc.
 /// For example, consider a signal `x` that is a `std_logic_vector(7 downto 0)`. We may assign values to `x`
 /// by using the `VHDL` expression `x <= (7 => '1', 6 downto 3 => '0', others => '1')`. We can use an instance

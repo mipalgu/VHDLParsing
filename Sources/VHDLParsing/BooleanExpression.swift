@@ -56,11 +56,12 @@
 
 import Foundation
 
-/// A boolean expression containing common boolean operations. This type represents an expression that can be
-/// represented as a single logic expression. For example, `a and b` is a valid expression, but `a and b or c`
-/// is not since it contains two logic operations. On the contrary, `a and (b or c)` is a valid expression
-/// since the expression is represented as an `and` operation on two subexpressions (one of which is also a
-/// logical expression).
+/// A boolean expression containing common boolean operations.
+/// 
+/// This type represents an expression that can be represented as a single logic expression. For example,
+/// `a and b` is a valid expression, but `a and b or c` is not since it contains two logic operations. On the
+/// contrary, `a and (b or c)` is a valid expression since the expression is represented as an `and` operation
+/// on two subexpressions (one of which is also a logical expression).
 public enum BooleanExpression: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
     /// An `and` operation.

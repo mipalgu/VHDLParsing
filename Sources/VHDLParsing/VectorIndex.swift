@@ -56,13 +56,15 @@
 
 import Foundation
 
-/// An index of a vector in `VHDL`. This type is designed to represent indexes in an assignment statement for
-/// a vector type. For example, you may have a signal `x` of type `std_logic_vector(7 downto 0)` that you
-/// want to assign a value to. In `VHDL`, you can do this with the statement `x <= (others => '0');`.
-/// This type is designed to represent the `others` in that statement and other supported values like it, such
-/// as those found in `x <= (7 => '1', others => '0');`. This statement would produce two instances of this
-/// type for the values `7` and `others`. This type also supports `VHDL2008` statements that support a range
-/// of values, e.g. `x <= (7 downto 0 => '1');`.
+/// An index of a vector in `VHDL`.
+/// 
+/// This type is designed to represent indexes in an assignment statement for a vector type. For example, you
+/// may have a signal `x` of type `std_logic_vector(7 downto 0)` that you want to assign a value to. In
+/// `VHDL`, you can do this with the statement `x <= (others => '0');`. This type is designed to represent the
+/// `others` in that statement and other supported values like it, such as those found in
+/// `x <= (7 => '1', others => '0');`. This statement would produce two instances of this type for the values
+/// `7` and `others`. This type also supports `VHDL2008` statements that support a range of values, e.g.
+/// `x <= (7 downto 0 => '1');`.
 public enum VectorIndex: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
     /// An index in a vector.

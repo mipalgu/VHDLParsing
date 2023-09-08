@@ -57,11 +57,12 @@
 import Foundation
 import StringHelpers
 
-/// This type represents a value for a specific index in a vector type within `VHDL`. For example, consider a
-/// signal `x` with type `std_logic_vector(3 downto 0)`. We can assign specific bits within `x` by using the
-/// `VHDL` statement `x <= (3 => '1', others => '0');`. This statement says bit 3 of `x` should be set to 1
-/// and all other bits to be set to 0. This type can be used to represent both expressions `3 => '1'` and
-/// `others => '0'` as two separate instances of this type.
+/// This type represents a value for a specific index in a vector type within `VHDL`.
+/// 
+/// For example, consider a signal `x` with type `std_logic_vector(3 downto 0)`. We can assign specific bits
+/// within `x` by using the `VHDL` statement `x <= (3 => '1', others => '0');`. This statement says bit 3 of
+/// `x` should be set to 1 and all other bits to be set to 0. This type can be used to represent both
+/// expressions `3 => '1'` and `others => '0'` as two separate instances of this type.
 public struct IndexedValue: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
     /// The index within the vector type to assign the `value` to.
