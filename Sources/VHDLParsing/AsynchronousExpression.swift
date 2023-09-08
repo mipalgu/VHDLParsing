@@ -54,13 +54,21 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
+import Foundation
+
+/// Expressions that can be used in asynchronous code.
+///
+/// -SeeAlso: ``Expression``, ``WhenBlock``.
 public indirect enum AsynchronousExpression: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
+    /// A normal expression.
     case expression(value: Expression)
 
+    /// A when-statement.
     case whenBlock(value: WhenBlock)
 
-    public var rawValue: String {
+    /// The `VHDL` code of this expression.
+    @inlinable public var rawValue: String {
         switch self {
         case .expression(let value):
             return value.rawValue
@@ -69,6 +77,9 @@ public indirect enum AsynchronousExpression: RawRepresentable, Equatable, Hashab
         }
     }
 
+    /// Creates a new asynchronous expression from the given `VHDL` code.
+    /// - Parameter rawValue: The `VHDL` code to parse.
+    @inlinable
     public init?(rawValue: String) {
         let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedString.isEmpty, trimmedString.count < 2048 else {
