@@ -315,6 +315,7 @@ final class PackageBodyBlockTests: XCTestCase {
     /// Test invalid functions.
     func testInvalidFunction() {
         XCTAssertNil(PackageBodyBlock(rawValue: "function x(x: real; y: real) return real"))
+        XCTAssertNil(PackageBodyBlock(rawValue: "function x(x: real; y: real); return real;"))
         XCTAssertNil(PackageBodyBlock(rawValue: "function x(x: real; y: real) real;"))
         XCTAssertNil(PackageBodyBlock(rawValue: "function x(!x: real; y: real) return real;"))
         let impRaw = """
@@ -346,6 +347,32 @@ final class PackageBodyBlockTests: XCTestCase {
         XCTAssertNil(PackageBodyBlock(rawValue: "use IEEE.std_logic_1164.all"))
         XCTAssertNil(PackageBodyBlock(rawValue: "library IEEE;"))
         XCTAssertNil(PackageBodyBlock(rawValue: "use IEEE.std_logic_1164.!all;"))
+    }
+
+    /// Test invalid records.
+    func testInvalidRecord() {
+        XCTAssertNil(PackageBodyBlock(rawValue: String(recordRaw.dropLast())))
+        let raw = """
+        type Record_t is record
+            x: std!_logic;
+            y: std_logic;
+        end record Record_t;
+        """
+        XCTAssertNil(PackageBodyBlock(rawValue: raw))
+        let raw2 = """
+        type Record_t is record
+            x: std_logic;
+            y: std_logic;
+        end record; Record_t;
+        """
+        XCTAssertNil(PackageBodyBlock(rawValue: raw2))
+        let raw3 = """
+        type Record_t is record
+            x: std_logic;
+            y: std_logic;
+        end record;
+        """
+        XCTAssertNil(PackageBodyBlock(rawValue: raw3))
     }
 
 }
