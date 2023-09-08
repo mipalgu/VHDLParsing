@@ -54,13 +54,26 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
+import Foundation
+
+/// A type for describing individual components in a `VHDL` use-statement.
+/// 
+/// For example, an include statement in `VHDL` might look like:
+/// ```VHDL
+/// use IEEE.std_logic_1164.all;
+/// ```
+/// In this example, the components of the statement would be: `IEEE`, `std_logic_1164`, and `all`. You may
+/// use this type to represents each of these components with a special case for the `all` keyword.
 public enum IncludeComponent: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
+    /// A reference to a particular module or library.
     case module(name: VariableName)
 
+    /// The `all` keyword.
     case all
 
-    public var rawValue: String {
+    /// The `VHDL` code representing this component.
+    @inlinable public var rawValue: String {
         switch self {
         case .module(let name):
             return name.rawValue
@@ -69,6 +82,9 @@ public enum IncludeComponent: RawRepresentable, Equatable, Hashable, Codable, Se
         }
     }
 
+    /// Create an include component from the `VHDL` representation.
+    /// - Parameter rawValue: The `VHDL` code for this component.
+    @inlinable
     public init?(rawValue: String) {
         let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
         guard trimmedString.count != 3, trimmedString.lowercased() != "all" else {
