@@ -57,6 +57,7 @@
 import Foundation
 import StringHelpers
 
+/// A statement that can exist within asynchronous code.
 public enum AsynchronousStatement: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
     /// Assigning a value to a variable that has been pre-defined, e.g. `a <= b + 1;`.
@@ -65,7 +66,8 @@ public enum AsynchronousStatement: RawRepresentable, Equatable, Hashable, Codabl
     /// A comment, e.g. `-- This is a comment.`.
     case comment(value: Comment)
 
-    public var rawValue: String {
+    /// The `VHDL` code of this statement.
+    @inlinable public var rawValue: String {
         switch self {
         case .assignment(let name, let value):
             return "\(name.rawValue) <= \(value.rawValue);"
