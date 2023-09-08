@@ -60,12 +60,8 @@ import XCTest
 /// Test class for ``IncludeComponent``.
 final class IncludeComponentTests: XCTestCase {
 
-    // swiftlint:disable force_unwrapping
-
     /// A variable `x`.
-    let x = VariableName(rawValue: "x")!
-
-    // swiftlint:enable force_unwrapping
+    let x = VariableName(text: "x")
 
     /// Test `rawValue` computed property.
     func testRawValue() {

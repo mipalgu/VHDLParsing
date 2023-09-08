@@ -60,16 +60,12 @@ import XCTest
 /// Test class for ``UseStatement``.
 final class UseStatementTests: XCTestCase {
 
-    // swiftlint:disable force_unwrapping
-
     /// Test components.
     let components: [IncludeComponent] = [
-        .module(name: VariableName(rawValue: "IEEE")!),
-        .module(name: VariableName(rawValue: "std_logic_1164")!),
+        .module(name: VariableName(text: "IEEE")),
+        .module(name: VariableName(text: "std_logic_1164")),
         .all
     ]
-
-    // swiftlint:enable force_unwrapping
 
     /// The raw value of the test components.
     let raw = "use IEEE.std_logic_1164.all;"
