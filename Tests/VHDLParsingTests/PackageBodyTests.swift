@@ -66,8 +66,123 @@ final class PackageBodyTests: XCTestCase {
     // swiftlint:disable force_unwrapping
 
     /// The package body.
-    let body = PackageBodyBlock.include(statement: UseStatement(rawValue: "use IEEE.std_logic_1164.all;")!)
+    let body = PackageBodyBlock.blocks(values: [
+        .include(statement: UseStatement(rawValue: "use IEEE.std_logic_1164.all;")!),
+        .include(statement: UseStatement(rawValue: "use IEEE.math_real.all;")!),
+        .constant(value: ConstantSignal(
+            name: VariableName(rawValue: "pi")!, type: .real, value: .literal(value: .decimal(value: 3.14))
+        )!)
+    ])
 
     // swiftlint:enable force_unwrapping
+
+    /// The package body under test.
+    lazy var package = PackageBody(name: packageName, body: body)
+
+    /// The equivalent `VHDL` code for `package`.
+    let raw = """
+    package body PackageA is
+        use IEEE.std_logic_1164.all;
+        use IEEE.math_real.all;
+        constant pi: real := 3.14;
+    end package body PackageA;
+    """
+
+    /// Create the package body before every test.
+    override func setUp() {
+        package = PackageBody(name: packageName, body: body)
+    }
+
+    /// Test the `rawValue` generates the correct `VHDL` code.
+    func testRawValue() {
+        XCTAssertEqual(package.rawValue, raw)
+    }
+
+    /// Test that `VHDL` code is parsed correctly.
+    func testRawValueInit() {
+        XCTAssertEqual(PackageBody(rawValue: raw), package)
+        XCTAssertNil(PackageBody(rawValue: String(raw.dropLast())))
+        let longPackage = """
+        package body PackageA is
+            constant \(String(repeating: "x", count: 4096)): std_logic := '0';
+        end package body PackageA;
+        """
+        XCTAssertNil(PackageBody(rawValue: longPackage))
+        XCTAssertNil(PackageBody(rawValue: String(raw.dropFirst())))
+        let raw2 = """
+        package bodys PackageA is
+            use IEEE.std_logic_1164.all;
+            use IEEE.math_real.all;
+            constant pi: real := 3.14;
+        end package body PackageA;
+        """
+        XCTAssertNil(PackageBody(rawValue: raw2))
+        let raw3 = """
+        package body !PackageA is
+            use IEEE.std_logic_1164.all;
+            use IEEE.math_real.all;
+            constant pi: real := 3.14;
+        end package body PackageA;
+        """
+        XCTAssertNil(PackageBody(rawValue: raw3))
+        let raw4 = """
+        package body PackageA is
+            use IEEE.std_logic_1164.all;
+            use IEEE.math_real.all;
+            constant pi: real := 3.14;
+        end package body PackageB;
+        """
+        XCTAssertNil(PackageBody(rawValue: raw4))
+        let raw5 = """
+        package body PackageA
+            use IEEE.std_logic_1164.all;
+            use IEEE.math_real.all;
+            constant pi: real := 3.14;
+        end package body PackageA;
+        """
+        XCTAssertNil(PackageBody(rawValue: raw5))
+        // swiftlint:disable line_length
+        let rawFlattened = """
+        package body PackageA is use IEEE.std_logic_1164.all; use IEEE.math_real.all; constant pi: real := 3.14; end package body PackageA;
+        """
+        // swiftlint:enable line_length
+        XCTAssertEqual(PackageBody(rawValue: rawFlattened), package)
+    }
+
+    /// Test invalid raw values in `init(rawValue:)`
+    func testInvalidRawValueInit() {
+        let raw6 = """
+        package body PackageA is
+            use IEEE.std_logic_1164.all;
+            use IEEE.math_real.all;
+            constant pi: real := 3.14;
+        end package body PACKAGEA;
+        """
+        XCTAssertEqual(PackageBody(rawValue: raw6), package)
+        let raw7 = """
+        package body PackageA is
+            use IEEE.std_logic_1164.all;
+            use IEEE.math_real.all;
+            constant pi: real := 3.14
+        end package body PackageA;
+        """
+        XCTAssertNil(PackageBody(rawValue: raw7))
+        let raw8 = """
+        package body PackageA is
+            use IEEE.std_logic_1164.all;
+            use IEEE.math_real.all;
+            constant pi: real := 3.14;
+        end body PackageA;
+        """
+        XCTAssertNil(PackageBody(rawValue: raw8))
+        let raw9 = """
+        package body PackageA is
+            use IEEE.std_logic_1164.all;
+            use IEEE.math_real.all;
+            constant pi: real := 3.14;
+        package body PackageA;
+        """
+        XCTAssertNil(PackageBody(rawValue: raw9))
+    }
 
 }
