@@ -57,21 +57,41 @@
 import Foundation
 import StringHelpers
 
+/// An expression using a `when` conditional.
+/// 
+/// This type represents asynchronous statements that are conditionally assigned under specific conditions.
+/// A `WhenStatement` with condition `A` and value `B` is equivalent to the following VHDL:
+/// ```VHDL
+/// B when A
+/// ```
+/// It can be used in assignment operations thus: `C <= B when A;`.
+/// - SeeAlso: ``Expression``.
 public struct WhenStatement: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
+    /// The condition that must evaluate to `true` for the value to be assigned.
     public let condition: Expression
 
+    /// The value to assign when `condition` is `true`.
     public let value: Expression
 
-    public var rawValue: String {
+    /// The equivalent `VHDL` code for this statement.
+    @inlinable public var rawValue: String {
         "\(value.rawValue) when \(condition.rawValue)"
     }
 
+    /// Create a new `WhenStatement` from a condition and a value.
+    /// - Parameters:
+    ///   - condition: The condition that must evaluate to `true` for the value to be assigned.
+    ///   - value: The value to assign when `condition` is `true`.
+    @inlinable
     public init(condition: Expression, value: Expression) {
         self.condition = condition
         self.value = value
     }
 
+    /// Create a new `WhenStatement` from a `VHDL` code string.
+    /// - Parameter rawValue: The `VHDL` code string to parse.
+    @inlinable
     public init?(rawValue: String) {
         let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedString.isEmpty, trimmedString.count < 2048 else {
