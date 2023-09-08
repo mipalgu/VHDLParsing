@@ -79,6 +79,7 @@ public struct WhenStatement: RawRepresentable, Equatable, Hashable, Codable, Sen
         }
         guard
             let whenIndex = trimmedString.indexes(for: ["when"]).first,
+            whenIndex.0 > trimmedString.startIndex,
             whenIndex.1 < trimmedString.endIndex
         else {
             return nil

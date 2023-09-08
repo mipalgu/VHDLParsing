@@ -54,6 +54,9 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
+import Foundation
+import StringHelpers
+
 public struct WhenElseStatement: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
     public let elseBlock: AsynchronousExpression
@@ -66,8 +69,37 @@ public struct WhenElseStatement: RawRepresentable, Equatable, Hashable, Codable,
         "\(value.rawValue) when \(condition.rawValue) else \(elseBlock.rawValue)"
     }
 
+    public init(value: Expression, condition: Expression, elseBlock: AsynchronousExpression) {
+        self.value = value
+        self.condition = condition
+        self.elseBlock = elseBlock
+    }
+
     public init?(rawValue: String) {
-        nil
+        let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedString.isEmpty, trimmedString.count < 2048 else {
+            return nil
+        }
+        guard
+            let whenIndex = trimmedString.indexes(for: ["when"]).first,
+            whenIndex.0 > trimmedString.startIndex,
+            let elseIndex = trimmedString.indexes(for: ["else"]).first,
+            elseIndex.0 >= whenIndex.1,
+            elseIndex.1 < trimmedString.endIndex
+        else {
+            return nil
+        }
+        let valueRaw = String(trimmedString[..<whenIndex.0])
+        let conditionRaw = String(trimmedString[whenIndex.1..<elseIndex.0])
+        let elseRaw = String(trimmedString[elseIndex.1...])
+        guard
+            let value = Expression(rawValue: valueRaw),
+            let condition = Expression(rawValue: conditionRaw),
+            let elseBlock = AsynchronousExpression(rawValue: elseRaw)
+        else {
+            return nil
+        }
+        self.init(value: value, condition: condition, elseBlock: elseBlock)
     }
 
 }

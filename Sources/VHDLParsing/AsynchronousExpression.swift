@@ -78,6 +78,10 @@ public indirect enum AsynchronousExpression: RawRepresentable, Equatable, Hashab
             self = .expression(value: value)
             return
         }
+        if let value = WhenBlock(rawValue: trimmedString) {
+            self = .whenBlock(value: value)
+            return
+        }
         return nil
     }
 

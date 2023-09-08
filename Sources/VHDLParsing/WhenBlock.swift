@@ -54,6 +54,8 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
+import Foundation
+
 public indirect enum WhenBlock: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
     case when(statement: WhenStatement)
@@ -70,7 +72,18 @@ public indirect enum WhenBlock: RawRepresentable, Equatable, Hashable, Codable, 
     }
 
     public init?(rawValue: String) {
-        nil
+        let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard trimmedString.count < 2048 else {
+            return nil
+        }
+        if let statement = WhenStatement(rawValue: trimmedString) {
+            self = .when(statement: statement)
+            return
+        }
+        guard let statement = WhenElseStatement(rawValue: trimmedString) else {
+            return nil
+        }
+        self = .whenElse(statement: statement)
     }
 
 }
