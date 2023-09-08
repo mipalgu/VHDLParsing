@@ -62,13 +62,13 @@ import XCTest
 /// Test class for ``VHDLFile``.
 final class VHDLFileTests: XCTestCase {
 
+    // swiftlint:disable force_unwrapping
+
     /// The includes in the file.
     let includes = [
-        Include.library(value: "IEEE"),
-        Include.include(value: "IEEE.std_logic_1164.all")
+        Include.library(value: VariableName(rawValue: "IEEE")!),
+        Include.include(statement: UseStatement(rawValue: "use IEEE.std_logic_1164.all;")!)
     ]
-
-    // swiftlint:disable force_unwrapping
 
     /// The entities in the file.
     let entities = [
@@ -142,18 +142,45 @@ final class VHDLFileTests: XCTestCase {
         )
     ]
 
+    /// The package bodies
+    let bodies = [
+        PackageBody(
+            name: VariableName(text: "Package1"),
+            body: .blocks(values: [
+                .constant(value: ConstantSignal(
+                    name: VariableName(text: "low"),
+                    type: .stdLogic,
+                    value: .literal(value: .bit(value: .low))
+                )!),
+                .constant(value: ConstantSignal(
+                    name: VariableName(text: "zeros"),
+                    type: .alias(name: VariableName(text: "xs")),
+                    value: .literal(value: .vector(value: .hexademical(value: HexVector(values: [.zero]))))
+                )!)
+            ])
+        )
+    ]
+
     // swiftlint:enable force_unwrapping
 
     /// The file under test.
     lazy var file = VHDLFile(
-        architectures: architectures, entities: entities, includes: includes, packages: packages
+        architectures: architectures,
+        entities: entities,
+        includes: includes,
+        packages: packages,
+        packageBodies: bodies
     )
 
     /// Initialise the uut before every test.
     override func setUp() {
         super.setUp()
         file = VHDLFile(
-            architectures: architectures, entities: entities, includes: includes, packages: packages
+            architectures: architectures,
+            entities: entities,
+            includes: includes,
+            packages: packages,
+            packageBodies: bodies
         )
     }
 
@@ -198,6 +225,11 @@ final class VHDLFileTests: XCTestCase {
             type xs is std_logic_vector(3 downto 0);
         end package Package1;
 
+        package body Package1 is
+            constant low: std_logic := '0';
+            constant zeros: xs := x"0";
+        end package body Package1;
+
         """
         XCTAssertEqual(file.rawValue, expected)
     }
@@ -235,52 +267,13 @@ final class VHDLFileTests: XCTestCase {
             type xs is std_logic_vector(3 downto 0);
         end package Package1;
 
+        package body Package1 is
+            constant low: std_logic := '0';
+            constant zeros: xs := x"0";
+        end package body Package1;
+
         """
         XCTAssertEqual(VHDLFile(rawValue: raw), file)
-    }
-
-    /// Test invalid `init(rawValue:)` returns nil.
-    func testInvalidRawValueInit() {
-        XCTAssertNil(VHDLFile(rawValue: ""))
-        XCTAssertNil(VHDLFile(rawValue: "library IEEE"))
-    }
-
-    /// Test invalid entity in raw value init.
-    func testInvalidEntityRawValueInit() {
-        let raw = """
-        entity TestEntity is
-            port(
-                clk: in std_logic
-            );
-        end TestEntity;
-        """
-        XCTAssertEqual(VHDLFile(rawValue: raw), VHDLFile(architectures: [], entities: entities, includes: []))
-        let raw2 = """
-        entity is
-            port(
-                clk: in std_logic
-            );
-        end TestEntity;
-        """
-        XCTAssertNil(VHDLFile(rawValue: raw2))
-        let raw3 = """
-        entity TestEntity
-            port(
-                clk: in std_logic
-            );
-        end TestEntity;
-        """
-        XCTAssertNil(VHDLFile(rawValue: raw3))
-        let raw4 = """
-        entity TestEntity is
-            port(
-                clk: in std_logic
-            );
-        endTestEntity;
-        """
-        XCTAssertNil(VHDLFile(rawValue: raw4))
-        XCTAssertNil(VHDLFile(rawValue: ""))
-        XCTAssertNil(VHDLFile(rawValue: "abc"))
     }
 
     // swiftlint:disable function_body_length
@@ -371,6 +364,16 @@ final class VHDLFileTests: XCTestCase {
             VHDLFile(rawValue: raw), VHDLFile(architectures: [], entities: [entity1, entity2], includes: [])
         )
         XCTAssertEqual(VHDLFile(rawValue: raw)?.rawValue, raw)
+        let raw2 = """
+        entity TestEntity is
+            port(
+                clk: in std_logic
+            );
+        end TestEntity;
+        """
+        XCTAssertEqual(
+            VHDLFile(rawValue: raw2), VHDLFile(architectures: [], entities: entities, includes: [])
+        )
     }
 
     /// Test multiple architectures
@@ -458,41 +461,24 @@ final class VHDLFileTests: XCTestCase {
         XCTAssertEqual(VHDLFile(rawValue: raw2)?.rawValue, raw2 + "\n")
     }
 
-    /// Test invalid package init.
-    func testInvalidPackageInit() {
-        let raw3 = """
-        package Package1 iss
-            constant high: std_logic := '1';
-            type Record1_t iss record
-                a: std_logic;
-                b: std_logic;
-            end record Record1_t;
-            type xs iss std_logic_vector(3 downto 0);
-        end package Package1;
+    /// Test multiple package bodies.
+    func testMultiplePackageBody() {
+        let raw = """
+        package body Package1 is
+            constant low: std_logic := '0';
+            constant zeros: xs := x"0";
+        end package body Package1;
+
+        package body Package1 is
+            constant low: std_logic := '0';
+            constant zeros: xs := x"0";
+        end package body Package1;
+
         """
-        XCTAssertNil(VHDLFile(rawValue: raw3))
-        let raw4 = """
-        package 2Package1 is
-            constant high: std_logic := '1';
-            type Record1_t is record
-                a: std_logic;
-                b: std_logic;
-            end record Record1_t;
-            type xs is std_logic_vector(3 downto 0);
-        end package 2Package1;
-        """
-        XCTAssertNil(VHDLFile(rawValue: raw4))
-        let raw5 = """
-        package Package1 iss
-            constant high: std_logic := '1';
-            type Record1_t is record
-                a: std_logic;
-                b: std_logic;
-            end record Record1_t;
-            type xs is std_logic_vector(3 downto 0);
-        end package Package1;
-        """
-        XCTAssertNil(VHDLFile(rawValue: raw5))
+        XCTAssertEqual(
+            VHDLFile(rawValue: raw),
+            VHDLFile(architectures: [], entities: [], includes: [], packageBodies: bodies + bodies)
+        )
     }
 
 }

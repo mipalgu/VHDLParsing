@@ -1,5 +1,5 @@
-// IncludeTests.swift
-// Machines
+// IncludeComponentTests.swift
+// VHDLParsing
 // 
 // Created by Morgan McColl.
 // Copyright © 2023 Morgan McColl. All rights reserved.
@@ -57,61 +57,29 @@
 @testable import VHDLParsing
 import XCTest
 
-/// Test class for ``Include``.
-final class IncludeTests: XCTestCase {
+/// Test class for ``IncludeComponent``.
+final class IncludeComponentTests: XCTestCase {
 
-    // swiftlint:disable force_unwrapping
+    /// A variable `x`.
+    let x = VariableName(text: "x")
 
-    /// The `IEEE` library.
-    let ieee = VariableName(rawValue: "IEEE")!
-
-    /// The `IEEE2` library.
-    let ieee2 = VariableName(rawValue: "IEEE2")!
-
-    /// The `IEEE.std_logic_1164.all` include.
-    let statement = UseStatement(rawValue: "use IEEE.std_logic_1164.all;")!
-
-    /// The `IEEE2.std_logic_1164.all` include.
-    let statement2 = UseStatement(rawValue: "use IEEE2.std_logic_1164.all;")!
-
-    // swiftlint:enable force_unwrapping
-
-    /// Test raw values generate VHDL code correctly.
-    func testRawValues() {
-        XCTAssertEqual(Include.library(value: ieee).rawValue, "library IEEE;")
-        XCTAssertEqual(
-            Include.include(statement: statement).rawValue, "use IEEE.std_logic_1164.all;"
-        )
+    /// Test `rawValue` computed property.
+    func testRawValue() {
+        let x = IncludeComponent.module(name: self.x)
+        let all = IncludeComponent.all
+        XCTAssertEqual(x.rawValue, "x")
+        XCTAssertEqual(all.rawValue, "all")
     }
 
-    /// Test equality operation works correctly.
-    func testEquality() {
-        XCTAssertEqual(Include.library(value: ieee), Include.library(value: ieee))
-        XCTAssertEqual(
-            Include.include(statement: statement),
-            Include.include(statement: statement)
-        )
-        XCTAssertNotEqual(Include.library(value: ieee), Include.library(value: ieee2))
-        XCTAssertNotEqual(
-            Include.include(statement: statement),
-            Include.include(statement: statement2)
-        )
-        XCTAssertNotEqual(Include.library(value: ieee), Include.include(statement: statement))
-    }
-
-    /// Test can create an ``Include`` from a raw value.
+    /// Test `init(rawValue:)` works correctly.
     func testRawValueInit() {
-        XCTAssertEqual(Include(rawValue: "library IEEE;"), .library(value: ieee))
-        XCTAssertEqual(
-            Include(rawValue: "use IEEE.std_logic_1164.all;"), .include(statement: statement)
-        )
-        XCTAssertNil(Include(rawValue: "library"))
-        XCTAssertNil(Include(rawValue: "use"))
-        XCTAssertEqual(Include(rawValue: "library   IEEE  ;"), .library(value: ieee))
-        XCTAssertEqual(
-            Include(rawValue: "use   IEEE.std_logic_1164.all  ;"), .include(statement: statement)
-        )
-        XCTAssertNil(Include(rawValue: String(repeating: "l", count: 256)))
+        let x = IncludeComponent(rawValue: "x")
+        let all = IncludeComponent(rawValue: "all")
+        XCTAssertEqual(x, .module(name: self.x))
+        XCTAssertEqual(all, .all)
+        XCTAssertNil(IncludeComponent(rawValue: ""))
+        XCTAssertNil(IncludeComponent(rawValue: " "))
+        XCTAssertNil(IncludeComponent(rawValue: "!x"))
     }
 
 }

@@ -1,5 +1,5 @@
-// IncludeTests.swift
-// Machines
+// IncludeComponent.swift
+// VHDLParsing
 // 
 // Created by Morgan McColl.
 // Copyright © 2023 Morgan McColl. All rights reserved.
@@ -54,64 +54,47 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
-@testable import VHDLParsing
-import XCTest
+import Foundation
 
-/// Test class for ``Include``.
-final class IncludeTests: XCTestCase {
+/// A type for describing individual components in a `VHDL` use-statement.
+/// 
+/// For example, an include statement in `VHDL` might look like:
+/// ```VHDL
+/// use IEEE.std_logic_1164.all;
+/// ```
+/// In this example, the components of the statement would be: `IEEE`, `std_logic_1164`, and `all`. You may
+/// use this type to represents each of these components with a special case for the `all` keyword.
+public enum IncludeComponent: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
-    // swiftlint:disable force_unwrapping
+    /// A reference to a particular module or library.
+    case module(name: VariableName)
 
-    /// The `IEEE` library.
-    let ieee = VariableName(rawValue: "IEEE")!
+    /// The `all` keyword.
+    case all
 
-    /// The `IEEE2` library.
-    let ieee2 = VariableName(rawValue: "IEEE2")!
-
-    /// The `IEEE.std_logic_1164.all` include.
-    let statement = UseStatement(rawValue: "use IEEE.std_logic_1164.all;")!
-
-    /// The `IEEE2.std_logic_1164.all` include.
-    let statement2 = UseStatement(rawValue: "use IEEE2.std_logic_1164.all;")!
-
-    // swiftlint:enable force_unwrapping
-
-    /// Test raw values generate VHDL code correctly.
-    func testRawValues() {
-        XCTAssertEqual(Include.library(value: ieee).rawValue, "library IEEE;")
-        XCTAssertEqual(
-            Include.include(statement: statement).rawValue, "use IEEE.std_logic_1164.all;"
-        )
+    /// The `VHDL` code representing this component.
+    @inlinable public var rawValue: String {
+        switch self {
+        case .module(let name):
+            return name.rawValue
+        case .all:
+            return "all"
+        }
     }
 
-    /// Test equality operation works correctly.
-    func testEquality() {
-        XCTAssertEqual(Include.library(value: ieee), Include.library(value: ieee))
-        XCTAssertEqual(
-            Include.include(statement: statement),
-            Include.include(statement: statement)
-        )
-        XCTAssertNotEqual(Include.library(value: ieee), Include.library(value: ieee2))
-        XCTAssertNotEqual(
-            Include.include(statement: statement),
-            Include.include(statement: statement2)
-        )
-        XCTAssertNotEqual(Include.library(value: ieee), Include.include(statement: statement))
-    }
-
-    /// Test can create an ``Include`` from a raw value.
-    func testRawValueInit() {
-        XCTAssertEqual(Include(rawValue: "library IEEE;"), .library(value: ieee))
-        XCTAssertEqual(
-            Include(rawValue: "use IEEE.std_logic_1164.all;"), .include(statement: statement)
-        )
-        XCTAssertNil(Include(rawValue: "library"))
-        XCTAssertNil(Include(rawValue: "use"))
-        XCTAssertEqual(Include(rawValue: "library   IEEE  ;"), .library(value: ieee))
-        XCTAssertEqual(
-            Include(rawValue: "use   IEEE.std_logic_1164.all  ;"), .include(statement: statement)
-        )
-        XCTAssertNil(Include(rawValue: String(repeating: "l", count: 256)))
+    /// Create an include component from the `VHDL` representation.
+    /// - Parameter rawValue: The `VHDL` code for this component.
+    @inlinable
+    public init?(rawValue: String) {
+        let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard trimmedString.count != 3, trimmedString.lowercased() != "all" else {
+            self = .all
+            return
+        }
+        guard let name = VariableName(rawValue: trimmedString) else {
+            return nil
+        }
+        self = .module(name: name)
     }
 
 }

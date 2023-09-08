@@ -1,5 +1,5 @@
-// IncludeTests.swift
-// Machines
+// UseStatementTests.swift
+// VHDLParsing
 // 
 // Created by Morgan McColl.
 // Copyright © 2023 Morgan McColl. All rights reserved.
@@ -57,61 +57,55 @@
 @testable import VHDLParsing
 import XCTest
 
-/// Test class for ``Include``.
-final class IncludeTests: XCTestCase {
+/// Test class for ``UseStatement``.
+final class UseStatementTests: XCTestCase {
 
-    // swiftlint:disable force_unwrapping
+    /// Test components.
+    let components: [IncludeComponent] = [
+        .module(name: VariableName(text: "IEEE")),
+        .module(name: VariableName(text: "std_logic_1164")),
+        .all
+    ]
 
-    /// The `IEEE` library.
-    let ieee = VariableName(rawValue: "IEEE")!
+    /// The raw value of the test components.
+    let raw = "use IEEE.std_logic_1164.all;"
 
-    /// The `IEEE2` library.
-    let ieee2 = VariableName(rawValue: "IEEE2")!
+    /// The statement under test.
+    lazy var statement = UseStatement(components: components)
 
-    /// The `IEEE.std_logic_1164.all` include.
-    let statement = UseStatement(rawValue: "use IEEE.std_logic_1164.all;")!
-
-    /// The `IEEE2.std_logic_1164.all` include.
-    let statement2 = UseStatement(rawValue: "use IEEE2.std_logic_1164.all;")!
-
-    // swiftlint:enable force_unwrapping
-
-    /// Test raw values generate VHDL code correctly.
-    func testRawValues() {
-        XCTAssertEqual(Include.library(value: ieee).rawValue, "library IEEE;")
-        XCTAssertEqual(
-            Include.include(statement: statement).rawValue, "use IEEE.std_logic_1164.all;"
-        )
+    /// Setup the statement under test.
+    override func setUp() {
+        statement = UseStatement(components: components)
     }
 
-    /// Test equality operation works correctly.
-    func testEquality() {
-        XCTAssertEqual(Include.library(value: ieee), Include.library(value: ieee))
-        XCTAssertEqual(
-            Include.include(statement: statement),
-            Include.include(statement: statement)
-        )
-        XCTAssertNotEqual(Include.library(value: ieee), Include.library(value: ieee2))
-        XCTAssertNotEqual(
-            Include.include(statement: statement),
-            Include.include(statement: statement2)
-        )
-        XCTAssertNotEqual(Include.library(value: ieee), Include.include(statement: statement))
+    /// Test property init.
+    func testInit() {
+        XCTAssertEqual(statement.components, components)
     }
 
-    /// Test can create an ``Include`` from a raw value.
+    /// Test `rawValue`.
+    func testRawValue() {
+        XCTAssertEqual(statement.rawValue, raw)
+    }
+
+    /// Test `init(nonEmptyComponents:)`.
+    func testNonEmptyComponents() {
+        XCTAssertNil(UseStatement(nonEmptyComponents: []))
+        XCTAssertEqual(UseStatement(nonEmptyComponents: components), statement)
+        let noAll = Array(components.dropLast())
+        XCTAssertNil(UseStatement(nonEmptyComponents: [IncludeComponent.all] + noAll))
+        XCTAssertEqual(UseStatement(nonEmptyComponents: noAll), UseStatement(components: noAll))
+    }
+
+    /// Test `init(rawValue:)`.
     func testRawValueInit() {
-        XCTAssertEqual(Include(rawValue: "library IEEE;"), .library(value: ieee))
-        XCTAssertEqual(
-            Include(rawValue: "use IEEE.std_logic_1164.all;"), .include(statement: statement)
-        )
-        XCTAssertNil(Include(rawValue: "library"))
-        XCTAssertNil(Include(rawValue: "use"))
-        XCTAssertEqual(Include(rawValue: "library   IEEE  ;"), .library(value: ieee))
-        XCTAssertEqual(
-            Include(rawValue: "use   IEEE.std_logic_1164.all  ;"), .include(statement: statement)
-        )
-        XCTAssertNil(Include(rawValue: String(repeating: "l", count: 256)))
+        XCTAssertEqual(UseStatement(rawValue: raw), statement)
+        XCTAssertNil(UseStatement(rawValue: String(raw.dropFirst(3))))
+        XCTAssertNil(UseStatement(rawValue: String(raw.dropLast())))
+        XCTAssertNil(UseStatement(rawValue: "use \(String(repeating: "x", count: 2048));"))
+        XCTAssertNil(UseStatement(rawValue: "use ;"))
+        XCTAssertEqual(UseStatement(rawValue: "use IEEE;"), UseStatement(components: [components[0]]))
+        XCTAssertNil(UseStatement(rawValue: "use IEEE.!.std_logic_1164.all;"))
     }
 
 }

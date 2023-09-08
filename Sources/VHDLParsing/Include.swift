@@ -61,10 +61,10 @@ import StringHelpers
 public enum Include: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
     /// Include a library.
-    case library(value: String)
+    case library(value: VariableName)
 
     /// Use a module from a library.
-    case include(value: String)
+    case include(statement: UseStatement)
 
     /// The raw value is a string.
     public typealias RawValue = String
@@ -73,9 +73,9 @@ public enum Include: RawRepresentable, Equatable, Hashable, Codable, Sendable {
     @inlinable public var rawValue: String {
         switch self {
         case .library(let value):
-            return "library \(value);"
-        case .include(let value):
-            return "use \(value);"
+            return "library \(value.rawValue);"
+        case .include(let statement):
+            return statement.rawValue
         }
     }
 
@@ -88,13 +88,16 @@ public enum Include: RawRepresentable, Equatable, Hashable, Codable, Sendable {
             return nil
         }
         if trimmedString.firstWord?.lowercased() == "library" {
-            self = .library(
-                value: String(trimmedString.dropFirst(8).dropLast()).trimmingCharacters(in: .whitespaces)
-            )
+            let data = String(trimmedString.dropFirst(8).dropLast()).trimmingCharacters(in: .whitespaces)
+            guard let library = VariableName(rawValue: data) else {
+                return nil
+            }
+            self = .library(value: library)
         } else if trimmedString.firstWord?.lowercased() == "use" {
-            self = .include(
-                value: String(trimmedString.dropFirst(4).dropLast()).trimmingCharacters(in: .whitespaces)
-            )
+            guard let statement = UseStatement(rawValue: trimmedString) else {
+                return nil
+            }
+            self = .include(statement: statement)
         } else {
             return nil
         }
@@ -105,9 +108,9 @@ public enum Include: RawRepresentable, Equatable, Hashable, Codable, Sendable {
     public static func == (lhs: Include, rhs: Include) -> Bool {
         switch (lhs, rhs) {
         case (.library(let lhs), .library(let rhs)):
-            return lhs.lowercased() == rhs.lowercased()
-        case (.include(let lhs), .include(let rhs)):
-            return lhs.lowercased() == rhs.lowercased()
+            return lhs.rawValue.lowercased() == rhs.rawValue.lowercased()
+        case (.include, .include):
+            return lhs.rawValue.lowercased() == rhs.rawValue.lowercased()
         default:
             return false
         }

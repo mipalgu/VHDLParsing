@@ -1,5 +1,5 @@
-// IncludeTests.swift
-// Machines
+// UseStatement.swift
+// VHDLParsing
 // 
 // Created by Morgan McColl.
 // Copyright © 2023 Morgan McColl. All rights reserved.
@@ -54,64 +54,70 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
-@testable import VHDLParsing
-import XCTest
+import Foundation
+import StringHelpers
 
-/// Test class for ``Include``.
-final class IncludeTests: XCTestCase {
+/// An include statement that imports module from a library.
+/// 
+/// This statement uses the `use` keyword in `VHDL` to import modules from a library. E.G.:
+/// ```VHDL
+/// use IEEE.std_logic_1164.all;
+/// ```
+public struct UseStatement: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
-    // swiftlint:disable force_unwrapping
+    /// Each component of the statement. This is the modules that are imported.
+    public let components: [IncludeComponent]
 
-    /// The `IEEE` library.
-    let ieee = VariableName(rawValue: "IEEE")!
-
-    /// The `IEEE2` library.
-    let ieee2 = VariableName(rawValue: "IEEE2")!
-
-    /// The `IEEE.std_logic_1164.all` include.
-    let statement = UseStatement(rawValue: "use IEEE.std_logic_1164.all;")!
-
-    /// The `IEEE2.std_logic_1164.all` include.
-    let statement2 = UseStatement(rawValue: "use IEEE2.std_logic_1164.all;")!
-
-    // swiftlint:enable force_unwrapping
-
-    /// Test raw values generate VHDL code correctly.
-    func testRawValues() {
-        XCTAssertEqual(Include.library(value: ieee).rawValue, "library IEEE;")
-        XCTAssertEqual(
-            Include.include(statement: statement).rawValue, "use IEEE.std_logic_1164.all;"
-        )
+    /// The `VHDL` code representation of the statement.
+    @inlinable public var rawValue: String {
+        "use \(components.map(\.rawValue).joined(separator: "."));"
     }
 
-    /// Test equality operation works correctly.
-    func testEquality() {
-        XCTAssertEqual(Include.library(value: ieee), Include.library(value: ieee))
-        XCTAssertEqual(
-            Include.include(statement: statement),
-            Include.include(statement: statement)
-        )
-        XCTAssertNotEqual(Include.library(value: ieee), Include.library(value: ieee2))
-        XCTAssertNotEqual(
-            Include.include(statement: statement),
-            Include.include(statement: statement2)
-        )
-        XCTAssertNotEqual(Include.library(value: ieee), Include.include(statement: statement))
+    /// Creates a new `UseStatement` from the given components. This initialiser first checks to make sure
+    /// that the components are valid for the statement. If they are not, then `nil` is returned.
+    /// - Parameter components: The components of this statement.
+    @inlinable
+    public init?(nonEmptyComponents components: [IncludeComponent]) {
+        guard !components.isEmpty else {
+            return nil
+        }
+        if let allIndex = components.firstIndex(of: .all) {
+            guard allIndex == components.count - 1 else {
+                return nil
+            }
+        }
+        self.init(components: components)
     }
 
-    /// Test can create an ``Include`` from a raw value.
-    func testRawValueInit() {
-        XCTAssertEqual(Include(rawValue: "library IEEE;"), .library(value: ieee))
-        XCTAssertEqual(
-            Include(rawValue: "use IEEE.std_logic_1164.all;"), .include(statement: statement)
-        )
-        XCTAssertNil(Include(rawValue: "library"))
-        XCTAssertNil(Include(rawValue: "use"))
-        XCTAssertEqual(Include(rawValue: "library   IEEE  ;"), .library(value: ieee))
-        XCTAssertEqual(
-            Include(rawValue: "use   IEEE.std_logic_1164.all  ;"), .include(statement: statement)
-        )
-        XCTAssertNil(Include(rawValue: String(repeating: "l", count: 256)))
+    /// Creates a new `UseStatement` from the given `VHDL` code representing this statement.
+    /// - Parameter rawValue: The `VHDL` code enacting this statement.
+    @inlinable
+    public init?(rawValue: String) {
+        let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard
+            trimmedString.count < 2048,
+            trimmedString.firstWord?.lowercased() == "use",
+            trimmedString.hasSuffix(";")
+        else {
+            return nil
+        }
+        let data = String(trimmedString.dropFirst(3).dropLast()).trimmingCharacters(in: .whitespaces)
+        guard !data.isEmpty else {
+            return nil
+        }
+        let components = data.components(separatedBy: ".")
+        let includes = components.compactMap(IncludeComponent.init(rawValue:))
+        guard includes.count == components.count else {
+            return nil
+        }
+        self.init(nonEmptyComponents: includes)
+    }
+
+    /// Creates a new `UseStatement` from the given components.
+    /// - Parameter components: The components of this statement.
+    @inlinable
+    init(components: [IncludeComponent]) {
+        self.components = components
     }
 
 }
