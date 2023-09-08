@@ -142,18 +142,45 @@ final class VHDLFileTests: XCTestCase {
         )
     ]
 
+    /// The package bodies
+    let bodies = [
+        PackageBody(
+            name: VariableName(text: "Package1"),
+            body: .blocks(values: [
+                .constant(value: ConstantSignal(
+                    name: VariableName(text: "low"),
+                    type: .stdLogic,
+                    value: .literal(value: .bit(value: .low))
+                )!),
+                .constant(value: ConstantSignal(
+                    name: VariableName(text: "zeros"),
+                    type: .alias(name: VariableName(text: "xs")),
+                    value: .literal(value: .vector(value: .hexademical(value: HexVector(values: [.zero]))))
+                )!)
+            ])
+        )
+    ]
+
     // swiftlint:enable force_unwrapping
 
     /// The file under test.
     lazy var file = VHDLFile(
-        architectures: architectures, entities: entities, includes: includes, packages: packages
+        architectures: architectures,
+        entities: entities,
+        includes: includes,
+        packages: packages,
+        packageBodies: bodies
     )
 
     /// Initialise the uut before every test.
     override func setUp() {
         super.setUp()
         file = VHDLFile(
-            architectures: architectures, entities: entities, includes: includes, packages: packages
+            architectures: architectures,
+            entities: entities,
+            includes: includes,
+            packages: packages,
+            packageBodies: bodies
         )
     }
 
@@ -198,6 +225,11 @@ final class VHDLFileTests: XCTestCase {
             type xs is std_logic_vector(3 downto 0);
         end package Package1;
 
+        package body Package1 is
+            constant low: std_logic := '0';
+            constant zeros: xs := x"0";
+        end package body Package1;
+
         """
         XCTAssertEqual(file.rawValue, expected)
     }
@@ -234,6 +266,11 @@ final class VHDLFileTests: XCTestCase {
             end record Record1_t;
             type xs is std_logic_vector(3 downto 0);
         end package Package1;
+
+        package body Package1 is
+            constant low: std_logic := '0';
+            constant zeros: xs := x"0";
+        end package body Package1;
 
         """
         XCTAssertEqual(VHDLFile(rawValue: raw), file)
@@ -493,6 +530,39 @@ final class VHDLFileTests: XCTestCase {
         end package Package1;
         """
         XCTAssertNil(VHDLFile(rawValue: raw5))
+        XCTAssertNil(VHDLFile(rawValue: "package is"))
+    }
+
+    /// Test invalid package body init.
+    func testInvalidPackageBodyInit() {
+        let raw = """
+        package body Package1
+            constant low: std_logic := '0';
+            constant zeros: xs := x"0";
+        end package body Package1;
+        """
+        XCTAssertNil(VHDLFile(rawValue: raw))
+        let raw2 = """
+        package body is
+            constant low: std_logic := '0';
+            constant zeros: xs := x"0";
+        end package body Package1;
+        """
+        XCTAssertNil(VHDLFile(rawValue: raw2))
+        let raw3 = """
+        package body Package1 is
+            constant low: std_logic := '0';
+            constant zeros: xs := x"0";
+        end package body Package2;
+        """
+        XCTAssertNil(VHDLFile(rawValue: raw3))
+        let raw4 = """
+        package body Package1 is
+            constant low: std_logic := '0';
+            constants zeros: xs := x"0";
+        end package body Package1;
+        """
+        XCTAssertNil(VHDLFile(rawValue: raw4))
     }
 
 }

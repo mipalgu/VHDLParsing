@@ -85,7 +85,12 @@ public struct VHDLFile: RawRepresentable, Equatable, Hashable, Codable, Sendable
         let packagesString = packages.sorted { $0.name < $1.name }
             .map { $0.rawValue }
             .joined(separator: "\n\n")
-        return [includesString, entitiesString, architecturesString, packagesString].filter { !$0.isEmpty }
+        let bodiesString = packageBodies.sorted { $0.name < $1.name }
+            .map { $0.rawValue }
+            .joined(separator: "\n\n")
+        return [includesString, entitiesString, architecturesString, packagesString, bodiesString].filter {
+            !$0.isEmpty
+        }
             .joined(separator: "\n\n")
             .trimmingCharacters(in: .whitespacesAndNewlines) + "\n"
     }
@@ -141,11 +146,44 @@ public struct VHDLFile: RawRepresentable, Equatable, Hashable, Codable, Sendable
         let trimmedString = remaining.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedString.isEmpty else {
             self.init(
-                architectures: architectures, entities: entities, includes: includes, packages: packages
+                architectures: architectures,
+                entities: entities,
+                includes: includes,
+                packages: packages,
+                packageBodies: packageBodies
             )
             return
         }
-        let firstWord = trimmedString.firstWord?.lowercased()
+        self.init(
+            remaining: trimmedString,
+            architectures: architectures,
+            entities: entities,
+            includes: includes,
+            packages: packages,
+            packageBodies: packageBodies,
+            firstWord: trimmedString.firstWord?.lowercased()
+        )
+    }
+
+    /// An accumulator function for iteratively creating a `VHDLFile`. This uses the first word to determine
+    /// what to parse.
+    /// - Parameters:
+    ///   - trimmedString: The remaining string to parse.
+    ///   - architectures: The architectures that have been previously parsed.
+    ///   - entities: The entities that have been previously parsed.
+    ///   - includes: The includes that have been previously parsed.
+    ///   - packages: The packages already parsed.
+    ///   - packageBodies: The package bodies already parsed.
+    ///   - firstWord: The first word in the string.
+    private init?(
+        remaining trimmedString: String,
+        architectures: [Architecture] = [],
+        entities: [Entity] = [],
+        includes: [Include] = [],
+        packages: [VHDLPackage] = [],
+        packageBodies: [PackageBody] = [],
+        firstWord: String?
+    ) {
         switch firstWord {
         case "use", "library":
             self.init(
@@ -187,6 +225,11 @@ public struct VHDLFile: RawRepresentable, Equatable, Hashable, Codable, Sendable
             return nil
         }
     }
+
+}
+
+/// Private functions for parsing a `VHDLFile`.
+extension VHDLFile {
 
     /// Parse a package in the given string.
     /// - Parameters:
