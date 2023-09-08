@@ -58,7 +58,7 @@
 import XCTest
 
 /// Test class for ``WhenElseStatement``.
-final class WhenElseStatementTests: XCTest {
+final class WhenElseStatementTests: XCTestCase {
 
     /// A `true` condition.
     let condition = Expression.literal(value: .boolean(value: true))
