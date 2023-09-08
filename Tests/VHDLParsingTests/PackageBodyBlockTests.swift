@@ -337,4 +337,11 @@ final class PackageBodyBlockTests: XCTestCase {
         XCTAssertNil(PackageBodyBlock(rawValue: imp2Raw))
     }
 
+    /// Test invalid includes.
+    func testInvalidInclude() {
+        XCTAssertNil(PackageBodyBlock(rawValue: "use IEEE.std_logic_1164.all"))
+        XCTAssertNil(PackageBodyBlock(rawValue: "library IEEE;"))
+        XCTAssertNil(PackageBodyBlock(rawValue: "use IEEE.std_logic_1164.!all;"))
+    }
+
 }

@@ -1,5 +1,5 @@
-// Include.swift
-// Machines
+// UseStatement.swift
+// VHDLParsing
 // 
 // Created by Morgan McColl.
 // Copyright © 2023 Morgan McColl. All rights reserved.
@@ -54,66 +54,49 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
-import Foundation
-import StringHelpers
+public struct UseStatement: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
-/// A type for representing VHDL include statements.
-public enum Include: RawRepresentable, Equatable, Hashable, Codable, Sendable {
+    public let components: [IncludeComponent]
 
-    /// Include a library.
-    case library(value: VariableName)
-
-    /// Use a module from a library.
-    case include(statement: UseStatement)
-
-    /// The raw value is a string.
-    public typealias RawValue = String
-
-    /// The VHDL code equivalent to this include.
-    @inlinable public var rawValue: String {
-        switch self {
-        case .library(let value):
-            return "library \(value.rawValue);"
-        case .include(let statement):
-            return statement.rawValue
-        }
+    public var rawValue: String {
+        components.map(\.rawValue).joined(separator: ".")
     }
 
-    /// Create an include from the VHDL representation.
-    /// - Parameter rawValue: The VHDL code for the include.
-    @inlinable
+    public init?(nonEmptyComponents components: [IncludeComponent]) {
+        guard !components.isEmpty else {
+            return nil
+        }
+        self.init(components: components)
+    }
+
     public init?(rawValue: String) {
         let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard trimmedString.count < 256, trimmedString.hasSuffix(";") else {
+        guard
+            trimmedString.count < 2048,
+            trimmedString.firstWord?.lowercased() == "use",
+            trimmedString.hasSuffix(";")
+        else {
             return nil
         }
-        if trimmedString.firstWord?.lowercased() == "library" {
-            let data = String(trimmedString.dropFirst(8).dropLast()).trimmingCharacters(in: .whitespaces)
-            guard let library = VariableName(rawValue: data) else {
-                return nil
-            }
-            self = .library(value: library)
-        } else if trimmedString.firstWord?.lowercased() == "use" {
-            guard let statement = UseStatement(rawValue: trimmedString) else {
-                return nil
-            }
-            self = .include(statement: statement)
-        } else {
+        let data = String(trimmedString.dropFirst(3).dropLast()).trimmingCharacters(in: .whitespaces)
+        guard !data.isEmpty else {
             return nil
         }
+        let components = data.components(separatedBy: ".")
+        let includes = components.compactMap(IncludeComponent.init(rawValue:))
+        guard !includes.isEmpty, includes.count == components.count else {
+            return nil
+        }
+        if let allIndex = includes.firstIndex(of: .all) {
+            guard allIndex == includes.count - 1 else {
+                return nil
+            }
+        }
+        self.init(components: includes)
     }
 
-    /// Equality operation.
-    @inlinable
-    public static func == (lhs: Include, rhs: Include) -> Bool {
-        switch (lhs, rhs) {
-        case (.library(let lhs), .library(let rhs)):
-            return lhs.rawValue.lowercased() == rhs.rawValue.lowercased()
-        case (.include, .include):
-            return lhs.rawValue.lowercased() == rhs.rawValue.lowercased()
-        default:
-            return false
-        }
+    init(components: [IncludeComponent]) {
+        self.components = components
     }
 
 }

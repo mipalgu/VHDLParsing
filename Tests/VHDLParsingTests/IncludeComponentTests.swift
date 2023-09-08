@@ -1,5 +1,5 @@
-// Include.swift
-// Machines
+// IncludeComponentTests.swift
+// VHDLParsing
 // 
 // Created by Morgan McColl.
 // Copyright © 2023 Morgan McColl. All rights reserved.
@@ -54,66 +54,36 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
-import Foundation
-import StringHelpers
+@testable import VHDLParsing
+import XCTest
 
-/// A type for representing VHDL include statements.
-public enum Include: RawRepresentable, Equatable, Hashable, Codable, Sendable {
+/// Test class for ``IncludeComponent``.
+final class IncludeComponentTests: XCTestCase {
 
-    /// Include a library.
-    case library(value: VariableName)
+    // swiftlint:disable force_unwrapping
 
-    /// Use a module from a library.
-    case include(statement: UseStatement)
+    /// A variable `x`.
+    let x = VariableName(rawValue: "x")!
 
-    /// The raw value is a string.
-    public typealias RawValue = String
+    // swiftlint:enable force_unwrapping
 
-    /// The VHDL code equivalent to this include.
-    @inlinable public var rawValue: String {
-        switch self {
-        case .library(let value):
-            return "library \(value.rawValue);"
-        case .include(let statement):
-            return statement.rawValue
-        }
+    /// Test `rawValue` computed property.
+    func testRawValue() {
+        let x = IncludeComponent.module(name: self.x)
+        let all = IncludeComponent.all
+        XCTAssertEqual(x.rawValue, "x")
+        XCTAssertEqual(all.rawValue, "all")
     }
 
-    /// Create an include from the VHDL representation.
-    /// - Parameter rawValue: The VHDL code for the include.
-    @inlinable
-    public init?(rawValue: String) {
-        let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard trimmedString.count < 256, trimmedString.hasSuffix(";") else {
-            return nil
-        }
-        if trimmedString.firstWord?.lowercased() == "library" {
-            let data = String(trimmedString.dropFirst(8).dropLast()).trimmingCharacters(in: .whitespaces)
-            guard let library = VariableName(rawValue: data) else {
-                return nil
-            }
-            self = .library(value: library)
-        } else if trimmedString.firstWord?.lowercased() == "use" {
-            guard let statement = UseStatement(rawValue: trimmedString) else {
-                return nil
-            }
-            self = .include(statement: statement)
-        } else {
-            return nil
-        }
-    }
-
-    /// Equality operation.
-    @inlinable
-    public static func == (lhs: Include, rhs: Include) -> Bool {
-        switch (lhs, rhs) {
-        case (.library(let lhs), .library(let rhs)):
-            return lhs.rawValue.lowercased() == rhs.rawValue.lowercased()
-        case (.include, .include):
-            return lhs.rawValue.lowercased() == rhs.rawValue.lowercased()
-        default:
-            return false
-        }
+    /// Test `init(rawValue:)` works correctly.
+    func testRawValueInit() {
+        let x = IncludeComponent(rawValue: "x")
+        let all = IncludeComponent(rawValue: "all")
+        XCTAssertEqual(x, .module(name: self.x))
+        XCTAssertEqual(all, .all)
+        XCTAssertNil(IncludeComponent(rawValue: ""))
+        XCTAssertNil(IncludeComponent(rawValue: " "))
+        XCTAssertNil(IncludeComponent(rawValue: "!x"))
     }
 
 }

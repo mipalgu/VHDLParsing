@@ -71,7 +71,7 @@ public indirect enum PackageBodyBlock: RawRepresentable, Equatable, Hashable, Co
 
     case type(value: TypeDefinition)
 
-    case include(value: String)
+    case include(statement: UseStatement)
 
     public var rawValue: String {
         switch self {
@@ -88,7 +88,7 @@ public indirect enum PackageBodyBlock: RawRepresentable, Equatable, Hashable, Co
         case .type(let value):
             return value.rawValue
         case .include(let value):
-            return "use \(value);"
+            return value.rawValue
         }
     }
 
@@ -205,11 +205,11 @@ public indirect enum PackageBodyBlock: RawRepresentable, Equatable, Hashable, Co
             return nil
         }
         let data = String(value[...semicolonIndex])
-        guard let include = Include(rawValue: data), case .include(let includeValue) = include else {
+        guard let include = UseStatement(rawValue: data) else {
             return nil
         }
         self.init(
-            rawValue: String(value.dropFirst(data.count)), carry: carry + [.include(value: includeValue)]
+            rawValue: String(value.dropFirst(data.count)), carry: carry + [.include(statement: include)]
         )
     }
 

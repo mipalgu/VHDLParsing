@@ -1,5 +1,5 @@
-// Include.swift
-// Machines
+// IncludeComponent.swift
+// VHDLParsing
 // 
 // Created by Morgan McColl.
 // Copyright © 2023 Morgan McColl. All rights reserved.
@@ -54,66 +54,31 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
-import Foundation
-import StringHelpers
+public enum IncludeComponent: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
-/// A type for representing VHDL include statements.
-public enum Include: RawRepresentable, Equatable, Hashable, Codable, Sendable {
+    case module(name: VariableName)
 
-    /// Include a library.
-    case library(value: VariableName)
+    case all
 
-    /// Use a module from a library.
-    case include(statement: UseStatement)
-
-    /// The raw value is a string.
-    public typealias RawValue = String
-
-    /// The VHDL code equivalent to this include.
-    @inlinable public var rawValue: String {
+    public var rawValue: String {
         switch self {
-        case .library(let value):
-            return "library \(value.rawValue);"
-        case .include(let statement):
-            return statement.rawValue
+        case .module(let name):
+            return name.rawValue
+        case .all:
+            return "all"
         }
     }
 
-    /// Create an include from the VHDL representation.
-    /// - Parameter rawValue: The VHDL code for the include.
-    @inlinable
     public init?(rawValue: String) {
         let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard trimmedString.count < 256, trimmedString.hasSuffix(";") else {
+        guard trimmedString.count != 3, trimmedString.lowercased() != "all" else {
+            self = .all
+            return
+        }
+        guard let name = VariableName(rawValue: trimmedString) else {
             return nil
         }
-        if trimmedString.firstWord?.lowercased() == "library" {
-            let data = String(trimmedString.dropFirst(8).dropLast()).trimmingCharacters(in: .whitespaces)
-            guard let library = VariableName(rawValue: data) else {
-                return nil
-            }
-            self = .library(value: library)
-        } else if trimmedString.firstWord?.lowercased() == "use" {
-            guard let statement = UseStatement(rawValue: trimmedString) else {
-                return nil
-            }
-            self = .include(statement: statement)
-        } else {
-            return nil
-        }
-    }
-
-    /// Equality operation.
-    @inlinable
-    public static func == (lhs: Include, rhs: Include) -> Bool {
-        switch (lhs, rhs) {
-        case (.library(let lhs), .library(let rhs)):
-            return lhs.rawValue.lowercased() == rhs.rawValue.lowercased()
-        case (.include, .include):
-            return lhs.rawValue.lowercased() == rhs.rawValue.lowercased()
-        default:
-            return false
-        }
+        self = .module(name: name)
     }
 
 }
