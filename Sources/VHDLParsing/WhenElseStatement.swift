@@ -84,7 +84,7 @@ public struct WhenElseStatement: RawRepresentable, Equatable, Hashable, Codable,
             let whenIndex = trimmedString.indexes(for: ["when"]).first,
             whenIndex.0 > trimmedString.startIndex,
             let elseIndex = trimmedString.indexes(for: ["else"]).first,
-            elseIndex.0 >= whenIndex.1,
+            elseIndex.0 > whenIndex.1,
             elseIndex.1 < trimmedString.endIndex
         else {
             return nil
