@@ -87,9 +87,8 @@ public enum AsynchronousStatement: RawRepresentable, Equatable, Hashable, Codabl
             self = .comment(value: exp)
             return
         }
-        if trimmedString.contains("<=") {
+        if let assignmentOperatorIndex = trimmedString.indexes(for: ["<="]).first {
             guard
-                let assignmentOperatorIndex = trimmedString.indexes(for: ["<="]).first,
                 assignmentOperatorIndex.0 > trimmedString.startIndex,
                 assignmentOperatorIndex.1 < trimmedString.endIndex
             else {
