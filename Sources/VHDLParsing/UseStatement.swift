@@ -59,7 +59,7 @@ public struct UseStatement: RawRepresentable, Equatable, Hashable, Codable, Send
     public let components: [IncludeComponent]
 
     public var rawValue: String {
-        components.map(\.rawValue).joined(separator: ".")
+        "use \(components.map(\.rawValue).joined(separator: "."));"
     }
 
     public init?(nonEmptyComponents components: [IncludeComponent]) {

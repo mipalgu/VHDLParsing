@@ -60,40 +60,48 @@ import XCTest
 /// Test class for ``Include``.
 final class IncludeTests: XCTestCase {
 
+    let ieee = VariableName(rawValue: "IEEE")!
+
+    let ieee2 = VariableName(rawValue: "IEEE2")!
+
+    let statement = UseStatement(rawValue: "use IEEE.std_logic_1164.all;")!
+
+    let statement2 = UseStatement(rawValue: "use IEEE2.std_logic_1164.all;")!
+
     /// Test raw values generate VHDL code correctly.
     func testRawValues() {
-        XCTAssertEqual(Include.library(value: "IEEE").rawValue, "library IEEE;")
+        XCTAssertEqual(Include.library(value: ieee).rawValue, "library IEEE;")
         XCTAssertEqual(
-            Include.include(value: "IEEE.std_logic_1164.all").rawValue, "use IEEE.std_logic_1164.all;"
+            Include.include(statement: statement).rawValue, "use IEEE.std_logic_1164.all;"
         )
     }
 
     /// Test equality operation works correctly.
     func testEquality() {
-        XCTAssertEqual(Include.library(value: "IEEE"), Include.library(value: "IEEE"))
+        XCTAssertEqual(Include.library(value: ieee), Include.library(value: ieee))
         XCTAssertEqual(
-            Include.include(value: "IEEE.std_logic_1164.all"),
-            Include.include(value: "IEEE.std_logic_1164.all")
+            Include.include(statement: statement),
+            Include.include(statement: statement)
         )
-        XCTAssertNotEqual(Include.library(value: "IEEE"), Include.library(value: "IEEE2"))
+        XCTAssertNotEqual(Include.library(value: ieee), Include.library(value: ieee2))
         XCTAssertNotEqual(
-            Include.include(value: "IEEE.std_logic_1164.all"),
-            Include.include(value: "IEEE2.std_logic_1164.all")
+            Include.include(statement: statement),
+            Include.include(statement: statement2)
         )
-        XCTAssertNotEqual(Include.library(value: "IEEE"), Include.include(value: "IEEE.std_logic_1164.all"))
+        XCTAssertNotEqual(Include.library(value: ieee), Include.include(statement: statement))
     }
 
     /// Test can create an ``Include`` from a raw value.
     func testRawValueInit() {
-        XCTAssertEqual(Include(rawValue: "library IEEE;"), .library(value: "IEEE"))
+        XCTAssertEqual(Include(rawValue: "library IEEE;"), .library(value: ieee))
         XCTAssertEqual(
-            Include(rawValue: "use IEEE.std_logic_1164.all;"), .include(value: "IEEE.std_logic_1164.all")
+            Include(rawValue: "use IEEE.std_logic_1164.all;"), .include(statement: statement)
         )
         XCTAssertNil(Include(rawValue: "library"))
         XCTAssertNil(Include(rawValue: "use"))
-        XCTAssertEqual(Include(rawValue: "library   IEEE  ;"), .library(value: "IEEE"))
+        XCTAssertEqual(Include(rawValue: "library   IEEE  ;"), .library(value: ieee))
         XCTAssertEqual(
-            Include(rawValue: "use   IEEE.std_logic_1164.all  ;"), .include(value: "IEEE.std_logic_1164.all")
+            Include(rawValue: "use   IEEE.std_logic_1164.all  ;"), .include(statement: statement)
         )
         XCTAssertNil(Include(rawValue: String(repeating: "l", count: 256)))
     }

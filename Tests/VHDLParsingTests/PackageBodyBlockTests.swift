@@ -134,7 +134,7 @@ final class PackageBodyBlockTests: XCTestCase {
     """
 
     /// An include statement.
-    let include = PackageBodyBlock.include(value: "IEEE.std_logic_1164.all")
+    let include = PackageBodyBlock.include(statement: UseStatement(rawValue: "use IEEE.std_logic_1164.all;")!)
 
     /// The equivalent `VHDL` code for `include`.
     let includeRaw = "use IEEE.std_logic_1164.all;"

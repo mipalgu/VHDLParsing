@@ -64,6 +64,6 @@ final class PackageBodyTests: XCTestCase {
     let packageName = VariableName(text: "PackageA")
 
     /// The package body.
-    let body = PackageBodyBlock.include(value: "IEEE.std_logic_1164.all")
+    let body = PackageBodyBlock.include(statement: UseStatement(rawValue: "use IEEE.std_logic_1164.all;")!)
 
 }

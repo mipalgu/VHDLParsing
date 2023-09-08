@@ -64,8 +64,8 @@ final class VHDLFileTests: XCTestCase {
 
     /// The includes in the file.
     let includes = [
-        Include.library(value: "IEEE"),
-        Include.include(value: "IEEE.std_logic_1164.all")
+        Include.library(value: VariableName(rawValue: "IEEE")!),
+        Include.include(statement: UseStatement(rawValue: "use IEEE.std_logic_1164.all;")!)
     ]
 
     // swiftlint:disable force_unwrapping
