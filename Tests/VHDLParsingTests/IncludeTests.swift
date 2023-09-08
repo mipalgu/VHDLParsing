@@ -60,13 +60,21 @@ import XCTest
 /// Test class for ``Include``.
 final class IncludeTests: XCTestCase {
 
+    // swiftlint:disable force_unwrapping
+
+    /// The `IEEE` library.
     let ieee = VariableName(rawValue: "IEEE")!
 
+    /// The `IEEE2` library.
     let ieee2 = VariableName(rawValue: "IEEE2")!
 
+    /// The `IEEE.std_logic_1164.all` include.
     let statement = UseStatement(rawValue: "use IEEE.std_logic_1164.all;")!
 
+    /// The `IEEE2.std_logic_1164.all` include.
     let statement2 = UseStatement(rawValue: "use IEEE2.std_logic_1164.all;")!
+
+    // swiftlint:enable force_unwrapping
 
     /// Test raw values generate VHDL code correctly.
     func testRawValues() {

@@ -63,7 +63,11 @@ final class PackageBodyTests: XCTestCase {
     /// The name of the package.
     let packageName = VariableName(text: "PackageA")
 
+    // swiftlint:disable force_unwrapping
+
     /// The package body.
     let body = PackageBodyBlock.include(statement: UseStatement(rawValue: "use IEEE.std_logic_1164.all;")!)
+
+    // swiftlint:enable force_unwrapping
 
 }

@@ -62,13 +62,13 @@ import XCTest
 /// Test class for ``VHDLFile``.
 final class VHDLFileTests: XCTestCase {
 
+    // swiftlint:disable force_unwrapping
+
     /// The includes in the file.
     let includes = [
         Include.library(value: VariableName(rawValue: "IEEE")!),
         Include.include(statement: UseStatement(rawValue: "use IEEE.std_logic_1164.all;")!)
     ]
-
-    // swiftlint:disable force_unwrapping
 
     /// The entities in the file.
     let entities = [

@@ -133,8 +133,12 @@ final class PackageBodyBlockTests: XCTestCase {
     end function;
     """
 
+    // swiftlint:disable force_unwrapping
+
     /// An include statement.
     let include = PackageBodyBlock.include(statement: UseStatement(rawValue: "use IEEE.std_logic_1164.all;")!)
+
+    // swiftlint:enable force_unwrapping
 
     /// The equivalent `VHDL` code for `include`.
     let includeRaw = "use IEEE.std_logic_1164.all;"
