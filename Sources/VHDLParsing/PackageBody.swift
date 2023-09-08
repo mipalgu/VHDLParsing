@@ -57,13 +57,20 @@
 import Foundation
 import StringHelpers
 
+/// A package body implementation. This type represents a `package body` block in `VHDL` and represents an
+/// implementation of a pre-defined ``VHDLPackage``.
+/// 
+/// - SeeAlso: ``VHDLPackage``.
 public struct PackageBody: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
-    let name: VariableName
+    /// The name of the package that is implemented by this body.
+    public let name: VariableName
 
-    let body: PackageBodyBlock
+    /// The statements in the body declaration.
+    public let body: PackageBodyBlock
 
-    public var rawValue: String {
+    /// The equivalent `VHDL` code for this package body.
+    @inlinable public var rawValue: String {
         """
         package body \(self.name.rawValue) is
         \(body.rawValue.indent(amount: 1))
@@ -71,11 +78,19 @@ public struct PackageBody: RawRepresentable, Equatable, Hashable, Codable, Senda
         """
     }
 
+    /// Creates a new package body with the name and implementation.
+    /// - Parameters:
+    ///   - name: The name of the package this body is implementing.
+    ///   - body: The implementation of the package.
+    @inlinable
     public init(name: VariableName, body: PackageBodyBlock) {
         self.name = name
         self.body = body
     }
 
+    /// Creates a new package body from the specified `VHDL` code.
+    /// - Parameter rawValue: The `VHDL` code representing a package body.
+    @inlinable
     public init?(rawValue: String) {
         let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
         guard trimmedString.count < 4096, trimmedString.hasSuffix(";") else {
