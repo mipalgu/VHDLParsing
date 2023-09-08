@@ -66,6 +66,11 @@ public struct UseStatement: RawRepresentable, Equatable, Hashable, Codable, Send
         guard !components.isEmpty else {
             return nil
         }
+        if let allIndex = components.firstIndex(of: .all) {
+            guard allIndex == components.count - 1 else {
+                return nil
+            }
+        }
         self.init(components: components)
     }
 
@@ -84,15 +89,10 @@ public struct UseStatement: RawRepresentable, Equatable, Hashable, Codable, Send
         }
         let components = data.components(separatedBy: ".")
         let includes = components.compactMap(IncludeComponent.init(rawValue:))
-        guard !includes.isEmpty, includes.count == components.count else {
+        guard includes.count == components.count else {
             return nil
         }
-        if let allIndex = includes.firstIndex(of: .all) {
-            guard allIndex == includes.count - 1 else {
-                return nil
-            }
-        }
-        self.init(components: includes)
+        self.init(nonEmptyComponents: includes)
     }
 
     init(components: [IncludeComponent]) {
