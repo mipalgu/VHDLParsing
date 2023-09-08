@@ -57,24 +57,38 @@
 import Foundation
 import StringHelpers
 
+/// A type for representing asynchronous `when` statements with an `else` clause.
 public struct WhenElseStatement: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
+    /// The `else` clause of the `when` statement. This is the default value if the condition is not met.
     public let elseBlock: AsynchronousExpression
 
+    /// The condition of the `when` statement. This condition must be `true` for `value` to be assigned.
     public let condition: Expression
 
+    /// The value to assign when the `condition` evaluates to `true`.
     public let value: Expression
 
-    public var rawValue: String {
+    /// The equivalent `VHDL` code of this statement.
+    @inlinable public var rawValue: String {
         "\(value.rawValue) when \(condition.rawValue) else \(elseBlock.rawValue)"
     }
 
+    /// Creates a new `when` statement with an `else` clause.
+    /// - Parameters:
+    ///   - value: The value to assign when the `condition` evaluates to `true`.
+    ///   - condition: The condition of the `when` statement.
+    ///   - elseBlock: The `else` clause of the `when` statement.
+    @inlinable
     public init(value: Expression, condition: Expression, elseBlock: AsynchronousExpression) {
         self.value = value
         self.condition = condition
         self.elseBlock = elseBlock
     }
 
+    /// Creates a new `when` statement with an `else` clause from the specified `VHDL` code.
+    /// - Parameter rawValue: The `VHDL` code to parse.
+    @inlinable
     public init?(rawValue: String) {
         let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedString.isEmpty, trimmedString.count < 2048 else {
