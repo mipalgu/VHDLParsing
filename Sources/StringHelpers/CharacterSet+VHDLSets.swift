@@ -63,7 +63,7 @@ extension CharacterSet {
     public static let variableNames = CharacterSet.alphanumerics.union(CharacterSet(charactersIn: "_"))
 
     /// The VHDL operators with additive precedence.
-    public static let vhdlAdditiveOperations = CharacterSet(charactersIn: "+-")
+    public static let vhdlAdditiveOperations = CharacterSet(charactersIn: "+-&")
 
     /// The `VHDL` comparison operators (<, >, =).
     public static let vhdlComparisonOperations = CharacterSet(charactersIn: "=<>")
@@ -72,10 +72,10 @@ extension CharacterSet {
     public static let vhdlMultiplicativeOperations = CharacterSet(charactersIn: "*/")
 
     /// All VHDL operators.
-    public static let vhdlOperators = CharacterSet(charactersIn: "+-/*()")
+    public static let vhdlOperators = CharacterSet(charactersIn: "+-/*()&")
 
     /// The VHDL binary operators.
-    public static let vhdlOperations = CharacterSet(charactersIn: "+-/*")
+    public static let vhdlOperations = CharacterSet(charactersIn: "+-/*&")
 
     /// Whether a string contains characters in this character set.
     /// - Parameter string: The string to check.
