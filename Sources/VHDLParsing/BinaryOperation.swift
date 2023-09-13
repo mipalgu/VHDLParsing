@@ -71,11 +71,14 @@ public enum BinaryOperation: RawRepresentable, Equatable, Hashable, Codable, Sen
     /// A division operation.
     case division(lhs: Expression, rhs: Expression)
 
+    /// A concatenation between `lhs` and `rhs`.
+    case concatenate(lhs: Expression, rhs: Expression)
+
     /// The left-hand side operand in this binary operation.
     @inlinable public var lhs: Expression {
         switch self {
         case .addition(let lhs, _), .subtraction(let lhs, _), .division(let lhs, _),
-            .multiplication(let lhs, _):
+            .multiplication(let lhs, _), .concatenate(let lhs, _):
             return lhs
         }
     }
@@ -91,6 +94,8 @@ public enum BinaryOperation: RawRepresentable, Equatable, Hashable, Codable, Sen
             return "\(lhs.rawValue) * \(rhs.rawValue)"
         case .division(let lhs, let rhs):
             return "\(lhs.rawValue) / \(rhs.rawValue)"
+        case .concatenate(let lhs, let rhs):
+            return "\(lhs.rawValue) & \(rhs.rawValue)"
         }
     }
 
@@ -98,7 +103,7 @@ public enum BinaryOperation: RawRepresentable, Equatable, Hashable, Codable, Sen
     @inlinable public var rhs: Expression {
         switch self {
         case .addition(_, let rhs), .subtraction(_, let rhs), .division(_, let rhs),
-            .multiplication(_, let rhs):
+            .multiplication(_, let rhs), .concatenate(_, let rhs):
             return rhs
         }
     }
@@ -146,13 +151,15 @@ public enum BinaryOperation: RawRepresentable, Equatable, Hashable, Codable, Sen
     ///   - lhs: The left-hand side expression.
     ///   - rhs: The right-hand side expression.
     ///   - char: The operator betweent the lhs and rhs.
-    @usableFromInline
+    @inlinable
     init?(lhs: Expression, rhs: Expression, str: String) {
         switch str.trimmingCharacters(in: .whitespaces) {
         case "-":
             self = .subtraction(lhs: lhs, rhs: rhs)
         case "+":
             self = .addition(lhs: lhs, rhs: rhs)
+        case "&":
+            self = .concatenate(lhs: lhs, rhs: rhs)
         case "*":
             self = .multiplication(lhs: lhs, rhs: rhs)
         case "/":
