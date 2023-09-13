@@ -72,6 +72,7 @@ final class BinaryOperationTests: XCTestCase {
         XCTAssertEqual(BinaryOperation.subtraction(lhs: x, rhs: y).rawValue, "x - y")
         XCTAssertEqual(BinaryOperation.multiplication(lhs: x, rhs: y).rawValue, "x * y")
         XCTAssertEqual(BinaryOperation.division(lhs: x, rhs: y).rawValue, "x / y")
+        XCTAssertEqual(BinaryOperation.concatenate(lhs: x, rhs: y).rawValue, "x & y")
     }
 
     /// Test rawValue init for addition.
@@ -154,6 +155,26 @@ final class BinaryOperationTests: XCTestCase {
         )
     }
 
+    /// Test rawValue init for concatenation.
+    func testConcatInit() {
+        XCTAssertEqual(BinaryOperation(rawValue: "x & y"), .concatenate(lhs: x, rhs: y))
+        XCTAssertEqual(BinaryOperation(rawValue: " x & y "), .concatenate(lhs: x, rhs: y))
+        XCTAssertEqual(BinaryOperation(rawValue: "x & y "), .concatenate(lhs: x, rhs: y))
+        XCTAssertEqual(BinaryOperation(rawValue: "x  & y"), .concatenate(lhs: x, rhs: y))
+        XCTAssertEqual(BinaryOperation(rawValue: "x &y"), .concatenate(lhs: x, rhs: y))
+        XCTAssertEqual(BinaryOperation(rawValue: "x& y"), .concatenate(lhs: x, rhs: y))
+        XCTAssertEqual(BinaryOperation(rawValue: "x&y"), .concatenate(lhs: x, rhs: y))
+        XCTAssertEqual(BinaryOperation(rawValue: "x &  y"), .concatenate(lhs: x, rhs: y))
+        XCTAssertEqual(BinaryOperation(rawValue: "x  &  y"), .concatenate(lhs: x, rhs: y))
+        XCTAssertEqual(
+            BinaryOperation(rawValue: "x & y & z "),
+            .concatenate(
+                lhs: .binary(operation: .concatenate(lhs: x, rhs: y)),
+                rhs: .reference(variable: .variable(reference: .variable(name: VariableName(text: "z"))))
+            )
+        )
+    }
+
     /// Test rawValue init returns nil for invalid input.
     func testInvalidInput() {
         XCTAssertNil(BinaryOperation(rawValue: "x +"))
@@ -162,6 +183,7 @@ final class BinaryOperationTests: XCTestCase {
         XCTAssertNil(BinaryOperation(rawValue: "2x + y"))
         XCTAssertNil(BinaryOperation(rawValue: String(repeating: "x", count: 256) + " + y"))
         XCTAssertNil(BinaryOperation(rawValue: "x ^ y"))
+        XCTAssertNil(BinaryOperation(rawValue: "x &"))
     }
 
     /// Test operation init works correctly.
@@ -179,6 +201,7 @@ final class BinaryOperationTests: XCTestCase {
         XCTAssertEqual(BinaryOperation.subtraction(lhs: x, rhs: y).lhs, x)
         XCTAssertEqual(BinaryOperation.multiplication(lhs: x, rhs: y).lhs, x)
         XCTAssertEqual(BinaryOperation.division(lhs: x, rhs: y).lhs, x)
+        XCTAssertEqual(BinaryOperation.concatenate(lhs: x, rhs: y).lhs, x)
     }
 
     /// Test `rhs` computed property.
@@ -187,6 +210,7 @@ final class BinaryOperationTests: XCTestCase {
         XCTAssertEqual(BinaryOperation.subtraction(lhs: x, rhs: y).rhs, y)
         XCTAssertEqual(BinaryOperation.multiplication(lhs: x, rhs: y).rhs, y)
         XCTAssertEqual(BinaryOperation.division(lhs: x, rhs: y).rhs, y)
+        XCTAssertEqual(BinaryOperation.concatenate(lhs: x, rhs: y).rhs, y)
     }
 
 }
