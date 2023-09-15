@@ -74,6 +74,14 @@ final class CustomFunctionCallTests: XCTestCase {
         [x, y]
     }
 
+    /// The parameters.
+    var parameters: [Argument] {
+        [
+            Argument(label: VariableName(text: "x"), argument: x),
+            Argument(label: VariableName(text: "y"), argument: y)
+        ]
+    }
+
     /// The function call under test.
     lazy var function = CustomFunctionCall(name: f, arguments: arguments)
 
@@ -86,6 +94,9 @@ final class CustomFunctionCallTests: XCTestCase {
     func testStoredPropertyInit() {
         XCTAssertEqual(function.arguments, arguments)
         XCTAssertEqual(function.name, f)
+        let func2 = CustomFunctionCall(name: f, parameters: parameters)
+        XCTAssertEqual(func2.name, f)
+        XCTAssertEqual(func2.parameters, parameters)
     }
 
     /// Test that the `VHDL` code is created correctly in `rawValue`.
