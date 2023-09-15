@@ -91,15 +91,32 @@ public struct FunctionImplementation: RawRepresentable, Equatable, Hashable, Cod
     ///   - returnTube: The return type of the function.
     ///   - body: The body of the function.
     @inlinable
+    @available(*, deprecated)
     public init(
         name: VariableName,
         arguments: [ArgumentDefinition],
         returnTube: Type,
         body: SynchronousBlock
     ) {
+        self.init(name: name, arguments: arguments, returnType: returnTube, body: body)
+    }
+
+    /// Creates a new `FunctionImplementation` instance from its properties.
+    /// - Parameters:
+    ///   - name: The name of the function.
+    ///   - arguments: The arguments of the function.
+    ///   - returnTube: The return type of the function.
+    ///   - body: The body of the function.
+    @inlinable
+    public init(
+        name: VariableName,
+        arguments: [ArgumentDefinition],
+        returnType: Type,
+        body: SynchronousBlock
+    ) {
         self.name = name
         self.arguments = arguments
-        self.returnType = returnTube
+        self.returnType = returnType
         self.body = body
     }
 
@@ -112,7 +129,7 @@ public struct FunctionImplementation: RawRepresentable, Equatable, Hashable, Cod
         self.init(
             name: definition.name,
             arguments: definition.arguments,
-            returnTube: definition.returnType,
+            returnType: definition.returnType,
             body: body
         )
     }
