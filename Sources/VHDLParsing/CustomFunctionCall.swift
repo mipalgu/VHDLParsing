@@ -65,6 +65,7 @@ public struct CustomFunctionCall: FunctionCallable, Equatable, Hashable, Codable
     public let parameters: [Argument]
 
     /// The arguments passed to the function.
+    @available(*, deprecated)
     @inlinable public var arguments: [Expression] {
         self.parameters.map { $0.argument }
     }
@@ -79,6 +80,7 @@ public struct CustomFunctionCall: FunctionCallable, Equatable, Hashable, Codable
     ///   - function: The function name as a string.
     ///   - arguments: The arguments of the function call.
     @inlinable
+    @available(*, deprecated)
     public init?(function: String, arguments: [Expression]) {
         guard let name = VariableName(rawValue: function) else {
             return nil
@@ -91,6 +93,7 @@ public struct CustomFunctionCall: FunctionCallable, Equatable, Hashable, Codable
     ///   - name: The name of the function.
     ///   - arguments: The arguments of the function call.
     @inlinable
+    @available(*, deprecated)
     public init(name: VariableName, arguments: [Expression]) {
         self.init(name: name, parameters: arguments.map { Argument(argument: $0) })
     }
