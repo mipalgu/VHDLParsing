@@ -61,12 +61,17 @@ public struct CustomFunctionCall: FunctionCallable, Equatable, Hashable, Codable
     /// The name of the function being called.
     public let name: VariableName
 
+    /// The parameters into this function. This property may include the function labels as well.
+    public let parameters: [Argument]
+
     /// The arguments passed to the function.
-    public let arguments: [Expression]
+    @inlinable public var arguments: [Expression] {
+        self.parameters.map { $0.argument }
+    }
 
     /// The `VHDL` code calling function `name` with `arguments`.
     @inlinable public var rawValue: String {
-        "\(self.name.rawValue)(\(self.arguments.map(\.rawValue).joined(separator: ", ")))"
+        "\(self.name.rawValue)(\(self.parameters.map(\.rawValue).joined(separator: ", ")))"
     }
 
     /// Creates a new `CustomFunctionCall` with the given `name` and `arguments`.
@@ -87,8 +92,17 @@ public struct CustomFunctionCall: FunctionCallable, Equatable, Hashable, Codable
     ///   - arguments: The arguments of the function call.
     @inlinable
     public init(name: VariableName, arguments: [Expression]) {
+        self.init(name: name, parameters: arguments.map { Argument(argument: $0) })
+    }
+
+    /// Creates a new `CustomFunctionCall` with the given `name` and `parameters`.
+    /// - Parameters:
+    ///   - name: The name of the function.
+    ///   - parameters: The arguments of the function call.
+    @inlinable
+    public init(name: VariableName, parameters: [Argument]) {
         self.name = name
-        self.arguments = arguments
+        self.parameters = parameters
     }
 
 }

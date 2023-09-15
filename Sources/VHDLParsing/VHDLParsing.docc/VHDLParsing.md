@@ -3,6 +3,7 @@
 ## Topics
 
 ### Definitions and Primitive Values
+- ``Argument``
 - ``ArgumentDefinition``
 - ``ArrayDefinition``
 - ``BitLiteral``

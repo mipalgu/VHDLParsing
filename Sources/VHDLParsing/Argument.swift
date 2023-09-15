@@ -1,4 +1,4 @@
-// CustomFunctionCallTests.swift
+// Argument.swift
 // VHDLParsing
 // 
 // Created by Morgan McColl.
@@ -54,68 +54,61 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
-@testable import VHDLParsing
-import XCTest
+import Foundation
+import StringHelpers
 
-/// Test class for ``CustomFunctionCall``.
-final class CustomFunctionCallTests: XCTestCase {
+/// An argument into a function call.
+/// 
+/// This type represents arguments that can be passed into a function. An argument may be labeled with a name
+/// to specify the parameter that is being used by this argument. The label is not required.
+public struct Argument: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
-    /// The function name.
-    let f = VariableName(text: "f")
+    /// The label for this argument.
+    public let label: VariableName?
 
-    /// A variable `x`.
-    let x = Expression.reference(variable: .variable(reference: .variable(name: VariableName(text: "x"))))
+    /// The value of this argument.
+    public let argument: Expression
 
-    /// A variable `y`.
-    let y = Expression.reference(variable: .variable(reference: .variable(name: VariableName(text: "y"))))
-
-    /// The function arguments.
-    var arguments: [Expression] {
-        [x, y]
+    /// The `VHDL` code that represents the argument.
+    @inlinable public var rawValue: String {
+        guard let label = label else {
+            return argument.rawValue
+        }
+        return "\(label.rawValue) => \(argument.rawValue)"
     }
 
-    /// The parameters.
-    var parameters: [Argument] {
-        [
-            Argument(label: VariableName(text: "x"), argument: x),
-            Argument(label: VariableName(text: "y"), argument: y)
-        ]
+    /// Create an argument with a `label` and argument value.
+    /// - Parameters:
+    ///   - label: The label for this argument.
+    ///   - argument: The value of this argument.
+    @inlinable
+    public init(label: VariableName? = nil, argument: Expression) {
+        self.label = label
+        self.argument = argument
     }
 
-    /// The function call under test.
-    lazy var function = CustomFunctionCall(name: f, arguments: arguments)
-
-    /// Initialise the function before every test.
-    override func setUp() {
-        function = CustomFunctionCall(name: f, arguments: arguments)
-    }
-
-    /// Test that the stored properties are set correctly.
-    func testStoredPropertyInit() {
-        XCTAssertEqual(function.arguments, arguments)
-        XCTAssertEqual(function.name, f)
-        let func2 = CustomFunctionCall(name: f, parameters: parameters)
-        XCTAssertEqual(func2.name, f)
-        XCTAssertEqual(func2.parameters, parameters)
-    }
-
-    /// Test that the `VHDL` code is created correctly in `rawValue`.
-    func testRawValue() {
-        XCTAssertEqual(function.rawValue, "f(x, y)")
-        XCTAssertEqual(CustomFunctionCall(name: f, arguments: []).rawValue, "f()")
-    }
-
-    /// Test that the function init is correct.
-    func testFunctionInit() {
-        XCTAssertEqual(CustomFunctionCall(function: f.rawValue, arguments: arguments), function)
-        XCTAssertNil(CustomFunctionCall(function: "2f", arguments: arguments))
-    }
-
-    /// Test `init(rawValue:)`.
-    func testRawValueInit() {
-        XCTAssertEqual(CustomFunctionCall(rawValue: "f()"), CustomFunctionCall(name: f, arguments: []))
-        XCTAssertNil(CustomFunctionCall(rawValue: "and(x)"))
-        XCTAssertNil(CustomFunctionCall(rawValue: "a * (b - c)"))
+    /// Create an argument from it's raw `VHDL` representation.
+    /// - Parameter rawValue: The `VHDL` code that represents the argument.
+    @inlinable
+    public init?(rawValue: String) {
+        let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard trimmedString.count < 1024, !trimmedString.isEmpty else {
+            return nil
+        }
+        guard let components = trimmedString.split(on: ["=>"]), components.0.count == 2 else {
+            guard let expression = Expression(rawValue: trimmedString) else {
+                return nil
+            }
+            self.init(argument: expression)
+            return
+        }
+        let args = components.0
+        guard
+            let label = VariableName(rawValue: args[0]), let expression = Expression(rawValue: args[1])
+        else {
+            return nil
+        }
+        self.init(label: label, argument: expression)
     }
 
 }

@@ -1,4 +1,4 @@
-// CustomFunctionCallTests.swift
+// ArgumentTests.swift
 // VHDLParsing
 // 
 // Created by Morgan McColl.
@@ -57,65 +57,48 @@
 @testable import VHDLParsing
 import XCTest
 
-/// Test class for ``CustomFunctionCall``.
-final class CustomFunctionCallTests: XCTestCase {
+/// Test class for ``Argument``.
+final class ArgumentTests: XCTestCase {
 
-    /// The function name.
-    let f = VariableName(text: "f")
+    /// The name.
+    let label = VariableName(text: "name")
 
-    /// A variable `x`.
-    let x = Expression.reference(variable: .variable(reference: .variable(name: VariableName(text: "x"))))
+    /// The parameter.
+    let parameter = Expression.reference(variable: .variable(
+        reference: .variable(name: VariableName(text: "parameter"))
+    ))
 
-    /// A variable `y`.
-    let y = Expression.reference(variable: .variable(reference: .variable(name: VariableName(text: "y"))))
-
-    /// The function arguments.
-    var arguments: [Expression] {
-        [x, y]
+    /// Test properties are set correctly.
+    func testPropertyInit() {
+        let arg0 = Argument(label: label, argument: parameter)
+        XCTAssertEqual(arg0.label, label)
+        XCTAssertEqual(arg0.argument, parameter)
+        let arg1 = Argument(argument: parameter)
+        XCTAssertNil(arg1.label)
+        XCTAssertEqual(arg1.argument, parameter)
     }
 
-    /// The parameters.
-    var parameters: [Argument] {
-        [
-            Argument(label: VariableName(text: "x"), argument: x),
-            Argument(label: VariableName(text: "y"), argument: y)
-        ]
-    }
-
-    /// The function call under test.
-    lazy var function = CustomFunctionCall(name: f, arguments: arguments)
-
-    /// Initialise the function before every test.
-    override func setUp() {
-        function = CustomFunctionCall(name: f, arguments: arguments)
-    }
-
-    /// Test that the stored properties are set correctly.
-    func testStoredPropertyInit() {
-        XCTAssertEqual(function.arguments, arguments)
-        XCTAssertEqual(function.name, f)
-        let func2 = CustomFunctionCall(name: f, parameters: parameters)
-        XCTAssertEqual(func2.name, f)
-        XCTAssertEqual(func2.parameters, parameters)
-    }
-
-    /// Test that the `VHDL` code is created correctly in `rawValue`.
+    /// Test raw value is correct.
     func testRawValue() {
-        XCTAssertEqual(function.rawValue, "f(x, y)")
-        XCTAssertEqual(CustomFunctionCall(name: f, arguments: []).rawValue, "f()")
+        let arg0 = Argument(label: label, argument: parameter)
+        XCTAssertEqual(arg0.rawValue, "name => parameter")
+        let arg1 = Argument(argument: parameter)
+        XCTAssertEqual(arg1.rawValue, "parameter")
     }
 
-    /// Test that the function init is correct.
-    func testFunctionInit() {
-        XCTAssertEqual(CustomFunctionCall(function: f.rawValue, arguments: arguments), function)
-        XCTAssertNil(CustomFunctionCall(function: "2f", arguments: arguments))
-    }
-
-    /// Test `init(rawValue:)`.
+    /// Test that the raw value is parsed correctly.
     func testRawValueInit() {
-        XCTAssertEqual(CustomFunctionCall(rawValue: "f()"), CustomFunctionCall(name: f, arguments: []))
-        XCTAssertNil(CustomFunctionCall(rawValue: "and(x)"))
-        XCTAssertNil(CustomFunctionCall(rawValue: "a * (b - c)"))
+        let raw = "name => parameter"
+        let expected = Argument(label: label, argument: parameter)
+        XCTAssertEqual(Argument(rawValue: raw), expected)
+        XCTAssertEqual(Argument(rawValue: "name=>parameter"), expected)
+        XCTAssertEqual(Argument(rawValue: "parameter"), Argument(argument: parameter))
+        XCTAssertNil(Argument(rawValue: "\(String(repeating: "x", count: 1024))"))
+        XCTAssertNil(Argument(rawValue: ""))
+        XCTAssertNil(Argument(rawValue: "!"))
+        XCTAssertNil(Argument(rawValue: "name =>"))
+        XCTAssertNil(Argument(rawValue: "name => !"))
+        XCTAssertNil(Argument(rawValue: "=> name"))
     }
 
 }

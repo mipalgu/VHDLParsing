@@ -1,4 +1,4 @@
-// CustomFunctionCallTests.swift
+// RawRepresentable+Equatable.swift
 // VHDLParsing
 // 
 // Created by Morgan McColl.
@@ -54,68 +54,29 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
-@testable import VHDLParsing
-import XCTest
+/// Add default implementation.
+extension Equatable where Self: RawRepresentable, RawValue == String {
 
-/// Test class for ``CustomFunctionCall``.
-final class CustomFunctionCallTests: XCTestCase {
-
-    /// The function name.
-    let f = VariableName(text: "f")
-
-    /// A variable `x`.
-    let x = Expression.reference(variable: .variable(reference: .variable(name: VariableName(text: "x"))))
-
-    /// A variable `y`.
-    let y = Expression.reference(variable: .variable(reference: .variable(name: VariableName(text: "y"))))
-
-    /// The function arguments.
-    var arguments: [Expression] {
-        [x, y]
+    /// Returns a Boolean value indicating whether two values are equal.
+    /// - Parameters:
+    ///   - lhs: The first value to compare.
+    ///   - rhs: The second value to compare.
+    /// - Returns: Whether the two values are equal.
+    @inlinable
+    public static func == (lhs: Self, rhs: Self) -> Bool {
+        lhs.rawValue.lowercased() == rhs.rawValue.lowercased()
     }
 
-    /// The parameters.
-    var parameters: [Argument] {
-        [
-            Argument(label: VariableName(text: "x"), argument: x),
-            Argument(label: VariableName(text: "y"), argument: y)
-        ]
-    }
+}
 
-    /// The function call under test.
-    lazy var function = CustomFunctionCall(name: f, arguments: arguments)
+/// Add default implementation.
+extension Hashable where Self: RawRepresentable, RawValue == String {
 
-    /// Initialise the function before every test.
-    override func setUp() {
-        function = CustomFunctionCall(name: f, arguments: arguments)
-    }
-
-    /// Test that the stored properties are set correctly.
-    func testStoredPropertyInit() {
-        XCTAssertEqual(function.arguments, arguments)
-        XCTAssertEqual(function.name, f)
-        let func2 = CustomFunctionCall(name: f, parameters: parameters)
-        XCTAssertEqual(func2.name, f)
-        XCTAssertEqual(func2.parameters, parameters)
-    }
-
-    /// Test that the `VHDL` code is created correctly in `rawValue`.
-    func testRawValue() {
-        XCTAssertEqual(function.rawValue, "f(x, y)")
-        XCTAssertEqual(CustomFunctionCall(name: f, arguments: []).rawValue, "f()")
-    }
-
-    /// Test that the function init is correct.
-    func testFunctionInit() {
-        XCTAssertEqual(CustomFunctionCall(function: f.rawValue, arguments: arguments), function)
-        XCTAssertNil(CustomFunctionCall(function: "2f", arguments: arguments))
-    }
-
-    /// Test `init(rawValue:)`.
-    func testRawValueInit() {
-        XCTAssertEqual(CustomFunctionCall(rawValue: "f()"), CustomFunctionCall(name: f, arguments: []))
-        XCTAssertNil(CustomFunctionCall(rawValue: "and(x)"))
-        XCTAssertNil(CustomFunctionCall(rawValue: "a * (b - c)"))
+    /// Hashes the essential components of this value by feeding them into the given hasher.
+    /// - Parameter hasher: The hasher to use when combining the components of this instance.
+    @inlinable
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(self.rawValue.lowercased())
     }
 
 }
