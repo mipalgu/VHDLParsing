@@ -61,13 +61,13 @@ import XCTest
 final class VariableReferenceTests: XCTestCase {
 
     /// A variable called `x`.
-    let x = VariableName(text: "x")
+    let x = Expression.reference(variable: .variable(reference: .variable(name: VariableName(text: "x"))))
 
     /// An index of `x`.
     let index = VectorIndex.index(value: .literal(value: .integer(value: 5)))
 
     /// A reference of `x`.
-    lazy var variable = VariableReference.variable(reference: .variable(name: x))
+    lazy var variable = VariableReference.variable(reference: .variable(name: VariableName(text: "x")))
 
     /// An indexed reference of `x`.
     lazy var indexed = VariableReference.indexed(name: x, index: index)
@@ -75,7 +75,7 @@ final class VariableReferenceTests: XCTestCase {
     /// Initialise the test data before each test case.
     override func setUp() {
         super.setUp()
-        variable = .variable(reference: .variable(name: x))
+        variable = .variable(reference: .variable(name: VariableName(text: "x")))
         indexed = VariableReference.indexed(name: x, index: index)
     }
 

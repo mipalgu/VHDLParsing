@@ -64,7 +64,7 @@ public enum VariableReference: RawRepresentable, Equatable, Hashable, Codable, S
     case variable(reference: DirectReference)
 
     /// Indexing a variable.
-    case indexed(name: VariableName, index: VectorIndex)
+    case indexed(name: Expression, index: VectorIndex)
 
     /// The equivalent `VHDL` code.
     @inlinable public var rawValue: String {
@@ -92,7 +92,7 @@ public enum VariableReference: RawRepresentable, Equatable, Hashable, Codable, S
             return nil
         }
         guard
-            let name = VariableName(rawValue: String(trimmedString[trimmedString.startIndex..<bracketIndex])),
+            let name = Expression(rawValue: String(trimmedString[trimmedString.startIndex..<bracketIndex])),
             let bracketRemaining = trimmedString[bracketIndex...].uptoBalancedBracket,
             bracketRemaining.hasPrefix("("),
             bracketRemaining.hasSuffix(")"),
@@ -102,6 +102,17 @@ public enum VariableReference: RawRepresentable, Equatable, Hashable, Codable, S
             return nil
         }
         self = .indexed(name: name, index: index)
+    }
+
+    /// Create and indexed variable reference to a variable.
+    /// - Parameters:
+    ///   - name: The name of the variable.
+    ///   - index: The index in the variable
+    /// - Returns: The indexed variable reference.
+    @inlinable
+    @available(*, deprecated)
+    public static func indexed(name: VariableName, index: VectorIndex) -> VariableReference {
+        .indexed(name: .reference(variable: .variable(reference: .variable(name: name))), index: index)
     }
 
 }

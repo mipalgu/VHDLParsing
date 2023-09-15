@@ -125,7 +125,7 @@ final class ExpressionTests: XCTestCase {
         XCTAssertEqual(
             Expression(rawValue: "a(3 downto 0) * 5"),
             .binary(operation: .multiplication(
-                lhs: .reference(variable: .indexed(name: aname, index: .range(value: .downto(
+                lhs: .reference(variable: .indexed(name: a, index: .range(value: .downto(
                     upper: .literal(value: .integer(value: 3)), lower: .literal(value: .integer(value: 0))
                 )))),
                 rhs: .literal(value: .integer(value: 5))
@@ -135,7 +135,7 @@ final class ExpressionTests: XCTestCase {
             Expression(rawValue: "5 * a(3 downto 0)"),
             .binary(operation: .multiplication(
                 lhs: .literal(value: .integer(value: 5)),
-                rhs: .reference(variable: .indexed(name: aname, index: .range(value: .downto(
+                rhs: .reference(variable: .indexed(name: a, index: .range(value: .downto(
                         upper: .literal(value: .integer(value: 3)),
                         lower: .literal(value: .integer(value: 0))
                 ))))
@@ -439,10 +439,10 @@ final class ExpressionTests: XCTestCase {
             ).isValidOtherValue
         )
         XCTAssertFalse(Expression.reference(variable: .indexed(
-            name: VariableName(text: "a"), index: .range(value: .downto(upper: a, lower: b))
+            name: a, index: .range(value: .downto(upper: a, lower: b))
         )).isValidOtherValue)
         XCTAssertTrue(Expression.reference(variable: .indexed(
-            name: VariableName(text: "a"), index: .index(value: a)
+            name: a, index: .index(value: a)
         )).isValidOtherValue)
     }
 
