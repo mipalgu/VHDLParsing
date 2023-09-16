@@ -87,6 +87,13 @@ final class ForGenerateTests: XCTestCase {
         )))
     ))
 
+    /// The raw value.
+    let raw = """
+    generator_inst: for i in 0 to 3 generate
+        ys(i) <= xs(i);
+    end generate generator_inst;
+    """
+
     /// The generate expression under test.
     var generate: ForGenerate {
         ForGenerate(label: label, iterator: iterator, range: range, body: body)
@@ -103,12 +110,13 @@ final class ForGenerateTests: XCTestCase {
 
     /// Test the `rawValue` generates the correct `VHDL` code.
     func testRawValue() {
-        let expected = """
-        generator_inst: for i in 0 to 3 generate
-            ys(i) <= xs(i);
-        end generate generator_inst;
-        """
-        XCTAssertEqual(generate.rawValue, expected)
+        XCTAssertEqual(generate.rawValue, raw)
+    }
+
+    /// Test that `init(rawValue:)` parses the `VHDL` code correctly.
+    func testRawValueInit() {
+        let result = ForGenerate(rawValue: raw)
+        XCTAssertEqual(result, generate)
     }
 
 }

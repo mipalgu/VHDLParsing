@@ -54,6 +54,9 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
+import Foundation
+import StringHelpers
+
 public struct ForGenerate: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
     public let label: VariableName
@@ -80,7 +83,60 @@ public struct ForGenerate: RawRepresentable, Equatable, Hashable, Codable, Senda
     }
 
     public init?(rawValue: String) {
-        nil
+        let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard
+            trimmedString.count < 4096,
+            trimmedString.last == ";",
+            let splitOnColon = trimmedString.split(on: [":"])
+        else {
+            return nil
+        }
+        let firstWord = splitOnColon.0[0].trimmingCharacters(in: .whitespacesAndNewlines)
+        guard let label = VariableName(rawValue: firstWord) else {
+            return nil
+        }
+        let withoutSemicolon = String(splitOnColon.0[1].dropLast())
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        guard
+            withoutSemicolon.firstWord?.lowercased() == "for",
+            withoutSemicolon.lastWord?.lowercased() == firstWord.lowercased()
+        else {
+            return nil
+        }
+        let withoutFor = withoutSemicolon.dropFirst(3)
+            .dropLast(firstWord.count)
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        guard
+            let generateEnd = withoutFor.lastWord,
+            generateEnd.lowercased() == "generate",
+            let iteratorWord = withoutFor.firstWord,
+            let iterator = VariableName(rawValue: iteratorWord)
+        else {
+            return nil
+        }
+        let withoutIterator = withoutFor.dropFirst(iteratorWord.count)
+            .dropLast(8)
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        guard
+            withoutIterator.firstWord?.lowercased() == "in", withoutIterator.lastWord?.lowercased() == "end"
+        else {
+            return nil
+        }
+        let withoutIn = withoutIterator.dropFirst(2)
+            .dropLast(3)
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        guard let generateIndex = withoutIn.startIndex(word: "generate", isCaseSensitive: false) else {
+            return nil
+        }
+        let rangeExpression = withoutIn[..<generateIndex].trimmingCharacters(in: .whitespacesAndNewlines)
+        guard let range = VectorSize(rawValue: rangeExpression) else {
+            return nil
+        }
+        let bodyRaw = withoutIn[generateIndex...].dropFirst(8).trimmingCharacters(in: .whitespacesAndNewlines)
+        guard let body = AsynchronousBlock(rawValue: bodyRaw) else {
+            return nil
+        }
+        self.init(label: label, iterator: iterator, range: range, body: body)
     }
 
 }
