@@ -101,4 +101,14 @@ final class ForGenerateTests: XCTestCase {
         XCTAssertEqual(generate.body, body)
     }
 
+    /// Test the `rawValue` generates the correct `VHDL` code.
+    func testRawValue() {
+        let expected = """
+        generator_inst: for i in 0 to 3 generate
+            ys(i) <= xs(i);
+        end generate generator_inst;
+        """
+        XCTAssertEqual(generate.rawValue, expected)
+    }
+
 }

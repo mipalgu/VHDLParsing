@@ -68,7 +68,7 @@ public struct ForGenerate: RawRepresentable, Equatable, Hashable, Codable, Senda
         """
         \(label.rawValue): for \(iterator.rawValue) in \(range.rawValue) generate
         \(body.rawValue.indent(amount: 1))
-        end generate \(label.rawValue)
+        end generate \(label.rawValue);
         """
     }
 
