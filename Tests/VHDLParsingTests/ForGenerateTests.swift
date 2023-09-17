@@ -115,8 +115,84 @@ final class ForGenerateTests: XCTestCase {
 
     /// Test that `init(rawValue:)` parses the `VHDL` code correctly.
     func testRawValueInit() {
-        let result = ForGenerate(rawValue: raw)
-        XCTAssertEqual(result, generate)
+        XCTAssertEqual(ForGenerate(rawValue: raw), generate)
+        XCTAssertEqual(ForGenerate(rawValue: raw.uppercased()), generate)
+        let raw2 = """
+        generator_inst: for \(String(repeating: "i", count: 4096)) in 0 to 3 generate
+            ys(i) <= xs(i);
+        end generate generator_inst;
+        """
+        XCTAssertNil(ForGenerate(rawValue: raw2))
+        let raw3 = """
+        !generator_inst: for i in 0 to 3 generate
+            ys(i) <= xs(i);
+        end generate generator_inst;
+        """
+        XCTAssertNil(ForGenerate(rawValue: raw3))
+        let raw4 = """
+        generator_inst: for i in 0 to 3 generate
+            ys(i) <= xs(i);
+        end generate generator_inst
+        """
+        XCTAssertNil(ForGenerate(rawValue: raw4))
+        let raw5 = """
+        generator_inst: fors i in 0 to 3 generate
+            ys(i) <= xs(i);
+        end generate generator_inst;
+        """
+        XCTAssertNil(ForGenerate(rawValue: raw5))
+        let raw6 = """
+        generator_inst: for !i in 0 to 3 generate
+            ys(i) <= xs(i);
+        end generate generator_inst;
+        """
+        XCTAssertNil(ForGenerate(rawValue: raw6))
+        let raw7 = """
+        generator_inst: for i in 0 to 3 generate
+            ys(i) <= xs(i);
+        end generate generator_insts;
+        """
+        XCTAssertNil(ForGenerate(rawValue: raw7))
+    }
+
+    /// Test invalid `init(rawValue:)` expression.
+    func testInvalidRawValueInit() {
+        let raw8 = """
+        generator_inst: for i ins 0 to 3 generate
+            ys(i) <= xs(i);
+        end generate generator_inst;
+        """
+        XCTAssertNil(ForGenerate(rawValue: raw8))
+        let raw9 = """
+        generator_inst: for i in 0s to 3 generate
+            ys(i) <= xs(i);
+        end generate generator_inst;
+        """
+        XCTAssertNil(ForGenerate(rawValue: raw9))
+        let raw10 = """
+        generator_inst: for i in 0 to 3 generates
+            ys(i) <= xs(i);
+        end generate generator_inst;
+        """
+        XCTAssertNil(ForGenerate(rawValue: raw10))
+        let raw11 = """
+        generator_inst: for i in 0 to 3 generate
+            ys(i) <= xs(i);
+        end generates generator_inst;
+        """
+        XCTAssertNil(ForGenerate(rawValue: raw11))
+        let raw12 = """
+        generator_inst: for i in 0 to 3 generate
+            ys(i) <= xs(i);
+        ends generate generator_inst;
+        """
+        XCTAssertNil(ForGenerate(rawValue: raw12))
+        let raw13 = """
+        generator_inst: for i in 0 to 3 generate
+            ys(i) <= !xs(i);
+        end generate generator_inst;
+        """
+        XCTAssertNil(ForGenerate(rawValue: raw13))
     }
 
 }
