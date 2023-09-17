@@ -70,6 +70,7 @@
 - ``AsynchronousExpression``
 - ``AsynchronousStatement``
 - ``ComponentInstantiation``
+- ``ForGenerate``
 - ``GenericMap``
 - ``GenericVariableMap``
 - ``PortMap``
