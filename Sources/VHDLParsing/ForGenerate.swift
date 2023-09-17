@@ -57,17 +57,31 @@
 import Foundation
 import StringHelpers
 
+/// A generate expression utilising a `For` loop.
+/// 
+/// The for of this generate expression is:
+/// ```VHDL
+/// <label>: for <iterator> in <range> generate
+///     <body>
+/// end generate <label>;
+/// ```
+/// - SeeAlso: ``VariableName``, ``VectorSize``, ``AsynchronousBlock``.
 public struct ForGenerate: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
+    /// The label of the generate expression.
     public let label: VariableName
 
+    /// The iterator in the for-loop of this generate expression.
     public let iterator: VariableName
 
+    /// The range the iterator will iterate over.
     public let range: VectorSize
 
+    /// The body of the for-loop.
     public let body: AsynchronousBlock
 
-    public var rawValue: String {
+    /// The equivalent `VHDL` code enacting this generate statement.
+    @inlinable public var rawValue: String {
         """
         \(label.rawValue): for \(iterator.rawValue) in \(range.rawValue) generate
         \(body.rawValue.indent(amount: 1))
@@ -75,6 +89,13 @@ public struct ForGenerate: RawRepresentable, Equatable, Hashable, Codable, Senda
         """
     }
 
+    /// Creates a new generate expression utilising a `For` loop.
+    /// - Parameters:
+    ///   - label: The label of the generate block.
+    ///   - iterator: The iterator in the for-loop.
+    ///   - range: The range the iterator iterates over.
+    ///   - body: The body of the for-loop.
+    @inlinable
     public init(label: VariableName, iterator: VariableName, range: VectorSize, body: AsynchronousBlock) {
         self.label = label
         self.iterator = iterator
@@ -82,6 +103,11 @@ public struct ForGenerate: RawRepresentable, Equatable, Hashable, Codable, Senda
         self.body = body
     }
 
+    // swiftlint:disable function_body_length
+
+    /// Creates a new generate expression utilising a `For` loop from it's `VHDL` representation.
+    /// - Parameter rawValue: The `VHDL` code enacting this generate statement.
+    @inlinable
     public init?(rawValue: String) {
         let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
         guard
@@ -138,5 +164,7 @@ public struct ForGenerate: RawRepresentable, Equatable, Hashable, Codable, Senda
         }
         self.init(label: label, iterator: iterator, range: range, body: body)
     }
+
+    // swiftlint:enable function_body_length
 
 }
