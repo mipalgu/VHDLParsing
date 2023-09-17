@@ -75,6 +75,9 @@ indirect public enum AsynchronousBlock: RawRepresentable, Equatable, Hashable, C
     /// A function implementation.
     case function(block: FunctionImplementation)
 
+    /// A generate block.
+    case generate(block: GenerateBlock)
+
     /// The `VHDL` code representing this block.
     @inlinable public var rawValue: String {
         switch self {
@@ -87,6 +90,8 @@ indirect public enum AsynchronousBlock: RawRepresentable, Equatable, Hashable, C
         case .component(let block):
             return block.rawValue
         case .function(let block):
+            return block.rawValue
+        case .generate(let block):
             return block.rawValue
         }
     }
@@ -114,7 +119,7 @@ indirect public enum AsynchronousBlock: RawRepresentable, Equatable, Hashable, C
             return nil
         }
         if let colonIndex = trimmedString.firstIndex(of: ":"), colonIndex < semicolonIndex {
-            self.init(component: trimmedString, carry: carry)
+            self.init(labeled: trimmedString, carry: carry)
             return
         }
         if trimmedString.firstWord?.lowercased() == "process" {
@@ -130,6 +135,51 @@ indirect public enum AsynchronousBlock: RawRepresentable, Equatable, Hashable, C
             return
         }
         self.init(multiple: trimmedString, carry: carry)
+    }
+
+    private init?(labeled trimmedString: String, carry: [AsynchronousBlock]) {
+        guard let afterLabel = trimmedString.split(on: [":"]) else {
+            return nil
+        }
+        let remaining = afterLabel.0[1].trimmingCharacters(in: .whitespacesAndNewlines)
+        let firstWord = remaining.firstWord?.lowercased()
+        guard firstWord != "for" else {
+            self.init(label: afterLabel.0[0], generate: trimmedString, carry: carry)
+            return
+        }
+        self.init(component: trimmedString, carry: carry)
+    }
+
+    /// Initialise an `AsynchronousBlock` assuming it contains a `GenerateBlock`.
+    /// - Parameters:
+    ///   - trimmedString: The `VHDL` code that contains the geenrate block.
+    ///   - carry: The previous strings that have parsed correctly.
+    private init?(label: String, generate trimmedString: String, carry: [AsynchronousBlock]) {
+        if let generate = GenerateBlock(rawValue: trimmedString) {
+            self.init(carry: carry + [.generate(block: generate)])
+            return
+        }
+        guard let label = VariableName(rawValue: "label") else {
+            return nil
+        }
+        let subExpressionIndexes = trimmedString.indexes(
+            for: ["end", "generate", "\(label.rawValue);"], isCaseSensitive: false
+        )
+        guard !subExpressionIndexes.isEmpty else {
+            return nil
+        }
+        let subExpression = trimmedString[..<subExpressionIndexes[0].1]
+        guard
+            let generate = GenerateBlock(rawValue: String(subExpression)),
+            subExpression.endIndex < trimmedString.endIndex
+        else {
+            return nil
+        }
+        self.init(
+            rawValue: String(trimmedString[subExpression.endIndex...]),
+            carry: carry + [.generate(block: generate)]
+        )
+        return
     }
 
     /// Initialise an `AsynchronousBlock` assuming it contains a ``FunctionImplementation``.
