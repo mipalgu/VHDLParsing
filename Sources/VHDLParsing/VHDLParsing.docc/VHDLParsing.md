@@ -71,6 +71,7 @@
 - ``AsynchronousStatement``
 - ``ComponentInstantiation``
 - ``ForGenerate``
+- ``GenerateBlock``
 - ``GenericMap``
 - ``GenericVariableMap``
 - ``PortMap``
