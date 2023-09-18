@@ -60,11 +60,8 @@ import Foundation
 /// also contains the `open` case in `VHDL` that is valid for port signals.
 public enum VariableAssignment: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
-    /// A constant literal.
-    case literal(value: SignalLiteral)
-
-    /// A reference to a variable.
-    case reference(variable: VariableReference)
+    /// An expression.
+    case expression(value: Expression)
 
     /// The `open` case.
     case `open`
@@ -72,10 +69,8 @@ public enum VariableAssignment: RawRepresentable, Equatable, Hashable, Codable, 
     /// The equivalent `VHDL` code.
     @inlinable public var rawValue: String {
         switch self {
-        case .literal(let value):
+        case .expression(let value):
             return value.rawValue
-        case .reference(let variable):
-            return variable.rawValue
         case .open:
             return "open"
         }
@@ -90,14 +85,28 @@ public enum VariableAssignment: RawRepresentable, Equatable, Hashable, Codable, 
             self = .open
             return
         }
-        if let literal = SignalLiteral(rawValue: trimmed) {
-            self = .literal(value: literal)
-            return
-        }
-        guard let reference = VariableReference(rawValue: trimmed) else {
+        guard let expression = Expression(rawValue: trimmed) else {
             return nil
         }
-        self = .reference(variable: reference)
+        self = .expression(value: expression)
+    }
+
+    /// Create a `literal` `VariableAssignment`.
+    /// - Parameter value: The ``SignalLiteral`` to represent in this assignment.
+    /// - Returns: The created `VariableAssignment`.
+    @inlinable
+    @available(*, deprecated)
+    public static func literal(value: SignalLiteral) -> VariableAssignment {
+        .expression(value: .literal(value: value))
+    }
+
+    /// Create an assignment to a reference.
+    /// - Parameter variable: The reference this assignment represents.
+    /// - Returns: The created `VariableAssignment`.
+    @inlinable
+    @available(*, deprecated)
+    public static func reference(variable: VariableReference) -> VariableAssignment {
+        .expression(value: .reference(variable: variable))
     }
 
 }
