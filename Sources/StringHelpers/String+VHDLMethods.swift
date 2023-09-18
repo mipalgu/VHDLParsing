@@ -56,6 +56,8 @@
 
 import Foundation
 
+// swiftlint:disable file_length
+
 /// Add helper methods for VHDL parsing.
 extension String {
 
@@ -405,16 +407,22 @@ extension String {
     /// - Parameter value: The substring to search for.
     /// - Returns: The first index within self that matches the substring.
     @inlinable
-    public func startIndex(for value: String) -> String.Index? {
-        self[self.startIndex..<self.endIndex].startIndex(for: value)
+    public func startIndex(for value: String, isCaseSensitive: Bool = true) -> String.Index? {
+        guard isCaseSensitive else {
+            return self.lowercased().startIndex(for: value.lowercased(), isCaseSensitive: true)
+        }
+        return self[self.startIndex..<self.endIndex].startIndex(for: value)
     }
 
     /// Find the start index for a word.
     /// - Parameter word: The word to search for.
     /// - Returns: The index if the word was found.
     @inlinable
-    public func startIndex(word: String) -> String.Index? {
-        self[self.startIndex..<self.endIndex].startIndex(word: word)
+    public func startIndex(word: String, isCaseSensitive: Bool = true) -> String.Index? {
+        guard isCaseSensitive else {
+            return self.lowercased().startIndex(word: word.lowercased(), isCaseSensitive: true)
+        }
+        return self[self.startIndex..<self.endIndex].startIndex(word: word)
     }
 
     /// Find the substrings that start with a given sentence and end with a given sentence. This method also
@@ -496,3 +504,5 @@ extension String {
     }
 
 }
+
+// swiftlint:enable file_length
