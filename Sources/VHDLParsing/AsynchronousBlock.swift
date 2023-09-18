@@ -111,6 +111,10 @@ indirect public enum AsynchronousBlock: RawRepresentable, Equatable, Hashable, C
     ///   - carry: The previous strings that have parsed correctly.
     private init?(rawValue: String, carry: [AsynchronousBlock]) {
         let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedString.isEmpty else {
+            self.init(carry: carry)
+            return
+        }
         if trimmedString.firstWord?.lowercased() == "function" {
             self.init(function: trimmedString, carry: carry)
             return
@@ -137,6 +141,10 @@ indirect public enum AsynchronousBlock: RawRepresentable, Equatable, Hashable, C
         self.init(multiple: trimmedString, carry: carry)
     }
 
+    /// Create an `AsynchronousBlock` assuming the satement contains a label at the front.
+    /// - Parameters:
+    ///   - trimmedString: The `VHDL` code to parse.
+    ///   - carry: The previous string that have parsed correctly.
     private init?(labeled trimmedString: String, carry: [AsynchronousBlock]) {
         guard let afterLabel = trimmedString.split(on: [":"]) else {
             return nil
@@ -159,7 +167,7 @@ indirect public enum AsynchronousBlock: RawRepresentable, Equatable, Hashable, C
             self.init(carry: carry + [.generate(block: generate)])
             return
         }
-        guard let label = VariableName(rawValue: "label") else {
+        guard let label = VariableName(rawValue: label) else {
             return nil
         }
         let subExpressionIndexes = trimmedString.indexes(
@@ -169,14 +177,11 @@ indirect public enum AsynchronousBlock: RawRepresentable, Equatable, Hashable, C
             return nil
         }
         let subExpression = trimmedString[..<subExpressionIndexes[0].1]
-        guard
-            let generate = GenerateBlock(rawValue: String(subExpression)),
-            subExpression.endIndex < trimmedString.endIndex
-        else {
+        guard let generate = GenerateBlock(rawValue: String(subExpression))else {
             return nil
         }
         self.init(
-            rawValue: String(trimmedString[subExpression.endIndex...]),
+            rawValue: String(trimmedString.dropFirst(subExpression.count)),
             carry: carry + [.generate(block: generate)]
         )
         return
@@ -266,13 +271,6 @@ indirect public enum AsynchronousBlock: RawRepresentable, Equatable, Hashable, C
         let remaining = String(trimmedString.dropFirst(currentBlock.count))
             .trimmingCharacters(in: .whitespacesAndNewlines)
         let newBlock = AsynchronousBlock.statement(statement: statement)
-        guard !remaining.isEmpty else {
-            guard let block = AsynchronousBlock(carry: carry + [newBlock]) else {
-                return nil
-            }
-            self = block
-            return
-        }
         self.init(rawValue: remaining, carry: carry + [newBlock])
     }
 

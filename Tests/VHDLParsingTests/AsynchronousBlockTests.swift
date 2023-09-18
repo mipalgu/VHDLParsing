@@ -57,6 +57,8 @@
 @testable import VHDLParsing
 import XCTest
 
+// swiftlint:disable type_body_length
+
 /// Test class for ``AsynchronousBlock``.
 final class AsynchronousBlockTests: XCTestCase {
 
@@ -295,7 +297,7 @@ final class AsynchronousBlockTests: XCTestCase {
                     defaultValue: .literal(value: .integer(value: 0))
                 )
             ],
-            returnTube: .signal(type: .integer),
+            returnType: .signal(type: .integer),
             body: .ifStatement(block: .ifElse(
                 condition: .conditional(condition: .comparison(value: .lessThan(
                     lhs: .reference(
@@ -358,4 +360,117 @@ final class AsynchronousBlockTests: XCTestCase {
         XCTAssertNil(AsynchronousBlock(rawValue: invalid))
     }
 
+    /// Test `generate` blocks.
+    func testGenerateRawValueInit() {
+        let raw = """
+        generator_inst: for i in 0 to 3 generate
+            ys(i) <= xs(i);
+        end generate generator_inst;
+        """
+        let body = AsynchronousBlock.statement(statement: .assignment(
+            name: .indexed(
+                name: .reference(variable: .variable(reference: .variable(name: VariableName(text: "ys")))),
+                index: .index(value: .reference(variable: .variable(
+                    reference: .variable(name: VariableName(text: "i"))
+                )))
+            ),
+            value: .expression(value: .reference(variable: .indexed(
+                name: .reference(variable: .variable(reference: .variable(name: VariableName(text: "xs")))),
+                index: .index(value: .reference(variable: .variable(
+                    reference: .variable(name: VariableName(text: "i"))
+                )))
+            )))
+        ))
+        let forLoop = ForGenerate(
+            label: VariableName(text: "generator_inst"),
+            iterator: VariableName(text: "i"),
+            range: .to(
+                lower: .literal(value: .integer(value: 0)), upper: .literal(value: .integer(value: 3))
+            ),
+            body: body
+        )
+        XCTAssertEqual(AsynchronousBlock(rawValue: raw), .generate(block: .forLoop(block: forLoop)))
+    }
+
+    /// Test `generate` multiple
+    func testMultipleGenerate() {
+        let raw = """
+        y <= x;
+        generator_inst: for i in 0 to 3 generate
+            ys(i) <= xs(i);
+        end generate generator_inst;
+        x <= y;
+        """
+        let body = AsynchronousBlock.statement(statement: .assignment(
+            name: .indexed(
+                name: .reference(variable: .variable(reference: .variable(name: VariableName(text: "ys")))),
+                index: .index(value: .reference(variable: .variable(
+                    reference: .variable(name: VariableName(text: "i"))
+                )))
+            ),
+            value: .expression(value: .reference(variable: .indexed(
+                name: .reference(variable: .variable(reference: .variable(name: VariableName(text: "xs")))),
+                index: .index(value: .reference(variable: .variable(
+                    reference: .variable(name: VariableName(text: "i"))
+                )))
+            )))
+        ))
+        let forLoop = ForGenerate(
+            label: VariableName(text: "generator_inst"),
+            iterator: VariableName(text: "i"),
+            range: .to(
+                lower: .literal(value: .integer(value: 0)), upper: .literal(value: .integer(value: 3))
+            ),
+            body: body
+        )
+        let yAssignment = AsynchronousBlock.statement(statement: .assignment(
+            name: .variable(reference: .variable(name: y)), value: .expression(value: varX)
+        ))
+        let xAssignment = AsynchronousBlock.statement(statement: .assignment(
+            name: .variable(reference: .variable(name: x)), value: .expression(value: varY)
+        ))
+
+        let forBlock = AsynchronousBlock.generate(block: .forLoop(block: forLoop))
+        XCTAssertEqual(
+            AsynchronousBlock(rawValue: raw), .blocks(blocks: [yAssignment, forBlock, xAssignment])
+        )
+        let raw2 = """
+        y <= x;
+        generator_inst: for i in 0 to 3 generate
+            ys(i) <= xs(i);
+        end generate generator_inst;
+        """
+        XCTAssertEqual(AsynchronousBlock(rawValue: raw2), .blocks(blocks: [yAssignment, forBlock]))
+    }
+
+    /// Test invalid multiple generate statements.
+    func testInvalidMultipleGenerate() {
+        let raw = """
+        y <= x;
+        label: for i in 0 to 3 generate
+            ys(i) <= xs(i);
+        end generate generator_inst;
+        x <= y;
+        """
+        XCTAssertNil(AsynchronousBlock(rawValue: raw))
+        let raw2 = """
+        y <= x;
+        generator_inst: for i in 0 to 3 generate
+            ys(i) <= xs(i);
+        end generate generator_inst
+        x <= y;
+        """
+        XCTAssertNil(AsynchronousBlock(rawValue: raw2))
+        let raw3 = """
+        y <= x;
+        generator_inst: for i in 0 to 3 generate
+            ys(i) <= xs(i!);
+        end generate generator_inst
+        x <= y;
+        """
+        XCTAssertNil(AsynchronousBlock(rawValue: raw3))
+    }
+
 }
+
+// swiftlint:enable type_body_length
