@@ -1,4 +1,4 @@
-// GenerateBlock.swift
+// GenerateBlockTests.swift
 // VHDLParsing
 // 
 // Created by Morgan McColl.
@@ -54,41 +54,58 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
-import Foundation
-import StringHelpers
+@testable import VHDLParsing
+import XCTest
 
-/// A block that contains a generate statement.
-public enum GenerateBlock: RawRepresentable, Equatable, Hashable, Codable, Sendable {
+/// Test class for ``GenerateBlock``.
+final class GenerateBlockTests: XCTestCase {
 
-    /// A `for-generate` statement.
-    case forLoop(block: ForGenerate)
+    /// A for-generate expression.
+    let forLoop = ForGenerate(
+        label: VariableName(text: "label_inst"),
+        iterator: VariableName(text: "i"),
+        range: .to(lower: .literal(value: .integer(value: 0)), upper: .literal(value: .integer(value: 3))),
+        body: .statement(
+            statement: .assignment(
+                name: .indexed(
+                    name: .reference(variable: .variable(reference: .variable(
+                        name: VariableName(text: "ys")
+                    ))),
+                    index: .index(
+                        value: .reference(variable: .variable(
+                            reference: .variable(
+                                name: VariableName(text: "i")
+                            )
+                        ))
+                    )
+                ),
+                value: .expression(value: .reference(variable: .indexed(
+                    name: .reference(variable: .variable(reference: .variable(
+                        name: VariableName(text: "xs")
+                    ))),
+                    index: .index(value: .reference(variable: .variable(reference: .variable(
+                        name: VariableName(text: "i")
+                    ))))
+                )))
+            )
+        )
+    )
 
-    /// The `VHDL` code representing this block.
-    @inlinable public var rawValue: String {
-        switch self {
-        case .forLoop(let block):
-            return block.rawValue
-        }
+    /// Test the raw value is correct.
+    func testRawValue() {
+        XCTAssertEqual(GenerateBlock.forLoop(block: forLoop).rawValue, forLoop.rawValue)
     }
 
-    /// Create a generate block from it's `VHDL` representation.
-    /// - Parameter rawValue: The `VHDL` to parse.
-    @inlinable
-    public init?(rawValue: String) {
-        let trimmedString = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard trimmedString.count < 4096, let withoutColon = trimmedString.split(on: [":"]) else {
-            return nil
-        }
-        let generateRaw = withoutColon.0[1]
-        switch generateRaw.firstWord?.lowercased() {
-        case "for":
-            guard let forGenerate = ForGenerate(rawValue: trimmedString) else {
-                return nil
-            }
-            self = .forLoop(block: forGenerate)
-        default:
-            return nil
-        }
+    /// Test `VHDL` code is parsed correctly.
+    func testRawValueInit() {
+        XCTAssertEqual(GenerateBlock(rawValue: forLoop.rawValue), .forLoop(block: forLoop))
+        XCTAssertNil(GenerateBlock(
+            rawValue: "inst: for \(String(repeating: "x", count: 4096)) in 0 to 4 generate\n" +
+                "    ys(x) <= xs(x);\nend generate inst;"
+        ))
+        XCTAssertNil(GenerateBlock(rawValue: forLoop.rawValue + ";"))
+        XCTAssertNil(GenerateBlock(rawValue: ""))
+        XCTAssertNil(GenerateBlock(rawValue: "inst: fors"))
     }
 
 }
