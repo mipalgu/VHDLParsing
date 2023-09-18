@@ -54,6 +54,7 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 // 
 
+import Foundation
 @testable import VHDLParsing
 import XCTest
 
@@ -115,8 +116,14 @@ final class ForGenerateTests: XCTestCase {
 
     /// Test that `init(rawValue:)` parses the `VHDL` code correctly.
     func testRawValueInit() {
+        let generate = generate
         XCTAssertEqual(ForGenerate(rawValue: raw), generate)
         XCTAssertEqual(ForGenerate(rawValue: raw.uppercased()), generate)
+        XCTAssertEqual(ForGenerate(rawValue: generate.rawValue), generate)
+        XCTAssertEqual(
+            ForGenerate(rawValue: generate.rawValue.trimmingCharacters(in: .whitespacesAndNewlines)),
+            generate
+        )
         let raw2 = """
         generator_inst: for \(String(repeating: "i", count: 4096)) in 0 to 3 generate
             ys(i) <= xs(i);
