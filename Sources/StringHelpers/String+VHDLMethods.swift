@@ -56,6 +56,8 @@
 
 import Foundation
 
+// swiftlint:disable file_length
+
 /// Add helper methods for VHDL parsing.
 extension String {
 
@@ -502,3 +504,5 @@ extension String {
     }
 
 }
+
+// swiftlint:enable file_length
