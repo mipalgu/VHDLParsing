@@ -4,9 +4,9 @@ on:
   pull_request:
     branches:
       - main
-      - develop
+      - development
   push:
-    branches: [develop, main]
+    branches: [development, main]
 
 jobs:
 
@@ -16,7 +16,7 @@ jobs:
     steps:
       - uses: swift-actions/setup-swift@v1
         with:
-            swift-version: "5.7"
+            swift-version: "5.9"
 
       - name: Setup SSH Key
         run: | 
