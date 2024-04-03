@@ -1,16 +1,10 @@
 # VHDLParsing
 
 [![Swift Coverage Test](https://github.com/mipalgu/VHDLParsing/actions/workflows/cov.yml/badge.svg)](https://github.com/mipalgu/VHDLParsing/actions/workflows/cov.yml)
-[![Ubuntu 20.04 Swift Debug CI](https://github.com/mipalgu/VHDLParsing/actions/workflows/ci-linux-debug.yml/badge.svg)](https://github.com/mipalgu/VHDLParsing/actions/workflows/ci-linux-debug.yml)
-[![Ubuntu 20.04 Swift Release CI](https://github.com/mipalgu/VHDLParsing/actions/workflows/ci-linux-release.yml/badge.svg)](https://github.com/mipalgu/VHDLParsing/actions/workflows/ci-linux-release.yml)
-[![Ubuntu 22.04 Swift Debug CI](https://github.com/mipalgu/VHDLParsing/actions/workflows/ci-linux-debug-22_04.yml/badge.svg)](https://github.com/mipalgu/VHDLParsing/actions/workflows/ci-linux-debug-22_04.yml)
-[![Ubuntu 22.04 Swift Release CI](https://github.com/mipalgu/VHDLParsing/actions/workflows/ci-linux-release-22_04.yml/badge.svg)](https://github.com/mipalgu/VHDLParsing/actions/workflows/ci-linux-release-22_04.yml)
-[![MacOS Monterey Swift Debug CI](https://github.com/mipalgu/VHDLParsing/actions/workflows/ci-macOS-debug.yml/badge.svg)](https://github.com/mipalgu/VHDLParsing/actions/workflows/ci-macOS-debug.yml)
-[![MacOS Monterey Swift Release CI](https://github.com/mipalgu/VHDLParsing/actions/workflows/ci-macOS-release.yml/badge.svg)](https://github.com/mipalgu/VHDLParsing/actions/workflows/ci-macOS-release.yml)
 [![Swift Lint](https://github.com/mipalgu/VHDLParsing/actions/workflows/swiftlint.yml/badge.svg)](https://github.com/mipalgu/VHDLParsing/actions/workflows/swiftlint.yml)
-[![MacOS Ventura Swift Debug CI](https://github.com/mipalgu/VHDLParsing/actions/workflows/ci-macOS13-debug.yml/badge.svg)](https://github.com/mipalgu/VHDLParsing/actions/workflows/ci-macOS13-debug.yml)
-[![MacOS Ventura Swift Release CI](https://github.com/mipalgu/VHDLParsing/actions/workflows/ci-macOS13-release.yml/badge.svg)](https://github.com/mipalgu/VHDLParsing/actions/workflows/ci-macOS13-release.yml)
-
+[![MacOS CI](https://github.com/mipalgu/VHDLParsing/actions/workflows/ci-macOS.yml/badge.svg)](https://github.com/mipalgu/VHDLParsing/actions/workflows/ci-macOS.yml)
+[![Linux CI](https://github.com/mipalgu/VHDLParsing/actions/workflows/ci-linux.yml/badge.svg)](https://github.com/mipalgu/VHDLParsing/actions/workflows/ci-linux.yml)
+[![Windows CI](https://github.com/mipalgu/VHDLParsing/actions/workflows/ci-windows.yml/badge.svg)](https://github.com/mipalgu/VHDLParsing/actions/workflows/ci-windows.yml)
 
 A `VHDL` parser written in `Swift`. This package parses `VHDL` files into a model that can be
 used in other projects. This parser is not complete and is not intended to have full compatibility with the
@@ -42,6 +36,7 @@ Please see the `About` section of this repository on `GitHub` for the latest doc
 - Swift 5.7 or later.
 - macOS 12 or later.
 - Linux (Ubuntu 20.04 or later).
+- Windows 10 or later. Windows server edition 2022 or later.
 
 ## Usage
 
