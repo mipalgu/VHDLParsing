@@ -74,7 +74,7 @@ final class EnumerationDefinitionTests: XCTestCase {
         )
     }
 
-    /// Test the `rawValue` created the correct `VHDL` code.
+    /// Test the `rawValue` creates the correct `VHDL` code.
     func testRawValue() {
         XCTAssertEqual(enumeration.rawValue, "type xs is (x0, x1, x2);")
     }
@@ -84,6 +84,52 @@ final class EnumerationDefinitionTests: XCTestCase {
         XCTAssertNil(EnumerationDefinition(name: VariableName(text: "xs"), nonEmptyValues: []))
         let enumeration2 = EnumerationDefinition(name: enumeration.name, nonEmptyValues: enumeration.values)
         XCTAssertEqual(enumeration2, enumeration)
+        let enumeration3 = EnumerationDefinition(
+            name: enumeration.name, nonEmptyValues: [VariableName(text: "x0")]
+        )
+        XCTAssertEqual(
+            enumeration3, EnumerationDefinition(name: enumeration.name, values: [VariableName(text: "x0")])
+        )
+    }
+
+    /// Tests that `init(rawValue:)` parses `VHDL` code correctly.
+    func testRawValueInit() {
+        let raw0 = "type xs is (x0, x1, x2);"
+        XCTAssertEqual(EnumerationDefinition(rawValue: raw0), enumeration)
+        let rawNewlines = """
+        type
+         xs
+          is
+           (
+             x0
+             ,
+                x1,
+                    x2
+           )
+        ;
+        """
+        XCTAssertEqual(EnumerationDefinition(rawValue: rawNewlines), enumeration)
+        XCTAssertNil(EnumerationDefinition(rawValue: String(raw0.dropLast())))
+        XCTAssertNil(EnumerationDefinition(rawValue: String(raw0.dropFirst(4))))
+        XCTAssertNil(EnumerationDefinition(rawValue: "type \(String(repeating: "x", count: 4096)) is (x0);"))
+        let raw1 = "type x!s is (x0, x1, x2);"
+        XCTAssertNil(EnumerationDefinition(rawValue: raw1))
+        let raw2 = "type xs is (x0, x1, x2;"
+        XCTAssertNil(EnumerationDefinition(rawValue: raw2))
+        let raw3 = "type xs (x0, x1, x2);"
+        XCTAssertNil(EnumerationDefinition(rawValue: raw3))
+        let raw4 = "type xs iss (x0, x1, x2);"
+        XCTAssertNil(EnumerationDefinition(rawValue: raw4))
+        let raw5 = "type xs is x0, x1, x2);"
+        XCTAssertNil(EnumerationDefinition(rawValue: raw5))
+        let raw6 = "type xs is (x0, x1, x!2);"
+        XCTAssertNil(EnumerationDefinition(rawValue: raw6))
+        let raw7 = "type xs is (x0, x!1, x2);"
+        XCTAssertNil(EnumerationDefinition(rawValue: raw7))
+        let raw8 = "type xs is (x!0, x1, x2);"
+        XCTAssertNil(EnumerationDefinition(rawValue: raw8))
+        let raw9 = "type xs is (x!0);"
+        XCTAssertNil(EnumerationDefinition(rawValue: raw9))
     }
 
 }
