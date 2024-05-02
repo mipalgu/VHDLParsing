@@ -127,6 +127,7 @@ final class EnumerationDefinitionTests: XCTestCase {
         XCTAssertNil(EnumerationDefinition(rawValue: "type xs is (x!0, x1, x2);"))
         XCTAssertNil(EnumerationDefinition(rawValue: "type xs is (x!0);"))
         XCTAssertNil(EnumerationDefinition(rawValue: "type xs is ();"))
+        XCTAssertNil(EnumerationDefinition(rawValue: "type xs is (x0,,x2);"))
     }
 
 }
