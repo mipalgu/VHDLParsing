@@ -69,6 +69,12 @@ final class TypeDefinitionTests: XCTestCase {
         ]
     )
 
+    /// An enumeration definition.
+    let enumeration = EnumerationDefinition(
+        name: VariableName(text: "xs"),
+        values: [VariableName(text: "x0"), VariableName(text: "x1"), VariableName(text: "x2")]
+    )
+
     /// Test `rawValue` generates `VHDL` code correctly.
     func testRawValue() {
         XCTAssertEqual(TypeDefinition.record(value: record).rawValue, record.rawValue)
@@ -88,6 +94,7 @@ final class TypeDefinitionTests: XCTestCase {
             )).rawValue,
             "type xs is array (3 downto 0) of std_logic;"
         )
+        XCTAssertEqual(TypeDefinition.enumeration(value: enumeration).rawValue, enumeration.rawValue)
     }
 
     /// Test `init(rawValue:)` parses the `VHDL` code correctly.
@@ -109,6 +116,7 @@ final class TypeDefinitionTests: XCTestCase {
                 elementType: .signal(type: .stdLogic)
             ))
         )
+        XCTAssertEqual(TypeDefinition(rawValue: "type xs is (x0, x1, x2);"), .enumeration(value: enumeration))
         XCTAssertNil(TypeDefinition(rawValue: "type x is std_logic"))
         XCTAssertNil(TypeDefinition(rawValue: ""))
         XCTAssertNil(TypeDefinition(rawValue: "type 2x is std_logic;"))
