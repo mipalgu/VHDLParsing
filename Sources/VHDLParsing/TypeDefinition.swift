@@ -69,6 +69,9 @@ public enum TypeDefinition: RawRepresentable, Equatable, Hashable, Codable, Send
     /// An array type definition.
     case array(value: ArrayDefinition)
 
+    /// An enumeration type definition.
+    case enumeration(value: EnumerationDefinition)
+
     /// The equivalent `VHDL` code.
     @inlinable public var rawValue: String {
         switch self {
@@ -78,6 +81,8 @@ public enum TypeDefinition: RawRepresentable, Equatable, Hashable, Codable, Send
             return "type \(name.rawValue) is \(type.rawValue);"
         case .array(let array):
             return array.rawValue
+        case .enumeration(let enumeration):
+            return enumeration.rawValue
         }
     }
 
@@ -92,6 +97,10 @@ public enum TypeDefinition: RawRepresentable, Equatable, Hashable, Codable, Send
         }
         if let array = ArrayDefinition(rawValue: trimmedString) {
             self = .array(value: array)
+            return
+        }
+        if let enumeration = EnumerationDefinition(rawValue: trimmedString) {
+            self = .enumeration(value: enumeration)
             return
         }
         guard trimmedString.hasSuffix(";") else {

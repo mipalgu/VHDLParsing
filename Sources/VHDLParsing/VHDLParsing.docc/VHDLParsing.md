@@ -12,6 +12,7 @@
 - ``ComponentDefinition``
 - ``ConstantSignal``
 - ``Definition``
+- ``EnumerationDefinition``
 - ``ExternalType``
 - ``FunctionDefinition``
 - ``FunctionImplementation``
