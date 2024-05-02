@@ -56,16 +56,36 @@
 import Foundation
 import StringHelpers
 
+/// A type defined as an enumeration of values.
+/// 
+/// This struct represents a new type definition in `VHDL` that is an enumeration of values. The equivalent
+/// `VHDL` code of this definition is:
+/// ```vhdl
+/// type <name> is (<case0>, <case1>, <case2>, ...);
+/// ```
+/// The number of cases (`values`) within the definition is not limited, but there must be at least 1 case.
 public struct EnumerationDefinition: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
+    /// The name of the enumeration type.
     public let name: VariableName
 
+    /// The valid values within the enumeration. This array will always contain at least 1 value.
     public let values: [VariableName]
 
-    public var rawValue: String {
+    /// The equivalent `VHDL` code defining this enumeration.
+    @inlinable public var rawValue: String {
         "type \(name.rawValue) is (\(values.map(\.rawValue).joined(separator: ", ")));"
     }
 
+    /// Create an enumeration definition from it's stored properties.
+    /// 
+    /// This initialiser will check that the `nonEmptyValues` contains at least 1 value. If this is not the
+    /// case, then the initialiser will return `nil`.
+    /// - Parameters:
+    ///   - name: The name of the enumeration.
+    ///   - nonEmptyValues: The valid values within the enumeration.
+    /// - Warning: The `nonEmptyValues` array must contain at least 1 value.
+    @inlinable
     public init?(name: VariableName, nonEmptyValues: [VariableName]) {
         guard !nonEmptyValues.isEmpty else {
             return nil
@@ -73,6 +93,9 @@ public struct EnumerationDefinition: RawRepresentable, Equatable, Hashable, Coda
         self.init(name: name, values: nonEmptyValues)
     }
 
+    /// Create an enumeration definition from it's `VHDL` code defining it.
+    /// - Parameter rawValue: The `VHDL` code that defines a new type as an enumeration of values.
+    @inlinable
     public init?(rawValue: String) {
         let trimmedValue = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
         guard
@@ -111,6 +134,11 @@ public struct EnumerationDefinition: RawRepresentable, Equatable, Hashable, Coda
         self.init(name: name, values: values)
     }
 
+    /// Set the stored properties of the enumeration without checking for validity.
+    /// - Parameters:
+    ///   - name: The name of this enumeration.
+    ///   - values: The valid values of this enumeration.
+    @inlinable
     init(name: VariableName, values: [VariableName]) {
         self.name = name
         self.values = values
