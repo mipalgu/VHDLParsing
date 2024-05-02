@@ -124,6 +124,9 @@ public struct EnumerationDefinition: RawRepresentable, Equatable, Hashable, Coda
             return nil
         }
         let withoutBrackets = withoutIs.dropFirst().trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !withoutBrackets.isEmpty else {
+            return nil
+        }
         let valuesRaw = withoutBrackets.components(separatedBy: ",")
         let values = valuesRaw.compactMap {
             VariableName(rawValue: $0.trimmingCharacters(in: .whitespacesAndNewlines))

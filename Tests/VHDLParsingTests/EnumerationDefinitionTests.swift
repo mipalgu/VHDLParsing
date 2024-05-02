@@ -109,27 +109,24 @@ final class EnumerationDefinitionTests: XCTestCase {
         ;
         """
         XCTAssertEqual(EnumerationDefinition(rawValue: rawNewlines), enumeration)
+        XCTAssertEqual(
+            EnumerationDefinition(rawValue: "type xs is (x0);"),
+            EnumerationDefinition(name: VariableName(text: "xs"), values: [VariableName(text: "x0")])
+        )
+        XCTAssertEqual(EnumerationDefinition(rawValue: "type xs is (x0,x1,x2);"), enumeration)
         XCTAssertNil(EnumerationDefinition(rawValue: String(raw0.dropLast())))
         XCTAssertNil(EnumerationDefinition(rawValue: String(raw0.dropFirst(4))))
         XCTAssertNil(EnumerationDefinition(rawValue: "type \(String(repeating: "x", count: 4096)) is (x0);"))
-        let raw1 = "type x!s is (x0, x1, x2);"
-        XCTAssertNil(EnumerationDefinition(rawValue: raw1))
-        let raw2 = "type xs is (x0, x1, x2;"
-        XCTAssertNil(EnumerationDefinition(rawValue: raw2))
-        let raw3 = "type xs (x0, x1, x2);"
-        XCTAssertNil(EnumerationDefinition(rawValue: raw3))
-        let raw4 = "type xs iss (x0, x1, x2);"
-        XCTAssertNil(EnumerationDefinition(rawValue: raw4))
-        let raw5 = "type xs is x0, x1, x2);"
-        XCTAssertNil(EnumerationDefinition(rawValue: raw5))
-        let raw6 = "type xs is (x0, x1, x!2);"
-        XCTAssertNil(EnumerationDefinition(rawValue: raw6))
-        let raw7 = "type xs is (x0, x!1, x2);"
-        XCTAssertNil(EnumerationDefinition(rawValue: raw7))
-        let raw8 = "type xs is (x!0, x1, x2);"
-        XCTAssertNil(EnumerationDefinition(rawValue: raw8))
-        let raw9 = "type xs is (x!0);"
-        XCTAssertNil(EnumerationDefinition(rawValue: raw9))
+        XCTAssertNil(EnumerationDefinition(rawValue: "type x!s is (x0, x1, x2);"))
+        XCTAssertNil(EnumerationDefinition(rawValue: "type xs is (x0, x1, x2;"))
+        XCTAssertNil(EnumerationDefinition(rawValue: "type xs (x0, x1, x2);"))
+        XCTAssertNil(EnumerationDefinition(rawValue: "type xs iss (x0, x1, x2);"))
+        XCTAssertNil(EnumerationDefinition(rawValue: "type xs is x0, x1, x2);"))
+        XCTAssertNil(EnumerationDefinition(rawValue: "type xs is (x0, x1, x!2);"))
+        XCTAssertNil(EnumerationDefinition(rawValue: "type xs is (x0, x!1, x2);"))
+        XCTAssertNil(EnumerationDefinition(rawValue: "type xs is (x!0, x1, x2);"))
+        XCTAssertNil(EnumerationDefinition(rawValue: "type xs is (x!0);"))
+        XCTAssertNil(EnumerationDefinition(rawValue: "type xs is ();"))
     }
 
 }
