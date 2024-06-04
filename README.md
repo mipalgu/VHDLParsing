@@ -66,7 +66,10 @@ let package = Package(
         ),
         .testTarget(
             name: "MyPackageTests",
-            dependencies: [.target(name: "MyPackage"), .product(name: "VHDLParsing", package: "VHDLParsing")]
+            dependencies: [
+                .target(name: "MyPackage"),
+                .product(name: "VHDLParsing", package: "VHDLParsing")
+            ]
         )
     ]
 )
