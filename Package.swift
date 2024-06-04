@@ -3,6 +3,7 @@
 
 import PackageDescription
 
+/// The package definition.
 let package = Package(
     name: "VHDLParsing",
     products: [
@@ -32,15 +33,15 @@ let package = Package(
         ),
         .target(
             name: "VHDLParsing",
-            dependencies: ["StringHelpers"]
+            dependencies: [.target(name: "StringHelpers")]
         ),
         .testTarget(
             name: "StringHelpersTests",
-            dependencies: ["StringHelpers"]
+            dependencies: [.target(name: "StringHelpers")]
         ),
         .testTarget(
             name: "VHDLParsingTests",
-            dependencies: ["VHDLParsing", "StringHelpers"]
+            dependencies: [.target(name: "VHDLParsing"), .target(name: "StringHelpers")]
         )
     ]
 )
