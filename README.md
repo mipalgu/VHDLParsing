@@ -53,7 +53,8 @@ let package = Package(
     products: [
         .library(
             name: "MyPackage",
-            targets: ["MyPackage"]),
+            targets: ["MyPackage"]
+        ),
     ],
     dependencies: [
         .package(url: "https://github.com/mipalgu/VHDLParsing", from: "2.5.0")
@@ -61,10 +62,12 @@ let package = Package(
     targets: [
         .target(
             name: "MyPackage",
-            dependencies: ["VHDLParsing"]),
+            dependencies: [.product(name: "VHDLParsing", package: "VHDLParsing")]
+        ),
         .testTarget(
             name: "MyPackageTests",
-            dependencies: ["MyPackage", "VHDLParsing"]),
+            dependencies: [.target(name: "MyPackage"), .product(name: "VHDLParsing", package: "VHDLParsing")]
+        )
     ]
 )
 ```
