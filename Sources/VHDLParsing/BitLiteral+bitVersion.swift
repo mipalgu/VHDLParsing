@@ -59,7 +59,7 @@ import Foundation
 extension BitLiteral {
 
     /// The inversion of the current value.
-    public var inverted: BitLiteral {
+    @inlinable public var inverted: BitLiteral {
         switch self {
         case .high:
             return .low
