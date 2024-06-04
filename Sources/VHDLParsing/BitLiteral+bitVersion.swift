@@ -58,6 +58,16 @@ import Foundation
 
 extension BitLiteral {
 
+    /// The inversion of the current value.
+    public var inverted: BitLiteral {
+        switch self {
+        case .high:
+            return .low
+        case .low:
+            return .high
+        }
+    }
+
     /// Helper function for `bitVersion(of:bitsRequired:)`. This function recurses on itself to produce the
     /// binary representation.
     /// - Parameters:

@@ -136,4 +136,10 @@ final class BitLiteralTests: XCTestCase {
         XCTAssertEqual(BitLiteral.bitVersion(of: 16, bitsRequired: 5), [.high, .low, .low, .low, .low])
     }
 
+    /// Test the inversion property.
+    func testInversion() {
+        XCTAssertEqual(BitLiteral.high.inverted, .low)
+        XCTAssertEqual(BitLiteral.low.inverted, .high)
+    }
+
 }
