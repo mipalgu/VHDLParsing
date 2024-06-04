@@ -11,7 +11,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, ubuntu-22.04, ubuntu-20.04]
-        swift: ["5.9", "5.8", "5.7"]
+        swift: ["5.10", "5.9", "5.8", "5.7"]
         build_mode: ["debug", "release"]
     name: Swift ${{ matrix.swift }} ${{ matrix.build_mode }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
