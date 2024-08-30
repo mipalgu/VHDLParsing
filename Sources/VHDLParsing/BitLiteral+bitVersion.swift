@@ -56,6 +56,7 @@
 
 import Foundation
 
+/// Add bit calculation properties and methods.
 extension BitLiteral {
 
     /// The inversion of the current value.
