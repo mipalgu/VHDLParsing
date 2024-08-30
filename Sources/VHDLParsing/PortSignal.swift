@@ -1,6 +1,6 @@
 //
 //  File.swift
-//  
+//
 //
 //  Created by Morgan McColl on 14/4/21.
 //
@@ -8,8 +8,10 @@
 import Foundation
 import StringHelpers
 
-/// An external signal is equivalent to an external variable (or parameter) in an LLFSM. The external signal
-/// is a signal that exists above a VHDL entities scope. It is a signal that is not defined within the entity.
+/// An external signal is equivalent to an external variable (or parameter) in an LLFSM.
+///
+/// The external signal is a signal that exists above a VHDL entities scope. It is a signal that is not
+/// defined within the entity.
 public struct PortSignal: ExternalType, RawRepresentable, Codable, Hashable, Sendable {
 
     /// The type of the signal.
@@ -53,7 +55,11 @@ public struct PortSignal: ExternalType, RawRepresentable, Codable, Hashable, Sen
         comment: Comment? = nil
     ) {
         self.init(
-            type: .signal(type: type), name: name, mode: mode, defaultValue: defaultValue, comment: comment
+            type: .signal(type: type),
+            name: name,
+            mode: mode,
+            defaultValue: defaultValue,
+            comment: comment
         )
     }
 
@@ -66,7 +72,11 @@ public struct PortSignal: ExternalType, RawRepresentable, Codable, Hashable, Sen
     ///   - comment: The comment of the signal.
     @inlinable
     public init(
-        type: Type, name: VariableName, mode: Mode, defaultValue: Expression? = nil, comment: Comment? = nil
+        type: Type,
+        name: VariableName,
+        mode: Mode,
+        defaultValue: Expression? = nil,
+        comment: Comment? = nil
     ) {
         self.type = type
         self.name = name
@@ -117,7 +127,9 @@ public struct PortSignal: ExternalType, RawRepresentable, Codable, Hashable, Sen
         else {
             return nil
         }
-        let defaultValue = assignmentComponents.count == 2 ? Expression(rawValue: assignmentComponents[1])
+        let defaultValue =
+            assignmentComponents.count == 2
+            ? Expression(rawValue: assignmentComponents[1])
             : nil
         self.name = name
         self.type = type
