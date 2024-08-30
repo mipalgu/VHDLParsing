@@ -64,13 +64,17 @@ final class CustomFunctionCallTests: XCTestCase {
     let f = VariableName(text: "f")
 
     /// A variable `x`.
-    let x = Expression.reference(variable: .variable(reference: .variable(name: VariableName(text: "x"))))
+    let x = VHDLParsing.Expression.reference(variable: .variable(
+        reference: .variable(name: VariableName(text: "x"))
+    ))
 
     /// A variable `y`.
-    let y = Expression.reference(variable: .variable(reference: .variable(name: VariableName(text: "y"))))
+    let y = VHDLParsing.Expression.reference(variable: .variable(
+        reference: .variable(name: VariableName(text: "y"))
+    ))
 
     /// The function arguments.
-    var arguments: [Expression] {
+    var arguments: [VHDLParsing.Expression] {
         [x, y]
     }
 
@@ -83,16 +87,16 @@ final class CustomFunctionCallTests: XCTestCase {
     }
 
     /// The function call under test.
-    lazy var function = CustomFunctionCall(name: f, arguments: arguments)
+    lazy var function = CustomFunctionCall(name: f, parameters: parameters)
 
     /// Initialise the function before every test.
     override func setUp() {
-        function = CustomFunctionCall(name: f, arguments: arguments)
+        function = CustomFunctionCall(name: f, parameters: parameters)
     }
 
     /// Test that the stored properties are set correctly.
     func testStoredPropertyInit() {
-        XCTAssertEqual(function.arguments, arguments)
+        XCTAssertEqual(function.parameters, parameters)
         XCTAssertEqual(function.name, f)
         let func2 = CustomFunctionCall(name: f, parameters: parameters)
         XCTAssertEqual(func2.name, f)
@@ -101,19 +105,20 @@ final class CustomFunctionCallTests: XCTestCase {
 
     /// Test that the `VHDL` code is created correctly in `rawValue`.
     func testRawValue() {
-        XCTAssertEqual(function.rawValue, "f(x, y)")
-        XCTAssertEqual(CustomFunctionCall(name: f, arguments: []).rawValue, "f()")
+        XCTAssertEqual(function.rawValue, "f(x => x, y => y)")
+        XCTAssertEqual(CustomFunctionCall(name: f, parameters: []).rawValue, "f()")
+        let func2 = CustomFunctionCall(name: f, parameters: [Argument(argument: x), Argument(argument: y)])
+        XCTAssertEqual(func2.rawValue, "f(x, y)")
     }
 
     /// Test that the function init is correct.
     func testFunctionInit() {
-        XCTAssertEqual(CustomFunctionCall(function: f.rawValue, arguments: arguments), function)
-        XCTAssertNil(CustomFunctionCall(function: "2f", arguments: arguments))
+        XCTAssertEqual(CustomFunctionCall(name: f, parameters: parameters), function)
     }
 
     /// Test `init(rawValue:)`.
     func testRawValueInit() {
-        XCTAssertEqual(CustomFunctionCall(rawValue: "f()"), CustomFunctionCall(name: f, arguments: []))
+        XCTAssertEqual(CustomFunctionCall(rawValue: "f()"), CustomFunctionCall(name: f, parameters: []))
         XCTAssertNil(CustomFunctionCall(rawValue: "and(x)"))
         XCTAssertNil(CustomFunctionCall(rawValue: "a * (b - c)"))
     }
