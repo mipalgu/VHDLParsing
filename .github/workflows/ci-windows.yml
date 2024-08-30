@@ -67,4 +67,5 @@ on:
 jobs:
   ci-windows:
     uses: cpslabgu/swift-workflows/.github/workflows/ci-windows.yml@main
-    secrets: inherit
+    secrets:
+      SSH_PRIVATE_KEY: ${{ secrets.WORKFLOWS_SSH_PRIVATE_KEY }}

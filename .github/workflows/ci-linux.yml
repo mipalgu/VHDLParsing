@@ -12,4 +12,6 @@ on:
 jobs:
   ci-linux:
     uses: cpslabgu/swift-workflows/.github/workflows/ci-linux.yml@main
-    secrets: inherit
+    secrets:
+      SSH_PRIVATE_KEY: ${{ secrets.WORKFLOWS_SSH_PRIVATE_KEY }}
+      SSH_PUBLIC_KEY: ${{ secrets.WORKFLOWS_SSH_PUBLIC_KEY }}

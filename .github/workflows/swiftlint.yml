@@ -12,4 +12,6 @@ on:
 jobs:
   swiftlint:
     uses: cpslabgu/swift-workflows/.github/workflows/swiftlint.yml@main
-    secrets: inherit
+    secrets:
+      SSH_PRIVATE_KEY: ${{ secrets.WORKFLOWS_SSH_PRIVATE_KEY }}
+      SSH_PUBLIC_KEY: ${{ secrets.WORKFLOWS_SSH_PUBLIC_KEY }}

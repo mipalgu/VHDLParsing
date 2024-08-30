@@ -13,4 +13,6 @@ jobs:
     uses: cpslabgu/swift-workflows/.github/workflows/cov.yml@main
     with:
       MINIMUM_COVERAGE: 95
-    secrets: inherit
+    secrets:
+      SSH_PRIVATE_KEY: ${{ secrets.WORKFLOWS_SSH_PRIVATE_KEY }}
+      SSH_PUBLIC_KEY: ${{ secrets.WORKFLOWS_SSH_PUBLIC_KEY }}

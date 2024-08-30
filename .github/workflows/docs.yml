@@ -7,4 +7,7 @@ on:
 jobs:
   docs:
     uses: cpslabgu/swift-workflows/.github/workflows/docs.yml@main
-    secrets: inherit
+    secrets:
+      SSH_PRIVATE_KEY: ${{ secrets.WORKFLOWS_SSH_PRIVATE_KEY }}
+      SSH_PUBLIC_KEY: ${{ secrets.WORKFLOWS_SSH_PUBLIC_KEY }}
+      TOKEN: ${{ secrets.GITHUB_TOKEN }}
