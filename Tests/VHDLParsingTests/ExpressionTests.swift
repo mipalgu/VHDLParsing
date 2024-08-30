@@ -1,4 +1,4 @@
-// ExpressionTests.swift
+// VHDLParsing.ExpressionTests.swift
 // Machines
 //
 // Created by Morgan McColl.
@@ -60,7 +60,7 @@ import XCTest
 // swiftlint:disable file_length
 // swiftlint:disable type_body_length
 
-/// Test class for ``Expression``.
+/// Test class for ``VHDLParsing.Expression``.
 final class ExpressionTests: XCTestCase {
 
     /// A variable called `a`.
@@ -78,37 +78,43 @@ final class ExpressionTests: XCTestCase {
     /// A variable called `e`.
     let ename = VariableName(text: "e")
 
-    /// Expression `a`.
-    var a: Expression { .reference(variable: .variable(reference: .variable(name: aname))) }
+    /// VHDLParsing.Expression `a`.
+    var a: VHDLParsing.Expression { .reference(variable: .variable(reference: .variable(name: aname))) }
 
-    /// Expression `b`.
-    var b: Expression { .reference(variable: .variable(reference: .variable(name: bname))) }
+    /// VHDLParsing.Expression `b`.
+    var b: VHDLParsing.Expression { .reference(variable: .variable(reference: .variable(name: bname))) }
 
-    /// Expression `c`.
-    var c: Expression { .reference(variable: .variable(reference: .variable(name: cname))) }
+    /// VHDLParsing.Expression `c`.
+    var c: VHDLParsing.Expression { .reference(variable: .variable(reference: .variable(name: cname))) }
 
-    /// Expression `d`.
-    var d: Expression { .reference(variable: .variable(reference: .variable(name: dname))) }
+    /// VHDLParsing.Expression `d`.
+    var d: VHDLParsing.Expression { .reference(variable: .variable(reference: .variable(name: dname))) }
 
-    /// Expression `e`.
-    var e: Expression { .reference(variable: .variable(reference: .variable(name: ename))) }
+    /// VHDLParsing.Expression `e`.
+    var e: VHDLParsing.Expression { .reference(variable: .variable(reference: .variable(name: ename))) }
 
     /// Test raw values are correct.
     func testRawValues() {
         XCTAssertEqual(a.rawValue, "a")
-        XCTAssertEqual(Expression.binary(operation: .addition(lhs: a, rhs: b)).rawValue, "a + b")
-        XCTAssertEqual(Expression.binary(operation: .subtraction(lhs: a, rhs: b)).rawValue, "a - b")
-        XCTAssertEqual(Expression.binary(operation: .multiplication(lhs: a, rhs: b)).rawValue, "a * b")
-        XCTAssertEqual(Expression.binary(operation: .division(lhs: a, rhs: b)).rawValue, "a / b")
-        XCTAssertEqual(Expression.precedence(value: a).rawValue, "(a)")
+        XCTAssertEqual(VHDLParsing.Expression.binary(operation: .addition(lhs: a, rhs: b)).rawValue, "a + b")
         XCTAssertEqual(
-            Expression.literal(value: .logic(value: .uninitialized)).rawValue,
+            VHDLParsing.Expression.binary(operation: .subtraction(lhs: a, rhs: b)).rawValue, "a - b"
+        )
+        XCTAssertEqual(
+            VHDLParsing.Expression.binary(operation: .multiplication(lhs: a, rhs: b)).rawValue, "a * b"
+        )
+        XCTAssertEqual(VHDLParsing.Expression.binary(operation: .division(lhs: a, rhs: b)).rawValue, "a / b")
+        XCTAssertEqual(VHDLParsing.Expression.precedence(value: a).rawValue, "(a)")
+        XCTAssertEqual(
+            VHDLParsing.Expression.literal(value: .logic(value: .uninitialized)).rawValue,
             LogicLiteral.uninitialized.rawValue
         )
-        XCTAssertEqual(Expression.logical(operation: .and(lhs: a, rhs: b)).rawValue, "a and b")
-        XCTAssertEqual(Expression.cast(operation: .real(expression: a)).rawValue, "real(a)")
+        XCTAssertEqual(VHDLParsing.Expression.logical(operation: .and(lhs: a, rhs: b)).rawValue, "a and b")
         XCTAssertEqual(
-            Expression.functionCall(
+            VHDLParsing.Expression.cast(operation: .real(expression: a)).rawValue, "real(a)"
+        )
+        XCTAssertEqual(
+            VHDLParsing.Expression.functionCall(
                 call: .custom(
                     function: CustomFunctionCall(name: aname, arguments: [b])
                 )
@@ -120,17 +126,17 @@ final class ExpressionTests: XCTestCase {
 
     // swiftlint:disable function_body_length
 
-    /// Test init successfully creates `Expression` for simple statements.
+    /// Test init successfully creates `VHDLParsing.Expression` for simple statements.
     func testSimpleInit() {
-        XCTAssertEqual(Expression(rawValue: "a"), a)
-        XCTAssertNil(Expression(rawValue: "a;"))
-        XCTAssertEqual(Expression(rawValue: "(a)"), .precedence(value: a))
+        XCTAssertEqual(VHDLParsing.Expression(rawValue: "a"), a)
+        XCTAssertNil(VHDLParsing.Expression(rawValue: "a;"))
+        XCTAssertEqual(VHDLParsing.Expression(rawValue: "(a)"), .precedence(value: a))
         XCTAssertEqual(
-            Expression(rawValue: "a * b"),
+            VHDLParsing.Expression(rawValue: "a * b"),
             .binary(operation: .multiplication(lhs: a, rhs: b))
         )
         XCTAssertEqual(
-            Expression(rawValue: "a(3 downto 0) * 5"),
+            VHDLParsing.Expression(rawValue: "a(3 downto 0) * 5"),
             .binary(
                 operation: .multiplication(
                     lhs: .reference(
@@ -149,7 +155,7 @@ final class ExpressionTests: XCTestCase {
             )
         )
         XCTAssertEqual(
-            Expression(rawValue: "5 * a(3 downto 0)"),
+            VHDLParsing.Expression(rawValue: "5 * a(3 downto 0)"),
             .binary(
                 operation: .multiplication(
                     lhs: .literal(value: .integer(value: 5)),
@@ -168,31 +174,31 @@ final class ExpressionTests: XCTestCase {
             )
         )
         XCTAssertEqual(
-            Expression(rawValue: "a / b"),
+            VHDLParsing.Expression(rawValue: "a / b"),
             .binary(operation: .division(lhs: a, rhs: b))
         )
         XCTAssertEqual(
-            Expression(rawValue: "a + b"),
+            VHDLParsing.Expression(rawValue: "a + b"),
             .binary(operation: .addition(lhs: a, rhs: b))
         )
         XCTAssertEqual(
-            Expression(rawValue: "a - b"),
+            VHDLParsing.Expression(rawValue: "a - b"),
             .binary(operation: .subtraction(lhs: a, rhs: b))
         )
         XCTAssertEqual(
-            Expression(rawValue: "a + 5"),
+            VHDLParsing.Expression(rawValue: "a + 5"),
             .binary(operation: .addition(lhs: a, rhs: .literal(value: .integer(value: 5))))
         )
         XCTAssertEqual(
-            Expression(rawValue: "(a) + b"),
+            VHDLParsing.Expression(rawValue: "(a) + b"),
             .binary(operation: .addition(lhs: .precedence(value: a), rhs: b))
         )
         XCTAssertEqual(
-            Expression(rawValue: "(a)+b"),
+            VHDLParsing.Expression(rawValue: "(a)+b"),
             .binary(operation: .addition(lhs: .precedence(value: a), rhs: b))
         )
         XCTAssertEqual(
-            Expression(rawValue: "(a) > b"),
+            VHDLParsing.Expression(rawValue: "(a) > b"),
             .conditional(condition: .comparison(value: .greaterThan(lhs: .precedence(value: a), rhs: b)))
         )
     }
@@ -201,47 +207,47 @@ final class ExpressionTests: XCTestCase {
 
     /// Test invalid raw values return nil.
     func testInvalidRawValueInit() {
-        XCTAssertNil(Expression(rawValue: "()"))
-        XCTAssertNil(Expression(rawValue: ""))
-        XCTAssertNil(Expression(rawValue: " "))
-        XCTAssertNil(Expression(rawValue: "\n"))
-        XCTAssertNil(Expression(rawValue: "a + ()"))
-        XCTAssertNil(Expression(rawValue: "(a + b"))
-        XCTAssertNil(Expression(rawValue: String(repeating: "a", count: 2048)))
-        XCTAssertNil(Expression(rawValue: "-- a\n-- b"))
-        XCTAssertNil(Expression(rawValue: "a + b--;"))
-        XCTAssertNil(Expression(rawValue: "a + b;-- a\n--b"))
-        XCTAssertNil(Expression(rawValue: "a + b;-- a\n--b\n--c"))
-        XCTAssertNil(Expression(rawValue: "a; +-- b;"))
-        XCTAssertNil(Expression(rawValue: "(a) ++ b"))
+        XCTAssertNil(VHDLParsing.Expression(rawValue: "()"))
+        XCTAssertNil(VHDLParsing.Expression(rawValue: ""))
+        XCTAssertNil(VHDLParsing.Expression(rawValue: " "))
+        XCTAssertNil(VHDLParsing.Expression(rawValue: "\n"))
+        XCTAssertNil(VHDLParsing.Expression(rawValue: "a + ()"))
+        XCTAssertNil(VHDLParsing.Expression(rawValue: "(a + b"))
+        XCTAssertNil(VHDLParsing.Expression(rawValue: String(repeating: "a", count: 2048)))
+        XCTAssertNil(VHDLParsing.Expression(rawValue: "-- a\n-- b"))
+        XCTAssertNil(VHDLParsing.Expression(rawValue: "a + b--;"))
+        XCTAssertNil(VHDLParsing.Expression(rawValue: "a + b;-- a\n--b"))
+        XCTAssertNil(VHDLParsing.Expression(rawValue: "a + b;-- a\n--b\n--c"))
+        XCTAssertNil(VHDLParsing.Expression(rawValue: "a; +-- b;"))
+        XCTAssertNil(VHDLParsing.Expression(rawValue: "(a) ++ b"))
     }
 
-    /// Test init works for statement with multiple sub expressions.
+    /// Test init works for statement with multiple sub VHDLParsing.Expressions.
     func testMultipleInit() {
         let raw = "(a - b) + c"
-        let expected = Expression.binary(
+        let expected = VHDLParsing.Expression.binary(
             operation: .addition(
                 lhs: .precedence(value: .binary(operation: .subtraction(lhs: a, rhs: b))),
                 rhs: c
             )
         )
-        let result = Expression(rawValue: raw)
+        let result = VHDLParsing.Expression(rawValue: raw)
         XCTAssertEqual(result, expected)
     }
 
-    /// Test init works for statement with multiple sub expressions in different order.
+    /// Test init works for statement with multiple sub VHDLParsing.Expressions in different order.
     func testMultipleInit2() {
         let raw = "a * (b - c)"
-        let expected = Expression.binary(
+        let expected = VHDLParsing.Expression.binary(
             operation: .multiplication(
                 lhs: a,
                 rhs: .precedence(value: .binary(operation: .subtraction(lhs: b, rhs: c)))
             )
         )
-        let result = Expression(rawValue: raw)
+        let result = VHDLParsing.Expression(rawValue: raw)
         XCTAssertEqual(result, expected)
         XCTAssertEqual(
-            Expression(rawValue: "a * b * c"),
+            VHDLParsing.Expression(rawValue: "a * b * c"),
             .binary(
                 operation: .multiplication(
                     lhs: a,
@@ -250,7 +256,7 @@ final class ExpressionTests: XCTestCase {
             )
         )
         XCTAssertEqual(
-            Expression(rawValue: "(a + b) + (c + d)"),
+            VHDLParsing.Expression(rawValue: "(a + b) + (c + d)"),
             .binary(
                 operation: .addition(
                     lhs: .precedence(value: .binary(operation: .addition(lhs: a, rhs: b))),
@@ -259,7 +265,7 @@ final class ExpressionTests: XCTestCase {
             )
         )
         XCTAssertEqual(
-            Expression(rawValue: "((a + b) + c)"),
+            VHDLParsing.Expression(rawValue: "((a + b) + c)"),
             .precedence(
                 value: .binary(
                     operation: .addition(
@@ -271,10 +277,10 @@ final class ExpressionTests: XCTestCase {
         )
     }
 
-    /// Test complex expression is created correctly.
+    /// Test complex VHDLParsing.Expression is created correctly.
     func testComplexInit() {
         let raw = "(a - b) + c * d / e"
-        let expected = Expression.binary(
+        let expected = VHDLParsing.Expression.binary(
             operation: .multiplication(
                 lhs: .binary(
                     operation: .addition(
@@ -285,14 +291,14 @@ final class ExpressionTests: XCTestCase {
                 rhs: .binary(operation: .division(lhs: d, rhs: e))
             )
         )
-        let result = Expression(rawValue: raw)
+        let result = VHDLParsing.Expression(rawValue: raw)
         XCTAssertEqual(result, expected)
     }
 
-    /// Test another complex expression is created correctly.
+    /// Test another complex VHDLParsing.Expression is created correctly.
     func testComplexInit2() {
         let raw = "a + b * (c + d) / e"
-        let expected = Expression.binary(
+        let expected = VHDLParsing.Expression.binary(
             operation: .multiplication(
                 lhs: .binary(operation: .addition(lhs: a, rhs: b)),
                 rhs: .binary(
@@ -303,27 +309,27 @@ final class ExpressionTests: XCTestCase {
                 )
             )
         )
-        let result = Expression(rawValue: raw)
+        let result = VHDLParsing.Expression(rawValue: raw)
         XCTAssertEqual(result, expected)
     }
 
     /// Test another complex raw value.
     func testComplexInit3() {
         let raw = "a + b * c + d / e"
-        let expected = Expression.binary(
+        let expected = VHDLParsing.Expression.binary(
             operation: .multiplication(
                 lhs: .binary(operation: .addition(lhs: a, rhs: b)),
                 rhs: .binary(operation: .addition(lhs: c, rhs: .binary(operation: .division(lhs: d, rhs: e))))
             )
         )
-        let result = Expression(rawValue: raw)
+        let result = VHDLParsing.Expression(rawValue: raw)
         XCTAssertEqual(result, expected)
     }
 
     /// Test another complex raw value.
     func testComplexInit4() {
         let raw = "a + b * c + d / e - 5"
-        let expected = Expression.binary(
+        let expected = VHDLParsing.Expression.binary(
             operation: .multiplication(
                 lhs: .binary(operation: .addition(lhs: a, rhs: b)),
                 rhs: .binary(
@@ -339,14 +345,14 @@ final class ExpressionTests: XCTestCase {
                 )
             )
         )
-        let result = Expression(rawValue: raw)
+        let result = VHDLParsing.Expression(rawValue: raw)
         XCTAssertEqual(result, expected)
     }
 
-    /// Test raw value works for complex expression.
+    /// Test raw value works for complex VHDLParsing.Expression.
     func testComplexRawValue() {
         let expected = "a + b * c + d / e"
-        let expression = Expression.binary(
+        let expression = VHDLParsing.Expression.binary(
             operation: .multiplication(
                 lhs: .binary(operation: .addition(lhs: a, rhs: b)),
                 rhs: .binary(operation: .addition(lhs: c, rhs: .binary(operation: .division(lhs: d, rhs: e))))
@@ -359,12 +365,12 @@ final class ExpressionTests: XCTestCase {
     func testConditionals() {
         let raw = "a > b"
         XCTAssertEqual(
-            Expression(rawValue: raw),
+            VHDLParsing.Expression(rawValue: raw),
             .conditional(condition: .comparison(value: .greaterThan(lhs: a, rhs: b)))
         )
         let raw2 = "a + b > c + d"
         XCTAssertEqual(
-            Expression(rawValue: raw2),
+            VHDLParsing.Expression(rawValue: raw2),
             .conditional(
                 condition: .comparison(
                     value: .greaterThan(
@@ -378,7 +384,7 @@ final class ExpressionTests: XCTestCase {
 
     /// Test `description` matches `rawValue`.
     func testDescription() {
-        let expression = Expression.conditional(
+        let expression = VHDLParsing.Expression.conditional(
             condition: .comparison(
                 value: .greaterThan(
                     lhs: .binary(operation: .addition(lhs: a, rhs: b)),
@@ -389,16 +395,16 @@ final class ExpressionTests: XCTestCase {
         XCTAssertEqual(expression.description, expression.rawValue)
     }
 
-    /// Test expression creates logical expression correctly.
+    /// Test VHDLParsing.Expression creates logical VHDLParsing.Expression correctly.
     func testLogicalInit() {
-        XCTAssertEqual(Expression(rawValue: "a and b"), .logical(operation: .and(lhs: a, rhs: b)))
-        XCTAssertEqual(Expression(rawValue: "not a"), .logical(operation: .not(value: a)))
+        XCTAssertEqual(VHDLParsing.Expression(rawValue: "a and b"), .logical(operation: .and(lhs: a, rhs: b)))
+        XCTAssertEqual(VHDLParsing.Expression(rawValue: "not a"), .logical(operation: .not(value: a)))
         XCTAssertEqual(
-            Expression(rawValue: "a or b and c"),
+            VHDLParsing.Expression(rawValue: "a or b and c"),
             .logical(operation: .and(lhs: .logical(operation: .or(lhs: a, rhs: b)), rhs: c))
         )
         XCTAssertEqual(
-            Expression(rawValue: "a xor (b and c) or d"),
+            VHDLParsing.Expression(rawValue: "a xor (b and c) or d"),
             .logical(
                 operation: .xor(
                     lhs: a,
@@ -412,7 +418,7 @@ final class ExpressionTests: XCTestCase {
             )
         )
         XCTAssertEqual(
-            Expression(rawValue: "a xor (b and c) or not d"),
+            VHDLParsing.Expression(rawValue: "a xor (b and c) or not d"),
             .logical(
                 operation: .xor(
                     lhs: a,
@@ -427,15 +433,17 @@ final class ExpressionTests: XCTestCase {
         )
     }
 
-    /// Test init for cast expressions.
+    /// Test init for cast VHDLParsing.Expressions.
     func testCastInit() {
-        XCTAssertEqual(Expression(rawValue: "real(a)"), .cast(operation: .real(expression: a)))
         XCTAssertEqual(
-            Expression(rawValue: "(real(a))"),
+            VHDLParsing.Expression(rawValue: "real(a)"), .cast(operation: .real(expression: a))
+        )
+        XCTAssertEqual(
+            VHDLParsing.Expression(rawValue: "(real(a))"),
             .precedence(value: .cast(operation: .real(expression: a)))
         )
         XCTAssertEqual(
-            Expression(rawValue: "real(a) + 5.0"),
+            VHDLParsing.Expression(rawValue: "real(a) + 5.0"),
             .binary(
                 operation: .addition(
                     lhs: .cast(operation: .real(expression: a)),
@@ -444,7 +452,7 @@ final class ExpressionTests: XCTestCase {
             )
         )
         XCTAssertEqual(
-            Expression(rawValue: "real(a) + (b - 5.0)"),
+            VHDLParsing.Expression(rawValue: "real(a) + (b - 5.0)"),
             .binary(
                 operation: .addition(
                     lhs: .cast(operation: .real(expression: a)),
@@ -457,7 +465,7 @@ final class ExpressionTests: XCTestCase {
             )
         )
         XCTAssertEqual(
-            Expression(rawValue: "(b - real(a)) + 5.0"),
+            VHDLParsing.Expression(rawValue: "(b - real(a)) + 5.0"),
             .binary(
                 operation: .addition(
                     lhs: .precedence(
@@ -473,7 +481,7 @@ final class ExpressionTests: XCTestCase {
             )
         )
         XCTAssertEqual(
-            Expression(rawValue: "real(a + b)"),
+            VHDLParsing.Expression(rawValue: "real(a + b)"),
             .cast(operation: .real(expression: .binary(operation: .addition(lhs: a, rhs: b))))
         )
     }
@@ -483,15 +491,15 @@ final class ExpressionTests: XCTestCase {
         let f = VariableName(text: "f")
         let g = VariableName(text: "g")
         XCTAssertEqual(
-            Expression(rawValue: "f()"),
+            VHDLParsing.Expression(rawValue: "f()"),
             .functionCall(call: .custom(function: CustomFunctionCall(name: f, arguments: [])))
         )
         XCTAssertEqual(
-            Expression(rawValue: "f(a, b, c, d)"),
+            VHDLParsing.Expression(rawValue: "f(a, b, c, d)"),
             .functionCall(call: .custom(function: CustomFunctionCall(name: f, arguments: [a, b, c, d])))
         )
         XCTAssertEqual(
-            Expression(rawValue: "(a + b) + f(c) - g(c * d)"),
+            VHDLParsing.Expression(rawValue: "(a + b) + f(c) - g(c * d)"),
             .binary(
                 operation: .addition(
                     lhs: .precedence(value: .binary(operation: .addition(lhs: a, rhs: b))),
@@ -514,7 +522,7 @@ final class ExpressionTests: XCTestCase {
             )
         )
         XCTAssertEqual(
-            Expression(rawValue: "f(g(a))"),
+            VHDLParsing.Expression(rawValue: "f(g(a))"),
             .functionCall(
                 call: .custom(
                     function: CustomFunctionCall(
@@ -532,31 +540,36 @@ final class ExpressionTests: XCTestCase {
 
     /// Tests that `isValidOtherValue` correctly identifies valid other values.
     func testIsValidOtherValue() {
-        XCTAssertTrue(Expression.binary(operation: .addition(lhs: a, rhs: b)).isValidOtherValue)
-        XCTAssertTrue(Expression.cast(operation: .bit(expression: a)).isValidOtherValue)
-        XCTAssertFalse(Expression.cast(operation: .boolean(expression: a)).isValidOtherValue)
+        XCTAssertTrue(VHDLParsing.Expression.binary(operation: .addition(lhs: a, rhs: b)).isValidOtherValue)
+        XCTAssertTrue(
+            VHDLParsing.Expression.cast(operation: .bit(expression: a)).isValidOtherValue
+        )
         XCTAssertFalse(
-            Expression.conditional(condition: .edge(value: .falling(expression: a))).isValidOtherValue
+            VHDLParsing.Expression.cast(operation: .boolean(expression: a)).isValidOtherValue
+        )
+        XCTAssertFalse(
+            VHDLParsing.Expression.conditional(condition: .edge(value: .falling(expression: a)))
+                .isValidOtherValue
         )
         XCTAssertTrue(
-            Expression.functionCall(
+            VHDLParsing.Expression.functionCall(
                 call: .custom(function: CustomFunctionCall(name: VariableName(text: "a"), arguments: []))
             )
             .isValidOtherValue
         )
-        XCTAssertFalse(Expression.logical(operation: .and(lhs: a, rhs: b)).isValidOtherValue)
-        XCTAssertTrue(Expression.literal(value: .bit(value: .low)).isValidOtherValue)
-        XCTAssertTrue(Expression.literal(value: .logic(value: .high)).isValidOtherValue)
-        XCTAssertFalse(Expression.literal(value: .boolean(value: false)).isValidOtherValue)
-        XCTAssertTrue(Expression.precedence(value: a).isValidOtherValue)
+        XCTAssertFalse(VHDLParsing.Expression.logical(operation: .and(lhs: a, rhs: b)).isValidOtherValue)
+        XCTAssertTrue(VHDLParsing.Expression.literal(value: .bit(value: .low)).isValidOtherValue)
+        XCTAssertTrue(VHDLParsing.Expression.literal(value: .logic(value: .high)).isValidOtherValue)
+        XCTAssertFalse(VHDLParsing.Expression.literal(value: .boolean(value: false)).isValidOtherValue)
+        XCTAssertTrue(VHDLParsing.Expression.precedence(value: a).isValidOtherValue)
         XCTAssertTrue(
-            Expression.reference(
+            VHDLParsing.Expression.reference(
                 variable: .variable(reference: .variable(name: VariableName(text: "a")))
             )
             .isValidOtherValue
         )
         XCTAssertFalse(
-            Expression.reference(
+            VHDLParsing.Expression.reference(
                 variable: .indexed(
                     name: a,
                     index: .range(value: .downto(upper: a, lower: b))
@@ -565,7 +578,7 @@ final class ExpressionTests: XCTestCase {
             .isValidOtherValue
         )
         XCTAssertTrue(
-            Expression.reference(
+            VHDLParsing.Expression.reference(
                 variable: .indexed(
                     name: a,
                     index: .index(value: a)
