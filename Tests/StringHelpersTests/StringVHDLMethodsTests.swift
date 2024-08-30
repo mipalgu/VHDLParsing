@@ -1,30 +1,30 @@
 // StringVHDLMethodsTests.swift
 // VHDLParsing
-// 
+//
 // Created by Morgan McColl.
 // Copyright © 2023 Morgan McColl. All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions
 // are met:
-// 
+//
 // 1. Redistributions of source code must retain the above copyright
 //    notice, this list of conditions and the following disclaimer.
-// 
+//
 // 2. Redistributions in binary form must reproduce the above
 //    copyright notice, this list of conditions and the following
 //    disclaimer in the documentation and/or other materials
 //    provided with the distribution.
-// 
+//
 // 3. All advertising materials mentioning features or use of this
 //    software must display the following acknowledgement:
-// 
+//
 //    This product includes software developed by Morgan McColl.
-// 
+//
 // 4. Neither the name of the author nor the names of contributors
 //    may be used to endorse or promote products derived from this
 //    software without specific prior written permission.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 // "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
 // LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -36,23 +36,23 @@
 // LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 // NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-// 
+//
 // -----------------------------------------------------------------------
 // This program is free software; you can redistribute it and/or
 // modify it under the above terms or under the terms of the GNU
 // General Public License as published by the Free Software Foundation;
 // either version 2 of the License, or (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, see http://www.gnu.org/licenses/
 // or write to the Free Software Foundation, Inc., 51 Franklin Street,
 // Fifth Floor, Boston, MA  02110-1301, USA.
-// 
+//
 
 @testable import StringHelpers
 import XCTest
@@ -63,9 +63,9 @@ final class StringVHDLMethodsTests: XCTestCase {
     /// Test null block is correct.
     func testNullBlock() {
         let expected = """
-        when others =>
-            null;
-        """
+            when others =>
+                null;
+            """
         XCTAssertEqual(String.nullBlock, expected)
     }
 
@@ -77,15 +77,15 @@ final class StringVHDLMethodsTests: XCTestCase {
     /// Test withoutComments removes comments.
     func testWithoutComments() {
         let data = """
-        signal x: std_logic; -- Signal x.
-        -- signal y
-        signal y: std_logic := '0';
-        -- end
-        """
+            signal x: std_logic; -- Signal x.
+            -- signal y
+            signal y: std_logic := '0';
+            -- end
+            """
         let expected = """
-        signal x: std_logic;
-        signal y: std_logic := '0';
-        """
+            signal x: std_logic;
+            signal y: std_logic := '0';
+            """
         let result = data.withoutComments
         XCTAssertEqual(result, expected)
     }
@@ -128,16 +128,16 @@ final class StringVHDLMethodsTests: XCTestCase {
     func testWithoutEmptyLines() {
         let data = """
 
-        a
+            a
 
-        b
+            b
 
-        c
+            c
 
 
-        d
+            d
 
-        """
+            """
         let expected = "a\nb\nc\nd"
         XCTAssertEqual(data.withoutEmptyLines, expected)
     }
@@ -146,18 +146,18 @@ final class StringVHDLMethodsTests: XCTestCase {
     func testIndent() {
         let data = "a\nb\nc\nd"
         let expected = """
-        \(String.tab)a
-        \(String.tab)b
-        \(String.tab)c
-        \(String.tab)d
-        """
+            \(String.tab)a
+            \(String.tab)b
+            \(String.tab)c
+            \(String.tab)d
+            """
         XCTAssertEqual(data.indent(amount: 1), expected)
         let expected2 = """
-        \(String(repeating: String.tab, count: 2))a
-        \(String(repeating: String.tab, count: 2))b
-        \(String(repeating: String.tab, count: 2))c
-        \(String(repeating: String.tab, count: 2))d
-        """
+            \(String(repeating: String.tab, count: 2))a
+            \(String(repeating: String.tab, count: 2))b
+            \(String(repeating: String.tab, count: 2))c
+            \(String(repeating: String.tab, count: 2))d
+            """
         XCTAssertEqual(data.indent(amount: 2), expected2)
         XCTAssertEqual(data.indent(amount: 0), data)
         XCTAssertEqual(data.indent(amount: -1), data)
@@ -270,7 +270,7 @@ final class StringVHDLMethodsTests: XCTestCase {
         let data = "a(b(c)d)e(fg)"
         let expected = [
             data[data.index(data.startIndex, offsetBy: 1)...data.index(data.startIndex, offsetBy: 7)],
-            data[data.index(data.startIndex, offsetBy: 9)...data.index(data.startIndex, offsetBy: 12)]
+            data[data.index(data.startIndex, offsetBy: 9)...data.index(data.startIndex, offsetBy: 12)],
         ]
         XCTAssertEqual(data.subExpressions, expected)
     }
@@ -315,31 +315,31 @@ final class StringVHDLMethodsTests: XCTestCase {
     /// Test `subExpression`.
     func testSubExpression() {
         let raw = """
-        x <= '1';
-        if (x = y) then
-            x <= y;
-            if (x = '1') then
+            x <= '1';
+            if (x = y) then
+                x <= y;
+                if (x = '1') then
+                    x <= '0';
+                end if;
+            elsif (x /= y) then
+                y <= x;
+            else
                 x <= '0';
             end if;
-        elsif (x /= y) then
-            y <= x;
-        else
-            x <= '0';
-        end if;
-        x <= '1';
-        """
+            x <= '1';
+            """
         let expected = """
-        if (x = y) then
-            x <= y;
-            if (x = '1') then
+            if (x = y) then
+                x <= y;
+                if (x = '1') then
+                    x <= '0';
+                end if;
+            elsif (x /= y) then
+                y <= x;
+            else
                 x <= '0';
             end if;
-        elsif (x /= y) then
-            y <= x;
-        else
-            x <= '0';
-        end if;
-        """
+            """
         guard let subExpression = raw.subExpression(beginningWith: ["if"], endingWith: ["end", "if;"]) else {
             XCTFail("Failed to get sub expression.")
             return
@@ -350,7 +350,8 @@ final class StringVHDLMethodsTests: XCTestCase {
     /// Test process expression.
     func testSubExpression2() {
         // swiftlint:disable:next line_length
-        let raw = "process (clk)\nbegin\nif (rising_edge(clk)) then\nx <= y;\nend if;\nend process;\nx <= y;\nx <= y;"
+        let raw =
+            "process (clk)\nbegin\nif (rising_edge(clk)) then\nx <= y;\nend if;\nend process;\nx <= y;\nx <= y;"
         let expected = "process (clk)\nbegin\nif (rising_edge(clk)) then\nx <= y;\nend if;\nend process;"
         guard
             let expression = raw.subExpression(beginningWith: ["process"], endingWith: ["end", "process;"])

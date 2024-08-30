@@ -1,6 +1,6 @@
 //
 //  File.swift
-//  
+//
 //
 //  Created by Morgan McColl on 14/4/21.
 //
@@ -53,7 +53,11 @@ public struct PortSignal: ExternalType, RawRepresentable, Codable, Hashable, Sen
         comment: Comment? = nil
     ) {
         self.init(
-            type: .signal(type: type), name: name, mode: mode, defaultValue: defaultValue, comment: comment
+            type: .signal(type: type),
+            name: name,
+            mode: mode,
+            defaultValue: defaultValue,
+            comment: comment
         )
     }
 
@@ -66,7 +70,11 @@ public struct PortSignal: ExternalType, RawRepresentable, Codable, Hashable, Sen
     ///   - comment: The comment of the signal.
     @inlinable
     public init(
-        type: Type, name: VariableName, mode: Mode, defaultValue: Expression? = nil, comment: Comment? = nil
+        type: Type,
+        name: VariableName,
+        mode: Mode,
+        defaultValue: Expression? = nil,
+        comment: Comment? = nil
     ) {
         self.type = type
         self.name = name
@@ -117,7 +125,9 @@ public struct PortSignal: ExternalType, RawRepresentable, Codable, Hashable, Sen
         else {
             return nil
         }
-        let defaultValue = assignmentComponents.count == 2 ? Expression(rawValue: assignmentComponents[1])
+        let defaultValue =
+            assignmentComponents.count == 2
+            ? Expression(rawValue: assignmentComponents[1])
             : nil
         self.name = name
         self.type = type

@@ -1,6 +1,6 @@
 //
 //  File.swift
-//  
+//
 //
 //  Created by Morgan McColl on 14/4/21.
 //
@@ -43,7 +43,10 @@ public struct LocalSignal: RawRepresentable, Codable, Equatable, Hashable, Senda
     /// if this is not the case.
     @inlinable
     public init(
-        type: Type, name: VariableName, defaultValue: Expression? = nil, comment: Comment? = nil
+        type: Type,
+        name: VariableName,
+        defaultValue: Expression? = nil,
+        comment: Comment? = nil
     ) {
         if let defaultValue = defaultValue, case .literal(let literal) = defaultValue {
             if case .signal(let type) = type {
@@ -68,7 +71,10 @@ public struct LocalSignal: RawRepresentable, Codable, Equatable, Hashable, Senda
     /// if this is not the case.
     @inlinable
     public init(
-        type: SignalType, name: VariableName, defaultValue: Expression? = nil, comment: Comment? = nil
+        type: SignalType,
+        name: VariableName,
+        defaultValue: Expression? = nil,
+        comment: Comment? = nil
     ) {
         self.init(type: .signal(type: type), name: name, defaultValue: defaultValue, comment: comment)
     }

@@ -1,30 +1,30 @@
 // String+indent.swift
 // Machines
-// 
+//
 // Created by Morgan McColl.
 // Copyright © 2023 Morgan McColl. All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions
 // are met:
-// 
+//
 // 1. Redistributions of source code must retain the above copyright
 //    notice, this list of conditions and the following disclaimer.
-// 
+//
 // 2. Redistributions in binary form must reproduce the above
 //    copyright notice, this list of conditions and the following
 //    disclaimer in the documentation and/or other materials
 //    provided with the distribution.
-// 
+//
 // 3. All advertising materials mentioning features or use of this
 //    software must display the following acknowledgement:
-// 
+//
 //    This product includes software developed by Morgan McColl.
-// 
+//
 // 4. Neither the name of the author nor the names of contributors
 //    may be used to endorse or promote products derived from this
 //    software without specific prior written permission.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 // "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
 // LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -36,23 +36,23 @@
 // LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 // NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-// 
+//
 // -----------------------------------------------------------------------
 // This program is free software; you can redistribute it and/or
 // modify it under the above terms or under the terms of the GNU
 // General Public License as published by the Free Software Foundation;
 // either version 2 of the License, or (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, see http://www.gnu.org/licenses/
 // or write to the Free Software Foundation, Inc., 51 Franklin Street,
 // Fifth Floor, Boston, MA  02110-1301, USA.
-// 
+//
 
 import Foundation
 
@@ -77,9 +77,11 @@ extension String {
         guard
             let components = self.trimmingCharacters(in: .whitespacesAndNewlines)
                 .split(
-                    on: .whitespacesAndNewlines.union(CharacterSet(charactersIn: "();")
-                        .union(.vhdlOperators)
-                        .union(.vhdlComparisonOperations))
+                    on: .whitespacesAndNewlines.union(
+                        CharacterSet(charactersIn: "();")
+                            .union(.vhdlOperators)
+                            .union(.vhdlComparisonOperations)
+                    )
                 )
         else {
             return nil
@@ -89,9 +91,11 @@ extension String {
 
     /// Get the last word in the string.
     @inlinable public var lastWord: String? {
-        let characters = CharacterSet.whitespacesAndNewlines.union(CharacterSet(charactersIn: "();")
-            .union(.vhdlOperators)
-            .union(.vhdlComparisonOperations))
+        let characters = CharacterSet.whitespacesAndNewlines.union(
+            CharacterSet(charactersIn: "();")
+                .union(.vhdlOperators)
+                .union(.vhdlComparisonOperations)
+        )
         guard
             let index = self.trimmingCharacters(in: .whitespacesAndNewlines).unicodeScalars
                 .lastIndex(where: { characters.contains($0) })
@@ -138,11 +142,11 @@ extension String {
     /// Remove all empty lines from the string.
     @inlinable public var withoutEmptyLines: String {
         self.components(separatedBy: .newlines).lazy
-        .map {
-            $0.trimmingCharacters(in: .whitespaces)
-        }
-        .filter { !$0.isEmpty }
-        .joined(separator: "\n")
+            .map {
+                $0.trimmingCharacters(in: .whitespaces)
+            }
+            .filter { !$0.isEmpty }
+            .joined(separator: "\n")
     }
 
     /// All the words in the string.
@@ -173,7 +177,8 @@ extension String {
     /// character of the last word.
     @inlinable
     public func indexes(
-        for sentence: [String], isCaseSensitive: Bool = true
+        for sentence: [String],
+        isCaseSensitive: Bool = true
     ) -> [(String.Index, String.Index)] {
         guard !self.isEmpty, !sentence.isEmpty else {
             return []
@@ -319,12 +324,14 @@ extension String {
             return nil
         }
         let subString = self[nextIndex...]
-        guard let nextWordIndex = subString.firstIndex(where: {
-            guard let scalar = $0.unicodeScalars.first else {
-                return false
-            }
-            return CharacterSet.whitespacesAndNewlines.contains(scalar)
-        }) else {
+        guard
+            let nextWordIndex = subString.firstIndex(where: {
+                guard let scalar = $0.unicodeScalars.first else {
+                    return false
+                }
+                return CharacterSet.whitespacesAndNewlines.contains(scalar)
+            })
+        else {
             return nil
         }
         let nextWordString = subString[nextWordIndex...]
@@ -433,12 +440,13 @@ extension String {
     /// - Returns: The substrings that start with `startWords` and end with `endWords`.
     @inlinable
     public func subExpression(
-        beginningWith startWords: [String], endingWith endWords: [String]
+        beginningWith startWords: [String],
+        endingWith endWords: [String]
     ) -> Substring? {
         let startIndexes = self.indexes(for: startWords)
         let endIndexes = self.indexes(for: endWords)
-        let allIndexes = startIndexes.map { ($0.0, $0.1, startWords) } +
-            endIndexes.map { ($0.0, $0.1, endWords) }
+        let allIndexes =
+            startIndexes.map { ($0.0, $0.1, startWords) } + endIndexes.map { ($0.0, $0.1, endWords) }
         let sortedIndexes = allIndexes.sorted { $0.0 < $1.0 }
         var tracker = 0
         var start: String.Index?
@@ -484,9 +492,11 @@ extension String {
         newString.removeSubrange(firstIndex..<endIndex)
         return performWithoutComments(
             for: String(newString[firstIndex...]),
-            carry: carry + String(
-                newString[newString.startIndex..<firstIndex]
-            ).trimmingCharacters(in: .whitespaces)
+            carry: carry
+                + String(
+                    newString[newString.startIndex..<firstIndex]
+                )
+                .trimmingCharacters(in: .whitespaces)
         )
     }
 
