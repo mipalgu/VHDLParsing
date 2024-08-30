@@ -116,7 +116,7 @@ final class ExpressionTests: XCTestCase {
         XCTAssertEqual(
             VHDLParsing.Expression.functionCall(
                 call: .custom(
-                    function: CustomFunctionCall(name: aname, arguments: [b])
+                    function: CustomFunctionCall(name: aname, parameters: [Argument(argument: b)])
                 )
             )
             .rawValue,
@@ -486,17 +486,21 @@ final class ExpressionTests: XCTestCase {
         )
     }
 
+    // swiftlint:disable function_body_length
+
     /// Test `init(rawValue:)` for function calls.
     func testFunctionCallInit() {
         let f = VariableName(text: "f")
         let g = VariableName(text: "g")
         XCTAssertEqual(
             VHDLParsing.Expression(rawValue: "f()"),
-            .functionCall(call: .custom(function: CustomFunctionCall(name: f, arguments: [])))
+            .functionCall(call: .custom(function: CustomFunctionCall(name: f, parameters: [])))
         )
         XCTAssertEqual(
             VHDLParsing.Expression(rawValue: "f(a, b, c, d)"),
-            .functionCall(call: .custom(function: CustomFunctionCall(name: f, arguments: [a, b, c, d])))
+            .functionCall(call: .custom(function: CustomFunctionCall(
+                name: f, parameters: [a, b, c, d].map { Argument(argument: $0) }
+            )))
         )
         XCTAssertEqual(
             VHDLParsing.Expression(rawValue: "(a + b) + f(c) - g(c * d)"),
@@ -506,13 +510,19 @@ final class ExpressionTests: XCTestCase {
                     rhs: .binary(
                         operation: .subtraction(
                             lhs: .functionCall(
-                                call: .custom(function: CustomFunctionCall(name: f, arguments: [c]))
+                                call: .custom(function: CustomFunctionCall(
+                                    name: f, parameters: [Argument(argument: c)]
+                                ))
                             ),
                             rhs: .functionCall(
                                 call: .custom(
                                     function: CustomFunctionCall(
                                         name: g,
-                                        arguments: [.binary(operation: .multiplication(lhs: c, rhs: d))]
+                                        parameters: [
+                                            Argument(
+                                                argument: .binary(operation: .multiplication(lhs: c, rhs: d))
+                                            )
+                                        ]
                                     )
                                 )
                             )
@@ -527,16 +537,20 @@ final class ExpressionTests: XCTestCase {
                 call: .custom(
                     function: CustomFunctionCall(
                         name: f,
-                        arguments: [
-                            .functionCall(
-                                call: .custom(function: CustomFunctionCall(name: g, arguments: [a]))
-                            )
+                        parameters: [
+                            Argument(argument: .functionCall(
+                                call: .custom(
+                                    function: CustomFunctionCall(name: g, parameters: [Argument(argument: a)])
+                                )
+                            ))
                         ]
                     )
                 )
             )
         )
     }
+
+    // swiftlint:enable function_body_length
 
     /// Tests that `isValidOtherValue` correctly identifies valid other values.
     func testIsValidOtherValue() {
@@ -553,7 +567,7 @@ final class ExpressionTests: XCTestCase {
         )
         XCTAssertTrue(
             VHDLParsing.Expression.functionCall(
-                call: .custom(function: CustomFunctionCall(name: VariableName(text: "a"), arguments: []))
+                call: .custom(function: CustomFunctionCall(name: VariableName(text: "a"), parameters: []))
             )
             .isValidOtherValue
         )
