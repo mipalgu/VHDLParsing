@@ -111,8 +111,7 @@ public enum Statement: RawRepresentable, Equatable, Hashable, Codable, Sendable 
             trimmedString.count >= 5,
             trimmedString[
                 trimmedString.startIndex..<trimmedString.index(trimmedString.startIndex, offsetBy: 4)
-            ].lowercased() == "null"
-        {
+            ].lowercased() == "null" {
             guard trimmedString.dropFirst(4).trimmingCharacters(in: .whitespacesAndNewlines) == ";" else {
                 return nil
             }
@@ -138,8 +137,7 @@ public enum Statement: RawRepresentable, Equatable, Hashable, Codable, Sendable 
         }
         if
             trimmedString.hasSuffix(";"),
-            trimmedString.dropLast().trimmingCharacters(in: .whitespacesAndNewlines).lowercased() == "exit"
-        {
+            trimmedString.dropLast().trimmingCharacters(in: .whitespacesAndNewlines).lowercased() == "exit" {
             self = .exit
             return
         }

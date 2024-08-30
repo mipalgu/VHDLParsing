@@ -138,8 +138,7 @@ indirect public enum SynchronousBlock: RawRepresentable, Equatable, Hashable, Co
             // Check for single semicolon.
             if
                 trimmedString.firstIndex(of: ";") == trimmedString.lastIndex(of: ";"),
-                trimmedString.hasSuffix(";")
-            {
+                trimmedString.hasSuffix(";") {
                 guard
                     let statement = Statement(rawValue: trimmedString),
                     let newBlock = SynchronousBlock(carry: carry + [.statement(statement: statement)])
@@ -174,8 +173,7 @@ indirect public enum SynchronousBlock: RawRepresentable, Equatable, Hashable, Co
     ) where T: RawRepresentable, T.RawValue == String {
         if
             let type = T(rawValue: trimmedString),
-            let newBlock = SynchronousBlock(carry: carry + [blockCreator(type)])
-        {
+            let newBlock = SynchronousBlock(carry: carry + [blockCreator(type)]) {
             self = newBlock
             return
         }
