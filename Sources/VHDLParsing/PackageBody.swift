@@ -57,9 +57,10 @@
 import Foundation
 import StringHelpers
 
-/// A package body implementation. This type represents a `package body` block in `VHDL` and represents an
-/// implementation of a pre-defined ``VHDLPackage``.
+/// A package body implementation.
 ///
+/// This type represents a `package body` block in `VHDL` and represents an implementation of a pre-defined
+/// ``VHDLPackage``.
 /// - SeeAlso: ``VHDLPackage``.
 public struct PackageBody: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 

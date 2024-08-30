@@ -57,7 +57,9 @@
 import Foundation
 import StringHelpers
 
-/// An operation that maps 2 generics together. This operation is used in generic maps for components.
+/// An operation that maps 2 generics together.
+///
+/// This operation is used in generic maps for components.
 public struct GenericVariableMap: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
     /// The left-hand side generic to map.

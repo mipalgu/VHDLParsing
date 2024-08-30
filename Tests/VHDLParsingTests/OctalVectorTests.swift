@@ -73,7 +73,7 @@ final class OctalVectorTests: XCTestCase {
         XCTAssertEqual(vector.rawValue, "o\"123\"")
     }
 
-    /// Test `VHDL` is parsed correctly in `init(rawValue:)`
+    /// Test `VHDL` is parsed correctly in `init(rawValue:)`.
     func testRawValueInit() {
         XCTAssertEqual(OctalVector(rawValue: "o\"123\""), vector)
         XCTAssertEqual(OctalVector(rawValue: "o\"123\" "), vector)

@@ -57,8 +57,9 @@
 import Foundation
 import StringHelpers
 
-/// A struct representing a package definition in `VHDL`. This struct does not represent the body definition,
-/// i.e. using `package body <name> is` in `VHDL`.
+/// A struct representing a package definition in `VHDL`.
+///
+/// This struct does not represent the body definition, i.e. using `package body <name> is` in `VHDL`.
 public struct VHDLPackage: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
     /// The name of the package.
@@ -145,8 +146,10 @@ public struct VHDLPackage: RawRepresentable, Equatable, Hashable, Codable, Senda
     }
 
     /// Creates a new `VHDLPackage` with the given name, data yet to be parsed, and an accumulator of data
-    /// that has already been parsed. This initialiser assumes that the data is in the form of a block, i.e.
-    /// the data contains subexpressions that also contain semicolons at the end.
+    /// that has already been parsed.
+    ///
+    /// This initialiser assumes that the data is in the form of a block, i.e. the data contains
+    /// subexpressions that also contain semicolons at the end.
     /// - Parameters:
     ///   - name: The name of the package.
     ///   - data: The data yet to be parsed.
@@ -181,7 +184,9 @@ public struct VHDLPackage: RawRepresentable, Equatable, Hashable, Codable, Senda
     }
 
     /// Creates a new `VHDLPackage` with the given name, data yet to be parsed, and an accumulator of data
-    /// that has already been parsed. This initialiser assumes that the data is in the form of a line, i.e.
+    /// that has already been parsed.
+    ///
+    /// This initialiser assumes that the data is in the form of a line, i.e.
     /// the data does not contain subexpressions. this initialiser assumes the a single semicolon terminates
     /// the first statement.
     /// - Parameters:

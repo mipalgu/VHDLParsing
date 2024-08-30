@@ -196,7 +196,7 @@ final class VHDLFileTests: XCTestCase {
         )
     ]
 
-    /// The package bodies
+    /// The package bodies.
     let bodies = [
         PackageBody(
             name: VariableName(text: "Package1"),
@@ -403,7 +403,7 @@ final class VHDLFileTests: XCTestCase {
 
     // swiftlint:enable function_body_length
 
-    /// Test multiple entities
+    /// Test multiple entities.
     func testMultipleEntities() {
         let raw = """
             entity TestEntity is
@@ -439,7 +439,7 @@ final class VHDLFileTests: XCTestCase {
         )
     }
 
-    /// Test multiple architectures
+    /// Test multiple architectures.
     func testMultipleArchitectures() {
         let raw = """
             architecture Behavioral of TestEntity is

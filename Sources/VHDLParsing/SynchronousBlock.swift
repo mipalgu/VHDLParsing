@@ -154,10 +154,11 @@ indirect public enum SynchronousBlock: RawRepresentable, Equatable, Hashable, Co
 
     // swiftlint:enable function_body_length
 
-    /// Initialise a `SynchronousBlock` from it's `VHDL` representation that also contains sub-blocks. This
-    /// initialiser tries to create a specific sub-block specified by the input parameters. If that sub-block
-    /// cannot be created, it will return `nil`. This initialiser only work for multi-statement sub-blocks
-    /// such as `if`, `case` and `for` blocks.
+    /// Initialise a `SynchronousBlock` from it's `VHDL` representation that also contains sub-blocks.
+    ///
+    /// This initialiser tries to create a specific sub-block specified by the input parameters. If that
+    /// sub-block cannot be created, it will return `nil`. This initialiser only work for multi-statement
+    /// sub-blocks such as `if`, `case` and `for` blocks.
     /// - Parameters:
     ///   - trimmedString: The remaining trimmed raw data yet to be parsed.
     ///   - blockCreator: A function that creates the sub-block in the raw data.

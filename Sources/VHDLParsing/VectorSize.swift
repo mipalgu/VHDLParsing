@@ -56,14 +56,19 @@
 
 import Foundation
 
-/// A type for representing VHDL vector sizes. This type is equivalent to the `range` of a VHDL vector type,
-/// e.g. *5 downto 3* or *3 to 5*.
+/// A type for representing VHDL vector sizes.
+///
+/// This type is equivalent to the `range` of a VHDL vector type, e.g. *5 downto 3* or *3 to 5*.
 public enum VectorSize: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
-    /// The `downto` case. This represents the range as an upper limit down to a lower limit.
+    /// The `downto` case.
+    ///
+    /// This represents the range as an upper limit down to a lower limit.
     case downto(upper: Expression, lower: Expression)
 
-    /// The `to` case. This represents the range as a lower limit to an upper limit.
+    /// The `to` case.
+    ///
+    /// This represents the range as a lower limit to an upper limit.
     case to(lower: Expression, upper: Expression)
 
     /// The raw value is a string.
@@ -112,7 +117,9 @@ public enum VectorSize: RawRepresentable, Equatable, Hashable, Codable, Sendable
         return maxValue - minValue + 1
     }
 
-    /// Initialse the type from a string. This will return `nil` if the string is not a valid VHDL range.
+    /// Initialse the type from a string.
+    ///
+    /// This will return `nil` if the string is not a valid VHDL range.
     /// - Parameter rawValue: The value to convert.
     @inlinable
     public init?(rawValue: String) {

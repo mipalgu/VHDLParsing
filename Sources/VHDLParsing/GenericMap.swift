@@ -57,7 +57,9 @@
 import Foundation
 import StringHelpers
 
-/// A `generic map` in `VHDL`. This is used to map generic variables to their values in a component.
+/// A `generic map` in `VHDL`.
+///
+/// This is used to map generic variables to their values in a component.
 public struct GenericMap: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
     /// The mapping of the generic variables.

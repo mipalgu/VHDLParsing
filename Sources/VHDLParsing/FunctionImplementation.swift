@@ -57,8 +57,9 @@
 import Foundation
 import StringHelpers
 
-/// A type that represents a function definition with a body. This type represents the case where the
-/// implementation of the function is provided.
+/// A type that represents a function definition with a body.
+///
+/// This type represents the case where the implementation of the function is provided.
 public struct FunctionImplementation: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
     /// The name of the function.
@@ -70,7 +71,9 @@ public struct FunctionImplementation: RawRepresentable, Equatable, Hashable, Cod
     /// The return type of the function.
     public let returnType: Type
 
-    /// The body of the function. This is the code enacted when the function is called.
+    /// The body of the function.
+    ///
+    /// This is the code enacted when the function is called.
     public let body: SynchronousBlock
 
     /// The `VHDL` code defining this function implementation.

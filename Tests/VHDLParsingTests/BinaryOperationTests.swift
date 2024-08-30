@@ -115,7 +115,7 @@ final class BinaryOperationTests: XCTestCase {
         )
     }
 
-    /// Test rawValue init for multiplication
+    /// Test rawValue init for multiplication.
     func testMultiplicationInit() {
         XCTAssertEqual(BinaryOperation(rawValue: "x * y"), BinaryOperation.multiplication(lhs: x, rhs: y))
         XCTAssertEqual(BinaryOperation(rawValue: " x * y "), BinaryOperation.multiplication(lhs: x, rhs: y))

@@ -57,8 +57,9 @@
 import Foundation
 import StringHelpers
 
-/// A ``ConditionalExpression`` that checks for the presence of a clocks edge. This type represents
-/// the `rising_edge` and `falling_edge` functions in `VHDL`.
+/// A ``ConditionalExpression`` that checks for the presence of a clocks edge.
+///
+/// This type represents the `rising_edge` and `falling_edge` functions in `VHDL`.
 public enum EdgeCondition: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
     /// A clocks falling edge.

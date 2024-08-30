@@ -57,8 +57,10 @@
 import Foundation
 import StringHelpers
 
-/// Valid VHDL variable names. This struct represents a valid VHDL variable name. It is impossible to create
-/// an invalid name using the public interface of this struct.
+/// Valid VHDL variable names.
+///
+/// This struct represents a valid VHDL variable name. It is impossible to create an invalid name using the
+/// public interface of this struct.
 public struct VariableName: RawRepresentable,
     CustomStringConvertible, Equatable, Hashable, Codable, Sendable, Comparable
 {
@@ -100,19 +102,25 @@ public struct VariableName: RawRepresentable,
         self.rawValue = trimmedName
     }
 
-    /// Comparison operator. Comparison of variable names is irrespective of case.
+    /// Comparison operator.
+    ///
+    /// Comparison of variable names is irrespective of case.
     @inlinable
     public static func < (lhs: VariableName, rhs: VariableName) -> Bool {
         lhs.rawValue.lowercased() < rhs.rawValue.lowercased()
     }
 
-    /// Equality operation. Equality of variable names is irrespective of case.
+    /// Equality operation.
+    ///
+    /// Equality of variable names is irrespective of case.
     @inlinable
     public static func == (lhs: VariableName, rhs: VariableName) -> Bool {
         lhs.rawValue.lowercased() == rhs.rawValue.lowercased()
     }
 
-    /// Hashable operation. Hashing of variable names is irrespective of case.
+    /// Hashable operation.
+    ///
+    /// Hashing of variable names is irrespective of case.
     @inlinable
     public func hash(into hasher: inout Hasher) {
         hasher.combine(self.rawValue.lowercased())

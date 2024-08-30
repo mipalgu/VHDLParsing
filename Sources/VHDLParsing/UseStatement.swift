@@ -65,7 +65,9 @@ import StringHelpers
 /// ```
 public struct UseStatement: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
-    /// Each component of the statement. This is the modules that are imported.
+    /// Each component of the statement.
+    ///
+    /// This is the modules that are imported.
     public let components: [IncludeComponent]
 
     /// The `VHDL` code representation of the statement.
@@ -73,8 +75,10 @@ public struct UseStatement: RawRepresentable, Equatable, Hashable, Codable, Send
         "use \(components.map(\.rawValue).joined(separator: "."));"
     }
 
-    /// Creates a new `UseStatement` from the given components. This initialiser first checks to make sure
-    /// that the components are valid for the statement. If they are not, then `nil` is returned.
+    /// Creates a new `UseStatement` from the given components.
+    ///
+    /// This initialiser first checks to make sure that the components are valid for the statement. If they
+    /// are not, then `nil` is returned.
     /// - Parameter components: The components of this statement.
     @inlinable
     public init?(nonEmptyComponents components: [IncludeComponent]) {

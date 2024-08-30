@@ -57,7 +57,9 @@
 import Foundation
 import StringHelpers
 
-/// A component instantiation in `VHDL`. This struct represents a component that is instantiated using a
+/// A component instantiation in `VHDL`.
+///
+/// This struct represents a component that is instantiated using a
 /// `port map` and optionally a `generic map`.
 public struct ComponentInstantiation: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 

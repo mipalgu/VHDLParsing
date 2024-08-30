@@ -57,16 +57,22 @@
 import Foundation
 import StringHelpers
 
-/// A structure for definine *synchronous* for loops. These are for loops that exist within a process block.
+/// A structure for definine *synchronous* for loops.
+///
+/// These are for loops that exist within a process block.
 public struct ForLoop: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
     /// The iteratore of the for loop.
     public let iterator: VariableName
 
-    /// The range of the for loop. These are the values that are iterated over.
+    /// The range of the for loop.
+    ///
+    /// These are the values that are iterated over.
     public let range: VectorSize
 
-    /// The body of the for loop. This is the code that is executed during each iteration.
+    /// The body of the for loop.
+    ///
+    /// This is the code that is executed during each iteration.
     public let body: SynchronousBlock
 
     /// The equivalent `VHDL` code.

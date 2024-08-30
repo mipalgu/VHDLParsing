@@ -69,7 +69,9 @@ public struct EnumerationDefinition: RawRepresentable, Equatable, Hashable, Coda
     /// The name of the enumeration type.
     public let name: VariableName
 
-    /// The valid values within the enumeration. This array will always contain at least 1 value.
+    /// The valid values within the enumeration.
+    ///
+    /// This array will always contain at least 1 value.
     public let values: [VariableName]
 
     /// The equivalent `VHDL` code defining this enumeration.

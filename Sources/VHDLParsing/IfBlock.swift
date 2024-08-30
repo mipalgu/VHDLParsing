@@ -57,14 +57,17 @@
 import Foundation
 import StringHelpers
 
-/// This type is used to represent an if-statement in `VHDL`. The if-statement may contain nested
-/// if-statements or `elsif` conditions.
+/// This type is used to represent an if-statement in `VHDL`.
+///
+/// The if-statement may contain nested if-statements or `elsif` conditions.
 public enum IfBlock: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
     /// An if-statement without an else block. E.g. `if <condition> then <code> end if;`
     case ifStatement(condition: Expression, ifBlock: SynchronousBlock)
 
-    /// An if-statement with an else block. E.g. `if <condition> then <code> else <other_code> end if;` This
+    /// An if-statement with an else block.
+    ///
+    /// E.g. `if <condition> then <code> else <other_code> end if;` This
     /// case can also represent `elsif` blocks by placing other if-statements inside the `elseBlock`
     /// parameter. E.g. `if <condition> then <code> elsif <other_condition> then <other_code> end if;` or
     /// `if <condition> then <code> elsif <other_condition> then <other_code> else <default_code> end if;`

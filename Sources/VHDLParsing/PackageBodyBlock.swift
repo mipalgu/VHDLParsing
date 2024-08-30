@@ -107,9 +107,10 @@ public indirect enum PackageBodyBlock: RawRepresentable, Equatable, Hashable, Co
         self.init(rawValue: rawValue, carry: [])
     }
 
-    /// Creates a new `PackageBodyBlock` from the a block of statements. This initialiser will check to see
-    /// if the blocks are valid first. You must have at least one block to be valid. A block with exactly one
-    /// statement will be returned as that statement.
+    /// Creates a new `PackageBodyBlock` from the a block of statements.
+    ///
+    /// This initialiser will check to see if the blocks are valid first. You must have at least one block to
+    /// be valid. A block with exactly one statement will be returned as that statement.
     /// - Parameter blocks: The blocks in this package body.
     @inlinable
     init?(blocks: [PackageBodyBlock]) {
@@ -154,8 +155,9 @@ public indirect enum PackageBodyBlock: RawRepresentable, Equatable, Hashable, Co
         }
     }
 
-    /// Creates a new `PackageBodyBlock` from the specified `VHDL` code with a carry accumulator. This
-    /// initialiser expectes the value to be a comment.
+    /// Creates a new `PackageBodyBlock` from the specified `VHDL` code with a carry accumulator.
+    ///
+    /// This initialiser expectes the value to be a comment.
     /// - Parameters:
     ///   - value: The `VHDL` code that has not been parsed yet.
     ///   - carry: The accumulator of parsed statements.
@@ -170,8 +172,9 @@ public indirect enum PackageBodyBlock: RawRepresentable, Equatable, Hashable, Co
         )
     }
 
-    /// Creates a new `PackageBodyBlock` from the specified `VHDL` code with a carry accumulator. This
-    /// initialiser expectes the value to be a constant.
+    /// Creates a new `PackageBodyBlock` from the specified `VHDL` code with a carry accumulator.
+    ///
+    /// This initialiser expectes the value to be a constant.
     /// - Parameters:
     ///   - value: The `VHDL` code that has not been parsed yet.
     ///   - carry: The accumulator of parsed statements.
@@ -186,8 +189,9 @@ public indirect enum PackageBodyBlock: RawRepresentable, Equatable, Hashable, Co
         self.init(rawValue: String(value.dropFirst(data.count)), carry: carry + [.constant(value: constant)])
     }
 
-    /// Creates a new `PackageBodyBlock` from the specified `VHDL` code with a carry accumulator. This
-    /// initialiser expectes the value to be a function.
+    /// Creates a new `PackageBodyBlock` from the specified `VHDL` code with a carry accumulator.
+    ///
+    /// This initialiser expectes the value to be a function.
     /// - Parameters:
     ///   - value: The `VHDL` code that has not been parsed yet.
     ///   - carry: The accumulator of parsed statements.
@@ -221,8 +225,9 @@ public indirect enum PackageBodyBlock: RawRepresentable, Equatable, Hashable, Co
         )
     }
 
-    /// Creates a new `PackageBodyBlock` from the specified `VHDL` code with a carry accumulator. This
-    /// initialiser expectes the value to be a function definition.
+    /// Creates a new `PackageBodyBlock` from the specified `VHDL` code with a carry accumulator.
+    ///
+    /// This initialiser expectes the value to be a function definition.
     /// - Parameters:
     ///   - value: The `VHDL` code that has not been parsed yet.
     ///   - carry: The accumulator of parsed statements.
@@ -241,8 +246,9 @@ public indirect enum PackageBodyBlock: RawRepresentable, Equatable, Hashable, Co
         return
     }
 
-    /// Creates a new `PackageBodyBlock` from the specified `VHDL` code with a carry accumulator. This
-    /// initialiser expectes the value to be an include.
+    /// Creates a new `PackageBodyBlock` from the specified `VHDL` code with a carry accumulator.
+    ///
+    /// This initialiser expectes the value to be an include.
     /// - Parameters:
     ///   - value: The `VHDL` code that has not been parsed yet.
     ///   - carry: The accumulator of parsed statements.
@@ -260,8 +266,9 @@ public indirect enum PackageBodyBlock: RawRepresentable, Equatable, Hashable, Co
         )
     }
 
-    /// Creates a new `PackageBodyBlock` from the specified `VHDL` code with a carry accumulator. This
-    /// initialiser expectes the value to be a type definition.
+    /// Creates a new `PackageBodyBlock` from the specified `VHDL` code with a carry accumulator.
+    ///
+    /// This initialiser expectes the value to be a type definition.
     /// - Parameters:
     ///   - value: The `VHDL` code that has not been parsed yet.
     ///   - carry: The accumulator of parsed statements.
@@ -291,8 +298,9 @@ public indirect enum PackageBodyBlock: RawRepresentable, Equatable, Hashable, Co
         )
     }
 
-    /// Creates a new `PackageBodyBlock` from the specified `VHDL` code with a carry accumulator. This
-    /// initialiser expectes the value to be a record.
+    /// Creates a new `PackageBodyBlock` from the specified `VHDL` code with a carry accumulator.
+    ///
+    /// This initialiser expectes the value to be a record.
     /// - Parameters:
     ///   - value: The `VHDL` code that has not been parsed yet.
     ///   - carry: The accumulator of parsed statements.

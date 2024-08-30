@@ -57,7 +57,7 @@
 @testable import VHDLParsing
 import XCTest
 
-/// Test class for ``SynchronousBlock``
+/// Test class for ``SynchronousBlock``.
 final class SynchronousBlockTests2: XCTestCase {
 
     /// A variable called x.

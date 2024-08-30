@@ -67,8 +67,9 @@ extension Set where Element == String {
         ">", "<", "<=", ">=", "=", "/=",
     ]
 
-    /// The `VHDL` reserved words not including the `VHDL` signal types. If you need both, then use
-    /// `Set<String>.vhdlAllReservedWords`.
+    /// The `VHDL` reserved words not including the `VHDL` signal types.
+    ///
+    /// If you need both, then use `Set<String>.vhdlAllReservedWords`.
     public static let vhdlReservedWords: Set<String> = [
         "abs", "access", "after", "alias", "all", "and", "architecture", "array",
         "assert", "attribute", "begin", "block", "body", "buffer", "bus", "case",

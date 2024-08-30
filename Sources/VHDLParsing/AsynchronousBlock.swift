@@ -57,7 +57,9 @@
 import Foundation
 import StringHelpers
 
-/// A block of code that exists within an architecture body. This code executes asynchronously.
+/// A block of code that exists within an architecture body.
+///
+/// This code executes asynchronously.
 indirect public enum AsynchronousBlock: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
     /// Many blocks of asynchronous code.

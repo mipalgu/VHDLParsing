@@ -447,7 +447,7 @@ final class AsynchronousBlockTests: XCTestCase {
         XCTAssertEqual(AsynchronousBlock(rawValue: raw), .generate(block: .forLoop(block: forLoop)))
     }
 
-    /// Test `generate` multiple
+    /// Test `generate` multiple.
     func testMultipleGenerate() {
         let raw = """
             y <= x;

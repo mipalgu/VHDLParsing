@@ -68,8 +68,9 @@ extension BitLiteral {
         }
     }
 
-    /// Helper function for `bitVersion(of:bitsRequired:)`. This function recurses on itself to produce the
-    /// binary representation.
+    /// Helper function for `bitVersion(of:bitsRequired:)`.
+    ///
+    /// This function recurses on itself to produce the binary representation.
     /// - Parameters:
     ///   - value: The positive number to convert to a binary representation.
     ///   - carry: The current representation recursing on itself.
@@ -94,8 +95,9 @@ extension BitLiteral {
         return performBitVersion(of: value - bitValue, carry: carry + [.high], bitPlace: bitPlace - 1)
     }
 
-    /// Represent a positive number as an array of bits. This representation is standard binary notation with
-    /// the largest bit at index 0 in the array.
+    /// Represent a positive number as an array of bits.
+    ///
+    /// This representation is standard binary notation with the largest bit at index 0 in the array.
     /// - Parameters:
     ///   - value: The number to convert to a binary representation.
     ///   - bitsRequired: The bit size of the number.

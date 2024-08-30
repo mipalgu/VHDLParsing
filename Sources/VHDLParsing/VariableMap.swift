@@ -57,8 +57,9 @@
 import Foundation
 import StringHelpers
 
-/// An operation that maps 2 signals together. This operation is used in generic maps or port maps for
-/// components.
+/// An operation that maps 2 signals together.
+///
+/// This operation is used in generic maps or port maps for components.
 public struct VariableMap: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
     /// The left-hand side signal to map.

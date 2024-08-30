@@ -54,14 +54,17 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 //
 
-/// A custom function call. This struct represents a call to a function that does not exist within the
-/// standard `VHDL` packages.
+/// A custom function call.
+///
+/// This struct represents a call to a function that does not exist within the standard `VHDL` packages.
 public struct CustomFunctionCall: FunctionCallable, Equatable, Hashable, Codable, Sendable {
 
     /// The name of the function being called.
     public let name: VariableName
 
-    /// The parameters into this function. This property may include the function labels as well.
+    /// The parameters into this function.
+    ///
+    /// This property may include the function labels as well.
     public let parameters: [Argument]
 
     /// The arguments passed to the function.

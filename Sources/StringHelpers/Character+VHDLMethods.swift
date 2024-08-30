@@ -59,8 +59,9 @@ import Foundation
 /// Add helper methods to `Character`.
 extension Character {
 
-    /// Whether this character represents whitespace. The whitespace characters are those include in
-    /// `CharacterSet.whitespacesAndNewlines`.
+    /// Whether this character represents whitespace.
+    ///
+    /// The whitespace characters are those include in `CharacterSet.whitespacesAndNewlines`.
     @usableFromInline var isWhitespace: Bool {
         let whitespaces = CharacterSet.whitespacesAndNewlines
         return self.unicodeScalars.allSatisfy { whitespaces.contains($0) }

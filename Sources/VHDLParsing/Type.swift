@@ -54,8 +54,9 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 //
 
-/// A type in `VHDL`. This enum represents pre-defined types (such as those defined in ``SignalType``) and
-/// user defined types.
+/// A type in `VHDL`.
+///
+/// This enum represents pre-defined types (such as those defined in ``SignalType``) and user defined types.
 public enum Type: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
     /// A user-defined type with name `name`.

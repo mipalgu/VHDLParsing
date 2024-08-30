@@ -58,7 +58,9 @@ import Foundation
 import StringHelpers
 
 /// A statement is a a full operation that contains expressions that resolve to some value or logic that is
-/// performed. A statement may be definitions, assignments to variables or comments.
+/// performed.
+///
+/// A statement may be definitions, assignments to variables or comments.
 public enum Statement: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
     /// Assigning a value to a variable that has been pre-defined, e.g. `a <= b + 1;`.

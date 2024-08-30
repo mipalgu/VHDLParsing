@@ -310,7 +310,7 @@ final class PackageBodyBlockTests: XCTestCase {
         XCTAssertEqual(PackageBodyBlock(rawValue: raw), .blocks(values: blocks))
     }
 
-    /// Test that long strings return nil
+    /// Test that long strings return nil.
     func testLongString() {
         let raw = "type \(String(repeating: "x", count: 8192)) is std_logic;"
         XCTAssertNil(PackageBodyBlock(rawValue: raw))

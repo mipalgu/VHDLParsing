@@ -60,14 +60,17 @@ import StringHelpers
 /// An architecture block in `VHDL`.
 public struct Architecture: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
-    /// The body of the architecture. This code exists after the `begin` keyword and before the `end` keyword.
+    /// The body of the architecture.
+    ///
+    /// This code exists after the `begin` keyword and before the `end` keyword.
     public let body: AsynchronousBlock
 
     /// The entity name.
     public let entity: VariableName
 
-    /// The head of the architecture. This code exists after the `architecture` definition and before the
-    /// `begin` keyword.
+    /// The head of the architecture.
+    ///
+    /// This code exists after the `architecture` definition and before the `begin` keyword.
     public let head: ArchitectureHead
 
     /// The name of the architecture.

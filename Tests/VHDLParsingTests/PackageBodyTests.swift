@@ -151,7 +151,7 @@ final class PackageBodyTests: XCTestCase {
         XCTAssertEqual(PackageBody(rawValue: rawFlattened), package)
     }
 
-    /// Test invalid raw values in `init(rawValue:)`
+    /// Test invalid raw values in `init(rawValue:)`.
     func testInvalidRawValueInit() {
         let raw6 = """
             package body PackageA is

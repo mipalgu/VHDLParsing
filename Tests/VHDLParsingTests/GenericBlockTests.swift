@@ -94,7 +94,7 @@ final class GenericBlockTests: XCTestCase {
         XCTAssertEqual(block.rawValue, expected)
     }
 
-    /// Test `init(rawValue:)`
+    /// Test `init(rawValue:)`.
     func testRawValueInit() {
         XCTAssertEqual(
             GenericBlock(rawValue: "generic(\n    x: std_logic := '0';\n    y: std_logic\n);"),

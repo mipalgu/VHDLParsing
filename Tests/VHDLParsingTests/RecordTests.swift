@@ -66,7 +66,7 @@ final class RecordTests: XCTestCase {
     /// A variable `x`.
     let x = VariableName(text: "x")
 
-    /// A variable `y`
+    /// A variable `y`.
     let y = VariableName(text: "y")
 
     /// The type of `x`.

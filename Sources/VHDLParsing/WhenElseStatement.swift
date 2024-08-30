@@ -60,10 +60,14 @@ import StringHelpers
 /// A type for representing asynchronous `when` statements with an `else` clause.
 public struct WhenElseStatement: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
-    /// The `else` clause of the `when` statement. This is the default value if the condition is not met.
+    /// The `else` clause of the `when` statement.
+    ///
+    /// This is the default value if the condition is not met.
     public let elseBlock: AsynchronousExpression
 
-    /// The condition of the `when` statement. This condition must be `true` for `value` to be assigned.
+    /// The condition of the `when` statement.
+    ///
+    /// This condition must be `true` for `value` to be assigned.
     public let condition: Expression
 
     /// The value to assign when the `condition` evaluates to `true`.

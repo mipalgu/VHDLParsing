@@ -105,8 +105,9 @@ extension String {
         return String(self[index...]).trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
-    /// Find all expressions within self that exist within a set of brackets. The substrings returned may also
-    /// contain substrings with brackets within them.
+    /// Find all expressions within self that exist within a set of brackets.
+    ///
+    /// The substrings returned may also contain substrings with brackets within them.
     @inlinable public var subExpressions: [Substring]? {
         var expressions: [Substring] = []
         var index = self.startIndex
@@ -310,8 +311,10 @@ extension String {
         return indexes
     }
 
-    /// Find the index of the next word in the string that occurs after the given index. If the given index
-    /// represents a non-whitespace character, then find the next word after the next whitespace character.
+    /// Find the index of the next word in the string that occurs after the given index.
+    ///
+    /// If the given index represents a non-whitespace character, then find the next word after the next
+    /// whitespace character.
     /// - Parameter index: The index to start searching from.
     /// - Returns: The next word or nil if no word exists.
     @usableFromInline
@@ -353,8 +356,9 @@ extension String {
         _ = self.remove(at: lastIndex)
     }
 
-    /// Split the string into 2 strings. The first string is the string up to the first character in the given
-    /// character set.
+    /// Split the string into 2 strings.
+    ///
+    /// The first string is the string up to the first character in the given character set.
     /// - Parameter characters: The characters to split on.
     /// - Returns: A tuple containing the 2 halves of the string and the character that was split on.
     @inlinable
@@ -432,8 +436,10 @@ extension String {
         return self[self.startIndex..<self.endIndex].startIndex(word: word)
     }
 
-    /// Find the substrings that start with a given sentence and end with a given sentence. This method also
-    /// returns the subexpressions as well, matching starting sentences with ending sentences.
+    /// Find the substrings that start with a given sentence and end with a given sentence.
+    ///
+    /// This method also returns the subexpressions as well, matching starting sentences with ending
+    /// sentences.
     /// - Parameters:
     ///   - startWords: The starting sentence.
     ///   - endWords: The ending sentence.
@@ -501,8 +507,10 @@ extension String {
     }
 
     /// Find a string that starts with a specified string and ends with a specified string including
-    /// substrings following the same pattern. For example, consider the string \"a(b(c)d)e\", starting with
-    /// \"(\" and ending with \")\". The result would be \"(b(c)d)\".
+    /// substrings following the same pattern.
+    ///
+    /// For example, consider the string \"a(b(c)d)e\", starting with \"(\" and ending with \")\". The result
+    /// would be \"(b(c)d)\".
     /// - Parameters:
     ///   - startsWith: The begining delimiter for the substring.
     ///   - endsWith: The ending delimiter for the substring.

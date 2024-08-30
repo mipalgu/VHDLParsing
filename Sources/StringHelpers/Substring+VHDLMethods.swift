@@ -59,8 +59,9 @@ import Foundation
 /// Add `startIndex`.
 extension Substring {
 
-    /// Return whether this substring represents a word in the base string. This property will check the
-    /// characters around the substring for whitespaces.
+    /// Return whether this substring represents a word in the base string.
+    ///
+    /// This property will check the characters around the substring for whitespaces.
     @usableFromInline var isWord: Bool {
         !self.isEmpty && !self.unicodeScalars.allSatisfy { CharacterSet.whitespacesAndNewlines.contains($0) }
             && (self.endIndex == self.base.endIndex
@@ -157,8 +158,10 @@ extension Substring {
     }
 
     /// Find a string that starts with a specified string and ends with a specified string including
-    /// substrings following the same pattern. For example, consider the string \"a(b(c)d)e\", starting with
-    /// \"(\" and ending with \")\". The result would be \"(b(c)d)\".
+    /// substrings following the same pattern.
+    ///
+    /// For example, consider the string \"a(b(c)d)e\", starting with \"(\" and ending with \")\". The result
+    /// would be \"(b(c)d)\".
     /// - Parameters:
     ///   - startsWith: The begining delimiter for the substring.
     ///   - endsWith: The ending delimiter for the substring.

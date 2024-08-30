@@ -63,7 +63,7 @@ final class PortBlockTests: XCTestCase {
     /// Variable named `x`.
     let x = VariableName(text: "x")
 
-    /// Variable named `y`
+    /// Variable named `y`.
     let y = VariableName(text: "y")
 
     /// Signal definition for `x`.

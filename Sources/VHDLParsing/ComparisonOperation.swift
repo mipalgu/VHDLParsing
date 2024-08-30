@@ -57,8 +57,9 @@
 import Foundation
 import StringHelpers
 
-/// A type for representing VHDL comparison operations. These operations exist within a
-/// ``ConditionalExpression``. The supported operations are:
+/// A type for representing VHDL comparison operations.
+///
+/// These operations exist within a ``ConditionalExpression``. The supported operations are:
 /// - Less than (operation <).
 /// - Less than or equal to (operation <=).
 /// - Greater than (operation >).
