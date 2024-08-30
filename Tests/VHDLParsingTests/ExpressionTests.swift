@@ -98,10 +98,12 @@ final class ExpressionTests: XCTestCase {
         XCTAssertEqual(a.rawValue, "a")
         XCTAssertEqual(VHDLParsing.Expression.binary(operation: .addition(lhs: a, rhs: b)).rawValue, "a + b")
         XCTAssertEqual(
-            VHDLParsing.Expression.binary(operation: .subtraction(lhs: a, rhs: b)).rawValue, "a - b"
+            VHDLParsing.Expression.binary(operation: .subtraction(lhs: a, rhs: b)).rawValue,
+            "a - b"
         )
         XCTAssertEqual(
-            VHDLParsing.Expression.binary(operation: .multiplication(lhs: a, rhs: b)).rawValue, "a * b"
+            VHDLParsing.Expression.binary(operation: .multiplication(lhs: a, rhs: b)).rawValue,
+            "a * b"
         )
         XCTAssertEqual(VHDLParsing.Expression.binary(operation: .division(lhs: a, rhs: b)).rawValue, "a / b")
         XCTAssertEqual(VHDLParsing.Expression.precedence(value: a).rawValue, "(a)")
@@ -111,15 +113,17 @@ final class ExpressionTests: XCTestCase {
         )
         XCTAssertEqual(VHDLParsing.Expression.logical(operation: .and(lhs: a, rhs: b)).rawValue, "a and b")
         XCTAssertEqual(
-            VHDLParsing.Expression.cast(operation: .real(expression: a)).rawValue, "real(a)"
+            VHDLParsing.Expression.cast(operation: .real(expression: a)).rawValue,
+            "real(a)"
         )
         XCTAssertEqual(
-            VHDLParsing.Expression.functionCall(
-                call: .custom(
-                    function: CustomFunctionCall(name: aname, parameters: [Argument(argument: b)])
+            VHDLParsing.Expression
+                .functionCall(
+                    call: .custom(
+                        function: CustomFunctionCall(name: aname, parameters: [Argument(argument: b)])
+                    )
                 )
-            )
-            .rawValue,
+                .rawValue,
             "a(b)"
         )
     }
@@ -436,7 +440,8 @@ final class ExpressionTests: XCTestCase {
     /// Test init for cast VHDLParsing.Expressions.
     func testCastInit() {
         XCTAssertEqual(
-            VHDLParsing.Expression(rawValue: "real(a)"), .cast(operation: .real(expression: a))
+            VHDLParsing.Expression(rawValue: "real(a)"),
+            .cast(operation: .real(expression: a))
         )
         XCTAssertEqual(
             VHDLParsing.Expression(rawValue: "(real(a))"),
@@ -498,9 +503,14 @@ final class ExpressionTests: XCTestCase {
         )
         XCTAssertEqual(
             VHDLParsing.Expression(rawValue: "f(a, b, c, d)"),
-            .functionCall(call: .custom(function: CustomFunctionCall(
-                name: f, parameters: [a, b, c, d].map { Argument(argument: $0) }
-            )))
+            .functionCall(
+                call: .custom(
+                    function: CustomFunctionCall(
+                        name: f,
+                        parameters: [a, b, c, d].map { Argument(argument: $0) }
+                    )
+                )
+            )
         )
         XCTAssertEqual(
             VHDLParsing.Expression(rawValue: "(a + b) + f(c) - g(c * d)"),
@@ -510,9 +520,12 @@ final class ExpressionTests: XCTestCase {
                     rhs: .binary(
                         operation: .subtraction(
                             lhs: .functionCall(
-                                call: .custom(function: CustomFunctionCall(
-                                    name: f, parameters: [Argument(argument: c)]
-                                ))
+                                call: .custom(
+                                    function: CustomFunctionCall(
+                                        name: f,
+                                        parameters: [Argument(argument: c)]
+                                    )
+                                )
                             ),
                             rhs: .functionCall(
                                 call: .custom(
@@ -538,11 +551,16 @@ final class ExpressionTests: XCTestCase {
                     function: CustomFunctionCall(
                         name: f,
                         parameters: [
-                            Argument(argument: .functionCall(
-                                call: .custom(
-                                    function: CustomFunctionCall(name: g, parameters: [Argument(argument: a)])
+                            Argument(
+                                argument: .functionCall(
+                                    call: .custom(
+                                        function: CustomFunctionCall(
+                                            name: g,
+                                            parameters: [Argument(argument: a)]
+                                        )
+                                    )
                                 )
-                            ))
+                            )
                         ]
                     )
                 )
@@ -566,10 +584,11 @@ final class ExpressionTests: XCTestCase {
                 .isValidOtherValue
         )
         XCTAssertTrue(
-            VHDLParsing.Expression.functionCall(
-                call: .custom(function: CustomFunctionCall(name: VariableName(text: "a"), parameters: []))
-            )
-            .isValidOtherValue
+            VHDLParsing.Expression
+                .functionCall(
+                    call: .custom(function: CustomFunctionCall(name: VariableName(text: "a"), parameters: []))
+                )
+                .isValidOtherValue
         )
         XCTAssertFalse(VHDLParsing.Expression.logical(operation: .and(lhs: a, rhs: b)).isValidOtherValue)
         XCTAssertTrue(VHDLParsing.Expression.literal(value: .bit(value: .low)).isValidOtherValue)
@@ -577,28 +596,31 @@ final class ExpressionTests: XCTestCase {
         XCTAssertFalse(VHDLParsing.Expression.literal(value: .boolean(value: false)).isValidOtherValue)
         XCTAssertTrue(VHDLParsing.Expression.precedence(value: a).isValidOtherValue)
         XCTAssertTrue(
-            VHDLParsing.Expression.reference(
-                variable: .variable(reference: .variable(name: VariableName(text: "a")))
-            )
-            .isValidOtherValue
+            VHDLParsing.Expression
+                .reference(
+                    variable: .variable(reference: .variable(name: VariableName(text: "a")))
+                )
+                .isValidOtherValue
         )
         XCTAssertFalse(
-            VHDLParsing.Expression.reference(
-                variable: .indexed(
-                    name: a,
-                    index: .range(value: .downto(upper: a, lower: b))
+            VHDLParsing.Expression
+                .reference(
+                    variable: .indexed(
+                        name: a,
+                        index: .range(value: .downto(upper: a, lower: b))
+                    )
                 )
-            )
-            .isValidOtherValue
+                .isValidOtherValue
         )
         XCTAssertTrue(
-            VHDLParsing.Expression.reference(
-                variable: .indexed(
-                    name: a,
-                    index: .index(value: a)
+            VHDLParsing.Expression
+                .reference(
+                    variable: .indexed(
+                        name: a,
+                        index: .index(value: a)
+                    )
                 )
-            )
-            .isValidOtherValue
+                .isValidOtherValue
         )
     }
 

@@ -83,9 +83,12 @@ final class FunctionCallTests: XCTestCase {
         XCTAssertEqual(FunctionCall(rawValue: "ceil(x)"), .mathReal(function: .ceil(expression: x)))
         XCTAssertEqual(
             FunctionCall(rawValue: "f(x)"),
-            .custom(function: CustomFunctionCall(
-                name: VariableName(text: "f"), parameters: [Argument(argument: x)]
-            ))
+            .custom(
+                function: CustomFunctionCall(
+                    name: VariableName(text: "f"),
+                    parameters: [Argument(argument: x)]
+                )
+            )
         )
         XCTAssertNil(FunctionCall(rawValue: "f(\(String(repeating: "x", count: 256)))"))
         XCTAssertNil(FunctionCall(rawValue: "2f(x)"))

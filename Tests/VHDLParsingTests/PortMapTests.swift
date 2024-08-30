@@ -73,7 +73,7 @@ final class PortMapTests: XCTestCase {
     lazy var map = PortMap(
         variables: [
             VariableMap(lhs: x, rhs: .expression(value: .reference(variable: z))),
-            VariableMap(lhs: y, rhs: .open)
+            VariableMap(lhs: y, rhs: .open),
         ]
     )
 
@@ -82,7 +82,7 @@ final class PortMapTests: XCTestCase {
         map = PortMap(
             variables: [
                 VariableMap(lhs: x, rhs: .expression(value: .reference(variable: z))),
-                VariableMap(lhs: y, rhs: .open)
+                VariableMap(lhs: y, rhs: .open),
             ]
         )
     }
@@ -93,7 +93,7 @@ final class PortMapTests: XCTestCase {
             map.variables,
             [
                 VariableMap(lhs: x, rhs: .expression(value: .reference(variable: z))),
-                VariableMap(lhs: y, rhs: .open)
+                VariableMap(lhs: y, rhs: .open),
             ]
         )
     }

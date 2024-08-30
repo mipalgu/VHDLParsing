@@ -77,7 +77,8 @@ final class VariableAssignmentTests: XCTestCase {
         XCTAssertEqual(assignment.rawValue, "x")
         XCTAssertEqual(VariableAssignment.open.rawValue, "open")
         XCTAssertEqual(
-            VariableAssignment.expression(value: .literal(value: .integer(value: 5))).rawValue, "5"
+            VariableAssignment.expression(value: .literal(value: .integer(value: 5))).rawValue,
+            "5"
         )
     }
 
@@ -90,7 +91,8 @@ final class VariableAssignmentTests: XCTestCase {
         XCTAssertEqual(VariableAssignment(rawValue: " open "), VariableAssignment.open)
         XCTAssertEqual(VariableAssignment(rawValue: "OPEN"), VariableAssignment.open)
         XCTAssertEqual(
-            VariableAssignment(rawValue: "5"), .expression(value: .literal(value: .integer(value: 5)))
+            VariableAssignment(rawValue: "5"),
+            .expression(value: .literal(value: .integer(value: 5)))
         )
         XCTAssertNil(VariableAssignment(rawValue: ""))
         XCTAssertNil(VariableAssignment(rawValue: "2x"))

@@ -64,14 +64,18 @@ final class CustomFunctionCallTests: XCTestCase {
     let f = VariableName(text: "f")
 
     /// A variable `x`.
-    let x = VHDLParsing.Expression.reference(variable: .variable(
-        reference: .variable(name: VariableName(text: "x"))
-    ))
+    let x = VHDLParsing.Expression.reference(
+        variable: .variable(
+            reference: .variable(name: VariableName(text: "x"))
+        )
+    )
 
     /// A variable `y`.
-    let y = VHDLParsing.Expression.reference(variable: .variable(
-        reference: .variable(name: VariableName(text: "y"))
-    ))
+    let y = VHDLParsing.Expression.reference(
+        variable: .variable(
+            reference: .variable(name: VariableName(text: "y"))
+        )
+    )
 
     /// The function arguments.
     var arguments: [VHDLParsing.Expression] {
