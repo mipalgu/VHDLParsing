@@ -119,7 +119,7 @@ final class FunctionImplementationTests: XCTestCase {
 
     /// The implementation of the function.
     var implementation: FunctionImplementation {
-        FunctionImplementation(name: fnName, arguments: arguments, returnTube: returnType, body: body)
+        FunctionImplementation(name: fnName, arguments: arguments, returnType: returnType, body: body)
     }
 
     /// Test that the stored properties are initialised correctly.

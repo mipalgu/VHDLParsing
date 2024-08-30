@@ -216,7 +216,9 @@ final class AsynchronousBlockTests: XCTestCase {
                 port: PortMap(variables: [
                     VariableMap(
                         lhs: .variable(reference: .variable(name: x)),
-                        rhs: .reference(variable: .variable(reference: .variable(name: y)))
+                        rhs: .expression(
+                            value: .reference(variable: .variable(reference: .variable(name: y)))
+                        )
                     ),
                     VariableMap(
                         lhs: .variable(reference: .variable(name: VariableName(text: "z"))),
@@ -256,7 +258,9 @@ final class AsynchronousBlockTests: XCTestCase {
                 port: PortMap(variables: [
                     VariableMap(
                         lhs: .variable(reference: .variable(name: x)),
-                        rhs: .reference(variable: .variable(reference: .variable(name: y)))
+                        rhs: .expression(
+                            value: .reference(variable: .variable(reference: .variable(name: y)))
+                        )
                     ),
                     VariableMap(
                         lhs: .variable(reference: .variable(name: VariableName(text: "z"))),
