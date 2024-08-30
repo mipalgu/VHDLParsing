@@ -130,6 +130,8 @@ final class DefinitionTests: XCTestCase {
         )
     }
 
+    // swiftlint:disable function_body_length
+
     /// Test `init(rawValue:)` parses `VHDL` code correctly for signals definitions.
     func testSignalRawValueInit() {
         let signal = LocalSignal(
@@ -186,6 +188,8 @@ final class DefinitionTests: XCTestCase {
         XCTAssertNil(Definition(rawValue: "signal x: std_logic := '1'; -- signal x.\n --"))
         XCTAssertNil(Definition(rawValue: "-- signal x: std_logic\n := '1';"))
     }
+
+    // swiftlint:enable function_body_length
 
     /// Test component raw value init.
     func testComponentRawValueInit() {

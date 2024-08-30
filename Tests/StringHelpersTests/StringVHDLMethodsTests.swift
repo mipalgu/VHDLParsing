@@ -350,8 +350,9 @@ final class StringVHDLMethodsTests: XCTestCase {
     /// Test process expression.
     func testSubExpression2() {
         // swiftlint:disable:next line_length
-        let raw =
-            "process (clk)\nbegin\nif (rising_edge(clk)) then\nx <= y;\nend if;\nend process;\nx <= y;\nx <= y;"
+        let raw = """
+            process (clk)\nbegin\nif (rising_edge(clk)) then\nx <= y;\nend if;\nend process;\nx <= y;\nx <= y;
+            """
         let expected = "process (clk)\nbegin\nif (rising_edge(clk)) then\nx <= y;\nend if;\nend process;"
         guard
             let expression = raw.subExpression(beginningWith: ["process"], endingWith: ["end", "process;"])

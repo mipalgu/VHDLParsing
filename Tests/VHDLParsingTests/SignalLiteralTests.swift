@@ -57,6 +57,7 @@
 @testable import VHDLParsing
 import XCTest
 
+// swiftlint:disable file_length
 // swiftlint:disable type_body_length
 
 /// Test class for ``SignalLiteral``.
@@ -234,6 +235,8 @@ final class SignalLiteralTests: XCTestCase {
         )
     }
 
+    // swiftlint:disable function_body_length
+
     /// Test isValid function returns correct result for integer types.
     func testIsValidIntegers() {
         XCTAssertFalse(SignalLiteral.integer(value: -12).isValid(for: .natural))
@@ -326,8 +329,6 @@ final class SignalLiteralTests: XCTestCase {
                 )
         )
     }
-
-    // swiftlint:disable function_body_length
 
     /// Test isValid function returns correct result for vector types.
     func testIsValidVectors() {
@@ -472,8 +473,6 @@ final class SignalLiteralTests: XCTestCase {
         )
     }
 
-    // swiftlint:enable function_body_length
-
     /// Test isValid function returns correct result for decimal types.
     func testIsValidDecimal() {
         XCTAssertTrue(SignalLiteral.decimal(value: 1.0).isValid(for: .real))
@@ -564,6 +563,8 @@ final class SignalLiteralTests: XCTestCase {
         XCTAssertTrue(SignalLiteral.integer(value: 5).isValid(for: .real))
     }
 
+    // swiftlint:enable function_body_length
+
     /// Test description returns rawValue.
     func testDescription() {
         let integer = SignalLiteral.integer(value: 12)
@@ -579,3 +580,4 @@ final class SignalLiteralTests: XCTestCase {
 }
 
 // swiftlint:enable type_body_length
+// swiftlint:enable file_length

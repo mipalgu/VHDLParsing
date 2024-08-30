@@ -250,6 +250,8 @@ final class SynchronousBlockTests2: XCTestCase {
         XCTAssertEqual(SynchronousBlock(rawValue: raw), expected)
     }
 
+    // swiftlint:disable function_body_length
+
     /// Test case raw value init.
     func testCaseRawValueInit() {
         let raw = """
@@ -308,6 +310,8 @@ final class SynchronousBlockTests2: XCTestCase {
         let expected = SynchronousBlock.blocks(blocks: blocks)
         XCTAssertEqual(SynchronousBlock(rawValue: raw2), expected)
     }
+
+    // swiftlint:enable function_body_length
 
     /// Test invalid case statement.
     func testInvalidCaseStatement() {

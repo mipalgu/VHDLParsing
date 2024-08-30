@@ -117,8 +117,9 @@ final class StringIndexesTests: XCTestCase {
     /// Test indexes for block with words previously found in string.
     func testIndexWordsBigText() {
         // swiftlint:disable:next line_length
-        let raw =
-            "process (clk)\nbegin\nif (rising_edge(clk)) then\nx <= y;\nend if;\nend process;\nx <= y;\nx <= y;"
+        let raw = """
+            process (clk)\nbegin\nif (rising_edge(clk)) then\nx <= y;\nend if;\nend process;\nx <= y;\nx <= y;
+            """
         let data = ["end", "process;"]
         let result = raw.indexes(for: data)
         guard result.count == 1 else {

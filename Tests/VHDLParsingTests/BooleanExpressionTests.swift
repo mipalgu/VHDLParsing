@@ -57,6 +57,8 @@
 @testable import VHDLParsing
 import XCTest
 
+// swiftlint:disable type_body_length
+
 /// Test class for ``BooleanExpression``.
 final class BooleanExpressionTests: XCTestCase {
 
@@ -333,6 +335,8 @@ final class BooleanExpressionTests: XCTestCase {
         )
     }
 
+    // swiftlint:disable function_body_length
+
     /// Test a large expression.
     func testBigConditional() {
         XCTAssertEqual(
@@ -428,4 +432,8 @@ final class BooleanExpressionTests: XCTestCase {
         )
     }
 
+    // swiftlint:enable function_body_length
+
 }
+
+// swiftlint:enable type_body_length

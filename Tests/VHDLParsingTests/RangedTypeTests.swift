@@ -247,6 +247,8 @@ final class RangedTypeTests: XCTestCase {
         XCTAssertNil(RangedType(rawValue: "std_logic_vector(5 downtwo 3"))
     }
 
+    // swiftlint:disable function_body_length
+
     /// Test size property.
     func testSize() {
         XCTAssertEqual(
@@ -310,6 +312,8 @@ final class RangedTypeTests: XCTestCase {
             .to(lower: .literal(value: .integer(value: 12)), upper: .literal(value: .integer(value: 15)))
         )
     }
+
+    // swiftlint:enable function_body_length
 
     /// Test description matches rawValue.
     func testDesciption() {

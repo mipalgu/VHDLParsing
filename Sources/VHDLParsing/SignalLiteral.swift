@@ -173,7 +173,8 @@ public enum SignalLiteral: RawRepresentable, Equatable, Hashable, Codable, Senda
             case .bitVector, .signed, .unsigned, .stdLogicVector, .stdULogicVector:
                 return .vector(
                     value: .indexed(
-                        values: IndexedVector(values: [IndexedValue(index: .others, value: .bit(value: .low))]
+                        values: IndexedVector(
+                            values: [IndexedValue(index: .others, value: .bit(value: .low))]
                         )
                     )
                 )

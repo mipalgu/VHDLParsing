@@ -135,6 +135,8 @@ final class LocalSignalTests: XCTestCase {
         XCTAssertEqual(self.signal.rawValue, "signal x: std_logic := '0';")
     }
 
+    // swiftlint:disable function_body_length
+
     /// Test the rawValue init creates the signal correctly.
     func testRawValueInit() {
         XCTAssertEqual(LocalSignal(rawValue: "signal x: std_logic := '1'; -- The signal x."), self.signal)
@@ -195,6 +197,8 @@ final class LocalSignalTests: XCTestCase {
             )
         )
     }
+
+    // swiftlint:enable function_body_length
 
     /// Test failing values for rawValue init.
     func testInvalidRawValueInit() {

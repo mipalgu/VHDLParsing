@@ -81,6 +81,8 @@ final class IndexedVectorTests: XCTestCase {
         XCTAssertEqual(literal.rawValue, "(3 => '1', others => '0')")
     }
 
+    // swiftlint:disable function_body_length
+
     /// Test that `init(rawValue:)` parses the `VHDL` code correctly.
     func testRawValueInit() {
         XCTAssertEqual(IndexedVector(rawValue: "(3 => '1', others => '0')"), literal)
@@ -138,6 +140,8 @@ final class IndexedVectorTests: XCTestCase {
         XCTAssertNil(IndexedVector(rawValue: " "))
         XCTAssertNil(IndexedVector(rawValue: "\n"))
     }
+
+    // swiftlint:enable function_body_length
 
     /// Test `init(rawValue:)` works for mixed types indexes.
     func testRawValueForMixedIndexes() {

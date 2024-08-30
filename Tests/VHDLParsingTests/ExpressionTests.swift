@@ -57,6 +57,7 @@
 @testable import VHDLParsing
 import XCTest
 
+// swiftlint:disable file_length
 // swiftlint:disable type_body_length
 
 /// Test class for ``Expression``.
@@ -116,6 +117,8 @@ final class ExpressionTests: XCTestCase {
             "a(b)"
         )
     }
+
+    // swiftlint:disable function_body_length
 
     /// Test init successfully creates `Expression` for simple statements.
     func testSimpleInit() {
@@ -193,6 +196,8 @@ final class ExpressionTests: XCTestCase {
             .conditional(condition: .comparison(value: .greaterThan(lhs: .precedence(value: a), rhs: b)))
         )
     }
+
+    // swiftlint:enable function_body_length
 
     /// Test invalid raw values return nil.
     func testInvalidRawValueInit() {
@@ -573,3 +578,4 @@ final class ExpressionTests: XCTestCase {
 }
 
 // swiftlint:enable type_body_length
+// swiftlint:enable file_length

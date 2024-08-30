@@ -57,6 +57,7 @@
 @testable import VHDLParsing
 import XCTest
 
+// swiftlint:disable file_length
 // swiftlint:disable type_body_length
 
 /// Test class for ``VHDLFile``.
@@ -547,3 +548,4 @@ final class VHDLFileTests: XCTestCase {
 }
 
 // swiftlint:enable type_body_length
+// swiftlint:enable file_length

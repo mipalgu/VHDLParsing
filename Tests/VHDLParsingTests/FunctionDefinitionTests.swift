@@ -100,6 +100,8 @@ final class FunctionDefinitionTests: XCTestCase {
         )
     }
 
+    // swiftlint:disable function_body_length
+
     /// Test the `init(rawValue:)` parses the `VHDL` code correctly.
     func testRawValueInit() {
         XCTAssertEqual(
@@ -177,5 +179,7 @@ final class FunctionDefinitionTests: XCTestCase {
             )
         )
     }
+
+    // swiftlint:enable function_body_length
 
 }

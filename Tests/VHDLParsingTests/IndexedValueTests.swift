@@ -102,6 +102,8 @@ final class IndexedValueTests: XCTestCase {
         )
     }
 
+    // swiftlint:disable function_body_length
+
     /// Test `init(rawValue:)` parses `VHDL` code correctly.
     func testRawValueInit() {
         XCTAssertEqual(IndexedValue(rawValue: "others => '1'"), value)
@@ -165,6 +167,8 @@ final class IndexedValueTests: XCTestCase {
             )
         )
     }
+
+    // swiftlint:enable function_body_length
 
     /// Test `init(rawValue:)` correctly detects invalid code.
     func testRawValueInitFails() {

@@ -57,6 +57,7 @@
 @testable import VHDLParsing
 import XCTest
 
+// swiftlint:disable file_length
 // swiftlint:disable type_body_length
 
 /// Test class for ``AsynchronousBlock``.
@@ -187,6 +188,8 @@ final class AsynchronousBlockTests: XCTestCase {
         XCTAssertEqual(AsynchronousBlock(rawValue: raw), .blocks(blocks: [block, block, block]))
     }
 
+    // swiftlint:disable function_body_length
+
     /// Test init works for multiple statements.
     func testMultipleRawValueInit() {
         let statement = Statement.assignment(name: .variable(reference: .variable(name: x)), value: varY)
@@ -241,6 +244,8 @@ final class AsynchronousBlockTests: XCTestCase {
         let result = AsynchronousBlock(rawValue: raw)
         XCTAssertEqual(result, expected)
     }
+
+    // swiftlint:enable function_body_length
 
     /// Test `init(rawValue:)` when raw value is a component.
     func testRawValueInitComponent() {
@@ -447,6 +452,8 @@ final class AsynchronousBlockTests: XCTestCase {
         XCTAssertEqual(AsynchronousBlock(rawValue: raw), .generate(block: .forLoop(block: forLoop)))
     }
 
+    // swiftlint:disable function_body_length
+
     /// Test `generate` multiple.
     func testMultipleGenerate() {
         let raw = """
@@ -524,6 +531,8 @@ final class AsynchronousBlockTests: XCTestCase {
         XCTAssertEqual(AsynchronousBlock(rawValue: raw2), .blocks(blocks: [yAssignment, forBlock]))
     }
 
+    // swiftlint:enable function_body_length
+
     /// Test invalid multiple generate statements.
     func testInvalidMultipleGenerate() {
         let raw = """
@@ -555,3 +564,4 @@ final class AsynchronousBlockTests: XCTestCase {
 }
 
 // swiftlint:enable type_body_length
+// swiftlint:enable file_length
