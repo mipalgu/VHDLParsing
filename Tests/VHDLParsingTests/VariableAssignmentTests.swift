@@ -64,19 +64,21 @@ final class VariableAssignmentTests: XCTestCase {
     let x = VariableReference.variable(reference: .variable(name: VariableName(text: "x")))
 
     /// The assignment under test.
-    lazy var assignment = VariableAssignment.reference(variable: x)
+    lazy var assignment = VariableAssignment.expression(value: .reference(variable: x))
 
     /// Initialise the assignment before every test.
     override func setUp() {
         super.setUp()
-        assignment = VariableAssignment.reference(variable: x)
+        assignment = VariableAssignment.expression(value: .reference(variable: x))
     }
 
     /// Test the `rawValue` creates the correct `VHDL` code.
     func testRawValue() {
         XCTAssertEqual(assignment.rawValue, "x")
         XCTAssertEqual(VariableAssignment.open.rawValue, "open")
-        XCTAssertEqual(VariableAssignment.literal(value: .integer(value: 5)).rawValue, "5")
+        XCTAssertEqual(
+            VariableAssignment.expression(value: .literal(value: .integer(value: 5))).rawValue, "5"
+        )
     }
 
     /// Test that `init(rawValue:)` parses the `VHDL` code correctly.
@@ -87,7 +89,9 @@ final class VariableAssignmentTests: XCTestCase {
         XCTAssertEqual(VariableAssignment(rawValue: "open "), VariableAssignment.open)
         XCTAssertEqual(VariableAssignment(rawValue: " open "), VariableAssignment.open)
         XCTAssertEqual(VariableAssignment(rawValue: "OPEN"), VariableAssignment.open)
-        XCTAssertEqual(VariableAssignment(rawValue: "5"), .literal(value: .integer(value: 5)))
+        XCTAssertEqual(
+            VariableAssignment(rawValue: "5"), .expression(value: .literal(value: .integer(value: 5)))
+        )
         XCTAssertNil(VariableAssignment(rawValue: ""))
         XCTAssertNil(VariableAssignment(rawValue: "2x"))
         XCTAssertNil(VariableAssignment(rawValue: "ope n"))

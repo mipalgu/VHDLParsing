@@ -111,7 +111,7 @@ final class PackageBodyBlockTests: XCTestCase {
                 ArgumentDefinition(name: VariableName(text: "x"), type: .signal(type: .real)),
                 ArgumentDefinition(name: VariableName(text: "y"), type: .signal(type: .real)),
             ],
-            returnTube: .signal(type: .real),
+            returnType: .signal(type: .real),
             body: .ifStatement(
                 block: .ifElse(
                     condition: .conditional(

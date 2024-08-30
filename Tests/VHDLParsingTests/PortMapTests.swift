@@ -71,13 +71,19 @@ final class PortMapTests: XCTestCase {
 
     /// The `PortMap` under test.
     lazy var map = PortMap(
-        variables: [VariableMap(lhs: x, rhs: .reference(variable: z)), VariableMap(lhs: y, rhs: .open)]
+        variables: [
+            VariableMap(lhs: x, rhs: .expression(value: .reference(variable: z))),
+            VariableMap(lhs: y, rhs: .open)
+        ]
     )
 
     /// Initialise the uut before every test case.
     override func setUp() {
         map = PortMap(
-            variables: [VariableMap(lhs: x, rhs: .reference(variable: z)), VariableMap(lhs: y, rhs: .open)]
+            variables: [
+                VariableMap(lhs: x, rhs: .expression(value: .reference(variable: z))),
+                VariableMap(lhs: y, rhs: .open)
+            ]
         )
     }
 
@@ -85,7 +91,10 @@ final class PortMapTests: XCTestCase {
     func testInit() {
         XCTAssertEqual(
             map.variables,
-            [VariableMap(lhs: x, rhs: .reference(variable: z)), VariableMap(lhs: y, rhs: .open)]
+            [
+                VariableMap(lhs: x, rhs: .expression(value: .reference(variable: z))),
+                VariableMap(lhs: y, rhs: .open)
+            ]
         )
     }
 

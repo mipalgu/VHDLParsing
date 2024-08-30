@@ -70,7 +70,9 @@ final class ComponentInstantiationTests: XCTestCase {
     let port = PortMap(variables: [
         VariableMap(
             lhs: .variable(reference: .variable(name: VariableName(text: "x"))),
-            rhs: .reference(variable: .variable(reference: .variable(name: VariableName(text: "z"))))
+            rhs: .expression(
+                value: .reference(variable: .variable(reference: .variable(name: VariableName(text: "z"))))
+            )
         ),
         VariableMap(lhs: .variable(reference: .variable(name: VariableName(text: "y"))), rhs: .open),
     ])
