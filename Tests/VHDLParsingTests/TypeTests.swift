@@ -66,18 +66,29 @@ final class TypeTests: XCTestCase {
     /// A variable `x`.
     let x = VariableName(text: "x")
 
+    /// A variable `y`.
+    let y = VariableName(text: "y")
+
+    /// A variable `z`.
+    let z = VariableName(text: "z")
+
     /// Test the `rawValue` generates the correct `VHDL` code.
     func testRawValue() {
         XCTAssertEqual(Type.alias(name: x).rawValue, "x")
         XCTAssertEqual(Type.signal(type: signal).rawValue, "std_logic")
+        XCTAssertEqual(Type.member(components: [x, y, z]).rawValue, "x.y.z")
     }
 
     /// Test `init(rawValue:)` returns the correct `Type`.
     func testRawValueInit() {
         XCTAssertEqual(Type(rawValue: "x"), .alias(name: x))
         XCTAssertEqual(Type(rawValue: "std_logic"), .signal(type: signal))
+        XCTAssertEqual(Type(rawValue: "x.y.z"), .member(components: [x, y, z]))
         XCTAssertNil(Type(rawValue: ""))
         XCTAssertNil(Type(rawValue: "2x"))
+        XCTAssertNil(Type(rawValue: "x.y.z."))
+        XCTAssertNil(Type(rawValue: "x . y. z"))
+        XCTAssertNil(Type(rawValue: "x.y z"))
     }
 
 }

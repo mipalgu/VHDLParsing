@@ -54,6 +54,8 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 //
 
+import Foundation
+
 /// A type in `VHDL`.
 ///
 /// This enum represents pre-defined types (such as those defined in ``SignalType``) and user defined types.
@@ -61,6 +63,9 @@ public enum Type: RawRepresentable, Equatable, Hashable, Codable, Sendable {
 
     /// A user-defined type with name `name`.
     case alias(name: VariableName)
+
+    /// A namespaced type existing within an external resource.
+    case member(components: [VariableName])
 
     /// A pre-defined type that exists within VHDL.
     case signal(type: SignalType)
@@ -70,6 +75,8 @@ public enum Type: RawRepresentable, Equatable, Hashable, Codable, Sendable {
         switch self {
         case .alias(let name):
             return name.rawValue
+        case .member(let components):
+            return components.map(\.rawValue).joined(separator: ".")
         case .signal(let type):
             return type.rawValue
         }
@@ -81,11 +88,25 @@ public enum Type: RawRepresentable, Equatable, Hashable, Codable, Sendable {
     public init?(rawValue: String) {
         if let signal = SignalType(rawValue: rawValue) {
             self = .signal(type: signal)
-        } else if let name = VariableName(rawValue: rawValue) {
+            return
+        }
+        if let name = VariableName(rawValue: rawValue) {
             self = .alias(name: name)
-        } else {
+            return
+        }
+        let components = rawValue.trimmingCharacters(in: .whitespacesAndNewlines).components(separatedBy: ".")
+        guard
+            components.allSatisfy({
+                $0.trimmingCharacters(in: .whitespacesAndNewlines).count == $0.count
+            })
+        else {
             return nil
         }
+        let names = components.compactMap(VariableName.init(rawValue:))
+        guard names.count == components.count else {
+            return nil
+        }
+        self = .member(components: names)
     }
 
 }
