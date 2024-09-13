@@ -95,9 +95,11 @@ public enum Type: RawRepresentable, Equatable, Hashable, Codable, Sendable {
             return
         }
         let components = rawValue.trimmingCharacters(in: .whitespacesAndNewlines).components(separatedBy: ".")
-        guard components.allSatisfy({
-            $0.trimmingCharacters(in: .whitespacesAndNewlines).count == $0.count
-        }) else {
+        guard
+            components.allSatisfy({
+                $0.trimmingCharacters(in: .whitespacesAndNewlines).count == $0.count
+            })
+        else {
             return nil
         }
         let names = components.compactMap(VariableName.init(rawValue:))
