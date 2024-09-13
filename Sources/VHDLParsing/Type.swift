@@ -64,6 +64,7 @@ public enum Type: RawRepresentable, Equatable, Hashable, Codable, Sendable {
     /// A user-defined type with name `name`.
     case alias(name: VariableName)
 
+    /// A namespaced type existing within an external resource.
     case member(components: [VariableName])
 
     /// A pre-defined type that exists within VHDL.
